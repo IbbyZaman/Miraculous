@@ -19,6 +19,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            scroll-behavior: smooth;
         }
 
         /* Navigation Bar */
@@ -30,6 +31,9 @@
             align-items: center;
             border-bottom: 2px solid #e50914; 
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         header h1 {
@@ -50,7 +54,7 @@
             transition: color 0.3s ease;
         }
 
-        nav a:hover {
+        nav a:hover, nav a.active {
             color: #e50914;
         }
 
@@ -63,7 +67,7 @@
             flex: 1;
         }
 
-        /* Premium Player Container Layout */
+        /* Video Player Layout */
         .video-player-container {
             background: linear-gradient(145deg, #1f2833, #151b22);
             border-radius: 12px;
@@ -89,7 +93,6 @@
             box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
         }
 
-        /* Support both native video elements and embedded iframes */
         .video-wrapper video, .video-wrapper iframe {
             position: absolute;
             top: 0;
@@ -99,7 +102,7 @@
             border: none;
         }
 
-        /* Upgraded Player Info Dashboard */
+        /* Player Dashboard Details */
         .player-dashboard {
             margin-top: 20px;
             display: flex;
@@ -141,10 +144,10 @@
             line-height: 1.5;
         }
 
-        /* Episode Directory Section */
+        /* Directories & Grids */
         .section-title {
             color: #e50914;
-            margin-bottom: 20px;
+            margin: 40px 0 20px 0;
             font-size: 22px;
             border-left: 4px solid #e50914;
             padding-left: 10px;
@@ -178,39 +181,52 @@
             box-shadow: 0 0 12px rgba(229, 9, 20, 0.2);
         }
 
-        .thumbnail-placeholder {
+        /* Rich Thumbnail Engine */
+        .thumbnail-box {
             width: 100%;
             height: 130px;
             background-color: #0b0c10;
+            background-size: cover;
+            background-position: center;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #e50914;
-            font-weight: bold;
-            font-size: 14px;
             position: relative;
             transition: background-color 0.2s;
         }
 
-        .episode-card.is-playing .thumbnail-placeholder {
-            background-color: #1f2833;
-            color: #fff;
+        /* Visual Dim Overlay on Thumbnails */
+        .thumbnail-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            transition: background 0.2s ease;
         }
 
-        .thumbnail-placeholder::after {
+        .episode-card:hover .thumbnail-box::before {
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        /* Play Arrow Hover Effects */
+        .thumbnail-box::after {
             content: '▶';
             position: absolute;
             font-size: 24px;
             opacity: 0;
             transition: opacity 0.2s ease;
             color: #fff;
+            z-index: 2;
         }
 
-        .episode-card:hover .thumbnail-placeholder::after {
-            opacity: 0.8;
+        .episode-card:hover .thumbnail-box::after {
+            opacity: 0.9;
         }
 
-        .episode-card.is-playing .thumbnail-placeholder::after {
+        .episode-card.is-playing .thumbnail-box::after {
             content: 'NOW PLAYING';
             font-size: 12px;
             opacity: 1;
@@ -225,6 +241,13 @@
 
         .episode-details {
             padding: 12px;
+            position: relative;
+            z-index: 3;
+            background-color: #1f2833;
+        }
+
+        .episode-card.is-playing .episode-details {
+            background-color: #283342;
         }
 
         .episode-number {
@@ -260,22 +283,19 @@
 </head>
 <body>
 
-    <!-- Header / Navbar -->
+    <!-- Header / Navbar Layout Navigation -->
     <header>
         <h1>MIRACULOUS<span>HUB</span></h1>
         <nav>
-            <a href="#">Home</a>
-            <a href="#">Season 6</a>
+            <a href="index.html" class="active">Season 6</a>
+            <a href="specials.html">Special Episodes</a>
         </nav>
     </header>
 
-    <!-- Main Content Container -->
     <div class="container">
-        
         <!-- Stream Player Container Dashboard -->
         <div class="video-player-container" id="player-container">
             <div class="video-wrapper" id="video-wrapper-target">
-                <!-- Starts with a standard video element placeholder -->
                 <video id="main-player" controls poster="https://via.placeholder.com/800x450/0b0c10/e50914?text=Select+an+Episode">
                     Your browser does not support the video tag.
                 </video>
@@ -285,27 +305,23 @@
                 <div class="player-status-badge" id="status-badge">No Episode Loaded</div>
                 <div class="video-info">
                     <h2 id="current-title">Select an Episode</h2>
-                    <p id="current-description">Choose a Season 6 episode from the grid directory below to begin streaming your video source.</p>
+                    <p id="current-description">Choose a Season 6 episode below to begin streaming.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Section Grid -->
+        <!-- Section: Season 6 Grid -->
         <h3 class="section-title">Season 6 Episodes</h3>
         <div class="episode-grid" id="grid-container">
-            <!-- Dynamic Injection Layout -->
+            <!-- Dynamic S6 Items Go Here -->
         </div>
     </div>
 
-    <!-- Footer -->
     <footer>
-        &copy; 2026 Miraculous Hub. For personal configuration layouts.
+        &copy; 2026 Miraculous Hub. For personal configurations.
     </footer>
 
-    <!-- Logic Engine -->
     <script>
-        // Note: I put your original sharing link back here. The engine handles the conversions!
-        // Complete Season 6 Episode Directory Data Array
         const episodeData = [
             { id: "601", title: "Climatiqueen", url: "https://drive.google.com/file/d/1db63TiKDiWF7oGi6MrKgYDD_HNg3CioL/view?usp=sharing" },
             { id: "602", title: "The Illustrhater", url: "https://drive.google.com/file/d/1hyXtlgy4-JI6K8z6k-E4Omaf5Ey5REmA/view?usp=sharing" },
@@ -330,38 +346,33 @@
             { id: "621", title: "The Chained Titans", url: "https://drive.google.com/file/d/1UX97vnAn3SO3UoHaF_c3I7qBhj7KtSSg/view?usp=sharing" },
             { id: "622", title: "Lady Chaos", url: "https://drive.google.com/file/d/1emg21AAGzWzM5BLfRU3epSmQTVitnwAM/view?usp=sharing" },
             { id: "623", title: "Sadnansi", url: "https://drive.google.com/file/d/1w8TT001takExw9I5nC6Iaa4B5yayBC8U/view?usp=sharing" },
-            { id: "624", title: "Queen Of The Dreadzone", url: "https://drive.google.com/file/d/13ZeKq781tHgNTcMhOlH6U9UC4d0ZS0y-/view?usp=sharing" },
-            { id: "625", title: "Secret Protocol", url: "" },
-            { id: "626", title: "Nemesis", url: "" }
+            { id: "624", title: "Queen Of The Dreadzone", url: "https://drive.google.com/file/d/13ZeKq781tHgNTcMhOlH6U9UC4d0ZS0y-/view?usp=sharing" }
         ];
+
         const gridContainer = document.getElementById('grid-container');
 
-        // Render Cards Automatically
-        episodeData.forEach((ep) => {
-            const card = document.createElement('div');
-            card.className = 'episode-card';
-            card.id = `card-${ep.id}`;
-            
-            card.innerHTML = `
-                <div class="thumbnail-placeholder">S6 E${ep.id.slice(1)}</div>
-                <div class="episode-details">
-                    <div class="episode-number">Episode ${ep.id}</div>
-                    <div class="episode-title">${ep.title}</div>
-                </div>
-            `;
-            
-            card.onclick = () => {
-                if(ep.url === "") {
-                    alert(`No streaming link added yet for Episode ${ep.id}: ${ep.title}`);
-                } else {
-                    changeVideo(ep.url, `Episode ${ep.id}: ${ep.title}`, ep.id);
-                }
-            };
-            
-            gridContainer.appendChild(card);
-        });
+        function buildGrid() {
+            episodeData.forEach((ep) => {
+                const card = document.createElement('div');
+                card.className = 'episode-card';
+                card.id = `card-${ep.id}`;
+                
+                // Generates dynamic path: e.g., thumbnails/601.jpg
+                const thumbnailUrl = `thumbnails/${ep.id}.jpg`;
+                
+                card.innerHTML = `
+                    <div class="thumbnail-box" style="background-image: url('${thumbnailUrl}');"></div>
+                    <div class="episode-details">
+                        <div class="episode-number">Episode ${ep.id}</div>
+                        <div class="episode-title">${ep.title}</div>
+                    </div>
+                `;
+                
+                card.onclick = () => changeVideo(ep.url, `Episode ${ep.id}: ${ep.title}`, ep.id);
+                gridContainer.appendChild(card);
+            });
+        }
 
-        // Handle Active Video Changes and Dynamic Player Styling
         function changeVideo(videoSrc, fullTitle, activeId) {
             const wrapper = document.getElementById('video-wrapper-target');
             const playerContainer = document.getElementById('player-container');
@@ -369,39 +380,25 @@
             const titleElement = document.getElementById('current-title');
             const descElement = document.getElementById('current-description');
 
-            // Update card UI active states
-            document.querySelectorAll('.episode-card').forEach(card => {
-                card.classList.remove('is-playing');
-            });
+            document.querySelectorAll('.episode-card').forEach(card => card.classList.remove('is-playing'));
             const activeCard = document.getElementById(`card-${activeId}`);
             if(activeCard) activeCard.classList.add('is-playing');
 
             playerContainer.classList.add('active-playing');
             statusBadge.textContent = "Now Streaming";
             titleElement.textContent = fullTitle;
-            descElement.textContent = "You are currently watching a Season 6 stream source. Switch episodes anytime using the layout directory below.";
+            descElement.textContent = "You are currently watching a streaming video source.";
 
-            // Dynamic Player Selector Strategy:
-            if (videoSrc.includes('drive.google.com')) {
-                // If it's a Google Drive link, rewrite it into an embed link and inject an iframe
-                let embedUrl = videoSrc.replace('/view?usp=sharing', '/preview').replace('/file/d/', '/file/d/');
-                if(!embedUrl.includes('/preview')) {
-                     // Backup formatting just in case
-                     embedUrl = embedUrl.split('/view')[0] + '/preview';
-                }
-                wrapper.innerHTML = `<iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-            } else {
-                // For direct .mp4 hosting providers, stick to the premium native HTML video player
-                wrapper.innerHTML = `
-                    <video id="main-player" controls autoplay>
-                        <source src="${videoSrc}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                `;
+            let embedUrl = videoSrc.replace('/view?usp=sharing', '/preview').replace('/file/d/', '/file/d/');
+            if(!embedUrl.includes('/preview')) {
+                 embedUrl = embedUrl.split('/view')[0] + '/preview';
             }
+            wrapper.innerHTML = `<iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+
+        buildGrid();
     </script>
 </body>
 </html>
