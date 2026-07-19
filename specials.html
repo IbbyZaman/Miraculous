@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miraculous Hub - Special Episodes</title>
+    <style>
+        /* Exact matching CSS styling framework */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0b0c10;
+            color: #c5c6c7;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+        }
+
+        header {
+            background-color: #1f2833;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e50914; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            color: #ffffff;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        header h1 span {
+            color: #e50914;
+        }
+
+        nav a {
+            color: #c5c6c7;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: #e50914;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .video-player-container {
+            background: linear-gradient(145deg, #1f2833, #151b22);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: border-color 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .video-player-container.active-playing {
+            border-color: rgba(229, 9, 20, 0.5);
+            box-shadow: 0 0 25px rgba(229, 9, 20, 0.2), 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            background: #000;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+        }
+
+        .video-wrapper iframe, .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .player-dashboard {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 18px;
+        }
+
+        .player-status-badge {
+            display: inline-block;
+            align-self: flex-start;
+            background-color: #1f2833;
+            color: #888;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-player-container.active-playing .player-status-badge {
+            background-color: rgba(229, 9, 20, 0.1);
+            color: #e50914;
+            border-color: rgba(229, 9, 20, 0.3);
+        }
+
+        .video-info h2 {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .video-info p {
+            color: #8f9aa6;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .section-title {
+            color: #e50914;
+            margin: 40px 0 20px 0;
+            font-size: 22px;
+            border-left: 4px solid #e50914;
+            padding-left: 10px;
+        }
+
+        .episode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .episode-card {
+            background-color: #1f2833;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 1px solid transparent;
+            display: block;
+        }
+
+        .episode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.3);
+            border-color: #e50914;
+        }
+
+        .episode-card.is-playing {
+            border-color: #e50914;
+            background-color: #283342;
+            box-shadow: 0 0 12px rgba(229, 9, 20, 0.2);
+        }
+
+        .thumbnail-box {
+            width: 100%;
+            height: 130px;
+            background-color: #0b0c10;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .thumbnail-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            transition: background 0.2s ease;
+        }
+
+        .episode-card:hover .thumbnail-box::before {
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .thumbnail-box::after {
+            content: '▶';
+            position: absolute;
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            color: #fff;
+            z-index: 2;
+        }
+
+        .episode-card:hover .thumbnail-box::after {
+            opacity: 0.9;
+        }
+
+        .episode-card.is-playing .thumbnail-box::after {
+            content: 'NOW PLAYING';
+            font-size: 12px;
+            opacity: 1;
+            background: rgba(229, 9, 20, 0.85);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 1px;
+        }
+
+        .episode-details {
+            padding: 12px;
+            position: relative;
+            z-index: 3;
+            background-color: #1f2833;
+        }
+
+        .episode-card.is-playing .episode-details {
+            background-color: #283342;
+        }
+
+        .episode-number {
+            font-size: 12px;
+            color: #e50914;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .episode-card.is-playing .episode-number {
+            color: #fff;
+        }
+
+        .episode-title {
+            font-size: 15px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        footer {
+            background-color: #0b0c10;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: #666;
+            border-top: 1px solid #1f2833;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <h1>MIRACULOUS<span>HUB</span></h1>
+        <nav>
+            <a href="index.html">Season 6</a>
+            <a href="specials.html" class="active">Special Episodes</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Dashboard Player -->
+        <div class="video-player-container" id="player-container">
+            <div class="video-wrapper" id="video-wrapper-target">
+                <video id="main-player" controls poster="https://via.placeholder.com/800x450/0b0c10/e50914?text=Select+a+Special">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            
+            <div class="player-dashboard">
+                <div class="player-status-badge" id="status-badge">No Special Loaded</div>
+                <div class="video-info">
+                    <h2 id="current-title">Select a Special</h2>
+                    <p id="current-description">Choose a Special Episode below to begin streaming.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Special Grid -->
+        <h3 class="section-title">Special Episodes</h3>
+        <div class="episode-grid" id="specials-container">
+            <!-- Dynamic Specials Go Here -->
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Miraculous Hub. For personal configurations.
+    </footer>
+
+    <script>
+        // Drop your streaming file URLs right inside the empty quotes here!
+        const specialsData = [
+            { id: "SP01", title: "Paris: Tales of Shadybug & Claw Noir", url: "" },
+            { id: "SP02", title: "New York: United Heroez", url: "" },
+            { id: "SP03", title: "Shanghai: The Legend of Ladydragon", url: "" },
+            { id: "SP04", title: "London: Chronogirl's Chase", url: "" }
+        ];
+
+        const specialsContainer = document.getElementById('specials-container');
+
+        function buildSpecialsGrid() {
+            specialsData.forEach((ep) => {
+                const card = document.createElement('div');
+                card.className = 'episode-card';
+                card.id = `card-${ep.id}`;
+                
+                // Generates dynamic path: e.g., thumbnails/SP01.jpg
+                const thumbnailUrl = `thumbnails/${ep.id}.jpg`;
+                
+                card.innerHTML = `
+                    <div class="thumbnail-box" style="background-image: url('${thumbnailUrl}');"></div>
+                    <div class="episode-details">
+                        <div class="episode-number">Special</div>
+                        <div class="episode-title">${ep.title}</div>
+                    </div>
+                `;
+                
+                card.onclick = () => {
+                    if(ep.url === "") {
+                        alert(`No streaming link added yet for: ${ep.title}`);
+                    } else {
+                        changeVideo(ep.url, `Special: ${ep.title}`, ep.id);
+                    }
+                };
+                specialsContainer.appendChild(card);
+            });
+        }
+
+        function changeVideo(videoSrc, fullTitle, activeId) {
+            const wrapper = document.getElementById('video-wrapper-target');
+            const playerContainer = document.getElementById('player-container');
+            const statusBadge = document.getElementById('status-badge');
+            const titleElement = document.getElementById('current-title');
+            const descElement = document.getElementById('current-description');
+
+            document.querySelectorAll('.episode-card').forEach(card => card.classList.remove('is-playing'));
+            const activeCard = document.getElementById(`card-${activeId}`);
+            if(activeCard) activeCard.classList.add('is-playing');
+
+            playerContainer.classList.add('active-playing');
+            statusBadge.textContent = "Now Streaming";
+            titleElement.textContent = fullTitle;
+            descElement.textContent = "You are currently watching a streaming video source.";
+
+            let embedUrl = videoSrc.replace('/view?usp=sharing', '/preview').replace('/file/d/', '/file/d/');
+            if(!embedUrl.includes('/preview')) {
+                 embedUrl = embedUrl.split('/view')[0] + '/preview';
+            }
+            wrapper.innerHTML = `<iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        buildSpecialsGrid();
+    </script>
+</body>
+</html>
