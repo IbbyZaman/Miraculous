@@ -5,27 +5,130 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miraculous Hub</title>
     <style>
+        /* Base Global Styles */
         body {
-            background-color: #111;
-            color: #fff;
-            font-family: Arial, sans-serif;
+            background-color: #0b0b0c;
+            color: #e2e2e5;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Top Navigation Bar */
+        nav {
+            background-color: #121214;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            border-bottom: 2px solid #e50914; /* Miraculous Red accent */
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: #e50914;
+        }
+
+        .nav-links a {
+            color: #a0a0a5;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #ffffff;
+        }
+
+        /* Hero Container / Showcase area */
+        .hero {
+            padding: 40px 5%;
+            background: linear-gradient(to bottom, rgba(18,18,20,0.8), #0b0b0c);
             text-align: center;
-            padding: 20px;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .video-wrapper {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-            overflow: hidden;
+
+        /* Season Selector Tabs */
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
             margin-bottom: 30px;
-            background: #000;
-            border-radius: 8px;
+            flex-wrap: wrap;
         }
-        .video-wrapper iframe {
+
+        .tab-btn {
+            background-color: #1a1a1e;
+            color: #ffffff;
+            border: 1px solid #2d2d35;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            border-color: #e50914;
+            background-color: #222228;
+        }
+
+        .tab-btn.active {
+            background-color: #e50914;
+            border-color: #e50914;
+        }
+
+        /* Video / Main Hub Shell */
+        .main-content {
+            padding: 0 5% 60px 5%;
+        }
+
+        .grid-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Clean Cards Grid */
+        .episode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 25px;
+        }
+
+        .episode-card {
+            background-color: #121214;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #1f1f23;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .episode-card:hover {
+            transform: translateY(-4px);
+            border-color: #e50914;
+        }
+
+        /* Video Iframe Frame aspect ratio 16:9 */
+        .thumbnail-box {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; 
+            background-color: #1a1a1e;
+        }
+
+        .thumbnail-box iframe {
             position: absolute;
             top: 0;
             left: 0;
@@ -33,31 +136,95 @@
             height: 100%;
             border: 0;
         }
-        h1 { color: #e50914; }
+
+        .card-info {
+            padding: 12px;
+        }
+
+        .episode-number {
+            font-size: 0.8rem;
+            color: #e50914;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .episode-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Miraculous Hub</h1>
-        <p>Welcome to the ultimate fan hub!</p>
-        
-        <hr style="border: 1px solid #333; margin: 30px 0;">
-
-        <!-- Live Stream Section -->
-        <h2>Live Stream</h2>
-        <div class="video-wrapper">
-            <!-- Your Twitch Embed -->
-            <iframe src="https://player.twitch.tv/?channel=miraculousto_live&parent=miraculoushub.co.uk" allowfullscreen></iframe>
+    <!-- Top Navigation Bar -->
+    <nav>
+        <div class="logo">MIRACULOUS<span>HUB</span></div>
+        <div class="nav-links">
+            <a href="#" class="active">Episodes</a>
+            <a href="#">Live Stream</a>
         </div>
+    </nav>
 
-        <!-- Episodes / Main Show Section -->
-        <h2>Featured Videos</h2>
-        <div class="video-wrapper">
-            <!-- Replace the URL below with your YouTube embed link or video link later -->
-            <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID_HERE" allowfullscreen></iframe>
+    <!-- Main Section Setup -->
+    <div class="hero">
+        <!-- Quick Selector Buttons -->
+        <div class="tabs-container">
+            <button class="tab-btn active">Season 1</button>
+            <button class="tab-btn">Season 2</button>
+            <button class="tab-btn">Season 3</button>
+            <button class="tab-btn">Season 4</button>
+            <button class="tab-btn">Season 5</button>
+            <button class="tab-btn">Season 6</button>
         </div>
     </div>
+
+    <!-- Episode Space -->
+    <main class="main-content">
+        <div class="grid-title">Latest Releases</div>
+        
+        <div class="episode-grid">
+            
+            <!-- Card 1 -->
+            <div class="episode-card">
+                <div class="thumbnail-box">
+                    <!-- Replace video embed links here -->
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                </div>
+                <div class="card-info">
+                    <div class="episode-number">Season 1 • Episode 1</div>
+                    <div class="episode-name">Stormy Weather</div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="episode-card">
+                <div class="thumbnail-box">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                </div>
+                <div class="card-info">
+                    <div class="episode-number">Season 1 • Episode 2</div>
+                    <div class="episode-name">The Bubbler</div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="episode-card">
+                <div class="thumbnail-box">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
+                </div>
+                <div class="card-info">
+                    <div class="episode-number">Season 1 • Episode 3</div>
+                    <div class="episode-name">Timebreaker</div>
+                </div>
+            </div>
+
+        </div>
+    </main>
 
 </body>
 </html>
