@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miraculous Hub - Home</title>
+    <!-- Firebase SDK Bundles -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-bundle.js"></script>
     <style>
         /* Global Styles & Dark Theme */
         * {
@@ -46,6 +48,11 @@
             color: #e50914;
         }
 
+        .nav-right {
+            display: flex;
+            align-items: center;
+        }
+
         nav a {
             color: #c5c6c7;
             text-decoration: none;
@@ -56,6 +63,21 @@
 
         nav a:hover, nav a.active {
             color: #e50914;
+        }
+
+        #auth-btn {
+            background: #e50914;
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 20px;
+        }
+
+        #auth-btn:hover {
+            background: #b20710;
         }
 
         /* Layout Container */
@@ -108,7 +130,7 @@
             align-items: center;
         }
 
-        /* Continue Watching & Latest Episodes Grids */
+        /* Media Grids */
         .media-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -330,9 +352,18 @@
                 text-align: center;
             }
 
+            .nav-right {
+                flex-direction: column;
+                gap: 10px;
+            }
+
             nav a {
                 margin: 0 6px;
                 font-size: 13px;
+            }
+
+            #auth-btn {
+                margin-left: 0;
             }
 
             .container {
@@ -359,12 +390,15 @@
     <!-- Header / Navbar Layout Navigation -->
     <header>
         <h1>MIRACULOUS<span>HUB</span></h1>
-        <nav>
-            <a href="index.html" class="active">Home</a>
-            <a href="season-5.html">Season 5</a>
-            <a href="season-6.html">Season 6</a>
-            <a href="specials.html">Special Episodes</a>
-        </nav>
+        <div class="nav-right">
+            <nav>
+                <a href="index.html" class="active">Home</a>
+                <a href="season-5.html">Season 5</a>
+                <a href="season-6.html">Season 6</a>
+                <a href="specials.html">Special Episodes</a>
+            </nav>
+            <button id="auth-btn" onclick="openAuthModal()">Sign In</button>
+        </div>
     </header>
 
     <div class="container">
@@ -374,11 +408,10 @@
             <p>Your ultimate dark-themed streaming gateway for all seasons, latest episode trackers, and countdown releases.</p>
         </div>
 
-        <!-- Section: Continue Watching -->
+        <!-- Section: Continue Watching & History -->
         <h3 class="section-title">Continue Watching</h3>
         <div id="continue-watching-container">
-            <!-- Dynamically populated via localStorage -->
-            <div class="empty-notice">No active history found. Choose an episode from Season 5 or Season 6 to start streaming!</div>
+            <div class="empty-notice">No active history found. Choose an episode from Season 5, Season 6, or Specials to start streaming!</div>
         </div>
 
         <!-- Section: Latest Season 6 Episodes (Next 3) -->
@@ -471,30 +504,143 @@
     </footer>
 
     <script>
-        // Check local storage for continue watching data
-        const lastWatched = localStorage.getItem('miraculous_last_watched');
-        const container = document.getElementById('continue-watching-container');
+        // Import modular Firebase functions from the global bundle CDN
+        const { initializeApp } = window.firebase.app;
+        const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } = window.firebase.auth;
+        const { getFirestore, doc, setDoc, getDoc } = window.firebase.firestore;
 
-        if (lastWatched) {
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBndazB7-e9QWMkYt2vCA1h_B097k4Wgsg",
+            authDomain: "miraculoushub0.firebaseapp.com",
+            projectId: "miraculoushub0",
+            storageBucket: "miraculoushub0.firebasestorage.app",
+            messagingSenderId: "570314503995",
+            appId: "1:570314503995:web:80018441d8fb3cecfe291e",
+            measurementId: "G-6K9W3X96EY"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+
+        // Load and Render Watch History (Unlimited History Support)
+        function renderWatchHistory() {
+            const container = document.getElementById('continue-watching-container');
+            const historyRaw = localStorage.getItem('miraculous_watch_history');
+            
+            if (!historyRaw) return;
+
             try {
-                const data = JSON.parse(lastWatched);
-                container.innerHTML = `
-                    <div class="media-grid">
-                        <a href="${data.page}" class="media-card" style="max-width: 320px;">
-                            <div class="media-thumb" style="background-image: url('${data.thumbnail}');"></div>
+                const history = JSON.parse(historyRaw);
+                if (history.length === 0) return;
+
+                let cardsHtml = '';
+                history.forEach(item => {
+                    cardsHtml += `
+                        <a href="${item.page}" class="media-card">
+                            <div class="media-thumb" style="background-image: url('${item.thumbnail}');"></div>
                             <div class="media-details">
                                 <div>
-                                    <div class="media-tag">Resume Playback</div>
-                                    <div class="media-title">${data.title}</div>
+                                    <div class="media-tag">Watched Episode</div>
+                                    <div class="media-title">${item.title}</div>
                                 </div>
                             </div>
                         </a>
-                    </div>
-                `;
+                    `;
+                });
+
+                container.innerHTML = `<div class="media-grid">${cardsHtml}</div>`;
             } catch (e) {
-                // fallback if parse fails
+                console.error("Error parsing watch history:", e);
             }
         }
+
+        // Global function to save progress with unlimited history stack
+        window.saveProgress = async function(title, page, thumbnail) {
+            const newItem = { title, page, thumbnail, updatedAt: new Date().toISOString() };
+            
+            let history = [];
+            const existing = localStorage.getItem('miraculous_watch_history');
+            if (existing) {
+                try {
+                    history = JSON.parse(existing);
+                } catch (e) {
+                    history = [];
+                }
+            }
+
+            // Remove duplicate entries of the same title, then put the new one at the front
+            history = history.filter(item => item.title !== title);
+            history.unshift(newItem);
+
+            // Save back to local storage
+            localStorage.setItem('miraculous_watch_history', JSON.stringify(history));
+            renderWatchHistory();
+
+            // Sync with Firebase Cloud if authenticated
+            if (currentUser) {
+                try {
+                    await setDoc(doc(db, "users", currentUser.uid), {
+                        watchHistory: history
+                    }, { merge: true });
+                } catch (error) {
+                    console.error("Error saving history to cloud:", error);
+                }
+            }
+        };
+
+        // Firebase Auth State Listener
+        onAuthStateChanged(auth, async (user) => {
+            const authBtn = document.getElementById('auth-btn');
+            if (user) {
+                currentUser = user;
+                authBtn.textContent = "Sign Out";
+                authBtn.onclick = () => signOut(auth);
+
+                // Fetch full watch history from Firestore cloud
+                try {
+                    const docRef = doc(db, "users", user.uid);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists() && docSnap.data().watchHistory) {
+                        const cloudHistory = docSnap.data().watchHistory;
+                        localStorage.setItem('miraculous_watch_history', JSON.stringify(cloudHistory));
+                        renderWatchHistory();
+                    }
+                } catch (error) {
+                    console.error("Error fetching cloud history:", error);
+                }
+            } else {
+                currentUser = null;
+                authBtn.textContent = "Sign In";
+                authBtn.onclick = openAuthModal;
+            }
+        });
+
+        // Sign In / Sign Up Modal Flow
+        window.openAuthModal = function() {
+            const email = prompt("Enter your email:");
+            if (!email) return;
+            const password = prompt("Enter your password (min 6 characters):");
+            if (!password) return;
+
+            const action = confirm("Click OK to Sign In, or Cancel to create a new account (Sign Up).");
+
+            if (action) {
+                signInWithEmailAndPassword(auth, email, password)
+                    .then(() => alert("Signed in successfully!"))
+                    .catch((error) => alert("Error: " + error.message));
+            } else {
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then(() => alert("Account created and signed in!"))
+                    .catch((error) => alert("Error: " + error.message));
+            }
+        };
+
+        // Initialize local history render on load
+        renderWatchHistory();
 
         // Countdown Timer Logic
         const targetProtocol = new Date("August 1, 2026 08:00:00").getTime();
