@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Miraculous Hub - Season 6</title>
+    <title>Miraculous Hub - Season 5</title>
     <style>
         /* Global Styles & Dark Theme */
         * {
@@ -279,51 +279,52 @@
             border-top: 1px solid #1f2833;
             margin-top: 40px;
         }
-/* Mobile Responsive Overrides */
-@media (max-width: 768px) {
-    header {
-        padding: 15px;
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
 
-    nav a {
-        margin: 0 10px;
-        font-size: 14px;
-    }
+        /* Mobile Responsive Overrides */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
 
-    .container {
-        margin: 15px auto;
-        padding: 0 10px;
-    }
+            nav a {
+                margin: 0 10px;
+                font-size: 14px;
+            }
 
-    .video-player-container {
-        padding: 12px;
-        margin-bottom: 20px;
-    }
+            .container {
+                margin: 15px auto;
+                padding: 0 10px;
+            }
 
-    .video-info h2 {
-        font-size: 18px;
-    }
+            .video-player-container {
+                padding: 12px;
+                margin-bottom: 20px;
+            }
 
-    .video-info p {
-        font-size: 13px;
-    }
+            .video-info h2 {
+                font-size: 18px;
+            }
 
-    .episode-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 12px;
-    }
+            .video-info p {
+                font-size: 13px;
+            }
 
-    .thumbnail-box {
-        height: 90px;
-    }
-    
-    .episode-title {
-        font-size: 13px;
-    }
-}
+            .episode-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+            }
+
+            .thumbnail-box {
+                height: 90px;
+            }
+            
+            .episode-title {
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -332,7 +333,8 @@
     <header>
         <h1>MIRACULOUS<span>HUB</span></h1>
         <nav>
-            <a href="index.html" class="active">Season 6</a>
+            <a href="index.html">Home</a>
+            <a href="season-5.html" class="active">Season 5</a>
             <a href="specials.html">Special Episodes</a>
         </nav>
     </header>
@@ -350,7 +352,7 @@
                 <div class="player-status-badge" id="status-badge">No Episode Loaded</div>
                 <div class="video-info">
                     <h2 id="current-title">Select an Episode</h2>
-                    <p id="current-description">Choose a Season 6 episode below to begin streaming.</p>
+                    <p id="current-description">Choose a Season 5 episode below to begin streaming.</p>
                 </div>
             </div>
         </div>
@@ -378,9 +380,9 @@
             { id: "508", title: "Reunion", url: "https://drive.google.com/file/d/1sM1JSCtSdR5lpa3iqgXM2sEpULeGZ4hN/view?usp=sharing" },
             { id: "509", title: "Elation", url: "https://drive.google.com/file/d/1KJ3ExcBPQAxNdt2n9o8nPBuwXSJ7KE_H/view?usp=sharing" },
             { id: "510", title: "Transmission (The Kwamis' Choice – Part 1)", url: "https://drive.google.com/file/d/1keG3eES8dcGJMRQ6nTID0deeZB_gDfUT/view?usp=sharing" },
-            { id: "511", title: "Deflagaration (The Kwamis' Choice – Part 2)", url: "https://drive.google.com/file/d/1oKqi3qo-e7ybHmwnqOKLpuPltmLupHC1/view?usp=sharing" },
+            { id: "511", title: "Deflagration (The Kwamis' Choice – Part 2)", url: "https://drive.google.com/file/d/1oKqi3qo-e7ybHmwnqOKLpuPltmLupHC1/view?usp=sharing" },
             { id: "512", title: "Perfection", url: "https://drive.google.com/file/d/120_d0FAXVtFfhmxGgbPcFgWJMTC_Fb9W/view?usp=sharing" },
-            { id: "513", title: "Migration", url: "https://drive.google.com/file/d/1BfJHZnfrkURt8tHZr2bkxrFf3QmXkYM3/view?usp=sharing" },
+            { id: "513", title: "Migration", url: "https://drive.google.com/file/d/1BfJHZnfrkURt8tHZr2bkxrFf3QmXkYM3/view?usp=sharing" }
         ];
 
         const gridContainer = document.getElementById('grid-container');
@@ -391,18 +393,17 @@
                 card.className = 'episode-card';
                 card.id = `card-${ep.id}`;
                 
-                // Generates dynamic path: e.g., thumbnails/601.jpg
                 const thumbnailUrl = `thumbnails/${ep.id}.jpg`;
                 
                 card.innerHTML = `
                     <div class="thumbnail-box" style="background-image: url('${thumbnailUrl}');"></div>
                     <div class="episode-details">
-                        <div class="episode-number">Episode ${ep.id}</div>
+                        <div class="episode-number">Episode ${ep.id.replace('5', '5.')}</div>
                         <div class="episode-title">${ep.title}</div>
                     </div>
                 `;
                 
-                card.onclick = () => changeVideo(ep.url, `Episode ${ep.id}: ${ep.title}`, ep.id);
+                card.onclick = () => changeVideo(ep.url, `Episode ${ep.id.replace('5', '5.')}: ${ep.title}`, ep.id);
                 gridContainer.appendChild(card);
             });
         }
@@ -423,11 +424,13 @@
             titleElement.textContent = fullTitle;
             descElement.textContent = "You are currently watching a streaming video source.";
 
-            let embedUrl = videoSrc.replace('/view?usp=sharing', '/preview').replace('/file/d/', '/file/d/');
+            let embedUrl = videoSrc.replace('/view?usp=sharing', '/preview');
             if(!embedUrl.includes('/preview')) {
                  embedUrl = embedUrl.split('/view')[0] + '/preview';
             }
-            wrapper.innerHTML = `<iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            
+            // Mobile-friendly iframe injection with hardware acceleration properties
+            wrapper.innerHTML = `<iframe src="${embedUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>`;
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
