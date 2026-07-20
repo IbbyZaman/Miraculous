@@ -721,7 +721,11 @@
         <h1>MIRACULOUS<span>HUB</span></h1>
 
         <nav>
-
+<!-- Inside your navigation menu -->
+<ul class="nav-links">
+            <li><a href="#announcements">Announcements</a></li>
+            <li><button id="theme-toggle" class="theme-toggle-btn">Light Mode</button></li>
+</ul>
             <a href="index.html" class="active">Home</a>
 
             <a href="season-5.html">Season 5</a>
@@ -1059,12 +1063,28 @@
         updateCountdowns();
 
     </script>
-<!-- Inside your navigation menu -->
-<ul class="nav-links">
-    <li><a href="#announcements">Announcements</a></li>
-    <li><a href="#wild">Wild</a></li>
-    <li><button id="theme-toggle" class="theme-toggle-btn">Light Mode</button></li>
-</ul>
+<script>
+    const themeToggleButton = document.getElementById('theme-toggle');
+    const bodyElement = document.body;
+
+    // Check for saved user preference on load
+    if (localStorage.getItem('theme') === 'light') {
+        bodyElement.classList.add('light-theme');
+        themeToggleButton.textContent = 'Dark Mode';
+    }
+
+    themeToggleButton.addEventListener('click', () => {
+        bodyElement.classList.toggle('light-theme');
+        
+        if (bodyElement.classList.contains('light-theme')) {
+            localStorage.setItem('theme', 'light');
+            themeToggleButton.textContent = 'Dark Mode';
+        } else {
+            localStorage.setItem('theme', 'dark');
+            themeToggleButton.textContent = 'Light Mode';
+        }
+    });
+</script>
 </body>
 
 </html> 
