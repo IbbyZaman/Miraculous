@@ -335,6 +335,7 @@
         <nav>
             <a href="index.html">Home</a>
             <a href="season-5.html" class="active">Season 5</a>
+            <a href="season-6.html">Season 6</a>
             <a href="specials.html">Special Episodes</a>
         </nav>
     </header>
@@ -403,7 +404,10 @@
                     </div>
                 `;
                 
-                card.onclick = () => changeVideo(ep.url, `Episode ${ep.id.replace('5', '5.')}: ${ep.title}`, ep.id);
+                card.onclick = () => {
+                    changeVideo(ep.url, `Episode ${ep.id.replace('5', '5.')}: ${ep.title}`, ep.id);
+                    saveProgress(`Episode ${ep.id.replace('5', '5.')}: ${ep.title}`, 'season-5.html', thumbnailUrl);
+                };
                 gridContainer.appendChild(card);
             });
         }
@@ -429,10 +433,14 @@
                  embedUrl = embedUrl.split('/view')[0] + '/preview';
             }
             
-            // Mobile-friendly iframe injection with hardware acceleration properties
             wrapper.innerHTML = `<iframe src="${embedUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>`;
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function saveProgress(title, page, thumbnail) {
+            const data = { title, page, thumbnail };
+            localStorage.setItem('miraculous_last_watched', JSON.stringify(data));
         }
 
         buildGrid();
