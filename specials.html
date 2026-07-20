@@ -5,278 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miraculous Hub - Special Episodes</title>
     <style>
-        /* Exact matching CSS styling framework */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #0b0c10;
-            color: #c5c6c7;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            scroll-behavior: smooth;
-        }
-
-        header {
-            background-color: #1f2833;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #e50914; 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        header h1 {
-            color: #ffffff;
-            font-size: 24px;
-            letter-spacing: 1px;
-        }
-
-        header h1 span {
-            color: #e50914;
-        }
-
-        nav a {
-            color: #c5c6c7;
-            text-decoration: none;
-            margin-left: 20px;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-
-        nav a:hover, nav a.active {
-            color: #e50914;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-            width: 100%;
-            flex: 1;
-        }
-
-        .video-player-container {
-            background: linear-gradient(145deg, #1f2833, #151b22);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: border-color 0.5s ease, box-shadow 0.5s ease;
-        }
-
-        .video-player-container.active-playing {
-            border-color: rgba(229, 9, 20, 0.5);
-            box-shadow: 0 0 25px rgba(229, 9, 20, 0.2), 0 10px 30px rgba(0, 0, 0, 0.7);
-        }
-
-        .video-wrapper {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-            border-radius: 8px;
-            background: #000;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
-        }
-
-        .video-wrapper iframe, .video-wrapper video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .player-dashboard {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 18px;
-        }
-
-        .player-status-badge {
-            display: inline-block;
-            align-self: flex-start;
-            background-color: #1f2833;
-            color: #888;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .video-player-container.active-playing .player-status-badge {
-            background-color: rgba(229, 9, 20, 0.1);
-            color: #e50914;
-            border-color: rgba(229, 9, 20, 0.3);
-        }
-
-        .video-info h2 {
-            color: #fff;
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .video-info p {
-            color: #8f9aa6;
-            font-size: 15px;
-            line-height: 1.5;
-        }
-
-        .section-title {
-            color: #e50914;
-            margin: 40px 0 20px 0;
-            font-size: 22px;
-            border-left: 4px solid #e50914;
-            padding-left: 10px;
-        }
-
-        .episode-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 20px;
-        }
-
-        .episode-card {
-            background-color: #1f2833;
-            border-radius: 6px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            border: 1px solid transparent;
-            display: block;
-        }
-
-        .episode-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.3);
-            border-color: #e50914;
-        }
-
-        .episode-card.is-playing {
-            border-color: #e50914;
-            background-color: #283342;
-            box-shadow: 0 0 12px rgba(229, 9, 20, 0.2);
-        }
-
-        .thumbnail-box {
-            width: 100%;
-            height: 130px;
-            background-color: #0b0c10;
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .thumbnail-box::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            transition: background 0.2s ease;
-        }
-
-        .episode-card:hover .thumbnail-box::before {
-            background: rgba(0, 0, 0, 0.6);
-        }
-
-        .thumbnail-box::after {
-            content: '▶';
-            position: absolute;
-            font-size: 24px;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            color: #fff;
-            z-index: 2;
-        }
-
-        .episode-card:hover .thumbnail-box::after {
-            opacity: 0.9;
-        }
-
-        .episode-card.is-playing .thumbnail-box::after {
-            content: 'NOW PLAYING';
-            font-size: 12px;
-            opacity: 1;
-            background: rgba(229, 9, 20, 0.85);
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            letter-spacing: 1px;
-        }
-
-        .episode-details {
-            padding: 12px;
-            position: relative;
-            z-index: 3;
-            background-color: #1f2833;
-        }
-
-        .episode-card.is-playing .episode-details {
-            background-color: #283342;
-        }
-
-        .episode-number {
-            font-size: 12px;
-            color: #e50914;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .episode-card.is-playing .episode-number {
-            color: #fff;
-        }
-
-        .episode-title {
-            font-size: 15px;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        footer {
-            background-color: #0b0c10;
-            text-align: center;
-            padding: 20px;
-            font-size: 14px;
-            color: #666;
-            border-top: 1px solid #1f2833;
-            margin-top: 40px;
-        }
-        <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Miraculous Hub - Season 6</title>
-    <style>
         /* Global Styles & Dark Theme */
         * {
             margin: 0;
@@ -467,7 +195,6 @@
             transition: background-color 0.2s;
         }
 
-        /* Visual Dim Overlay on Thumbnails */
         .thumbnail-box::before {
             content: '';
             position: absolute;
@@ -483,7 +210,6 @@
             background: rgba(0, 0, 0, 0.6);
         }
 
-        /* Play Arrow Hover Effects */
         .thumbnail-box::after {
             content: '▶';
             position: absolute;
@@ -551,174 +277,52 @@
             border-top: 1px solid #1f2833;
             margin-top: 40px;
         }
-/* Mobile Responsive Overrides */
-@media (max-width: 768px) {
-    header {
-        padding: 15px;
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
 
-    nav a {
-        margin: 0 10px;
-        font-size: 14px;
-    }
-
-    .container {
-        margin: 15px auto;
-        padding: 0 10px;
-    }
-
-    .video-player-container {
-        padding: 12px;
-        margin-bottom: 20px;
-    }
-
-    .video-info h2 {
-        font-size: 18px;
-    }
-
-    .video-info p {
-        font-size: 13px;
-    }
-
-    .episode-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 12px;
-    }
-
-    .thumbnail-box {
-        height: 90px;
-    }
-    
-    .episode-title {
-        font-size: 13px;
-    }
-}
-    </style>
-</head>
-<body>
-
-    <!-- Header / Navbar Layout Navigation -->
-    <header>
-        <h1>MIRACULOUS<span>HUB</span></h1>
-        <nav>
-            <a href="index.html" class="active">Season 6</a>
-            <a href="specials.html">Special Episodes</a>
-        </nav>
-    </header>
-
-    <div class="container">
-        <!-- Stream Player Container Dashboard -->
-        <div class="video-player-container" id="player-container">
-            <div class="video-wrapper" id="video-wrapper-target">
-                <video id="main-player" controls poster="https://via.placeholder.com/800x450/0b0c10/e50914?text=Select+an+Episode">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            
-            <div class="player-dashboard">
-                <div class="player-status-badge" id="status-badge">No Episode Loaded</div>
-                <div class="video-info">
-                    <h2 id="current-title">Select an Episode</h2>
-                    <p id="current-description">Choose a Season 6 episode below to begin streaming.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section: Season 6 Grid -->
-        <h3 class="section-title">Season 6 Episodes</h3>
-        <div class="episode-grid" id="grid-container">
-            <!-- Dynamic S6 Items Go Here -->
-        </div>
-    </div>
-
-    <footer>
-        &copy; 2026 Miraculous Hub. For personal configurations.
-    </footer>
-
-    <script>
-        const episodeData = [
-            { id: "601", title: "Climatiqueen", url: "https://drive.google.com/file/d/1db63TiKDiWF7oGi6MrKgYDD_HNg3CioL/view?usp=sharing" },
-            { id: "602", title: "The Illustrhater", url: "https://drive.google.com/file/d/1hyXtlgy4-JI6K8z6k-E4Omaf5Ey5REmA/view?usp=sharing" },
-            { id: "603", title: "Sublimation", url: "https://drive.google.com/file/d/1DCWU73ZF2yRbHNOGm_t46KrtPLyeYIqE/view?usp=sharing" },
-            { id: "604", title: "Daddycop", url: "https://drive.google.com/file/d/1LHdTcfA-GQ145_T3nh_3mxtb6f3yOXPk/view?usp=sharing" },
-            { id: "605", title: "Werepapas", url: "https://drive.google.com/file/d/1pVOZ9qvp9LblcWc-UU22_GQfh8qRydH7/view?usp=sharing" },
-            { id: "606", title: "Sleeping Syren", url: "https://drive.google.com/file/d/1GveVI9HxT6kkoeVjzZOjM2EiI62gIihC/view?usp=sharing" },
-            { id: "607", title: "El Toro De Piedra", url: "https://drive.google.com/file/d/1icMAby4RD42q-6nVtOwBo95pBbr9K04f/view?usp=sharing" },
-            { id: "608", title: "Vampigami", url: "https://drive.google.com/file/d/1ObV6LxIThHgGDC_ntxdpQ5-clVYt9ZNG/view?usp=sharing" },
-            { id: "609", title: "Mister Agreste", url: "https://drive.google.com/file/d/1rco1NvHJU8PQMMOftC7hi0v9YQ20U_DN/view?usp=sharing" },
-            { id: "610", title: "The Dark Castle", url: "https://drive.google.com/file/d/1df_azj8MEB0U-nxB_8GqAuW7uZ0lRIg-/view?usp=sharing" },
-            { id: "611", title: "Revelator", url: "https://drive.google.com/file/d/1xwjzuufLzJVXVtxS_qIdLbQeesAm5W17/view?usp=sharing" },
-            { id: "612", title: "Wreckless Driver", url: "https://drive.google.com/file/d/1WsZOp5jLFgDpVTzg_HZYrw0J36dC9gHt/view?usp=sharing" },
-            { id: "613", title: "Yaksi Gozen", url: "https://drive.google.com/file/d/15W6zoGngBgDNv_3WI2wY52NePmZzrC9M/view?usp=sharing" },
-            { id: "614", title: "Grendiaper", url: "https://drive.google.com/file/d/190cGKIl4M_Uryp5LRaz6fW7000yfEMT5/view?usp=sharing" },
-            { id: "615", title: "The Ruler", url: "https://drive.google.com/file/d/1t_GZNh9XcVTw-BFtMzTQ2za_uBVZoCGY/view?usp=sharing" },
-            { id: "616", title: "Noe", url: "https://drive.google.com/file/d/1uRZbxwjlMj0OrljPsyY36FwfLV43jtDS/view?usp=sharing" },
-            { id: "617", title: "A Fairy Good Night", url: "https://drive.google.com/file/d/1SLfoYXpQTDKTYvp-Xi8nKYeQ88rZBZbe/view?usp=sharing" },
-            { id: "618", title: "The Dirtifiers", url: "https://drive.google.com/file/d/1LnNx27_EvdYz_ZKbyB_cndZue7MiIANQ/view?usp=sharing" },
-            { id: "619", title: "Riginarazione", url: "https://drive.google.com/file/d/1FlOKDLxLewGjcm2FPM56jUqzQ9DTnVyZ/view?usp=sharing" },
-            { id: "620", title: "Heartfixer", url: "https://drive.google.com/file/d/1LftUcJB_wOP4Rj9x730eOCXTFqzV3yKu/view?usp=sharing" },
-            { id: "621", title: "The Chained Titans", url: "https://drive.google.com/file/d/1UX97vnAn3SO3UoHaF_c3I7qBhj7KtSSg/view?usp=sharing" },
-            { id: "622", title: "Lady Chaos", url: "https://drive.google.com/file/d/1emg21AAGzWzM5BLfRU3epSmQTVitnwAM/view?usp=sharing" },
-            { id: "623", title: "Sadnansi", url: "https://drive.google.com/file/d/1w8TT001takExw9I5nC6Iaa4B5yayBC8U/view?usp=sharing" },
-            { id: "624", title: "Queen Of The Dreadzone", url: "https://drive.google.com/file/d/13ZeKq781tHgNTcMhOlH6U9UC4d0ZS0y-/view?usp=sharing" }
-        ];
-
-        const gridContainer = document.getElementById('grid-container');
-
-        function buildGrid() {
-            episodeData.forEach((ep) => {
-                const card = document.createElement('div');
-                card.className = 'episode-card';
-                card.id = `card-${ep.id}`;
-                
-                // Generates dynamic path: e.g., thumbnails/601.jpg
-                const thumbnailUrl = `thumbnails/${ep.id}.jpg`;
-                
-                card.innerHTML = `
-                    <div class="thumbnail-box" style="background-image: url('${thumbnailUrl}');"></div>
-                    <div class="episode-details">
-                        <div class="episode-number">Episode ${ep.id}</div>
-                        <div class="episode-title">${ep.title}</div>
-                    </div>
-                `;
-                
-                card.onclick = () => changeVideo(ep.url, `Episode ${ep.id}: ${ep.title}`, ep.id);
-                gridContainer.appendChild(card);
-            });
-        }
-
-        function changeVideo(videoSrc, fullTitle, activeId) {
-            const wrapper = document.getElementById('video-wrapper-target');
-            const playerContainer = document.getElementById('player-container');
-            const statusBadge = document.getElementById('status-badge');
-            const titleElement = document.getElementById('current-title');
-            const descElement = document.getElementById('current-description');
-
-            document.querySelectorAll('.episode-card').forEach(card => card.classList.remove('is-playing'));
-            const activeCard = document.getElementById(`card-${activeId}`);
-            if(activeCard) activeCard.classList.add('is-playing');
-
-            playerContainer.classList.add('active-playing');
-            statusBadge.textContent = "Now Streaming";
-            titleElement.textContent = fullTitle;
-            descElement.textContent = "You are currently watching a streaming video source.";
-
-            let embedUrl = videoSrc.replace('/view?usp=sharing', '/preview').replace('/file/d/', '/file/d/');
-            if(!embedUrl.includes('/preview')) {
-                 embedUrl = embedUrl.split('/view')[0] + '/preview';
+        /* Mobile Responsive Overrides */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
             }
-            wrapper.innerHTML = `<iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
 
-        buildGrid();
-    </script>
-</body>
-</html>
+            nav a {
+                margin: 0 10px;
+                font-size: 14px;
+            }
+
+            .container {
+                margin: 15px auto;
+                padding: 0 10px;
+            }
+
+            .video-player-container {
+                padding: 12px;
+                margin-bottom: 20px;
+            }
+
+            .video-info h2 {
+                font-size: 18px;
+            }
+
+            .video-info p {
+                font-size: 13px;
+            }
+
+            .episode-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+            }
+
+            .thumbnail-box {
+                height: 90px;
+            }
+            
+            .episode-title {
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -762,8 +366,7 @@
     </footer>
 
     <script>
-        // Drop your streaming file URLs right inside the empty quotes here!
-       const specialsData = [
+        const specialsData = [
             { id: "SP01", title: "New York: United Heroez", url: "https://drive.google.com/file/d/113VQeoiZfg0oekuH4vWFe-sMtDYvpbV7/view?usp=sharing" },
             { id: "SP02", title: "Shanghai: The Legend of Ladydragon", url: "https://drive.google.com/file/d/1xMI7qCDUb_KbIKBwp6GOGYjCNZfaRpUh/view?usp=sharing" },
             { id: "SP03", title: "The Awakening", url: "https://drive.google.com/file/d/1L72Jifoz3imIAu4o8JpG8AM2_-W5x7Mq/view?usp=sharing" },
@@ -780,7 +383,6 @@
                 card.className = 'episode-card';
                 card.id = `card-${ep.id}`;
                 
-                // Generates dynamic path: e.g., thumbnails/SP01.jpg
                 const thumbnailUrl = `thumbnails/${ep.id}.jpg`;
                 
                 card.innerHTML = `
@@ -792,11 +394,7 @@
                 `;
                 
                 card.onclick = () => {
-                    if(ep.url === "") {
-                        alert(`No streaming link added yet for: ${ep.title}`);
-                    } else {
-                        changeVideo(ep.url, `Special: ${ep.title}`, ep.id);
-                    }
+                    changeVideo(ep.url, `Special: ${ep.title}`, ep.id);
                 };
                 specialsContainer.appendChild(card);
             });
