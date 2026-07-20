@@ -67,100 +67,205 @@
             flex: 1;
         }
 
-        /* Section Titles */
+        /* Video Player Layout */
+        .video-player-container {
+            background: linear-gradient(145deg, #1f2833, #151b22);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: border-color 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .video-player-container.active-playing {
+            border-color: rgba(229, 9, 20, 0.5);
+            box-shadow: 0 0 25px rgba(229, 9, 20, 0.2), 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            background: #000;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+        }
+
+        .video-wrapper video, .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Player Dashboard Details */
+        .player-dashboard {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 18px;
+        }
+
+        .player-status-badge {
+            display: inline-block;
+            align-self: flex-start;
+            background-color: #1f2833;
+            color: #888;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-player-container.active-playing .player-status-badge {
+            background-color: rgba(229, 9, 20, 0.1);
+            color: #e50914;
+            border-color: rgba(229, 9, 20, 0.3);
+        }
+
+        .video-info h2 {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .video-info p {
+            color: #8f9aa6;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* Directories & Grids */
         .section-title {
             color: #e50914;
-            margin: 25px 0 20px 0;
+            margin: 40px 0 20px 0;
             font-size: 22px;
             border-left: 4px solid #e50914;
             padding-left: 10px;
         }
 
-        /* Episodes Grid */
-        .media-grid {
+        .episode-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 20px;
         }
 
-        .media-card {
+        .episode-card {
             background-color: #1f2833;
-            border-radius: 8px;
+            border-radius: 6px;
             overflow: hidden;
-            text-decoration: none;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
             transition: all 0.25s ease;
-            display: flex;
-            flex-direction: column;
+            border: 1px solid transparent;
+            display: block;
         }
 
-        .media-card:hover {
+        .episode-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.3);
             border-color: #e50914;
-            box-shadow: 0 5px 20px rgba(229, 9, 20, 0.3);
         }
 
-        .media-thumb {
+        .episode-card.is-playing {
+            border-color: #e50914;
+            background-color: #283342;
+            box-shadow: 0 0 12px rgba(229, 9, 20, 0.2);
+        }
+
+        /* Rich Thumbnail Engine */
+        .thumbnail-box {
             width: 100%;
-            height: 140px;
+            height: 130px;
             background-color: #0b0c10;
             background-size: cover;
             background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             position: relative;
+            transition: background-color 0.2s;
         }
 
-        .media-thumb::before {
+        .thumbnail-box::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
+            transition: background 0.2s ease;
         }
 
-        .media-thumb::after {
-            content: '▶ PLAY';
+        .episode-card:hover .thumbnail-box::before {
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .thumbnail-box::after {
+            content: '▶';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 12px;
-            font-weight: bold;
-            color: #fff;
-            background: rgba(229, 9, 20, 0.85);
-            padding: 6px 14px;
-            border-radius: 20px;
-            letter-spacing: 1px;
+            font-size: 24px;
             opacity: 0;
             transition: opacity 0.2s ease;
+            color: #fff;
+            z-index: 2;
         }
 
-        .media-card:hover .media-thumb::after {
+        .episode-card:hover .thumbnail-box::after {
+            opacity: 0.9;
+        }
+
+        .episode-card.is-playing .thumbnail-box::after {
+            content: 'NOW PLAYING';
+            font-size: 12px;
             opacity: 1;
-        }
-
-        .media-details {
-            padding: 15px;
-            flex: 1;
+            background: rgba(229, 9, 20, 0.85);
+            width: 100%;
+            height: 100%;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 1px;
         }
 
-        .media-tag {
-            font-size: 11px;
+        .episode-details {
+            padding: 12px;
+            position: relative;
+            z-index: 3;
+            background-color: #1f2833;
+        }
+
+        .episode-card.is-playing .episode-details {
+            background-color: #283342;
+        }
+
+        .episode-number {
+            font-size: 12px;
             color: #e50914;
             text-transform: uppercase;
             font-weight: bold;
-            margin-bottom: 5px;
-            letter-spacing: 1px;
+            margin-bottom: 4px;
         }
 
-        .media-title {
+        .episode-card.is-playing .episode-number {
+            color: #fff;
+        }
+
+        .episode-title {
             font-size: 15px;
             color: #fff;
-            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         footer {
@@ -173,7 +278,6 @@
             margin-top: 40px;
         }
 
-        /* Mobile Responsive Overrides */
         @media (max-width: 768px) {
             header {
                 padding: 15px;
@@ -183,20 +287,45 @@
             }
 
             nav a {
-                margin: 0 6px;
-                font-size: 13px;
+                margin: 0 10px;
+                font-size: 14px;
             }
 
             .container {
                 margin: 15px auto;
                 padding: 0 10px;
             }
+
+            .video-player-container {
+                padding: 12px;
+                margin-bottom: 20px;
+            }
+
+            .video-info h2 {
+                font-size: 18px;
+            }
+
+            .video-info p {
+                font-size: 13px;
+            }
+
+            .episode-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+            }
+
+            .thumbnail-box {
+                height: 90px;
+            }
+            
+            .episode-title {
+                font-size: 13px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header / Navbar Layout Navigation -->
     <header>
         <h1>MIRACULOUS<span>HUB</span></h1>
         <nav>
@@ -208,44 +337,26 @@
     </header>
 
     <div class="container">
+        <!-- Stream Player Container Dashboard -->
+        <div class="video-player-container" id="player-container">
+            <div class="video-wrapper" id="video-wrapper-target">
+                <video id="main-player" controls poster="https://via.placeholder.com/800x450/0b0c10/e50914?text=Select+an+Episode">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            
+            <div class="player-dashboard">
+                <div class="player-status-badge" id="status-badge">No Episode Loaded</div>
+                <div class="video-info">
+                    <h2 id="current-title">Select an Episode</h2>
+                    <p id="current-description">Choose a Season 6 episode below to begin streaming.</p>
+                </div>
+            </div>
+        </div>
+
         <h3 class="section-title">Season 6 Episodes</h3>
-        <div class="media-grid">
-            <a href="#" class="media-card" onclick="saveProgress('Episode 6.01: Climatiqueen', 'season-6.html', 'thumbnails/601.jpg'); return false;">
-                <div class="media-thumb" style="background-image: url('thumbnails/601.jpg');"></div>
-                <div class="media-details">
-                    <div>
-                        <div class="media-tag">Episode 6.01</div>
-                        <div class="media-title">Climatiqueen</div>
-                    </div>
-                </div>
-            </a>
-            <a href="#" class="media-card" onclick="saveProgress('Episode 6.22: Lady Chaos', 'season-6.html', 'thumbnails/622.jpg'); return false;">
-                <div class="media-thumb" style="background-image: url('thumbnails/622.jpg');"></div>
-                <div class="media-details">
-                    <div>
-                        <div class="media-tag">Episode 6.22</div>
-                        <div class="media-title">Lady Chaos</div>
-                    </div>
-                </div>
-            </a>
-            <a href="#" class="media-card" onclick="saveProgress('Episode 6.23: Sadnansi', 'season-6.html', 'thumbnails/623.jpg'); return false;">
-                <div class="media-thumb" style="background-image: url('thumbnails/623.jpg');"></div>
-                <div class="media-details">
-                    <div>
-                        <div class="media-tag">Episode 6.23</div>
-                        <div class="media-title">Sadnansi</div>
-                    </div>
-                </div>
-            </a>
-            <a href="#" class="media-card" onclick="saveProgress('Episode 6.24: Queen Of The Dreadzone', 'season-6.html', 'thumbnails/624.jpg'); return false;">
-                <div class="media-thumb" style="background-image: url('thumbnails/624.jpg');"></div>
-                <div class="media-details">
-                    <div>
-                        <div class="media-tag">Episode 6.24</div>
-                        <div class="media-title">Queen Of The Dreadzone</div>
-                    </div>
-                </div>
-            </a>
+        <div class="episode-grid" id="grid-container">
+            <!-- Dynamic S6 Items Go Here -->
         </div>
     </div>
 
@@ -254,11 +365,91 @@
     </footer>
 
     <script>
+        const episodeData = [
+            { id: "601", title: "Climatiqueen", url: "https://drive.google.com/file/d/1db63TiKDiWF7oGi6MrKgYDD_HNg3CioL/view?usp=sharing" },
+            { id: "602", title: "The Illustrhater", url: "https://drive.google.com/file/d/1hyXtlgy4-JI6K8z6k-E4Omaf5Ey5REmA/view?usp=sharing" },
+            { id: "603", title: "Sublimation", url: "https://drive.google.com/file/d/1DCWU73ZF2yRbHNOGm_t46KrtPLyeYIqE/view?usp=sharing" },
+            { id: "604", title: "Daddycop", url: "https://drive.google.com/file/d/1LHdTcfA-GQ145_T3nh_3mxtb6f3yOXPk/view?usp=sharing" },
+            { id: "605", title: "Werepapas", url: "https://drive.google.com/file/d/1pVOZ9qvp9LblcWc-UU22_GQfh8qRydH7/view?usp=sharing" },
+            { id: "606", title: "Sleeping Syren", url: "https://drive.google.com/file/d/1GveVI9HxT6kkoeVjzZOjM2EiI62gIihC/view?usp=sharing" },
+            { id: "607", title: "El Toro De Piedra", url: "https://drive.google.com/file/d/1icMAby4RD42q-6nVtOwBo95pBbr9K04f/view?usp=sharing" },
+            { id: "608", title: "Vampigami", url: "https://drive.google.com/file/d/1ObV6LxIThHgGDC_ntxdpQ5-clVYt9ZNG/view?usp=sharing" },
+            { id: "609", title: "Mister Agreste", url: "https://drive.google.com/file/d/1rco1NvHJU8PQMMOftC7hi0v9YQ20U_DN/view?usp=sharing" },
+            { id: "610", title: "The Dark Castle", url: "https://drive.google.com/file/d/1df_azj8MEB0U-nxB_8GqAuW7uZ0lRIg-/view?usp=sharing" },
+            { id: "611", title: "Revelator", url: "https://drive.google.com/file/d/1xwjzuufLzJVXVtxS_qIdLbQeesAm5W17/view?usp=sharing" },
+            { id: "612", title: "Wreckless Driver", url: "https://drive.google.com/file/d/1WsZOp5jLFgDpVTzg_HZYrw0J36dC9gHt/view?usp=sharing" },
+            { id: "613", title: "Yaksi Gozen", url: "https://drive.google.com/file/d/15W6zoGngBgDNv_3WI2wY52NePmZzrC9M/view?usp=sharing" },
+            { id: "614", title: "Grendiaper", url: "https://drive.google.com/file/d/190cGKIl4M_Uryp5LRaz6fW7000yfEMT5/view?usp=sharing" },
+            { id: "615", title: "The Ruler", url: "https://drive.google.com/file/d/1t_GZNh9XcVTw-BFtMzTQ2za_uBVZoCGY/view?usp=sharing" },
+            { id: "616", title: "Noe", url: "https://drive.google.com/file/d/1uRZbxwjlMj0OrljPsyY36FwfLV43jtDS/view?usp=sharing" },
+            { id: "617", title: "A Fairy Good Night", url: "https://drive.google.com/file/d/1SLfoYXpQTDKTYvp-Xi8nKYeQ88rZBZbe/view?usp=sharing" },
+            { id: "618", title: "The Dirtifiers", url: "https://drive.google.com/file/d/1LnNx27_EvdYz_ZKbyB_cndZue7MiIANQ/view?usp=sharing" },
+            { id: "619", title: "Riginarazione", url: "https://drive.google.com/file/d/1FlOKDLxLewGjcm2FPM56jUqzQ9DTnVyZ/view?usp=sharing" },
+            { id: "620", title: "Heartfixer", url: "https://drive.google.com/file/d/1LftUcJB_wOP4Rj9x730eOCXTFqzV3yKu/view?usp=sharing" },
+            { id: "621", title: "The Chained Titans", url: "https://drive.google.com/file/d/1UX97vnAn3SO3UoHaF_c3I7qBhj7KtSSg/view?usp=sharing" },
+            { id: "622", title: "Lady Chaos", url: "https://drive.google.com/file/d/1emg21AAGzWzM5BLfRU3epSmQTVitnwAM/view?usp=sharing" },
+            { id: "623", title: "Sadnansi", url: "https://drive.google.com/file/d/1w8TT001takExw9I5nC6Iaa4B5yayBC8U/view?usp=sharing" },
+            { id: "624", title: "Queen Of The Dreadzone", url: "https://drive.google.com/file/d/13ZeKq781tHgNTcMhOlH6U9UC4d0ZS0y-/view?usp=sharing" }
+        ];
+
+        const gridContainer = document.getElementById('grid-container');
+
+        function buildGrid() {
+            episodeData.forEach((ep) => {
+                const card = document.createElement('div');
+                card.className = 'episode-card';
+                card.id = `card-${ep.id}`;
+                
+                const thumbnailUrl = `thumbnails/${ep.id}.jpg`;
+                
+                card.innerHTML = `
+                    <div class="thumbnail-box" style="background-image: url('${thumbnailUrl}');"></div>
+                    <div class="episode-details">
+                        <div class="episode-number">Episode ${ep.id}</div>
+                        <div class="episode-title">${ep.title}</div>
+                    </div>
+                `;
+                
+                card.onclick = () => {
+                    changeVideo(ep.url, `Episode ${ep.id}: ${ep.title}`, ep.id);
+                    saveProgress(`Episode ${ep.id}: ${ep.title}`, 'season-6.html', thumbnailUrl);
+                };
+                gridContainer.appendChild(card);
+            });
+        }
+
+        function changeVideo(videoSrc, fullTitle, activeId) {
+            const wrapper = document.getElementById('video-wrapper-target');
+            const playerContainer = document.getElementById('player-container');
+            const statusBadge = document.getElementById('status-badge');
+            const titleElement = document.getElementById('current-title');
+            const descElement = document.getElementById('current-description');
+
+            document.querySelectorAll('.episode-card').forEach(card => card.classList.remove('is-playing'));
+            const activeCard = document.getElementById(`card-${activeId}`);
+            if(activeCard) activeCard.classList.add('is-playing');
+
+            playerContainer.classList.add('active-playing');
+            statusBadge.textContent = "Now Streaming";
+            titleElement.textContent = fullTitle;
+            descElement.textContent = "You are currently watching a streaming video source.";
+
+            let embedUrl = videoSrc.replace('/view?usp=sharing', '/preview');
+            if(!embedUrl.includes('/preview') && embedUrl.includes('/view')) {
+                 embedUrl = embedUrl.split('/view')[0] + '/preview';
+            }
+            
+            wrapper.innerHTML = `<iframe src="${embedUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>`;
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function saveProgress(title, page, thumbnail) {
             const data = { title, page, thumbnail };
             localStorage.setItem('miraculous_last_watched', JSON.stringify(data));
-            alert('Progress saved to Continue Watching: ' + title);
         }
+
+        buildGrid();
     </script>
 </body>
 </html>
