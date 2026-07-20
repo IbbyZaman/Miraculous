@@ -331,7 +331,9 @@
     <header>
         <h1>MIRACULOUS<span>HUB</span></h1>
         <nav>
-            <a href="index.html">Season 6</a>
+            <a href="index.html">Home</a>
+            <a href="season-5.html">Season 5</a>
+            <a href="season-6.html">Season 6</a>
             <a href="specials.html" class="active">Special Episodes</a>
         </nav>
     </header>
@@ -395,6 +397,7 @@
                 
                 card.onclick = () => {
                     changeVideo(ep.url, `Special: ${ep.title}`, ep.id);
+                    saveProgress(`Special: ${ep.title}`, 'specials.html', thumbnailUrl);
                 };
                 specialsContainer.appendChild(card);
             });
@@ -416,13 +419,19 @@
             titleElement.textContent = fullTitle;
             descElement.textContent = "You are currently watching a streaming video source.";
 
-            let embedUrl = videoSrc.replace('/view?usp=sharing', '/preview').replace('/file/d/', '/file/d/');
-            if(!embedUrl.includes('/preview')) {
+            let embedUrl = videoSrc.replace('/view?usp=sharing', '/preview');
+            if(!embedUrl.includes('/preview') && embedUrl.includes('/view')) {
                  embedUrl = embedUrl.split('/view')[0] + '/preview';
             }
-            wrapper.innerHTML = `<iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            
+            wrapper.innerHTML = `<iframe src="${embedUrl}" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>`;
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function saveProgress(title, page, thumbnail) {
+            const data = { title, page, thumbnail };
+            localStorage.setItem('miraculous_last_watched', JSON.stringify(data));
         }
 
         buildSpecialsGrid();
