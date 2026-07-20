@@ -449,7 +449,10 @@
             localStorage.setItem('miraculous_last_watched', JSON.stringify(data));
         }
 
-        buildGrid();
+        // Check if there's a saved episode query param or auto-load feature to check local storage on load if needed
+        window.addEventListener('DOMContentLoaded', () => {
+            buildGrid();
+        });
     </script>
 </body>
 </html>
