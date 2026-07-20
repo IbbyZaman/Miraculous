@@ -1,0 +1,93 @@
+/* Default Dark Theme Colors */
+:root {
+    --bg-color: #0d0d0d;
+    --nav-bg: #121212;
+    --text-color: #e0e0e0;
+    --text-muted: #888;
+    --card-bg: #161616;
+    --border-color: #222;
+    --card-border: #2a2a2a;
+}
+
+/* Light Theme Overrides */
+body.light-theme {
+    --bg-color: #f4f4f4;
+    --nav-bg: #ffffff;
+    --text-color: #222222;
+    --text-muted: #666666;
+    --card-bg: #ffffff;
+    --border-color: #ddd;
+    --card-border: #ccc;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background-color: var(--nav-bg);
+    margin: 0;
+    border-bottom: 1px solid var(--border-color);
+    align-items: center;
+}
+
+.nav-links a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.nav-links a:hover {
+    color: #ff4757;
+}
+
+.content-section {
+    padding: 40px 20px;
+    border-bottom: 1px solid var(--border-color);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.content-section h2 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+.log-card, .wild-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 20px;
+    border-radius: 8px;
+    color: var(--text-color);
+}
+
+.log-card .date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* Theme Toggle Button Style */
+.theme-toggle-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.theme-toggle-btn:hover {
+    border-color: #ff4757;
+}
