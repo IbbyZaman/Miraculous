@@ -279,6 +279,51 @@
             border-top: 1px solid #1f2833;
             margin-top: 40px;
         }
+/* Mobile Responsive Overrides */
+@media (max-width: 768px) {
+    header {
+        padding: 15px;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    nav a {
+        margin: 0 10px;
+        font-size: 14px;
+    }
+
+    .container {
+        margin: 15px auto;
+        padding: 0 10px;
+    }
+
+    .video-player-container {
+        padding: 12px;
+        margin-bottom: 20px;
+    }
+
+    .video-info h2 {
+        font-size: 18px;
+    }
+
+    .video-info p {
+        font-size: 13px;
+    }
+
+    .episode-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    .thumbnail-box {
+        height: 90px;
+    }
+    
+    .episode-title {
+        font-size: 13px;
+    }
+}
     </style>
 </head>
 <body>
