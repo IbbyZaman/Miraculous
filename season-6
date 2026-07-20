@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miraculous Hub - Season 6</title>
+    <style>
+        /* Global Styles & Dark Theme */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0b0c10;
+            color: #c5c6c7;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+        }
+
+        /* Navigation Bar */
+        header {
+            background-color: #1f2833;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e50914; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            color: #ffffff;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        header h1 span {
+            color: #e50914;
+        }
+
+        nav a {
+            color: #c5c6c7;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: #e50914;
+        }
+
+        /* Layout Container */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Section Titles */
+        .section-title {
+            color: #e50914;
+            margin: 25px 0 20px 0;
+            font-size: 22px;
+            border-left: 4px solid #e50914;
+            padding-left: 10px;
+        }
+
+        /* Episodes Grid */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .media-card {
+            background-color: #1f2833;
+            border-radius: 8px;
+            overflow: hidden;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .media-card:hover {
+            transform: translateY(-5px);
+            border-color: #e50914;
+            box-shadow: 0 5px 20px rgba(229, 9, 20, 0.3);
+        }
+
+        .media-thumb {
+            width: 100%;
+            height: 140px;
+            background-color: #0b0c10;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .media-thumb::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .media-thumb::after {
+            content: '▶ PLAY';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            background: rgba(229, 9, 20, 0.85);
+            padding: 6px 14px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .media-card:hover .media-thumb::after {
+            opacity: 1;
+        }
+
+        .media-details {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .media-tag {
+            font-size: 11px;
+            color: #e50914;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .media-title {
+            font-size: 15px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        footer {
+            background-color: #0b0c10;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: #666;
+            border-top: 1px solid #1f2833;
+            margin-top: 40px;
+        }
+
+        /* Mobile Responsive Overrides */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            nav a {
+                margin: 0 6px;
+                font-size: 13px;
+            }
+
+            .container {
+                margin: 15px auto;
+                padding: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header / Navbar Layout Navigation -->
+    <header>
+        <h1>MIRACULOUS<span>HUB</span></h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="season-5.html">Season 5</a>
+            <a href="season-6.html" class="active">Season 6</a>
+            <a href="specials.html">Special Episodes</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h3 class="section-title">Season 6 Episodes</h3>
+        <div class="media-grid">
+            <a href="#" class="media-card" onclick="saveProgress('Episode 6.01: Climatiqueen', 'season-6.html', 'thumbnails/601.jpg'); return false;">
+                <div class="media-thumb" style="background-image: url('thumbnails/601.jpg');"></div>
+                <div class="media-details">
+                    <div>
+                        <div class="media-tag">Episode 6.01</div>
+                        <div class="media-title">Climatiqueen</div>
+                    </div>
+                </div>
+            </a>
+            <a href="#" class="media-card" onclick="saveProgress('Episode 6.22: Lady Chaos', 'season-6.html', 'thumbnails/622.jpg'); return false;">
+                <div class="media-thumb" style="background-image: url('thumbnails/622.jpg');"></div>
+                <div class="media-details">
+                    <div>
+                        <div class="media-tag">Episode 6.22</div>
+                        <div class="media-title">Lady Chaos</div>
+                    </div>
+                </div>
+            </a>
+            <a href="#" class="media-card" onclick="saveProgress('Episode 6.23: Sadnansi', 'season-6.html', 'thumbnails/623.jpg'); return false;">
+                <div class="media-thumb" style="background-image: url('thumbnails/623.jpg');"></div>
+                <div class="media-details">
+                    <div>
+                        <div class="media-tag">Episode 6.23</div>
+                        <div class="media-title">Sadnansi</div>
+                    </div>
+                </div>
+            </a>
+            <a href="#" class="media-card" onclick="saveProgress('Episode 6.24: Queen Of The Dreadzone', 'season-6.html', 'thumbnails/624.jpg'); return false;">
+                <div class="media-thumb" style="background-image: url('thumbnails/624.jpg');"></div>
+                <div class="media-details">
+                    <div>
+                        <div class="media-tag">Episode 6.24</div>
+                        <div class="media-title">Queen Of The Dreadzone</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Miraculous Hub. For personal configurations.
+    </footer>
+
+    <script>
+        function saveProgress(title, page, thumbnail) {
+            const data = { title, page, thumbnail };
+            localStorage.setItem('miraculous_last_watched', JSON.stringify(data));
+            alert('Progress saved to Continue Watching: ' + title);
+        }
+    </script>
+</body>
+</html>
