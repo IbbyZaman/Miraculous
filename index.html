@@ -1,685 +1,1066 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Miraculous Hub - Home</title>
-    <!-- Firebase SDK Bundles -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-bundle.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-bundle.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-bundle.js"></script>
+
     <style>
+
         /* Global Styles & Dark Theme */
+
         * {
+
             margin: 0;
+
             padding: 0;
+
             box-sizing: border-box;
+
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
         }
+
+
 
         body {
+
             background-color: #0b0c10;
+
             color: #c5c6c7;
+
             display: flex;
+
             flex-direction: column;
+
             min-height: 100vh;
+
             scroll-behavior: smooth;
+
         }
+
+
 
         /* Navigation Bar */
+
         header {
+
             background-color: #1f2833;
+
             padding: 15px 30px;
+
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
+
             border-bottom: 2px solid #e50914; 
+
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+
             position: sticky;
+
             top: 0;
+
             z-index: 1000;
+
         }
+
+
 
         header h1 {
+
             color: #ffffff;
+
             font-size: 24px;
+
             letter-spacing: 1px;
+
         }
+
+
 
         header h1 span {
+
             color: #e50914;
+
         }
 
-        .nav-right {
-            display: flex;
-            align-items: center;
-        }
+
 
         nav a {
+
             color: #c5c6c7;
+
             text-decoration: none;
+
             margin-left: 20px;
+
             font-weight: 600;
+
             transition: color 0.3s ease;
+
         }
+
+
 
         nav a:hover, nav a.active {
+
             color: #e50914;
+
         }
 
-        #auth-btn {
-            background: #e50914;
-            color: #fff;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-left: 20px;
-        }
 
-        #auth-btn:hover {
-            background: #b20710;
-        }
 
         /* Layout Container */
+
         .container {
+
             max-width: 1200px;
+
             margin: 30px auto;
+
             padding: 0 20px;
+
             width: 100%;
+
             flex: 1;
+
         }
+
+
 
         /* Hero Banner Section */
+
         .hero-banner {
+
             background: linear-gradient(135deg, #1f2833, #0b0c10);
+
             border: 1px solid rgba(229, 9, 20, 0.3);
+
             border-radius: 12px;
+
             padding: 40px 30px;
+
             text-align: center;
+
             margin-bottom: 35px;
+
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+
         }
+
+
 
         .hero-banner h2 {
+
             color: #fff;
+
             font-size: 32px;
+
             margin-bottom: 10px;
+
         }
+
+
 
         .hero-banner h2 span {
+
             color: #e50914;
+
         }
+
+
 
         .hero-banner p {
+
             color: #8f9aa6;
+
             font-size: 15px;
+
             max-width: 700px;
+
             margin: 0 auto;
+
             line-height: 1.5;
+
         }
+
+
 
         /* Section Titles */
+
         .section-title {
+
             color: #e50914;
+
             margin: 35px 0 20px 0;
+
             font-size: 22px;
+
             border-left: 4px solid #e50914;
+
             padding-left: 10px;
+
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
+
         }
 
-        /* Media Grids */
+
+
+        /* Continue Watching & Latest Episodes Grids */
+
         .media-grid {
+
             display: grid;
+
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+
             gap: 20px;
+
         }
+
+
 
         .media-card {
+
             background-color: #1f2833;
+
             border-radius: 8px;
+
             overflow: hidden;
+
             text-decoration: none;
+
             border: 1px solid rgba(255, 255, 255, 0.05);
+
             transition: all 0.25s ease;
+
             display: flex;
+
             flex-direction: column;
+
         }
+
+
 
         .media-card:hover {
+
             transform: translateY(-5px);
+
             border-color: #e50914;
+
             box-shadow: 0 5px 20px rgba(229, 9, 20, 0.3);
+
         }
+
+
 
         .media-thumb {
+
             width: 100%;
+
             height: 140px;
+
             background-color: #0b0c10;
+
             background-size: cover;
+
             background-position: center;
+
             position: relative;
+
         }
+
+
 
         .media-thumb::before {
+
             content: '';
+
             position: absolute;
+
             top: 0;
+
             left: 0;
+
             width: 100%;
+
             height: 100%;
+
             background: rgba(0, 0, 0, 0.3);
+
         }
+
+
 
         .media-thumb::after {
+
             content: '▶ PLAY';
+
             position: absolute;
+
             top: 50%;
+
             left: 50%;
+
             transform: translate(-50%, -50%);
+
             font-size: 12px;
+
             font-weight: bold;
+
             color: #fff;
+
             background: rgba(229, 9, 20, 0.85);
+
             padding: 6px 14px;
+
             border-radius: 20px;
+
             letter-spacing: 1px;
+
             opacity: 0;
+
             transition: opacity 0.2s ease;
+
         }
+
+
 
         .media-card:hover .media-thumb::after {
+
             opacity: 1;
+
         }
+
+
 
         .media-details {
+
             padding: 15px;
+
             flex: 1;
+
             display: flex;
+
             flex-direction: column;
+
             justify-content: space-between;
+
         }
+
+
 
         .media-tag {
+
             font-size: 11px;
+
             color: #e50914;
+
             text-transform: uppercase;
+
             font-weight: bold;
+
             margin-bottom: 5px;
+
             letter-spacing: 1px;
+
         }
+
+
 
         .media-title {
+
             font-size: 15px;
+
             color: #fff;
+
             font-weight: 600;
+
         }
+
+
 
         .empty-notice {
+
             background-color: #1f2833;
+
             border-radius: 8px;
+
             padding: 25px;
+
             text-align: center;
+
             color: #8f9aa6;
+
             font-size: 14px;
+
             border: 1px dashed rgba(255, 255, 255, 0.1);
+
         }
+
+
 
         /* Countdown Section */
+
         .countdown-grid {
+
             display: grid;
+
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
             gap: 20px;
+
         }
+
+
 
         .countdown-card {
+
             background: linear-gradient(145deg, #1f2833, #151b22);
+
             border-radius: 8px;
+
             padding: 20px;
+
             border: 1px solid rgba(255, 255, 255, 0.05);
+
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+
             text-align: center;
+
         }
+
+
 
         .countdown-card h4 {
+
             color: #fff;
+
             font-size: 18px;
+
             margin-bottom: 5px;
+
         }
+
+
 
         .countdown-card .dub-label {
+
             font-size: 12px;
+
             color: #e50914;
+
             font-weight: bold;
+
             text-transform: uppercase;
+
             letter-spacing: 1px;
+
             margin-bottom: 15px;
+
             display: block;
+
         }
+
+
 
         .timer-display {
+
             display: flex;
+
             justify-content: center;
+
             gap: 10px;
+
         }
+
+
 
         .time-box {
+
             background-color: #0b0c10;
+
             padding: 10px;
+
             border-radius: 6px;
+
             min-width: 55px;
+
             border: 1px solid rgba(229, 9, 20, 0.2);
+
         }
+
+
 
         .time-value {
+
             font-size: 20px;
+
             font-weight: bold;
+
             color: #fff;
+
         }
+
+
 
         .time-label {
+
             font-size: 10px;
+
             color: #8f9aa6;
+
             text-transform: uppercase;
+
             margin-top: 2px;
+
         }
+
+
 
         /* Directory Hub Grid Cards */
+
         .hub-grid {
+
             display: grid;
+
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+
             gap: 20px;
+
             margin-top: 15px;
+
         }
+
+
 
         .hub-card {
+
             background-color: #1f2833;
+
             border-radius: 8px;
+
             overflow: hidden;
+
             text-decoration: none;
+
             border: 1px solid rgba(255, 255, 255, 0.05);
+
             transition: all 0.3s ease;
+
             padding: 20px;
+
             display: flex;
+
             flex-direction: column;
+
             justify-content: space-between;
+
         }
+
+
 
         .hub-card:hover {
+
             transform: translateY(-5px);
+
             border-color: #e50914;
+
             box-shadow: 0 8px 25px rgba(229, 9, 20, 0.3);
+
         }
+
+
 
         .hub-card h3 {
+
             color: #fff;
+
             font-size: 18px;
+
             margin-bottom: 8px;
+
         }
+
+
 
         .hub-card p {
+
             color: #8f9aa6;
+
             font-size: 13px;
+
             line-height: 1.5;
+
             margin-bottom: 15px;
+
         }
+
+
 
         .hub-action {
+
             color: #e50914;
+
             font-size: 12px;
+
             font-weight: bold;
+
             letter-spacing: 1px;
+
         }
+
+
 
         footer {
+
             background-color: #0b0c10;
+
             text-align: center;
+
             padding: 20px;
+
             font-size: 14px;
+
             color: #666;
+
             border-top: 1px solid #1f2833;
+
             margin-top: 40px;
+
         }
+
+
 
         /* Mobile Responsive Overrides */
+
         @media (max-width: 768px) {
+
             header {
+
                 padding: 15px;
+
                 flex-direction: column;
+
                 gap: 10px;
+
                 text-align: center;
+
             }
 
-            .nav-right {
-                flex-direction: column;
-                gap: 10px;
-            }
+
 
             nav a {
+
                 margin: 0 6px;
+
                 font-size: 13px;
+
             }
 
-            #auth-btn {
-                margin-left: 0;
-            }
+
 
             .container {
+
                 margin: 15px auto;
+
                 padding: 0 10px;
+
             }
+
+
 
             .hero-banner {
+
                 padding: 25px 15px;
+
             }
+
+
 
             .hero-banner h2 {
+
                 font-size: 24px;
+
             }
+
+
 
             .hero-banner p {
+
                 font-size: 13px;
+
             }
+
         }
+
     </style>
+
 </head>
+
 <body>
 
+
+
     <!-- Header / Navbar Layout Navigation -->
+
     <header>
+
         <h1>MIRACULOUS<span>HUB</span></h1>
-        <div class="nav-right">
-            <nav>
-                <a href="index.html" class="active">Home</a>
-                <a href="season-5.html">Season 5</a>
-                <a href="season-6.html">Season 6</a>
-                <a href="specials.html">Special Episodes</a>
-            </nav>
-            <button id="auth-btn">Sign In</button>
-        </div>
+
+        <nav>
+
+            <a href="index.html" class="active">Home</a>
+
+            <a href="season-5.html">Season 5</a>
+
+            <a href="season-6.html">Season 6</a>
+
+            <a href="specials.html">Special Episodes</a>
+
+        </nav>
+
     </header>
 
+
+
     <div class="container">
+
         <!-- Hero Section -->
+
         <div class="hero-banner">
+
             <h2>Welcome to Miraculous <span>Hub</span></h2>
+
             <p>Your ultimate dark-themed streaming gateway for all seasons, latest episode trackers, and countdown releases.</p>
+
         </div>
 
-        <!-- Section: Continue Watching & History -->
+
+
+        <!-- Section: Continue Watching -->
+
         <h3 class="section-title">Continue Watching</h3>
+
         <div id="continue-watching-container">
-            <div class="empty-notice">No active history found. Choose an episode from Season 5, Season 6, or Specials to start streaming!</div>
+
+            <!-- Dynamically populated via localStorage -->
+
+            <div class="empty-notice">No active history found. Choose an episode from Season 5 or Season 6 to start streaming!</div>
+
         </div>
+
+
 
         <!-- Section: Latest Season 6 Episodes (Next 3) -->
+
         <h3 class="section-title">Latest Season 6 Episodes</h3>
+
         <div class="media-grid">
+
             <a href="season-6.html" class="media-card">
+
                 <div class="media-thumb" style="background-image: url('thumbnails/622.jpg');"></div>
+
                 <div class="media-details">
+
                     <div>
+
                         <div class="media-tag">Episode 6.22</div>
+
                         <div class="media-title">Lady Chaos</div>
+
                     </div>
+
                 </div>
+
             </a>
+
             <a href="season-6.html" class="media-card">
+
                 <div class="media-thumb" style="background-image: url('thumbnails/623.jpg');"></div>
+
                 <div class="media-details">
+
                     <div>
+
                         <div class="media-tag">Episode 6.23</div>
+
                         <div class="media-title">Sadnansi</div>
+
                     </div>
+
                 </div>
+
             </a>
+
             <a href="season-6.html" class="media-card">
+
                 <div class="media-thumb" style="background-image: url('thumbnails/624.jpg');"></div>
+
                 <div class="media-details">
+
                     <div>
+
                         <div class="media-tag">Episode 6.24</div>
+
                         <div class="media-title">Queen Of The Dreadzone</div>
+
                     </div>
+
                 </div>
+
             </a>
+
         </div>
+
+
 
         <!-- Section: Upcoming Releases Countdowns -->
+
         <h3 class="section-title">Upcoming Releases</h3>
+
         <div class="countdown-grid">
-            <div class="countdown-card">
-                <h4>Secret Protocol</h4>
-                <span class="dub-label">English Dub Release</span>
-                <div class="timer-display" id="timer-protocol">
-                    <div class="time-box"><div class="time-value" id="p-days">00</div><div class="time-label">Days</div></div>
-                    <div class="time-box"><div class="time-value" id="p-hours">00</div><div class="time-label">Hours</div></div>
-                    <div class="time-box"><div class="time-value" id="p-mins">00</div><div class="time-label">Mins</div></div>
-                    <div class="time-box"><div class="time-value" id="p-secs">00</div><div class="time-label">Secs</div></div>
-                </div>
-            </div>
 
             <div class="countdown-card">
-                <h4>Nemesis</h4>
-                <span class="dub-label">English DubRelease</span>
-                <div class="timer-display" id="timer-nemesis">
-                    <div class="time-box"><div class="time-value" id="n-days">00</div><div class="time-label">Days</div></div>
-                    <div class="time-box"><div class="time-value" id="n-hours">00</div><div class="time-label">Hours</div></div>
-                    <div class="time-box"><div class="time-value" id="n-mins">00</div><div class="time-label">Mins</div></div>
-                    <div class="time-box"><div class="time-value" id="n-secs">00</div><div class="time-label">Secs</div></div>
+
+                <h4>Secret Protocol</h4>
+
+                <span class="dub-label">English Dub Release</span>
+
+                <div class="timer-display" id="timer-protocol">
+
+                    <div class="time-box"><div class="time-value" id="p-days">00</div><div class="time-label">Days</div></div>
+
+                    <div class="time-box"><div class="time-value" id="p-hours">00</div><div class="time-label">Hours</div></div>
+
+                    <div class="time-box"><div class="time-value" id="p-mins">00</div><div class="time-label">Mins</div></div>
+
+                    <div class="time-box"><div class="time-value" id="p-secs">00</div><div class="time-label">Secs</div></div>
+
                 </div>
+
             </div>
+
+
+
+            <div class="countdown-card">
+
+                <h4>Nemesis</h4>
+
+                <span class="dub-label">English Dub Release</span>
+
+                <div class="timer-display" id="timer-nemesis">
+
+                    <div class="time-box"><div class="time-value" id="n-days">00</div><div class="time-label">Days</div></div>
+
+                    <div class="time-box"><div class="time-value" id="n-hours">00</div><div class="time-label">Hours</div></div>
+
+                    <div class="time-box"><div class="time-value" id="n-mins">00</div><div class="time-label">Mins</div></div>
+
+                    <div class="time-box"><div class="time-value" id="n-secs">00</div><div class="time-label">Secs</div></div>
+
+                </div>
+
+            </div>
+
         </div>
+
+
 
         <!-- Section: Quick Hub Navigation Directories -->
+
         <h3 class="section-title">Explore Hub Directories</h3>
+
         <div class="hub-grid">
+
             <a href="season-5.html" class="hub-card">
+
                 <div>
+
                     <h3>Season 5</h3>
+
                     <p>Stream all episodes from Evolution to Migration.</p>
+
                 </div>
+
                 <span class="hub-action">Browse Season 5 &rarr;</span>
+
             </a>
+
             <a href="season-6.html" class="hub-card">
+
                 <div>
+
                     <h3>Season 6</h3>
+
                     <p>Stream all the latest Season 6 episode lineup.</p>
+
                 </div>
+
                 <span class="hub-action">Browse Season 6 &rarr;</span>
+
             </a>
+
             <a href="specials.html" class="hub-card">
+
                 <div>
-                    <h3>Season 6 Specials</h3>
+
+                    <h3>Special Episodes</h3>
+
                     <p>Explore movie features and world specials.</p>
+
                 </div>
+
                 <span class="hub-action">Browse Specials &rarr;</span>
+
             </a>
+
         </div>
+
     </div>
 
+
+
     <footer>
+
         &copy; 2026 Miraculous Hub. For personal configurations.
+
     </footer>
 
+
+
     <script>
-        // Explicitly load Firebase Auth and Firestore from CDN bundles
-        const { initializeApp } = window.firebase.app;
-        const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } = window.firebase.auth;
-        const { getFirestore, doc, setDoc, getDoc } = window.firebase.firestore;
 
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBndazB7-e9QWMkYt2vCA1h_B097k4Wgsg",
-            authDomain: "miraculoushub0.firebaseapp.com",
-            projectId: "miraculoushub0",
-            storageBucket: "miraculoushub0.firebasestorage.app",
-            messagingSenderId: "570314503995",
-            appId: "1:570314503995:web:80018441d8fb3cecfe291e",
-            measurementId: "G-6K9W3X96EY"
-        };
+        // Check local storage for continue watching data
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        const lastWatched = localStorage.getItem('miraculous_last_watched');
 
-        let currentUser = null;
+        const container = document.getElementById('continue-watching-container');
 
-        // Load and Render Watch History (Unlimited History Support)
-        function renderWatchHistory() {
-            const container = document.getElementById('continue-watching-container');
-            const historyRaw = localStorage.getItem('miraculous_watch_history');
-            
-            if (!historyRaw) return;
+
+
+        if (lastWatched) {
 
             try {
-                const history = JSON.parse(historyRaw);
-                if (history.length === 0) return;
 
-                let cardsHtml = '';
-                history.forEach(item => {
-                    cardsHtml += `
-                        <a href="${item.page}" class="media-card">
-                            <div class="media-thumb" style="background-image: url('${item.thumbnail}');"></div>
+                const data = JSON.parse(lastWatched);
+
+                container.innerHTML = `
+
+                    <div class="media-grid">
+
+                        <a href="${data.page}" class="media-card" style="max-width: 320px;">
+
+                            <div class="media-thumb" style="background-image: url('${data.thumbnail}');"></div>
+
                             <div class="media-details">
+
                                 <div>
-                                    <div class="media-tag">Watched Episode</div>
-                                    <div class="media-title">${item.title}</div>
+
+                                    <div class="media-tag">Resume Playback</div>
+
+                                    <div class="media-title">${data.title}</div>
+
                                 </div>
+
                             </div>
+
                         </a>
-                    `;
-                });
 
-                container.innerHTML = `<div class="media-grid">${cardsHtml}</div>`;
+                    </div>
+
+                `;
+
             } catch (e) {
-                console.error("Error parsing watch history:", e);
+
+                // fallback if parse fails
+
             }
+
         }
 
-        // Global function to save progress with unlimited history stack
-        window.saveProgress = async function(title, page, thumbnail) {
-            const newItem = { title, page, thumbnail, updatedAt: new Date().toISOString() };
-            
-            let history = [];
-            const existing = localStorage.getItem('miraculous_watch_history');
-            if (existing) {
-                try {
-                    history = JSON.parse(existing);
-                } catch (e) {
-                    history = [];
-                }
-            }
 
-            history = history.filter(item => item.title !== title);
-            history.unshift(newItem);
 
-            localStorage.setItem('miraculous_watch_history', JSON.stringify(history));
-            renderWatchHistory();
+        // Countdown Timer Logic
 
-            if (currentUser) {
-                try {
-                    await setDoc(doc(db, "users", currentUser.uid), {
-                        watchHistory: history
-                    }, { merge: true });
-                } catch (error) {
-                    console.error("Error saving history to cloud:", error);
-                }
-            }
-        };
-
-        // Sign In / Sign Up Modal Flow Handler
-        function handleAuthAction() {
-            if (currentUser) {
-                signOut(auth)
-                    .then(() => alert("Signed out successfully!"))
-                    .catch((error) => alert("Sign out error: " + error.message));
-                return;
-            }
-
-            const email = prompt("Enter your email:");
-            if (!email) return;
-            const password = prompt("Enter your password (min 6 characters):");
-            if (!password) return;
-
-            const action = confirm("Click OK to Sign In, or Cancel to create a new account (Sign Up).");
-
-            if (action) {
-                signInWithEmailAndPassword(auth, email.trim(), password)
-                    .then(() => alert("Signed in successfully!"))
-                    .catch((error) => alert("Sign in error: " + error.message));
-            } else {
-                createUserWithEmailAndPassword(auth, email.trim(), password)
-                    .then(() => alert("Account created and signed in!"))
-                    .catch((error) => alert("Sign up error: " + error.message));
-            }
-        }
-
-        // Attach event listener directly to the button element
-        document.getElementById('auth-btn').addEventListener('click', handleAuthAction);
-
-        // Firebase Auth State Listener
-        onAuthStateChanged(auth, async (user) => {
-            const authBtn = document.getElementById('auth-btn');
-            if (user) {
-                currentUser = user;
-                authBtn.textContent = "Sign Out";
-
-                try {
-                    const docRef = doc(db, "users", user.uid);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists() && docSnap.data().watchHistory) {
-                        const cloudHistory = docSnap.data().watchHistory;
-                        localStorage.setItem('miraculous_watch_history', JSON.stringify(cloudHistory));
-                        renderWatchHistory();
-                    }
-                } catch (error) {
-                    console.error("Error fetching cloud history:", error);
-                }
-            } else {
-                currentUser = null;
-                authBtn.textContent = "Sign In";
-            }
-        });
-
-        // Initialize local history render on load
-        renderWatchHistory();
-
-        // Countdown Timer Logic (Updated targets to August 2026 to ensure active time calculation)
         const targetProtocol = new Date("August 1, 2026 08:00:00").getTime();
+
         const targetNemesis = new Date("August 8, 2026 08:00:00").getTime();
 
+
+
         function updateCountdowns() {
+
             const now = new Date().getTime();
 
+
+
             // Protocol Timer
+
             const diffProtocol = targetProtocol - now;
+
             if (diffProtocol > 0) {
+
                 document.getElementById('p-days').textContent = String(Math.floor(diffProtocol / (1000 * 60 * 60 * 24))).padStart(2, '0');
+
                 document.getElementById('p-hours').textContent = String(Math.floor((diffProtocol % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+
                 document.getElementById('p-mins').textContent = String(Math.floor((diffProtocol % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+
                 document.getElementById('p-secs').textContent = String(Math.floor((diffProtocol % (1000 * 60)) / 1000)).padStart(2, '0');
+
             } else {
-                document.getElementById('timer-protocol').innerHTML = '<div style="color: #e50914; font-weight: bold; padding: 10px; font-size: 13px;">RELEASED & AVAILABLE!</div>';
+
+                document.getElementById('timer-protocol').innerHTML = '<div style="color: #e50914; font-weight: bold; padding: 10px;">RELEASED & AVAILABLE!</div>';
+
             }
+
+
 
             // Nemesis Timer
+
             const diffNemesis = targetNemesis - now;
+
             if (diffNemesis > 0) {
+
                 document.getElementById('n-days').textContent = String(Math.floor(diffNemesis / (1000 * 60 * 60 * 24))).padStart(2, '0');
+
                 document.getElementById('n-hours').textContent = String(Math.floor((diffNemesis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+
                 document.getElementById('n-mins').textContent = String(Math.floor((diffNemesis % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+
                 document.getElementById('n-secs').textContent = String(Math.floor((diffNemesis % (1000 * 60)) / 1000)).padStart(2, '0');
+
             } else {
-                document.getElementById('timer-nemesis').innerHTML = '<div style="color: #e50914; font-weight: bold; padding: 10px; font-size: 13px;">RELEASED & AVAILABLE!</div>';
+
+                document.getElementById('timer-nemesis').innerHTML = '<div style="color: #e50914; font-weight: bold; padding: 10px;">RELEASED & AVAILABLE!</div>';
+
             }
+
         }
 
+
+
         setInterval(updateCountdowns, 1000);
+
         updateCountdowns();
+
     </script>
+
 </body>
-</html>
+
+</html> 
+
