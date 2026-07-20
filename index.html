@@ -6,6 +6,8 @@
     <title>Miraculous Hub - Home</title>
     <!-- Firebase SDK Bundles -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-bundle.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-bundle.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-bundle.js"></script>
     <style>
         /* Global Styles & Dark Theme */
         * {
@@ -397,7 +399,7 @@
                 <a href="season-6.html">Season 6</a>
                 <a href="specials.html">Special Episodes</a>
             </nav>
-            <button id="auth-btn" onclick="openAuthModal()">Sign In</button>
+            <button id="auth-btn">Sign In</button>
         </div>
     </header>
 
@@ -491,7 +493,7 @@
             </a>
             <a href="specials.html" class="hub-card">
                 <div>
-                    <h3>Special Episodes</h3>
+                    <h3>Season 6 Specials</h3>
                     <p>Explore movie features and world specials.</p>
                 </div>
                 <span class="hub-action">Browse Specials &rarr;</span>
@@ -504,7 +506,7 @@
     </footer>
 
     <script>
-        // Import modular Firebase functions from the global bundle CDN
+        // Explicitly load Firebase Auth and Firestore from CDN bundles
         const { initializeApp } = window.firebase.app;
         const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } = window.firebase.auth;
         const { getFirestore, doc, setDoc, getDoc } = window.firebase.firestore;
@@ -572,15 +574,12 @@
                 }
             }
 
-            // Remove duplicate entries of the same title, then put the new one at the front
             history = history.filter(item => item.title !== title);
             history.unshift(newItem);
 
-            // Save back to local storage
             localStorage.setItem('miraculous_watch_history', JSON.stringify(history));
             renderWatchHistory();
 
-            // Sync with Firebase Cloud if authenticated
             if (currentUser) {
                 try {
                     await setDoc(doc(db, "users", currentUser.uid), {
@@ -592,15 +591,43 @@
             }
         };
 
+        // Sign In / Sign Up Modal Flow Handler
+        function handleAuthAction() {
+            if (currentUser) {
+                signOut(auth)
+                    .then(() => alert("Signed out successfully!"))
+                    .catch((error) => alert("Sign out error: " + error.message));
+                return;
+            }
+
+            const email = prompt("Enter your email:");
+            if (!email) return;
+            const password = prompt("Enter your password (min 6 characters):");
+            if (!password) return;
+
+            const action = confirm("Click OK to Sign In, or Cancel to create a new account (Sign Up).");
+
+            if (action) {
+                signInWithEmailAndPassword(auth, email.trim(), password)
+                    .then(() => alert("Signed in successfully!"))
+                    .catch((error) => alert("Sign in error: " + error.message));
+            } else {
+                createUserWithEmailAndPassword(auth, email.trim(), password)
+                    .then(() => alert("Account created and signed in!"))
+                    .catch((error) => alert("Sign up error: " + error.message));
+            }
+        }
+
+        // Attach event listener directly to the button element
+        document.getElementById('auth-btn').addEventListener('click', handleAuthAction);
+
         // Firebase Auth State Listener
         onAuthStateChanged(auth, async (user) => {
             const authBtn = document.getElementById('auth-btn');
             if (user) {
                 currentUser = user;
                 authBtn.textContent = "Sign Out";
-                authBtn.onclick = () => signOut(auth);
 
-                // Fetch full watch history from Firestore cloud
                 try {
                     const docRef = doc(db, "users", user.uid);
                     const docSnap = await getDoc(docRef);
@@ -615,29 +642,8 @@
             } else {
                 currentUser = null;
                 authBtn.textContent = "Sign In";
-                authBtn.onclick = openAuthModal;
             }
         });
-
-        // Sign In / Sign Up Modal Flow
-        window.openAuthModal = function() {
-            const email = prompt("Enter your email:");
-            if (!email) return;
-            const password = prompt("Enter your password (min 6 characters):");
-            if (!password) return;
-
-            const action = confirm("Click OK to Sign In, or Cancel to create a new account (Sign Up).");
-
-            if (action) {
-                signInWithEmailAndPassword(auth, email, password)
-                    .then(() => alert("Signed in successfully!"))
-                    .catch((error) => alert("Error: " + error.message));
-            } else {
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then(() => alert("Account created and signed in!"))
-                    .catch((error) => alert("Error: " + error.message));
-            }
-        };
 
         // Initialize local history render on load
         renderWatchHistory();
@@ -657,7 +663,7 @@
                 document.getElementById('p-mins').textContent = String(Math.floor((diffProtocol % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
                 document.getElementById('p-secs').textContent = String(Math.floor((diffProtocol % (1000 * 60)) / 1000)).padStart(2, '0');
             } else {
-                document.getElementById('timer-protocol').innerHTML = '<div style="color: #e50914; font-weight: bold; padding: 10px;">RELEASED & AVAILABLE!</div>';
+                document.getElementById('timer-protocol').innerHTML = '<div style="color: #e50914; font-weight: bold; padding: 10px; font-size: 13px;">RELEASED & AVAILABLE!</div>';
             }
 
             // Nemesis Timer
@@ -668,7 +674,7 @@
                 document.getElementById('n-mins').textContent = String(Math.floor((diffNemesis % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
                 document.getElementById('n-secs').textContent = String(Math.floor((diffNemesis % (1000 * 60)) / 1000)).padStart(2, '0');
             } else {
-                document.getElementById('timer-nemesis').innerHTML = '<div style="color: #e50914; font-weight: bold; padding: 10px;">RELEASED & AVAILABLE!</div>';
+                document.getElementById('timer-nemesis').innerHTML = '<div style="color: #e50914; font-weight: bold; padding: 10px; font-size: 13px;">RELEASED & AVAILABLE!</div>';
             }
         }
 
