@@ -1,1 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miraculous Hub - Announcements</title>
+    <style>
+        /* Global Styles & Dark Theme */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
+        body {
+            background-color: #0b0c10;
+            color: #c5c6c7;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+        }
+
+        /* Navigation Bar */
+        header {
+            background-color: #1f2833;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e50914; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            color: #ffffff;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        header h1 span {
+            color: #e50914;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+        }
+
+        nav a {
+            color: #c5c6c7;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: #e50914;
+        }
+
+        /* Layout Container */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Hero Banner Section */
+        .hero-banner {
+            background: linear-gradient(135deg, #1f2833, #0b0c10);
+            border: 1px solid rgba(229, 9, 20, 0.3);
+            border-radius: 12px;
+            padding: 40px 30px;
+            text-align: center;
+            margin-bottom: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .hero-banner h2 {
+            color: #fff;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .hero-banner h2 span {
+            color: #e50914;
+        }
+
+        .hero-banner p {
+            color: #8f9aa6;
+            font-size: 15px;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        /* Section Titles */
+        .section-title {
+            color: #e50914;
+            margin: 35px 0 20px 0;
+            font-size: 22px;
+            border-left: 4px solid #e50914;
+            padding-left: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Log Card Styles */
+        .log-card {
+            background-color: #1f2833;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            margin-bottom: 20px;
+        }
+
+        .log-card .date {
+            font-size: 11px;
+            color: #e50914;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .log-card h4 {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .log-card p {
+            color: #8f9aa6;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        footer {
+            background-color: #0b0c10;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: #666;
+            border-top: 1px solid #1f2833;
+            margin-top: 40px;
+        }
+
+        /* Mobile Responsive Overrides */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            nav a {
+                margin: 0 6px;
+                font-size: 13px;
+            }
+
+            .container {
+                margin: 15px auto;
+                padding: 0 10px;
+            }
+
+            .hero-banner {
+                padding: 25px 15px;
+            }
+
+            .hero-banner h2 {
+                font-size: 24px;
+            }
+
+            .hero-banner p {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header / Navbar Layout Navigation -->
+    <header>
+        <h1>MIRACULOUS<span>HUB</span></h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="season-5.html">Season 5</a>
+            <a href="season-6.html">Season 6</a>
+            <a href="specials.html">Special Episodes</a>
+            <a href="announcements.html" class="active">Announcements</a>
+        </nav>
+    </header>
+
+    <div class="container">
+
+        <!-- Hero Section -->
+        <div class="hero-banner">
+            <h2>Site <span>Announcements</span> & Update Logs</h2>
+            <p>Keep track of all recent updates, code enhancements, and layout additions to Miraculous Hub.</p>
+        </div>
+
+        <!-- Section: Update Logs -->
+        <h3 class="section-title">Update History</h3>
+        
+        <div class="log-card">
+            <span class="date">July 20, 2026</span>
+            <h4>Domain Migration</h4>
+            <p>Successfully migrated the web project domain to GitHub Pages with a consistent dark-themed streaming layout.</p>
+        </div>
+
+        <div class="log-card">
+            <span class="date">July 18, 2026</span>
+            <h4>Continue Watching System</h4>
+            <p>Added dynamic `localStorage` tracking so you can seamlessly resume playback right where you left off on Season 5 and Season 6 episodes.</p>
+        </div>
+
+        <div class="log-card">
+            <span class="date">July 10, 2026</span>
+            <h4>Countdown Timers Release</h4>
+            <p>Launched live countdown modules for upcoming English dub release dates like Secret Protocol and Nemesis.</p>
+        </div>
+
+    </div>
+
+    <footer>
+        &copy; 2026 Miraculous Hub. For personal configurations.
+    </footer>
+
+</body>
+</html>
