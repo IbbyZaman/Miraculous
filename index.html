@@ -838,6 +838,26 @@
 
             <div class="countdown-card">
 
+                <h4>Queen of the Dreadzone</h4>
+
+                <span class="dub-label">English Dub Release</span>
+
+                <div class="timer-display" id="timer-dreadzone">
+
+                    <div class="time-box"><div class="time-value" id="q-days">00</div><div class="time-label">Days</div></div>
+
+                    <div class="time-box"><div class="time-value" id="q-hours">00</div><div class="time-label">Hours</div></div>
+
+                    <div class="time-box"><div class="time-value" id="q-mins">00</div><div class="time-label">Mins</div></div>
+
+                    <div class="time-box"><div class="time-value" id="q-secs">00</div><div class="time-label">Secs</div></div>
+
+                </div>
+
+            </div>
+
+            <div class="countdown-card">
+
                 <h4>Secret Protocol</h4>
 
                 <span class="dub-label">English Dub Release</span>
@@ -997,6 +1017,7 @@
 
 
         // Countdown Timer Logic
+        const targetDreadzone = new Date("July 25, 2026 08:00:00").getTime();
 
         const targetProtocol = new Date("August 1, 2026 08:00:00").getTime();
 
@@ -1008,6 +1029,24 @@
 
             const now = new Date().getTime();
 
+            // Dreadzone Timer
+            const diffDreadzone = targetDreadzone - now;
+
+            if (diffDreadzone > 0) {
+
+                document.getElementById('q-days').textContent = String(Math.floor(diffDreadzone / (1000 * 60 * 60 * 24))).padStart(2, '0');
+
+                document.getElementById('q-hours').textContent = String(Math.floor((diffDreadzone % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+
+                document.getElementById('q-mins').textContent = String(Math.floor((diffDreadzone % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+
+                document.getElementById('q-secs').textContent = String(Math.floor((diffDreadzone % (1000 * 60)) / 1000)).padStart(2, '0');
+
+            } else {
+
+                document.getElementById('timer-dreadzone').innerHTML = '<div style="color: #e50914; font-weight: bold; padding: 10px;">RELEASED & AVAILABLE!</div>';
+
+            }
 
 
             // Protocol Timer
@@ -1085,5 +1124,4 @@
 </script>
 </body>
 
-</html> 
-
+</html>
