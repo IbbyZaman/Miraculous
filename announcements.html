@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-  gtag('config', 'G-6K9W3X96EY');
-</script>
+      gtag('config', 'G-6K9W3X96EY');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miraculous Hub - Announcements</title>
@@ -155,6 +155,61 @@
             margin-bottom: 12px;
         }
 
+        /* Custom Featured S5 Card Styling */
+        .card.featured-drop {
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, #1f2833 60%);
+            border: 1px solid #e50914;
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.25);
+        }
+
+        .info-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: rgba(11, 12, 16, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            color: #39ff14;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            color: #8a96a3;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .btn-stream {
+            display: inline-block;
+            background: #e50914;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-top: 5px;
+        }
+
+        .btn-stream:hover {
+            background: #ff1e27;
+            transform: translateY(-2px);
+        }
+
         /* Countdown Timer Box */
         .timer-grid {
             display: grid;
@@ -273,17 +328,6 @@
 
     <div class="container">
 
-        <div class="container">
-
-    <!-- Hero Banner -->
-    <div class="hero-banner"> ... </div>
-
-    <!-- PASTE THE ANNOUNCEMENT CODE RIGHT HERE -->
-
-    <!-- Live Countdown Section -->
-    <h3 class="section-title">Upcoming English Dub Countdowns</h3>
-    ...
-
         <!-- Hero Section -->
         <div class="hero-banner">
             <h2>Site <span>Announcements</span> & Updates</h2>
@@ -292,6 +336,34 @@
 
         <!-- Section: Latest Announcements -->
         <h3 class="section-title">Latest Announcements</h3>
+
+        <!-- Season 5 Full Drop Announcement -->
+        <div class="card featured-drop">
+            <span class="tag">🔥 Major Archive Update • July 22, 2026</span>
+            <h4>Full Season 5 Is Now Uploaded!</h4>
+            <p>Every single episode of <strong>Season 5</strong> has officially been encoded, indexed, and uploaded in full quality. From <em>Evolution</em> all the way to the finale, you can now stream the full season right here on <strong>www.miraculoushub.co.uk</strong>.</p>
+            
+            <div class="info-stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">27 / 27</div>
+                    <div class="stat-label">Episodes Ready</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">1080p</div>
+                    <div class="stat-label">HD Stream</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">ENG DUB</div>
+                    <div class="stat-label">Audio Track</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">Complete</div>
+                </div>
+            </div>
+
+            <a href="season-5.html" class="btn-stream">▶ Stream Season 5 Now</a>
+        </div>
 
         <!-- Website Migration Notice -->
         <div class="card">
@@ -433,6 +505,8 @@
     <script>
         function startCountdown(targetDateStr, elementId) {
             const timerElement = document.getElementById(elementId);
+            if (!timerElement) return;
+
             const targetDate = new Date(targetDateStr).getTime();
 
             function updateTimer() {
@@ -449,4 +523,15 @@
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                Normally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
+                timerElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }
+
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        startCountdown("August 1, 2026 08:00:00", "timer-secret-protocol");
+        startCountdown("August 8, 2026 08:00:00", "timer-nemesis");
+    </script>
+</body>
+</html>
