@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineStream Hub</title>
+  <title>MiraculousHub</title>
   <style>
     * {
       box-sizing: border-box;
@@ -69,7 +69,6 @@
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
-      transition: background-color 0.2s;
     }
 
     .search-box button:hover {
@@ -84,7 +83,20 @@
       width: 100%;
     }
 
-    /* Video Player Section */
+    /* Status & Error Alerts */
+    .status-alert {
+      display: none;
+      background-color: #3d1a1d;
+      border: 1px solid #e50914;
+      color: #ffb3b6;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    /* Player Container */
     .player-container {
       display: none;
       margin-bottom: 3rem;
@@ -96,7 +108,7 @@
 
     .player-wrapper {
       position: relative;
-      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+      padding-bottom: 56.25%;
       height: 0;
     }
 
@@ -135,7 +147,7 @@
       background-color: #3e455e;
     }
 
-    /* Movies Grid */
+    /* Movie Grid */
     .section-title {
       font-size: 1.3rem;
       margin-bottom: 1.5rem;
@@ -155,7 +167,6 @@
       overflow: hidden;
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
-      position: relative;
     }
 
     .movie-card:hover {
@@ -168,6 +179,7 @@
       height: 270px;
       object-fit: cover;
       display: block;
+      background-color: #232736;
     }
 
     .movie-info {
@@ -216,6 +228,8 @@
   </header>
 
   <main>
+    <div id="statusAlert" class="status-alert"></div>
+
     <!-- Player Container -->
     <div class="player-container" id="playerContainer">
       <div class="player-wrapper">
@@ -237,8 +251,8 @@
   </footer>
 
   <script>
-    // Read-only public TMDB API key for fetching movie metadata
-    const API_KEY = '15d2ce675438e3b2ae9220e910e9e747';
+    // Public TMDB API Key
+    let API_KEY = '3fd2be6f0c70a2a598f084dd27581c8d';
     const BASE_URL = 'https://api.themoviedb.org/3';
     const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
 
@@ -248,19 +262,43 @@
     const playerContainer = document.getElementById('playerContainer');
     const videoPlayer = document.getElementById('videoPlayer');
     const playerTitle = document.getElementById('playerTitle');
+    const statusAlert = document.getElementById('statusAlert');
 
-    // Fetch popular movies on initial load
+    // Fallback list of popular movies if API is blocked by ISP or AdBlock
+    const fallbackMovies = [
+      { id: 550, title: "Fight Club", release_date: "1999-10-15", vote_average: 8.4, poster_path: "/pB8O2CY3kxA16P8y3S351t2A89.jpg" },
+      { id: 27205, title: "Inception", release_date: "2010-07-16", vote_average: 8.4, poster_path: "/oYuLE291oAev3fRDEC1P9C3vR25.jpg" },
+      { id: 157336, title: "Interstellar", release_date: "2014-11-05", vote_average: 8.4, poster_path: "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" },
+      { id: 299536, title: "Avengers: Infinity War", release_date: "2018-04-25", vote_average: 8.3, poster_path: "/7WsyChLLEz33B3239999.jpg" },
+      { id: 155, title: "The Dark Knight", release_date: "2008-07-18", vote_average: 8.5, poster_path: "/qJ2tW6WMUDux911222.jpg" }
+    ];
+
+    function showAlert(msg) {
+      statusAlert.style.display = 'block';
+      statusAlert.innerHTML = msg;
+    }
+
     async function fetchPopularMovies() {
       try {
         const res = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}`);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
         const data = await res.json();
-        displayMovies(data.results);
+        if (data.results && data.results.length > 0) {
+          displayMovies(data.results);
+        } else {
+          throw new Error("No results returned from API");
+        }
       } catch (err) {
-        movieGrid.innerHTML = '<p>Failed to load movies. Please try again later.</p>';
+        console.warn('TMDB Fetch Error:', err);
+        showAlert(`⚠️ <strong>Notice:</strong> Could not connect to live movie database (${err.message}). Displaying fallback catalog below. If this persists, disable your ad blocker or insert your own free TMDB API key in the code.`);
+        displayMovies(fallbackMovies);
       }
     }
 
-    // Search movies via TMDB
     async function searchMovies() {
       const query = searchInput.value.trim();
       if (!query) return;
@@ -270,37 +308,37 @@
 
       try {
         const res = await fetch(`${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+        
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        
         const data = await res.json();
-        if (data.results.length === 0) {
-          movieGrid.innerHTML = '<p>No movies found.</p>';
-        } else {
+        if (data.results && data.results.length > 0) {
           displayMovies(data.results);
+        } else {
+          movieGrid.innerHTML = '<p>No movies found matching that title.</p>';
         }
       } catch (err) {
-        movieGrid.innerHTML = '<p>Error searching movies.</p>';
+        movieGrid.innerHTML = '<p>Unable to search at the moment. Check your connection or ad blocker settings.</p>';
       }
     }
 
-    // Enable search on 'Enter' key press
     searchInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') searchMovies();
     });
 
-    // Display list of movies
     function displayMovies(movies) {
       movieGrid.innerHTML = '';
       movies.forEach(movie => {
-        if (!movie.poster_path) return;
-
         const card = document.createElement('div');
         card.className = 'movie-card';
         card.onclick = () => playMovie(movie.id, movie.title);
 
         const year = movie.release_date ? movie.release_date.split('-')[0] : 'N/A';
         const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+        const poster = movie.poster_path ? (IMAGE_URL + movie.poster_path) : 'https://via.placeholder.com/500x750?text=No+Poster';
 
         card.innerHTML = `
-          <img src="${IMAGE_URL + movie.poster_path}" alt="${movie.title}" loading="lazy">
+          <img src="${poster}" alt="${movie.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/500x750?text=Image+Unavailable'">
           <div class="movie-info">
             <div class="movie-title">${movie.title}</div>
             <div class="movie-meta">
@@ -313,26 +351,22 @@
       });
     }
 
-    // Load VidSrc embed URL in iframe
     function playMovie(tmdbId, title) {
-      // Primary VidSrc embed URL format
-      const embedUrl = `https://vidsrc.xyz/embed/movie?tmdb=${tmdbId}`;
+      // Using vidsrc.cc as the primary embed source
+      const embedUrl = `https://vidsrc.cc/v2/embed/movie/${tmdbId}`;
       
       videoPlayer.src = embedUrl;
       playerTitle.innerText = title;
       playerContainer.style.display = 'block';
-      
-      // Scroll smoothly to player
       playerContainer.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Close video player
     function closePlayer() {
       videoPlayer.src = '';
       playerContainer.style.display = 'none';
     }
 
-    // Load trending movies when page opens
+    // Initial load
     fetchPopularMovies();
   </script>
 </body>
