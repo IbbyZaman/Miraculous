@@ -186,27 +186,6 @@
       outline: none;
     }
 
-    .server-list {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    .server-btn {
-      background: #2e3346;
-      color: #ccc;
-      border: none;
-      padding: 0.4rem 0.8rem;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-
-    .server-btn.active {
-      background: #e50914;
-      color: #fff;
-    }
-
     .close-btn {
       background-color: #381216;
       color: #ff6b6b;
@@ -315,7 +294,13 @@
     <!-- Player Container -->
     <div class="player-container" id="playerContainer">
       <div class="player-wrapper">
-        <iframe id="videoPlayer" src="" allowfullscreen></iframe>
+        <iframe 
+          id="videoPlayer" 
+          src="" 
+          allowfullscreen 
+          allow="autoplay; encrypted-media; picture-in-picture"
+          referrerpolicy="origin">
+        </iframe>
       </div>
       
       <div class="player-controls">
@@ -327,13 +312,6 @@
             <label>Episode:</label>
             <select id="episodeSelect" onchange="loadMediaStream()"></select>
           </div>
-        </div>
-
-        <div class="server-list">
-          <span style="font-size: 0.85rem; color: #aaa;">Server:</span>
-          <button class="server-btn active" id="srv1" onclick="switchServer('vidsrc_sbs', this)">Server 1 (SBS)</button>
-          <button class="server-btn" id="srv2" onclick="switchServer('vidsrc_cc', this)">Server 2 (CC)</button>
-          <button class="server-btn" id="srv3" onclick="switchServer('vidsrc_xyz', this)">Server 3 (XYZ)</button>
         </div>
 
         <button class="close-btn" onclick="closePlayer()">Close Player</button>
@@ -353,12 +331,10 @@
     const BASE_URL = 'https://api.themoviedb.org/3';
     const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
 
-    // Default public fallback key or user stored key
     let API_KEY = localStorage.getItem('user_tmdb_key') || '3fd2be6f0c70a2a598f084dd27581c8d';
 
     let currentCategory = 'movie';
     let activeMedia = null;
-    let activeServer = 'vidsrc_sbs'; // Defaulting to vidsrc.sbs
 
     const contentGrid = document.getElementById('contentGrid');
     const gridTitle = document.getElementById('gridTitle');
@@ -376,20 +352,16 @@
       tmdbKeyInput.value = localStorage.getItem('user_tmdb_key');
     }
 
-    // Fallback catalog in case public API key rate limits on load
     const fallbackCatalog = {
       movie: [
-        { id: 1081003, title: "Grand Turismo / Latest Title", release_date: "2023-08-09", vote_average: 8.0, poster_path: "/538416.jpg" },
+        { id: 1081003, title: "Gran Turismo", release_date: "2023-08-09", vote_average: 8.0, poster_path: "/538416.jpg" },
         { id: 550, title: "Fight Club", release_date: "1999-10-15", vote_average: 8.4, poster_path: "/pB8O2CY3kxA16P8y3S351t2A89.jpg" },
         { id: 27205, title: "Inception", release_date: "2010-07-16", vote_average: 8.4, poster_path: "/oYuLE291oAev3fRDEC1P9C3vR25.jpg" },
-        { id: 157336, title: "Interstellar", release_date: "2014-11-05", vote_average: 8.4, poster_path: "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" },
-        { id: 299536, title: "Avengers: Infinity War", release_date: "2018-04-25", vote_average: 8.3, poster_path: "/7WsyChLLEz33B3239999.jpg" },
-        { id: 155, title: "The Dark Knight", release_date: "2008-07-18", vote_average: 8.5, poster_path: "/qJ2tW6WMUDux911222.jpg" }
+        { id: 157336, title: "Interstellar", release_date: "2014-11-05", vote_average: 8.4, poster_path: "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" }
       ],
       tv: [
         { id: 1396, name: "Breaking Bad", first_air_date: "2008-01-20", vote_average: 8.9, poster_path: "/zt2A1f133A89f36pP.jpg" },
-        { id: 1399, name: "Game of Thrones", first_air_date: "2011-04-17", vote_average: 8.4, poster_path: "/1XS1oqL89f36.jpg" },
-        { id: 66732, name: "Stranger Things", first_air_date: "2016-07-15", vote_average: 8.6, poster_path: "/49W146316281.jpg" }
+        { id: 1399, name: "Game of Thrones", first_air_date: "2011-04-17", vote_average: 8.4, poster_path: "/1XS1oqL89f36.jpg" }
       ]
     };
 
@@ -428,7 +400,7 @@
       } catch (err) {
         console.warn('API fetch warning:', err);
         statusBanner.style.display = 'block';
-        statusBanner.innerHTML = `⚠️ <strong>Notice:</strong> TMDB shared API key is currently busy or rate-limited. Enter your own free personal key above to search all titles, or click any title below.`;
+        statusBanner.innerHTML = `⚠️ <strong>Notice:</strong> Shared key busy. Enter a personal TMDB key above to search all titles.`;
         displayGrid(fallbackCatalog[currentCategory]);
       }
     }
@@ -552,30 +524,19 @@
       loadMediaStream();
     }
 
-    function switchServer(server, btnEl) {
-      activeServer = server;
-      document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
-      btnEl.classList.add('active');
-      loadMediaStream();
-    }
-
+    // Direct link to vidsrc.sbs format
     function loadMediaStream() {
       if (!activeMedia) return;
 
       const tmdbId = activeMedia.id;
-      const season = seasonSelect.value || 1;
-      const episode = episodeSelect.value || 1;
       let url = '';
 
-      // Primary server uses vidsrc.sbs
       if (currentCategory === 'movie') {
-        if (activeServer === 'vidsrc_sbs') url = `https://vidsrc.sbs/embed/movie/${tmdbId}`;
-        else if (activeServer === 'vidsrc_cc') url = `https://vidsrc.cc/v2/embed/movie/${tmdbId}`;
-        else if (activeServer === 'vidsrc_xyz') url = `https://vidsrc.xyz/embed/movie?tmdb=${tmdbId}`;
+        url = `https://vidsrc.sbs/embed/movie/${tmdbId}`;
       } else {
-        if (activeServer === 'vidsrc_sbs') url = `https://vidsrc.sbs/embed/tv/${tmdbId}/${season}/${episode}`;
-        else if (activeServer === 'vidsrc_cc') url = `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}`;
-        else if (activeServer === 'vidsrc_xyz') url = `https://vidsrc.xyz/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+        const season = seasonSelect.value || 1;
+        const episode = episodeSelect.value || 1;
+        url = `https://vidsrc.sbs/embed/tv/${tmdbId}/${season}/${episode}`;
       }
 
       videoPlayer.src = url;
@@ -587,7 +548,6 @@
       activeMedia = null;
     }
 
-    // Initial load
     fetchPopular();
   </script>
 </body>
