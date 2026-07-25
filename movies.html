@@ -255,6 +255,41 @@
       font-weight: bold;
     }
 
+    /* Pagination Controls */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    .page-btn {
+      background-color: #161822;
+      border: 1px solid #2e3346;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .page-btn:hover:not(:disabled) {
+      background-color: #e50914;
+      border-color: #e50914;
+    }
+
+    .page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .page-info {
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
     footer {
       text-align: center;
       padding: 1.5rem;
@@ -262,6 +297,7 @@
       border-top: 1px solid #232736;
       color: #707070;
       font-size: 0.85rem;
+      margin-top: 2rem;
     }
   </style>
 </head>
@@ -277,12 +313,12 @@
 
     <div class="header-right">
       <div class="key-box">
-        <input type="text" id="tmdbKeyInput" placeholder="Optional TMDB Key...">
+        <input type="text" id="tmdbKeyInput" placeholder="Optional Personal TMDB Key...">
       </div>
       <button class="btn-red" onclick="saveApiKey()">Save Key</button>
 
       <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search any movie or show...">
+        <input type="text" id="searchInput" placeholder="Search any title in TMDB...">
         <button class="btn-red" onclick="executeSearch()">Search</button>
       </div>
     </div>
@@ -321,6 +357,13 @@
     <!-- Content Grid -->
     <h2 class="section-title" id="gridTitle">Popular Movies</h2>
     <div class="content-grid" id="contentGrid"></div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination" id="paginationControls">
+      <button class="page-btn" id="prevBtn" onclick="changePage(-1)">← Previous</button>
+      <span class="page-info" id="pageInfo">Page 1</span>
+      <button class="page-btn" id="nextBtn" onclick="changePage(1)">Next →</button>
+    </div>
   </main>
 
   <footer>
@@ -335,6 +378,9 @@
 
     let currentCategory = 'movie';
     let activeMedia = null;
+    let currentPage = 1;
+    let totalPages = 1;
+    let activeQuery = '';
 
     const contentGrid = document.getElementById('contentGrid');
     const gridTitle = document.getElementById('gridTitle');
@@ -347,23 +393,13 @@
     const epGroup = document.getElementById('epGroup');
     const seasonSelect = document.getElementById('seasonSelect');
     const episodeSelect = document.getElementById('episodeSelect');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageInfo = document.getElementById('pageInfo');
 
     if (localStorage.getItem('user_tmdb_key')) {
       tmdbKeyInput.value = localStorage.getItem('user_tmdb_key');
     }
-
-    const fallbackCatalog = {
-      movie: [
-        { id: 1081003, title: "Gran Turismo", release_date: "2023-08-09", vote_average: 8.0, poster_path: "/538416.jpg" },
-        { id: 550, title: "Fight Club", release_date: "1999-10-15", vote_average: 8.4, poster_path: "/pB8O2CY3kxA16P8y3S351t2A89.jpg" },
-        { id: 27205, title: "Inception", release_date: "2010-07-16", vote_average: 8.4, poster_path: "/oYuLE291oAev3fRDEC1P9C3vR25.jpg" },
-        { id: 157336, title: "Interstellar", release_date: "2014-11-05", vote_average: 8.4, poster_path: "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" }
-      ],
-      tv: [
-        { id: 1396, name: "Breaking Bad", first_air_date: "2008-01-20", vote_average: 8.9, poster_path: "/zt2A1f133A89f36pP.jpg" },
-        { id: 1399, name: "Game of Thrones", first_air_date: "2011-04-17", vote_average: 8.4, poster_path: "/1XS1oqL89f36.jpg" }
-      ]
-    };
 
     function saveApiKey() {
       const val = tmdbKeyInput.value.trim();
@@ -371,13 +407,17 @@
         localStorage.setItem('user_tmdb_key', val);
         API_KEY = val;
         statusBanner.style.display = 'none';
-        alert("Personal TMDB Key saved! Reloading catalog...");
+        alert("Personal TMDB Key saved!");
+        currentPage = 1;
         fetchPopular();
       }
     }
 
     function switchCategory(cat) {
       currentCategory = cat;
+      activeQuery = '';
+      searchInput.value = '';
+      currentPage = 1;
       document.getElementById('btnMovies').classList.toggle('active', cat === 'movie');
       document.getElementById('btnTV').classList.toggle('active', cat === 'tv');
       gridTitle.innerText = cat === 'movie' ? 'Popular Movies' : 'Popular TV Shows';
@@ -385,23 +425,24 @@
     }
 
     async function fetchPopular() {
-      contentGrid.innerHTML = '<p>Loading latest titles...</p>';
+      contentGrid.innerHTML = '<p>Loading titles...</p>';
       try {
-        const res = await fetch(`${BASE_URL}/${currentCategory}/popular?api_key=${API_KEY}`);
+        const res = await fetch(`${BASE_URL}/${currentCategory}/popular?api_key=${API_KEY}&page=${currentPage}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         
         const data = await res.json();
         if (data.results && data.results.length > 0) {
           statusBanner.style.display = 'none';
+          totalPages = Math.min(data.total_pages || 1, 500); // TMDB caps page queries at 500
+          updatePaginationUI();
           displayGrid(data.results);
         } else {
           throw new Error("Empty dataset");
         }
       } catch (err) {
-        console.warn('API fetch warning:', err);
+        console.warn('API fetch error:', err);
         statusBanner.style.display = 'block';
-        statusBanner.innerHTML = `⚠️ <strong>Notice:</strong> Shared key busy. Enter a personal TMDB key above to search all titles.`;
-        displayGrid(fallbackCatalog[currentCategory]);
+        statusBanner.innerHTML = `⚠️ Shared key rate-limited. Enter your own free TMDB Key in the header to browse all 100,000+ shows live!`;
       }
     }
 
@@ -409,22 +450,50 @@
       const query = searchInput.value.trim();
       if (!query) return;
 
-      gridTitle.innerText = `Search Results for: "${query}"`;
+      activeQuery = query;
+      currentPage = 1;
+      loadSearchResults();
+    }
+
+    async function loadSearchResults() {
+      gridTitle.innerText = `Search Results for: "${activeQuery}"`;
       contentGrid.innerHTML = '<p>Searching TMDB database...</p>';
 
       try {
-        const res = await fetch(`${BASE_URL}/search/${currentCategory}?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+        const res = await fetch(`${BASE_URL}/search/${currentCategory}?api_key=${API_KEY}&query=${encodeURIComponent(activeQuery)}&page=${currentPage}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = await res.json();
         if (!data.results || data.results.length === 0) {
           contentGrid.innerHTML = '<p>No results found for that title.</p>';
         } else {
+          totalPages = data.total_pages || 1;
+          updatePaginationUI();
           displayGrid(data.results);
         }
       } catch (err) {
         contentGrid.innerHTML = '<p>Search rate-limited. Enter a free personal TMDB key in the header to search any title live.</p>';
       }
+    }
+
+    function changePage(direction) {
+      currentPage += direction;
+      if (currentPage < 1) currentPage = 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (activeQuery) {
+        loadSearchResults();
+      } else {
+        fetchPopular();
+      }
+    }
+
+    function updatePaginationUI() {
+      pageInfo.innerText = `Page ${currentPage} of ${totalPages}`;
+      prevBtn.disabled = currentPage <= 1;
+      nextBtn.disabled = currentPage >= totalPages;
     }
 
     searchInput.addEventListener('keypress', (e) => {
@@ -490,12 +559,10 @@
               seasonSelect.appendChild(opt);
             }
           });
-        } else {
-          throw new Error();
         }
         updateEpisodeList();
       } catch (err) {
-        seasonSelect.innerHTML = '<option value="1">Season 1</option><option value="2">Season 2</option>';
+        seasonSelect.innerHTML = '<option value="1">Season 1</option>';
         updateEpisodeList();
       }
     }
@@ -514,7 +581,7 @@
           episodeSelect.appendChild(opt);
         });
       } catch (err) {
-        for (let i = 1; i <= 20; i++) {
+        for (let i = 1; i <= 24; i++) {
           const opt = document.createElement('option');
           opt.value = i;
           opt.innerText = `Episode ${i}`;
@@ -524,7 +591,6 @@
       loadMediaStream();
     }
 
-    // Direct link to vidsrc.sbs format
     function loadMediaStream() {
       if (!activeMedia) return;
 
