@@ -111,7 +111,7 @@
 
     /* Key Setup Banner */
     .key-banner {
-      display: none; /* Hidden by default when key is active */
+      display: none;
       background-color: #1a1d29;
       border: 1px solid #2e3346;
       padding: 1rem;
@@ -239,10 +239,65 @@
       font-weight: 600;
     }
 
+    /* Continue Watching / History Section */
+    .history-section {
+      margin-bottom: 2.5rem;
+      display: none;
+    }
+
+    .history-grid {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+    }
+
+    .history-card {
+      min-width: 140px;
+      max-width: 140px;
+      background-color: #161822;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+
+    .history-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .history-card img {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .history-info {
+      padding: 0.6rem;
+    }
+
+    .history-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-progress {
+      font-size: 0.75rem;
+      color: #e50914;
+      margin-top: 0.2rem;
+      font-weight: bold;
+    }
+
     /* Content Grid */
     .section-title {
       font-size: 1.3rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
       font-weight: 600;
       color: #e0e0e0;
     }
@@ -370,7 +425,7 @@
   <div class="key-banner" id="keyBanner">
     <div>
       <strong>TMDB API Key Required</strong>
-      <p>Enter your free key below. Get one at <a href="https://www.themoviedb.org/settings/api" target="_blank">themoviedb.org/settings/api</a>.</p>
+      <p>Enter your key below. Get one at <a href="https://www.themoviedb.org/settings/api" target="_blank">themoviedb.org/settings/api</a>.</p>
     </div>
     <div class="key-input-group">
       <input type="text" id="apiKeyInput" placeholder="Paste TMDB Key Here...">
@@ -414,6 +469,12 @@
       </div>
     </div>
 
+    <!-- Continue Watching Row -->
+    <div class="history-section" id="historySection">
+      <h2 class="section-title">Continue Watching</h2>
+      <div class="history-grid" id="historyGrid"></div>
+    </div>
+
     <!-- Content Grid -->
     <h2 class="section-title" id="gridTitle">Popular Movies</h2>
     <div class="content-grid" id="contentGrid"></div>
@@ -427,14 +488,13 @@
   </main>
 
   <footer>
-    &copy; CineStream Hub. Powered by Multi-Server Embed Routers.
+    &copy; CineStream Hub. Powered by Miraculoushub.co.uk
   </footer>
 
   <script>
     const BASE_URL = 'https://api.themoviedb.org/3';
     const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
 
-    // Uses your key as default for all visitors automatically
     let apiKey = localStorage.getItem('tmdb_api_key') || 'aa9ee919e21a5b01654ced0159fe1244';
     let currentCategory = 'movie';
     let activeMedia = null;
@@ -511,7 +571,7 @@
         contentGrid.innerHTML = `
           <div class="error-box">
             <h3>Failed to load titles (${err.message})</h3>
-            <p>The system API key may be invalid or expired. Please check your key at <a href="https://www.themoviedb.org/settings/api" target="_blank" style="color: #e50914;">themoviedb.org/settings/api</a> and re-save it above.</p>
+            <p>The system API key may be invalid or expired. Check key at <a href="https://www.themoviedb.org/settings/api" target="_blank" style="color: #e50914;">themoviedb.org/settings/api</a>.</p>
           </div>`;
       }
     }
@@ -526,10 +586,7 @@
     }
 
     async function loadSearchResults() {
-      if (!apiKey) {
-        alert('API key missing!');
-        return;
-      }
+      if (!apiKey) return;
 
       gridTitle.innerText = `Search Results for: "${activeQuery}"`;
       contentGrid.innerHTML = '<p>Searching title database...</p>';
@@ -544,7 +601,7 @@
           updatePagination();
           displayGrid(data.results);
         } else {
-          contentGrid.innerHTML = '<p>No titles matching that search query were found.</p>';
+          contentGrid.innerHTML = '<p>No titles matching that query were found.</p>';
         }
       } catch (err) {
         contentGrid.innerHTML = `<div class="error-box"><p>Error executing search: ${err.message}</p></div>`;
@@ -633,10 +690,10 @@
             }
           });
         }
-        updateEpisodeList();
+        await updateEpisodeList();
       } catch (err) {
         seasonSelect.innerHTML = '<option value="1">Season 1</option>';
-        updateEpisodeList();
+        await updateEpisodeList();
       }
     }
 
@@ -686,11 +743,15 @@
         else if (activeServer === 'vidsrc_pro') url = `https://vidsrc.pro/embed/movie/${id}`;
         else if (activeServer === 'autoembed') url = `https://player.autoembed.cc/embed/movie/${id}`;
         else if (activeServer === 'embedsu') url = `https://embed.su/embed/movie/${id}`;
+
+        saveToHistory(activeMedia, 'movie');
       } else {
         if (activeServer === 'vidsrc_sbs') url = `https://vidsrc.sbs/embed/tv/${id}/${season}/${episode}`;
         else if (activeServer === 'vidsrc_pro') url = `https://vidsrc.pro/embed/tv/${id}/${season}/${episode}`;
         else if (activeServer === 'autoembed') url = `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`;
         else if (activeServer === 'embedsu') url = `https://embed.su/embed/tv/${id}/${season}/${episode}`;
+
+        saveToHistory(activeMedia, 'tv', season, episode);
       }
 
       videoPlayer.src = url;
@@ -702,8 +763,102 @@
       activeMedia = null;
     }
 
+    /* --- HISTORY / CONTINUE WATCHING SYSTEM --- */
+    function getWatchHistory() {
+      return JSON.parse(localStorage.getItem('cinestream_history') || '[]');
+    }
+
+    function saveToHistory(media, type, season = null, episode = null) {
+      let history = getWatchHistory();
+      
+      // Remove previous entry if item was already watched
+      history = history.filter(item => item.id !== media.id);
+
+      const historyItem = {
+        id: media.id,
+        title: media.title || media.name,
+        poster: media.poster_path,
+        type: type,
+        season: season,
+        episode: episode,
+        timestamp: Date.now()
+      };
+
+      history.unshift(historyItem);
+
+      // Store max 10 entries
+      if (history.length > 10) history.pop();
+
+      localStorage.setItem('cinestream_history', JSON.stringify(history));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const history = getWatchHistory();
+      const historySection = document.getElementById('historySection');
+      const historyGrid = document.getElementById('historyGrid');
+
+      if (history.length === 0) {
+        historySection.style.display = 'none';
+        return;
+      }
+
+      historySection.style.display = 'block';
+      historyGrid.innerHTML = '';
+
+      history.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'history-card';
+        
+        const poster = item.poster ? (IMAGE_URL + item.poster) : 'https://via.placeholder.com/500x750?text=No+Poster';
+        const progressText = item.type === 'tv' ? `S${item.season} E${item.episode}` : 'Movie';
+
+        card.onclick = () => resumeFromHistory(item);
+
+        card.innerHTML = `
+          <img src="${poster}" alt="${item.title}">
+          <div class="history-info">
+            <div class="history-title">${item.title}</div>
+            <div class="history-progress">${progressText}</div>
+          </div>
+        `;
+        historyGrid.appendChild(card);
+      });
+    }
+
+    async function resumeFromHistory(item) {
+      currentCategory = item.type;
+      document.getElementById('btnMovies').classList.toggle('active', item.type === 'movie');
+      document.getElementById('btnTV').classList.toggle('active', item.type === 'tv');
+
+      try {
+        const res = await fetch(`${BASE_URL}/${item.type}/${item.id}?api_key=${apiKey}`);
+        const data = await res.json();
+        
+        activeMedia = data;
+        playerTitle.innerText = data.title || data.name;
+
+        if (item.type === 'tv') {
+          epGroup.style.display = 'flex';
+          await loadTVSeasons(data.id);
+          if (item.season) seasonSelect.value = item.season;
+          await updateEpisodeList();
+          if (item.episode) episodeSelect.value = item.episode;
+        } else {
+          epGroup.style.display = 'none';
+        }
+
+        loadMediaStream();
+        playerContainer.style.display = 'block';
+        playerContainer.scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        console.error('Error loading history item:', err);
+      }
+    }
+
     // Initial load
     fetchCatalog();
+    renderHistory();
   </script>
 </body>
 </html>
