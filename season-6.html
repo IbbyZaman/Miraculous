@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Favicon / Paw Print Icon -->
+    <link rel="icon" type="image/png" href="favicon.png">
 
-  gtag('config', 'G-6K9W3X96EY');
-</script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-6K9W3X96EY');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miraculous Hub - Season 6</title>
@@ -326,7 +329,7 @@
             .thumbnail-box {
                 height: 90px;
             }
-            
+
             .episode-title {
                 font-size: 13px;
             }
@@ -411,18 +414,19 @@
                 card.id = `card-${ep.id}`;
                 
                 const thumbnailUrl = `thumbnails/${ep.id}.jpg`;
+                const formattedEpNum = ep.id.replace('6', '6.');
                 
                 card.innerHTML = `
                     <div class="thumbnail-box" style="background-image: url('${thumbnailUrl}');"></div>
                     <div class="episode-details">
-                        <div class="episode-number">Episode ${ep.id}</div>
+                        <div class="episode-number">Episode ${formattedEpNum}</div>
                         <div class="episode-title">${ep.title}</div>
                     </div>
                 `;
                 
                 card.onclick = () => {
-                    changeVideo(ep.url, `Episode ${ep.id}: ${ep.title}`, ep.id);
-                    saveProgress(`Episode ${ep.id}: ${ep.title}`, 'season-6.html', thumbnailUrl);
+                    changeVideo(ep.url, `Episode ${formattedEpNum}: ${ep.title}`, ep.id);
+                    saveProgress(`Episode ${formattedEpNum}: ${ep.title}`, 'season-6.html', thumbnailUrl);
                 };
                 gridContainer.appendChild(card);
             });
@@ -459,7 +463,6 @@
             localStorage.setItem('miraculous_last_watched', JSON.stringify(data));
         }
 
-        // Check if there's a saved episode query param or auto-load feature to check local storage on load if needed
         window.addEventListener('DOMContentLoaded', () => {
             buildGrid();
         });
