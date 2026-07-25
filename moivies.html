@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineStream Hub</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #0f1015;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #161822;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #232736;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #e50914;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      border: 1px solid #2e3346;
+      background-color: #0f1015;
+      color: #fff;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: #e50914;
+    }
+
+    .search-box button {
+      padding: 0.6rem 1.2rem;
+      background-color: #e50914;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .search-box button:hover {
+      background-color: #b80710;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Video Player Section */
+    .player-container {
+      display: none;
+      margin-bottom: 3rem;
+      background-color: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    }
+
+    .player-wrapper {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+      height: 0;
+    }
+
+    .player-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .player-details {
+      padding: 1.5rem;
+      background-color: #161822;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .player-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .close-btn {
+      background-color: #2e3346;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      background-color: #3e455e;
+    }
+
+    /* Movies Grid */
+    .section-title {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      color: #e0e0e0;
+    }
+
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .movie-card {
+      background-color: #161822;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .movie-card img {
+      width: 100%;
+      height: 270px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .movie-info {
+      padding: 0.8rem;
+    }
+
+    .movie-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .movie-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.4rem;
+      font-size: 0.8rem;
+      color: #a0a0a0;
+    }
+
+    .rating {
+      color: #ffd700;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background-color: #161822;
+      border-top: 1px solid #232736;
+      color: #707070;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">CineStream</div>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search for movies...">
+      <button onclick="searchMovies()">Search</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Player Container -->
+    <div class="player-container" id="playerContainer">
+      <div class="player-wrapper">
+        <iframe id="videoPlayer" src="" allowfullscreen></iframe>
+      </div>
+      <div class="player-details">
+        <div class="player-title" id="playerTitle">Movie Title</div>
+        <button class="close-btn" onclick="closePlayer()">Close Player</button>
+      </div>
+    </div>
+
+    <!-- Movies Listing -->
+    <h2 class="section-title" id="gridTitle">Popular Movies</h2>
+    <div class="movie-grid" id="movieGrid"></div>
+  </main>
+
+  <footer>
+    &copy; CineStream. Powered by TMDB & VidSrc.
+  </footer>
+
+  <script>
+    // Read-only public TMDB API key for fetching movie metadata
+    const API_KEY = '15d2ce675438e3b2ae9220e910e9e747';
+    const BASE_URL = 'https://api.themoviedb.org/3';
+    const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
+
+    const movieGrid = document.getElementById('movieGrid');
+    const searchInput = document.getElementById('searchInput');
+    const gridTitle = document.getElementById('gridTitle');
+    const playerContainer = document.getElementById('playerContainer');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const playerTitle = document.getElementById('playerTitle');
+
+    // Fetch popular movies on initial load
+    async function fetchPopularMovies() {
+      try {
+        const res = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}`);
+        const data = await res.json();
+        displayMovies(data.results);
+      } catch (err) {
+        movieGrid.innerHTML = '<p>Failed to load movies. Please try again later.</p>';
+      }
+    }
+
+    // Search movies via TMDB
+    async function searchMovies() {
+      const query = searchInput.value.trim();
+      if (!query) return;
+
+      gridTitle.innerText = `Search Results for: "${query}"`;
+      movieGrid.innerHTML = '<p>Searching...</p>';
+
+      try {
+        const res = await fetch(`${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (data.results.length === 0) {
+          movieGrid.innerHTML = '<p>No movies found.</p>';
+        } else {
+          displayMovies(data.results);
+        }
+      } catch (err) {
+        movieGrid.innerHTML = '<p>Error searching movies.</p>';
+      }
+    }
+
+    // Enable search on 'Enter' key press
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') searchMovies();
+    });
+
+    // Display list of movies
+    function displayMovies(movies) {
+      movieGrid.innerHTML = '';
+      movies.forEach(movie => {
+        if (!movie.poster_path) return;
+
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        card.onclick = () => playMovie(movie.id, movie.title);
+
+        const year = movie.release_date ? movie.release_date.split('-')[0] : 'N/A';
+        const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+
+        card.innerHTML = `
+          <img src="${IMAGE_URL + movie.poster_path}" alt="${movie.title}" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">${movie.title}</div>
+            <div class="movie-meta">
+              <span>${year}</span>
+              <span class="rating">★ ${rating}</span>
+            </div>
+          </div>
+        `;
+        movieGrid.appendChild(card);
+      });
+    }
+
+    // Load VidSrc embed URL in iframe
+    function playMovie(tmdbId, title) {
+      // Primary VidSrc embed URL format
+      const embedUrl = `https://vidsrc.xyz/embed/movie?tmdb=${tmdbId}`;
+      
+      videoPlayer.src = embedUrl;
+      playerTitle.innerText = title;
+      playerContainer.style.display = 'block';
+      
+      // Scroll smoothly to player
+      playerContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Close video player
+    function closePlayer() {
+      videoPlayer.src = '';
+      playerContainer.style.display = 'none';
+    }
+
+    // Load trending movies when page opens
+    fetchPopularMovies();
+  </script>
+</body>
+</html>
