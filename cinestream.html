@@ -75,38 +75,69 @@
       display: flex;
       gap: 0.5rem;
       width: 100%;
-      max-width: 380px;
+      max-width: 320px;
     }
 
-    .search-box input {
+    .search-box input, .key-box input {
       width: 100%;
-      padding: 0.6rem 0.8rem;
+      padding: 0.5rem 0.8rem;
       border-radius: 6px;
       border: 1px solid #2e3346;
       background-color: #0f1015;
       color: #fff;
       outline: none;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
 
-    .search-box input:focus {
+    .search-box input:focus, .key-box input:focus {
       border-color: #e50914;
     }
 
     .btn-red {
-      padding: 0.6rem 1.2rem;
+      padding: 0.5rem 1rem;
       background-color: #e50914;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       white-space: nowrap;
     }
 
     .btn-red:hover {
       background-color: #b80710;
+    }
+
+    /* Key Setup Banner */
+    .key-banner {
+      background-color: #1a1d29;
+      border: 1px solid #2e3346;
+      padding: 1rem;
+      margin: 1rem 2rem 0 2rem;
+      border-radius: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .key-banner p {
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .key-banner a {
+      color: #e50914;
+      text-decoration: underline;
+    }
+
+    .key-input-group {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 380px;
     }
 
     main {
@@ -268,6 +299,15 @@
       font-weight: bold;
     }
 
+    .error-box {
+      padding: 2rem;
+      background: #1a1215;
+      border: 1px solid #5a1e24;
+      border-radius: 8px;
+      color: #ff8b8b;
+      line-height: 1.6;
+    }
+
     /* Pagination */
     .pagination {
       display: flex;
@@ -320,11 +360,23 @@
 
     <div class="header-right">
       <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search any movie or show title...">
+        <input type="text" id="searchInput" placeholder="Search any title...">
         <button class="btn-red" onclick="executeSearch()">Search</button>
       </div>
     </div>
   </header>
+
+  <!-- Key Setup Bar -->
+  <div class="key-banner" id="keyBanner">
+    <div>
+      <strong>TMDB API Key Required</strong>
+      <p>Enter your free key below. Get one in 30 seconds at <a href="https://www.themoviedb.org/settings/api" target="_blank">themoviedb.org/settings/api</a>.</p>
+    </div>
+    <div class="key-input-group">
+      <input type="text" id="apiKeyInput" placeholder="Paste TMDB Key Here...">
+      <button class="btn-red" onclick="saveApiKey()">Save Key</button>
+    </div>
+  </div>
 
   <main>
     <!-- Player Container -->
@@ -379,10 +431,10 @@
   </footer>
 
   <script>
-    const API_KEY = 'b977714e8615fe2b737f07a7fb6d10c8'; // Dedicated public catalog key
     const BASE_URL = 'https://api.themoviedb.org/3';
     const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
 
+    let apiKey = localStorage.getItem('tmdb_api_key') || '';
     let currentCategory = 'movie';
     let activeMedia = null;
     let activeServer = 'vidsrc_sbs';
@@ -393,6 +445,7 @@
     const contentGrid = document.getElementById('contentGrid');
     const gridTitle = document.getElementById('gridTitle');
     const searchInput = document.getElementById('searchInput');
+    const apiKeyInput = document.getElementById('apiKeyInput');
     const playerContainer = document.getElementById('playerContainer');
     const videoPlayer = document.getElementById('videoPlayer');
     const playerTitle = document.getElementById('playerTitle');
@@ -402,6 +455,22 @@
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const pageInfo = document.getElementById('pageInfo');
+
+    if (apiKey) {
+      apiKeyInput.value = apiKey;
+    }
+
+    function saveApiKey() {
+      const val = apiKeyInput.value.trim();
+      if (!val) {
+        alert('Please enter a valid API key.');
+        return;
+      }
+      apiKey = val;
+      localStorage.setItem('tmdb_api_key', apiKey);
+      alert('Key saved successfully!');
+      fetchCatalog();
+    }
 
     function switchCategory(cat) {
       currentCategory = cat;
@@ -415,9 +484,22 @@
     }
 
     async function fetchCatalog() {
+      if (!apiKey) {
+        contentGrid.innerHTML = `
+          <div class="error-box">
+            <h3>API Key Required</h3>
+            <p>Please enter your free TMDB API key in the top box to load movies and TV shows.</p>
+            <p>1. Go to <a href="https://www.themoviedb.org/signup" target="_blank" style="color: #e50914;">themoviedb.org</a> and sign up.<br>
+            2. Go to Settings → API to generate a free key.<br>
+            3. Paste it into the top box and click "Save Key".</p>
+          </div>`;
+        return;
+      }
+
       contentGrid.innerHTML = '<p>Loading database catalog...</p>';
       try {
-        const res = await fetch(`${BASE_URL}/${currentCategory}/popular?api_key=${API_KEY}&page=${currentPage}`);
+        const res = await fetch(`${BASE_URL}/${currentCategory}/popular?api_key=${apiKey}&page=${currentPage}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         
         if (data.results && data.results.length > 0) {
@@ -425,10 +507,14 @@
           updatePagination();
           displayGrid(data.results);
         } else {
-          contentGrid.innerHTML = '<p>Unable to reach server. Please try again later.</p>';
+          contentGrid.innerHTML = '<p>No items found.</p>';
         }
       } catch (err) {
-        contentGrid.innerHTML = '<p>Network error loading catalog. Check your internet connection.</p>';
+        contentGrid.innerHTML = `
+          <div class="error-box">
+            <h3>Failed to load titles (${err.message})</h3>
+            <p>Your API key may be invalid or expired. Please check your key at <a href="https://www.themoviedb.org/settings/api" target="_blank" style="color: #e50914;">themoviedb.org/settings/api</a> and re-save it above.</p>
+          </div>`;
       }
     }
 
@@ -442,11 +528,17 @@
     }
 
     async function loadSearchResults() {
+      if (!apiKey) {
+        alert('Please enter and save your TMDB API key first!');
+        return;
+      }
+
       gridTitle.innerText = `Search Results for: "${activeQuery}"`;
       contentGrid.innerHTML = '<p>Searching title database...</p>';
 
       try {
-        const res = await fetch(`${BASE_URL}/search/${currentCategory}?api_key=${API_KEY}&query=${encodeURIComponent(activeQuery)}&page=${currentPage}`);
+        const res = await fetch(`${BASE_URL}/search/${currentCategory}?api_key=${apiKey}&query=${encodeURIComponent(activeQuery)}&page=${currentPage}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
         if (data.results && data.results.length > 0) {
@@ -457,7 +549,7 @@
           contentGrid.innerHTML = '<p>No titles matching that search query were found.</p>';
         }
       } catch (err) {
-        contentGrid.innerHTML = '<p>Error executing search. Please try again.</p>';
+        contentGrid.innerHTML = `<div class="error-box"><p>Error executing search: ${err.message}</p></div>`;
       }
     }
 
@@ -530,7 +622,7 @@
     async function loadTVSeasons(tvId) {
       seasonSelect.innerHTML = '';
       try {
-        const res = await fetch(`${BASE_URL}/tv/${tvId}?api_key=${API_KEY}`);
+        const res = await fetch(`${BASE_URL}/tv/${tvId}?api_key=${apiKey}`);
         const data = await res.json();
 
         if (data.seasons && data.seasons.length > 0) {
@@ -554,7 +646,7 @@
       episodeSelect.innerHTML = '';
       const seasonNum = seasonSelect.value || 1;
       try {
-        const res = await fetch(`${BASE_URL}/tv/${activeMedia.id}/season/${seasonNum}?api_key=${API_KEY}`);
+        const res = await fetch(`${BASE_URL}/tv/${activeMedia.id}/season/${seasonNum}?api_key=${apiKey}`);
         const data = await res.json();
 
         if (data.episodes && data.episodes.length > 0) {
