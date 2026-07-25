@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineStream Hub - Movies & TV Shows</title>
+  <title>CineStream Hub</title>
   <style>
     * {
       box-sizing: border-box;
@@ -64,35 +64,48 @@
       border-color: #e50914;
     }
 
+    .header-right {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
     .search-box {
       display: flex;
       gap: 0.5rem;
       width: 100%;
-      max-width: 380px;
+      max-width: 320px;
     }
 
-    .search-box input {
+    .search-box input, .key-box input {
       width: 100%;
-      padding: 0.6rem 1rem;
+      padding: 0.5rem 0.8rem;
       border-radius: 6px;
       border: 1px solid #2e3346;
       background-color: #0f1015;
       color: #fff;
       outline: none;
+      font-size: 0.85rem;
     }
 
-    .search-box input:focus {
+    .search-box input:focus, .key-box input:focus {
       border-color: #e50914;
     }
 
-    .search-box button {
-      padding: 0.6rem 1.2rem;
+    .btn-red {
+      padding: 0.5rem 1rem;
       background-color: #e50914;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .btn-red:hover {
+      background-color: #b80710;
     }
 
     main {
@@ -101,6 +114,18 @@
       max-width: 1400px;
       margin: 0 auto;
       width: 100%;
+    }
+
+    .status-banner {
+      display: none;
+      background-color: #2b1d0c;
+      border: 1px solid #d97706;
+      color: #fcd34d;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.88rem;
+      line-height: 1.4;
     }
 
     /* Player Container */
@@ -149,13 +174,14 @@
       display: none;
       gap: 0.5rem;
       align-items: center;
+      margin-top: 0.4rem;
     }
 
     .ep-selector-group select {
       background: #0f1015;
       color: #fff;
       border: 1px solid #2e3346;
-      padding: 0.4rem 0.8rem;
+      padding: 0.3rem 0.6rem;
       border-radius: 6px;
       outline: none;
     }
@@ -190,7 +216,7 @@
       cursor: pointer;
     }
 
-    /* Movies/TV Grid */
+    /* Content Grid */
     .section-title {
       font-size: 1.3rem;
       margin-bottom: 1.5rem;
@@ -270,13 +296,22 @@
       <button class="nav-btn" id="btnTV" onclick="switchCategory('tv')">TV Shows</button>
     </div>
 
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Search movies or shows...">
-      <button onclick="executeSearch()">Search</button>
+    <div class="header-right">
+      <div class="key-box">
+        <input type="text" id="tmdbKeyInput" placeholder="Optional TMDB Key...">
+      </div>
+      <button class="btn-red" onclick="saveApiKey()">Save Key</button>
+
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search any movie or show...">
+        <button class="btn-red" onclick="executeSearch()">Search</button>
+      </div>
     </div>
   </header>
 
   <main>
+    <div class="status-banner" id="statusBanner"></div>
+
     <!-- Player Container -->
     <div class="player-container" id="playerContainer">
       <div class="player-wrapper">
@@ -287,18 +322,18 @@
         <div>
           <div class="player-title" id="playerTitle">Title</div>
           <div class="ep-selector-group" id="epGroup">
-            <label>S:</label>
+            <label>Season:</label>
             <select id="seasonSelect" onchange="updateEpisodeList()"></select>
-            <label>E:</label>
+            <label>Episode:</label>
             <select id="episodeSelect" onchange="loadMediaStream()"></select>
           </div>
         </div>
 
         <div class="server-list">
           <span style="font-size: 0.85rem; color: #aaa;">Server:</span>
-          <button class="server-btn active" id="srv1" onclick="switchServer('vidsrc_cc', this)">Server 1</button>
-          <button class="server-btn" id="srv2" onclick="switchServer('vidsrc_xyz', this)">Server 2</button>
-          <button class="server-btn" id="srv3" onclick="switchServer('vidsrc_pro', this)">Server 3</button>
+          <button class="server-btn active" id="srv1" onclick="switchServer('vidsrc_sbs', this)">Server 1 (SBS)</button>
+          <button class="server-btn" id="srv2" onclick="switchServer('vidsrc_cc', this)">Server 2 (CC)</button>
+          <button class="server-btn" id="srv3" onclick="switchServer('vidsrc_xyz', this)">Server 3 (XYZ)</button>
         </div>
 
         <button class="close-btn" onclick="closePlayer()">Close Player</button>
@@ -315,23 +350,59 @@
   </footer>
 
   <script>
-    const API_KEY = '3fd2be6f0c70a2a598f084dd27581c8d';
     const BASE_URL = 'https://api.themoviedb.org/3';
     const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
 
-    let currentCategory = 'movie'; // 'movie' or 'tv'
-    let activeMedia = null; // Currently selected item
-    let activeServer = 'vidsrc_cc';
+    // Default public fallback key or user stored key
+    let API_KEY = localStorage.getItem('user_tmdb_key') || '3fd2be6f0c70a2a598f084dd27581c8d';
+
+    let currentCategory = 'movie';
+    let activeMedia = null;
+    let activeServer = 'vidsrc_sbs'; // Defaulting to vidsrc.sbs
 
     const contentGrid = document.getElementById('contentGrid');
     const gridTitle = document.getElementById('gridTitle');
     const searchInput = document.getElementById('searchInput');
+    const tmdbKeyInput = document.getElementById('tmdbKeyInput');
+    const statusBanner = document.getElementById('statusBanner');
     const playerContainer = document.getElementById('playerContainer');
     const videoPlayer = document.getElementById('videoPlayer');
     const playerTitle = document.getElementById('playerTitle');
     const epGroup = document.getElementById('epGroup');
     const seasonSelect = document.getElementById('seasonSelect');
     const episodeSelect = document.getElementById('episodeSelect');
+
+    if (localStorage.getItem('user_tmdb_key')) {
+      tmdbKeyInput.value = localStorage.getItem('user_tmdb_key');
+    }
+
+    // Fallback catalog in case public API key rate limits on load
+    const fallbackCatalog = {
+      movie: [
+        { id: 1081003, title: "Grand Turismo / Latest Title", release_date: "2023-08-09", vote_average: 8.0, poster_path: "/538416.jpg" },
+        { id: 550, title: "Fight Club", release_date: "1999-10-15", vote_average: 8.4, poster_path: "/pB8O2CY3kxA16P8y3S351t2A89.jpg" },
+        { id: 27205, title: "Inception", release_date: "2010-07-16", vote_average: 8.4, poster_path: "/oYuLE291oAev3fRDEC1P9C3vR25.jpg" },
+        { id: 157336, title: "Interstellar", release_date: "2014-11-05", vote_average: 8.4, poster_path: "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" },
+        { id: 299536, title: "Avengers: Infinity War", release_date: "2018-04-25", vote_average: 8.3, poster_path: "/7WsyChLLEz33B3239999.jpg" },
+        { id: 155, title: "The Dark Knight", release_date: "2008-07-18", vote_average: 8.5, poster_path: "/qJ2tW6WMUDux911222.jpg" }
+      ],
+      tv: [
+        { id: 1396, name: "Breaking Bad", first_air_date: "2008-01-20", vote_average: 8.9, poster_path: "/zt2A1f133A89f36pP.jpg" },
+        { id: 1399, name: "Game of Thrones", first_air_date: "2011-04-17", vote_average: 8.4, poster_path: "/1XS1oqL89f36.jpg" },
+        { id: 66732, name: "Stranger Things", first_air_date: "2016-07-15", vote_average: 8.6, poster_path: "/49W146316281.jpg" }
+      ]
+    };
+
+    function saveApiKey() {
+      const val = tmdbKeyInput.value.trim();
+      if (val) {
+        localStorage.setItem('user_tmdb_key', val);
+        API_KEY = val;
+        statusBanner.style.display = 'none';
+        alert("Personal TMDB Key saved! Reloading catalog...");
+        fetchPopular();
+      }
+    }
 
     function switchCategory(cat) {
       currentCategory = cat;
@@ -342,13 +413,23 @@
     }
 
     async function fetchPopular() {
-      contentGrid.innerHTML = '<p>Loading...</p>';
+      contentGrid.innerHTML = '<p>Loading latest titles...</p>';
       try {
         const res = await fetch(`${BASE_URL}/${currentCategory}/popular?api_key=${API_KEY}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        
         const data = await res.json();
-        displayGrid(data.results);
+        if (data.results && data.results.length > 0) {
+          statusBanner.style.display = 'none';
+          displayGrid(data.results);
+        } else {
+          throw new Error("Empty dataset");
+        }
       } catch (err) {
-        contentGrid.innerHTML = '<p>Failed to load media catalog.</p>';
+        console.warn('API fetch warning:', err);
+        statusBanner.style.display = 'block';
+        statusBanner.innerHTML = `⚠️ <strong>Notice:</strong> TMDB shared API key is currently busy or rate-limited. Enter your own free personal key above to search all titles, or click any title below.`;
+        displayGrid(fallbackCatalog[currentCategory]);
       }
     }
 
@@ -356,19 +437,21 @@
       const query = searchInput.value.trim();
       if (!query) return;
 
-      gridTitle.innerText = `Results for: "${query}"`;
-      contentGrid.innerHTML = '<p>Searching...</p>';
+      gridTitle.innerText = `Search Results for: "${query}"`;
+      contentGrid.innerHTML = '<p>Searching TMDB database...</p>';
 
       try {
         const res = await fetch(`${BASE_URL}/search/${currentCategory}?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
         const data = await res.json();
         if (!data.results || data.results.length === 0) {
-          contentGrid.innerHTML = '<p>No results found.</p>';
+          contentGrid.innerHTML = '<p>No results found for that title.</p>';
         } else {
           displayGrid(data.results);
         }
       } catch (err) {
-        contentGrid.innerHTML = '<p>Search error occurred.</p>';
+        contentGrid.innerHTML = '<p>Search rate-limited. Enter a free personal TMDB key in the header to search any title live.</p>';
       }
     }
 
@@ -426,17 +509,21 @@
         const res = await fetch(`${BASE_URL}/tv/${tvId}?api_key=${API_KEY}`);
         const data = await res.json();
 
-        data.seasons.forEach(season => {
-          if (season.season_number > 0) { // Exclude specials (Season 0)
-            const opt = document.createElement('option');
-            opt.value = season.season_number;
-            opt.innerText = `Season ${season.season_number}`;
-            seasonSelect.appendChild(opt);
-          }
-        });
+        if (data.seasons && data.seasons.length > 0) {
+          data.seasons.forEach(season => {
+            if (season.season_number > 0) {
+              const opt = document.createElement('option');
+              opt.value = season.season_number;
+              opt.innerText = `Season ${season.season_number}`;
+              seasonSelect.appendChild(opt);
+            }
+          });
+        } else {
+          throw new Error();
+        }
         updateEpisodeList();
       } catch (err) {
-        seasonSelect.innerHTML = '<option value="1">Season 1</option>';
+        seasonSelect.innerHTML = '<option value="1">Season 1</option><option value="2">Season 2</option>';
         updateEpisodeList();
       }
     }
@@ -455,8 +542,7 @@
           episodeSelect.appendChild(opt);
         });
       } catch (err) {
-        // Default to 24 episodes if season endpoint fails
-        for (let i = 1; i <= 24; i++) {
+        for (let i = 1; i <= 20; i++) {
           const opt = document.createElement('option');
           opt.value = i;
           opt.innerText = `Episode ${i}`;
@@ -481,14 +567,15 @@
       const episode = episodeSelect.value || 1;
       let url = '';
 
+      // Primary server uses vidsrc.sbs
       if (currentCategory === 'movie') {
-        if (activeServer === 'vidsrc_cc') url = `https://vidsrc.cc/v2/embed/movie/${tmdbId}`;
+        if (activeServer === 'vidsrc_sbs') url = `https://vidsrc.sbs/embed/movie/${tmdbId}`;
+        else if (activeServer === 'vidsrc_cc') url = `https://vidsrc.cc/v2/embed/movie/${tmdbId}`;
         else if (activeServer === 'vidsrc_xyz') url = `https://vidsrc.xyz/embed/movie?tmdb=${tmdbId}`;
-        else if (activeServer === 'vidsrc_pro') url = `https://vidsrc.pro/embed/movie/${tmdbId}`;
       } else {
-        if (activeServer === 'vidsrc_cc') url = `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}`;
+        if (activeServer === 'vidsrc_sbs') url = `https://vidsrc.sbs/embed/tv/${tmdbId}/${season}/${episode}`;
+        else if (activeServer === 'vidsrc_cc') url = `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}`;
         else if (activeServer === 'vidsrc_xyz') url = `https://vidsrc.xyz/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
-        else if (activeServer === 'vidsrc_pro') url = `https://vidsrc.pro/embed/tv/${tmdbId}/${season}/${episode}`;
       }
 
       videoPlayer.src = url;
