@@ -175,6 +175,29 @@
       outline: none;
     }
 
+    .server-list {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .server-btn {
+      background: #2e3346;
+      color: #ccc;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .server-btn.active {
+      background: #e50914;
+      color: #fff;
+    }
+
     .close-btn {
       background-color: #381216;
       color: #ff6b6b;
@@ -240,6 +263,40 @@
       color: #a0a0a0;
     }
 
+    .rating {
+      color: #ffd700;
+      font-weight: bold;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    .page-btn {
+      background-color: #161822;
+      border: 1px solid #2e3346;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .page-btn:hover:not(:disabled) {
+      background-color: #e50914;
+      border-color: #e50914;
+    }
+
+    .page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
     footer {
       text-align: center;
       padding: 1.5rem;
@@ -287,22 +344,18 @@
           <div class="player-title" id="playerTitle">Title</div>
           <div class="ep-selector-group" id="epGroup">
             <label>Season:</label>
-            <select id="seasonSelect" onchange="loadMediaStream()">
-              <option value="1">Season 1</option>
-              <option value="2">Season 2</option>
-              <option value="3">Season 3</option>
-              <option value="4">Season 4</option>
-              <option value="5">Season 5</option>
-            </select>
+            <select id="seasonSelect" onchange="updateEpisodeList()"></select>
             <label>Episode:</label>
-            <select id="episodeSelect" onchange="loadMediaStream()">
-              <option value="1">Ep 1</option><option value="2">Ep 2</option>
-              <option value="3">Ep 3</option><option value="4">Ep 4</option>
-              <option value="5">Ep 5</option><option value="6">Ep 6</option>
-              <option value="7">Ep 7</option><option value="8">Ep 8</option>
-              <option value="9">Ep 9</option><option value="10">Ep 10</option>
-            </select>
+            <select id="episodeSelect" onchange="loadMediaStream()"></select>
           </div>
+        </div>
+
+        <div class="server-list">
+          <span style="font-size: 0.85rem; color: #aaa;">Server:</span>
+          <button class="server-btn active" onclick="switchServer('vidsrc_sbs', this)">VidSrc SBS</button>
+          <button class="server-btn" onclick="switchServer('vidsrc_pro', this)">VidSrc Pro</button>
+          <button class="server-btn" onclick="switchServer('autoembed', this)">AutoEmbed</button>
+          <button class="server-btn" onclick="switchServer('embedsu', this)">EmbedSu</button>
         </div>
 
         <button class="close-btn" onclick="closePlayer()">Close Player</button>
@@ -312,15 +365,30 @@
     <!-- Content Grid -->
     <h2 class="section-title" id="gridTitle">Popular Movies</h2>
     <div class="content-grid" id="contentGrid"></div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button class="page-btn" id="prevBtn" onclick="changePage(-1)">← Previous</button>
+      <span id="pageInfo" style="font-size: 0.9rem; color: #aaa;">Page 1</span>
+      <button class="page-btn" id="nextBtn" onclick="changePage(1)">Next →</button>
+    </div>
   </main>
 
   <footer>
-    &copy; CineStream Hub. Powered by VidSrc.
+    &copy; CineStream Hub. Powered by Multi-Server Embed Routers.
   </footer>
 
   <script>
+    const API_KEY = 'b977714e8615fe2b737f07a7fb6d10c8'; // Dedicated public catalog key
+    const BASE_URL = 'https://api.themoviedb.org/3';
+    const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
+
     let currentCategory = 'movie';
     let activeMedia = null;
+    let activeServer = 'vidsrc_sbs';
+    let currentPage = 1;
+    let totalPages = 1;
+    let activeQuery = '';
 
     const contentGrid = document.getElementById('contentGrid');
     const gridTitle = document.getElementById('gridTitle');
@@ -331,64 +399,85 @@
     const epGroup = document.getElementById('epGroup');
     const seasonSelect = document.getElementById('seasonSelect');
     const episodeSelect = document.getElementById('episodeSelect');
-
-    // Built-in catalog with working TMDB IDs for vidsrc.sbs
-    const featuredCatalog = {
-      movie: [
-        { id: 1081003, title: "Gran Turismo", year: "2023", poster: "https://image.tmdb.org/t/p/w500/538416.jpg" },
-        { id: 550, title: "Fight Club", year: "1999", poster: "https://image.tmdb.org/t/p/w500/pB8O2CY3kxA16P8y3S351t2A89.jpg" },
-        { id: 27205, title: "Inception", year: "2010", poster: "https://image.tmdb.org/t/p/w500/oYuLE291oAev3fRDEC1P9C3vR25.jpg" },
-        { id: 157336, title: "Interstellar", year: "2014", poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" },
-        { id: 299536, title: "Avengers: Infinity War", year: "2018", poster: "https://image.tmdb.org/t/p/w500/7WsyChLLEz33B3239999.jpg" },
-        { id: 155, title: "The Dark Knight", year: "2008", poster: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911222.jpg" }
-      ],
-      tv: [
-        { id: 1396, title: "Breaking Bad", year: "2008", poster: "https://image.tmdb.org/t/p/w500/zt2A1f133A89f36pP.jpg" },
-        { id: 1399, title: "Game of Thrones", year: "2011", poster: "https://image.tmdb.org/t/p/w500/1XS1oqL89f36.jpg" },
-        { id: 66732, title: "Stranger Things", year: "2016", poster: "https://image.tmdb.org/t/p/w500/49W146316281.jpg" }
-      ]
-    };
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageInfo = document.getElementById('pageInfo');
 
     function switchCategory(cat) {
       currentCategory = cat;
+      activeQuery = '';
+      searchInput.value = '';
+      currentPage = 1;
       document.getElementById('btnMovies').classList.toggle('active', cat === 'movie');
       document.getElementById('btnTV').classList.toggle('active', cat === 'tv');
       gridTitle.innerText = cat === 'movie' ? 'Popular Movies' : 'Popular TV Shows';
-      displayGrid(featuredCatalog[currentCategory]);
+      fetchCatalog();
+    }
+
+    async function fetchCatalog() {
+      contentGrid.innerHTML = '<p>Loading database catalog...</p>';
+      try {
+        const res = await fetch(`${BASE_URL}/${currentCategory}/popular?api_key=${API_KEY}&page=${currentPage}`);
+        const data = await res.json();
+        
+        if (data.results && data.results.length > 0) {
+          totalPages = Math.min(data.total_pages || 1, 500);
+          updatePagination();
+          displayGrid(data.results);
+        } else {
+          contentGrid.innerHTML = '<p>Unable to reach server. Please try again later.</p>';
+        }
+      } catch (err) {
+        contentGrid.innerHTML = '<p>Network error loading catalog. Check your internet connection.</p>';
+      }
     }
 
     async function executeSearch() {
       const query = searchInput.value.trim();
       if (!query) return;
 
-      gridTitle.innerText = `Search Results for: "${query}"`;
+      activeQuery = query;
+      currentPage = 1;
+      loadSearchResults();
+    }
+
+    async function loadSearchResults() {
+      gridTitle.innerText = `Search Results for: "${activeQuery}"`;
       contentGrid.innerHTML = '<p>Searching title database...</p>';
 
       try {
-        // Free public fallback search API
-        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=${currentCategory === 'movie' ? 'movie' : 'tvShow'}&limit=12`);
+        const res = await fetch(`${BASE_URL}/search/${currentCategory}?api_key=${API_KEY}&query=${encodeURIComponent(activeQuery)}&page=${currentPage}`);
         const data = await res.json();
 
         if (data.results && data.results.length > 0) {
-          const results = data.results.map(item => ({
-            id: item.trackId,
-            title: item.trackName || item.collectionName,
-            year: item.releaseDate ? item.releaseDate.split('-')[0] : 'N/A',
-            poster: item.artworkUrl100 ? item.artworkUrl100.replace('100x100bb', '600x900bb') : 'https://via.placeholder.com/500x750?text=No+Poster'
-          }));
-          displayGrid(results);
+          totalPages = data.total_pages || 1;
+          updatePagination();
+          displayGrid(data.results);
         } else {
-          contentGrid.innerHTML = '<p>No matching titles found. Try another search!</p>';
+          contentGrid.innerHTML = '<p>No titles matching that search query were found.</p>';
         }
       } catch (err) {
-        // Direct title fallback if search service fails
-        displayGrid([{
-          id: query,
-          title: query,
-          year: 'Direct Search',
-          poster: 'https://via.placeholder.com/500x750?text=Play+' + encodeURIComponent(query)
-        }]);
+        contentGrid.innerHTML = '<p>Error executing search. Please try again.</p>';
       }
+    }
+
+    function changePage(dir) {
+      currentPage += dir;
+      if (currentPage < 1) currentPage = 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (activeQuery) {
+        loadSearchResults();
+      } else {
+        fetchCatalog();
+      }
+    }
+
+    function updatePagination() {
+      pageInfo.innerText = `Page ${currentPage} of ${totalPages}`;
+      prevBtn.disabled = currentPage <= 1;
+      nextBtn.disabled = currentPage >= totalPages;
     }
 
     searchInput.addEventListener('keypress', (e) => {
@@ -398,16 +487,23 @@
     function displayGrid(items) {
       contentGrid.innerHTML = '';
       items.forEach(item => {
+        const title = item.title || item.name;
+        const date = item.release_date || item.first_air_date || '';
+        const year = date ? date.split('-')[0] : 'N/A';
+        const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+        const poster = item.poster_path ? (IMAGE_URL + item.poster_path) : 'https://via.placeholder.com/500x750?text=No+Poster';
+
         const card = document.createElement('div');
         card.className = 'card';
         card.onclick = () => selectMedia(item);
 
         card.innerHTML = `
-          <img src="${item.poster}" alt="${item.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/500x750?text=No+Poster'">
+          <img src="${poster}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/500x750?text=No+Poster'">
           <div class="card-info">
-            <div class="card-title">${item.title}</div>
+            <div class="card-title">${title}</div>
             <div class="card-meta">
-              <span>${item.year}</span>
+              <span>${year}</span>
+              <span class="rating">★ ${rating}</span>
             </div>
           </div>
         `;
@@ -415,34 +511,96 @@
       });
     }
 
-    function selectMedia(item) {
+    async function selectMedia(item) {
       activeMedia = item;
-      playerTitle.innerText = item.title;
+      playerTitle.innerText = item.title || item.name;
 
       if (currentCategory === 'tv') {
         epGroup.style.display = 'flex';
+        await loadTVSeasons(item.id);
       } else {
         epGroup.style.display = 'none';
+        loadMediaStream();
       }
 
-      loadMediaStream();
       playerContainer.style.display = 'block';
       playerContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function loadTVSeasons(tvId) {
+      seasonSelect.innerHTML = '';
+      try {
+        const res = await fetch(`${BASE_URL}/tv/${tvId}?api_key=${API_KEY}`);
+        const data = await res.json();
+
+        if (data.seasons && data.seasons.length > 0) {
+          data.seasons.forEach(s => {
+            if (s.season_number > 0) {
+              const opt = document.createElement('option');
+              opt.value = s.season_number;
+              opt.innerText = `Season ${s.season_number}`;
+              seasonSelect.appendChild(opt);
+            }
+          });
+        }
+        updateEpisodeList();
+      } catch (err) {
+        seasonSelect.innerHTML = '<option value="1">Season 1</option>';
+        updateEpisodeList();
+      }
+    }
+
+    async function updateEpisodeList() {
+      episodeSelect.innerHTML = '';
+      const seasonNum = seasonSelect.value || 1;
+      try {
+        const res = await fetch(`${BASE_URL}/tv/${activeMedia.id}/season/${seasonNum}?api_key=${API_KEY}`);
+        const data = await res.json();
+
+        if (data.episodes && data.episodes.length > 0) {
+          data.episodes.forEach(ep => {
+            const opt = document.createElement('option');
+            opt.value = ep.episode_number;
+            opt.innerText = `Ep ${ep.episode_number}: ${ep.name}`;
+            episodeSelect.appendChild(opt);
+          });
+        }
+      } catch (err) {
+        for (let i = 1; i <= 24; i++) {
+          const opt = document.createElement('option');
+          opt.value = i;
+          opt.innerText = `Episode ${i}`;
+          episodeSelect.appendChild(opt);
+        }
+      }
+      loadMediaStream();
+    }
+
+    function switchServer(server, btn) {
+      activeServer = server;
+      document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadMediaStream();
     }
 
     function loadMediaStream() {
       if (!activeMedia) return;
 
-      const mediaId = activeMedia.id;
+      const id = activeMedia.id;
+      const season = seasonSelect.value || 1;
+      const episode = episodeSelect.value || 1;
       let url = '';
 
       if (currentCategory === 'movie') {
-        // Direct vidsrc.sbs routing
-        url = `https://vidsrc.sbs/embed/movie/${mediaId}`;
+        if (activeServer === 'vidsrc_sbs') url = `https://vidsrc.sbs/embed/movie/${id}`;
+        else if (activeServer === 'vidsrc_pro') url = `https://vidsrc.pro/embed/movie/${id}`;
+        else if (activeServer === 'autoembed') url = `https://player.autoembed.cc/embed/movie/${id}`;
+        else if (activeServer === 'embedsu') url = `https://embed.su/embed/movie/${id}`;
       } else {
-        const season = seasonSelect.value || 1;
-        const episode = episodeSelect.value || 1;
-        url = `https://vidsrc.sbs/embed/tv/${mediaId}/${season}/${episode}`;
+        if (activeServer === 'vidsrc_sbs') url = `https://vidsrc.sbs/embed/tv/${id}/${season}/${episode}`;
+        else if (activeServer === 'vidsrc_pro') url = `https://vidsrc.pro/embed/tv/${id}/${season}/${episode}`;
+        else if (activeServer === 'autoembed') url = `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`;
+        else if (activeServer === 'embedsu') url = `https://embed.su/embed/tv/${id}/${season}/${episode}`;
       }
 
       videoPlayer.src = url;
@@ -454,8 +612,8 @@
       activeMedia = null;
     }
 
-    // Load initial featured grid
-    displayGrid(featuredCatalog.movie);
+    // Initial load
+    fetchCatalog();
   </script>
 </body>
 </html>
