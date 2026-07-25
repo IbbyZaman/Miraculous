@@ -111,12 +111,12 @@
 
     /* Key Setup Banner */
     .key-banner {
+      display: none; /* Hidden by default when key is active */
       background-color: #1a1d29;
       border: 1px solid #2e3346;
       padding: 1rem;
       margin: 1rem 2rem 0 2rem;
       border-radius: 8px;
-      display: flex;
       flex-wrap: wrap;
       gap: 1rem;
       align-items: center;
@@ -370,7 +370,7 @@
   <div class="key-banner" id="keyBanner">
     <div>
       <strong>TMDB API Key Required</strong>
-      <p>Enter your free key below. Get one in 30 seconds at <a href="https://www.themoviedb.org/settings/api" target="_blank">themoviedb.org/settings/api</a>.</p>
+      <p>Enter your free key below. Get one at <a href="https://www.themoviedb.org/settings/api" target="_blank">themoviedb.org/settings/api</a>.</p>
     </div>
     <div class="key-input-group">
       <input type="text" id="apiKeyInput" placeholder="Paste TMDB Key Here...">
@@ -434,7 +434,8 @@
     const BASE_URL = 'https://api.themoviedb.org/3';
     const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
 
-    let apiKey = localStorage.getItem('tmdb_api_key') || '';
+    // Uses your key as default for all visitors automatically
+    let apiKey = localStorage.getItem('tmdb_api_key') || 'aa9ee919e21a5b01654ced0159fe1244';
     let currentCategory = 'movie';
     let activeMedia = null;
     let activeServer = 'vidsrc_sbs';
@@ -455,10 +456,7 @@
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const pageInfo = document.getElementById('pageInfo');
-
-    if (apiKey) {
-      apiKeyInput.value = apiKey;
-    }
+    const keyBanner = document.getElementById('keyBanner');
 
     function saveApiKey() {
       const val = apiKeyInput.value.trim();
@@ -469,6 +467,7 @@
       apiKey = val;
       localStorage.setItem('tmdb_api_key', apiKey);
       alert('Key saved successfully!');
+      keyBanner.style.display = 'none';
       fetchCatalog();
     }
 
@@ -485,13 +484,11 @@
 
     async function fetchCatalog() {
       if (!apiKey) {
+        keyBanner.style.display = 'flex';
         contentGrid.innerHTML = `
           <div class="error-box">
             <h3>API Key Required</h3>
-            <p>Please enter your free TMDB API key in the top box to load movies and TV shows.</p>
-            <p>1. Go to <a href="https://www.themoviedb.org/signup" target="_blank" style="color: #e50914;">themoviedb.org</a> and sign up.<br>
-            2. Go to Settings → API to generate a free key.<br>
-            3. Paste it into the top box and click "Save Key".</p>
+            <p>Please enter a free TMDB API key to load movies and TV shows.</p>
           </div>`;
         return;
       }
@@ -510,10 +507,11 @@
           contentGrid.innerHTML = '<p>No items found.</p>';
         }
       } catch (err) {
+        keyBanner.style.display = 'flex';
         contentGrid.innerHTML = `
           <div class="error-box">
             <h3>Failed to load titles (${err.message})</h3>
-            <p>Your API key may be invalid or expired. Please check your key at <a href="https://www.themoviedb.org/settings/api" target="_blank" style="color: #e50914;">themoviedb.org/settings/api</a> and re-save it above.</p>
+            <p>The system API key may be invalid or expired. Please check your key at <a href="https://www.themoviedb.org/settings/api" target="_blank" style="color: #e50914;">themoviedb.org/settings/api</a> and re-save it above.</p>
           </div>`;
       }
     }
@@ -529,7 +527,7 @@
 
     async function loadSearchResults() {
       if (!apiKey) {
-        alert('Please enter and save your TMDB API key first!');
+        alert('API key missing!');
         return;
       }
 
