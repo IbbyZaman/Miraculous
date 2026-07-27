@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StreamHub - Natural Progress Tracking</title>
+  <title>StreamHub - Production Build</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     :root {
@@ -28,7 +28,7 @@
     }
 
     .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
-    .nav-controls { display: flex; align-items: center; gap: 1rem; }
+    .nav-controls { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
 
     input, select, button {
       padding: 0.6rem 1rem; border-radius: 6px; border: 1px solid #334155;
@@ -91,7 +91,7 @@
       color: #fff; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: bold;
     }
 
-    /* Natural Progress Bar Component */
+    /* Progress Bar Component */
     .progress-bar-container {
       width: 100%; height: 4px; background: #334155; position: absolute; bottom: 0; left: 0;
     }
@@ -106,12 +106,7 @@
     <div class="logo"><i class="fa-solid fa-play"></i> StreamHub</div>
     <div class="nav-controls">
       <input type="text" id="searchInput" placeholder="Search..." oninput="handleSearch(this.value)">
-      <select id="serverSelect" onchange="changeServer()">
-        <option value="vidsrc_xyz">Server 1 (VidSrc XYZ)</option>
-        <option value="vidsrc_pro">Server 2 (VidSrc Pro)</option>
-        <option value="autoembed">Server 3 (AutoEmbed)</option>
-        <option value="embedsu">Server 4 (EmbedSu)</option>
-      </select>
+      <select id="serverSelect" onchange="changeServer()"></select>
       <div id="userProfileArea" class="user-profile">
         <span class="user-badge" id="userNameDisplay">Guest</span>
         <button id="authBtn" onclick="openAuthModal()">Sign In</button>
@@ -142,7 +137,7 @@
   </div>
 
   <div class="main-container">
-    <!-- Active Video Player Section -->
+    <!-- Active Player Section -->
     <div id="playerSection" class="player-section hidden">
       <div class="iframe-wrapper">
         <iframe 
@@ -188,6 +183,91 @@
     let isSignUp = false;
     let sessionStartTime = 0;
 
+    // --- Embed Provider Map ---
+    const EMBED_PROVIDERS = {
+      "vidsrc.mov": {
+        name: "VidSrc.mov ⭐",
+        movie: (id) => `https://vidsrc.mov/embed/movie/${id}`,
+        tv: (id, s, e) => `https://vidsrc.mov/embed/tv/${id}/${s}/${e}`
+      },
+      "vidsrc.fyi": {
+        name: "VidSrc.fyi",
+        movie: (id) => `https://vidsrc.fyi/embed/movie/${id}`,
+        tv: (id, s, e) => `https://vidsrc.fyi/embed/tv/${id}/${s}/${e}`
+      },
+      "vidrock": {
+        name: "VidRock",
+        movie: (id) => `https://vidrock.net/embed/movie/${id}`,
+        tv: (id, s, e) => `https://vidrock.net/embed/tv/${id}/${s}/${e}`
+      },
+      "vidnest": {
+        name: "Vidnest",
+        movie: (id) => `https://vidnest.xyz/embed/movie/${id}`,
+        tv: (id, s, e) => `https://vidnest.xyz/embed/tv/${id}/${s}/${e}`
+      },
+      "vidking": {
+        name: "VidKing",
+        movie: (id) => `https://vidking.net/embed/movie/${id}`,
+        tv: (id, s, e) => `https://vidking.net/embed/tv/${id}/${s}/${e}`
+      },
+      "vidlink": {
+        name: "VidLink",
+        movie: (id) => `https://vidlink.pro/movie/${id}`,
+        tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}`
+      },
+      "vidfast": {
+        name: "VidFast",
+        movie: (id) => `https://vidfast.pro/movie/${id}`,
+        tv: (id, s, e) => `https://vidfast.pro/tv/${id}/${s}/${e}`
+      },
+      "vidup": {
+        name: "VidUp",
+        movie: (id) => `https://vidup.me/embed/movie/${id}`,
+        tv: (id, s, e) => `https://vidup.me/embed/tv/${id}/${s}/${e}`
+      },
+      "videasy": {
+        name: "Videasy",
+        movie: (id) => `https://player.videasy.net/movie/${id}`,
+        tv: (id, s, e) => `https://player.videasy.net/tv/${id}/${s}/${e}`
+      },
+      "111movies": {
+        name: "111Movies",
+        movie: (id) => `https://111movies.com/movie/${id}`,
+        tv: (id, s, e) => `https://111movies.com/tv/${id}/${s}/${e}`
+      },
+      "2embed": {
+        name: "2Embed",
+        movie: (id) => `https://www.2embed.cc/embed/${id}`,
+        tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
+      },
+      "multiembed": {
+        name: "MultiEmbed",
+        movie: (id) => `https://multiembed.mov/directstream.php?video_id=${id}`,
+        tv: (id, s, e) => `https://multiembed.mov/directstream.php?video_id=${id}&s=${s}&e=${e}`
+      },
+      "superflix": {
+        name: "SuperFlix",
+        movie: (id) => `https://superflixapi.dev/movie/${id}`,
+        tv: (id, s, e) => `https://superflixapi.dev/tv/${id}/${s}/${e}`
+      },
+      "peachify": {
+        name: "Peachify",
+        movie: (id) => `https://peachify.net/embed/movie/${id}`,
+        tv: (id, s, e) => `https://peachify.net/embed/tv/${id}/${s}/${e}`
+      }
+    };
+
+    function initServerSelector() {
+      const select = document.getElementById('serverSelect');
+      select.innerHTML = '';
+      Object.keys(EMBED_PROVIDERS).forEach(key => {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.innerText = EMBED_PROVIDERS[key].name;
+        select.appendChild(opt);
+      });
+    }
+
     // --- SHA-256 Hashing ---
     async function hashPassword(password) {
       const msgUint8 = new TextEncoder().encode(password);
@@ -196,7 +276,7 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // --- Auth Management ---
+    // --- Authentication ---
     function initAuth() {
       const activeSession = localStorage.getItem('streamhub_active_session');
       if (activeSession) {
@@ -273,16 +353,14 @@
       }
     }
 
-    // --- Natural Watch Tracking & Listeners ---
+    // --- Natural Progress Tracker & Listeners ---
     function getStorageKey() {
       return currentUser ? `streamhub_progress_${currentUser}` : 'streamhub_progress_guest';
     }
 
     function initNaturalTracker() {
-      // 1. Cross-Origin Message Listener (Captures timestamps broadcasted by player frames)
       window.addEventListener('message', (event) => {
         if (!currentItem) return;
-        
         let data = event.data;
         if (typeof data === 'string') {
           try { data = JSON.parse(data); } catch (e) { return; }
@@ -291,24 +369,16 @@
         if (data && (data.event === 'timeupdate' || data.event === 'pause' || data.type === 'player:time')) {
           const time = data.currentTime || data.seconds || data.time;
           const duration = data.duration || data.totalTime;
-
-          if (time) {
-            updateProgress(time, duration);
-          }
+          if (time) updateProgress(time, duration);
         }
       });
 
-      // 2. Page Visibility Sync (Saves progress when changing tabs or leaving page)
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden' && currentItem) {
-          syncElapsedSessionTime();
-        }
+        if (document.visibilityState === 'hidden' && currentItem) syncElapsedSessionTime();
       });
 
       window.addEventListener('beforeunload', () => {
-        if (currentItem) {
-          syncElapsedSessionTime();
-        }
+        if (currentItem) syncElapsedSessionTime();
       });
     }
 
@@ -334,8 +404,6 @@
 
     function syncElapsedSessionTime() {
       if (!currentItem || !sessionStartTime) return;
-      
-      // Calculate elapsed active playback time fallback
       const elapsedSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
       if (elapsedSeconds > 5) {
         const currentPos = (currentItem.currentTime || 0) + elapsedSeconds;
@@ -347,14 +415,10 @@
       const key = getStorageKey();
       let records = JSON.parse(localStorage.getItem(key) || '{}');
       
-      // Remove item if watched past 90% (Naturally Finished)
       if (itemData.duration && (itemData.currentTime / itemData.duration) > 0.90) {
         delete records[itemData.id];
       } else {
-        records[itemData.id] = {
-          ...itemData,
-          lastUpdated: Date.now()
-        };
+        records[itemData.id] = { ...itemData, lastUpdated: Date.now() };
       }
 
       localStorage.setItem(key, JSON.stringify(records));
@@ -379,32 +443,22 @@
       items.forEach(item => continueGrid.appendChild(createCard(item, true)));
     }
 
-    // --- Player & Server Handling ---
-    function getServerUrl(server, type, id, season = 1, episode = 1, startSeconds = 0) {
-      const timeParam = startSeconds > 0 ? `?start=${startSeconds}&time=${startSeconds}` : '';
-      switch (server) {
-        case 'vidsrc_xyz':
-          return type === 'movie' 
-            ? `https://vidsrc.xyz/embed/movie?tmdb=${id}${timeParam}` 
-            : `https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${season}&episode=${episode}${timeParam}`;
-        case 'vidsrc_pro':
-          return type === 'movie' 
-            ? `https://vidsrc.pro/embed/movie/${id}${timeParam}` 
-            : `https://vidsrc.pro/embed/tv/${id}/${season}/${episode}${timeParam}`;
-        case 'autoembed':
-          return type === 'movie' 
-            ? `https://player.autoembed.cc/embed/movie/${id}${timeParam}` 
-            : `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}${timeParam}`;
-        case 'embedsu':
-        default:
-          return type === 'movie' 
-            ? `https://embed.su/embed/movie/${id}${timeParam}` 
-            : `https://embed.su/embed/tv/${id}/${season}/${episode}${timeParam}`;
+    // --- Player Management ---
+    function getEmbedUrl(providerKey, tmdbId, type = "movie", season = 1, episode = 1, startAtSec = 0) {
+      const provider = EMBED_PROVIDERS[providerKey] || EMBED_PROVIDERS["vidsrc.mov"];
+      let baseUrl = type === "movie" 
+        ? provider.movie(tmdbId) 
+        : provider.tv(tmdbId, season, episode);
+
+      if (startAtSec > 0) {
+        const separator = baseUrl.includes("?") ? "&" : "?";
+        baseUrl += `${separator}start=${startAtSec}&time=${startAtSec}`;
       }
+      return baseUrl;
     }
 
     function playMedia(item) {
-      syncElapsedSessionTime(); // Save state of any previous item
+      syncElapsedSessionTime();
       
       const key = getStorageKey();
       const records = JSON.parse(localStorage.getItem(key) || '{}');
@@ -431,14 +485,14 @@
       if (mediaType === 'movie') {
         tvSelectors.classList.add('hidden');
         title.innerText = item.title || item.name;
-        iframe.src = getServerUrl(server, 'movie', item.id, 1, 1, startAt);
+        iframe.src = getEmbedUrl(server, item.id, 'movie', 1, 1, startAt);
       } else {
         tvSelectors.classList.remove('hidden');
         setupTVDropdowns(item);
         const s = currentItem.season || 1;
         const e = currentItem.episode || 1;
         title.innerText = `${item.title || item.name} (S${s} E${e})`;
-        iframe.src = getServerUrl(server, 'tv', item.id, s, e, startAt);
+        iframe.src = getEmbedUrl(server, item.id, 'tv', s, e, startAt);
       }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -458,12 +512,8 @@
       seasonSelect.innerHTML = '';
       episodeSelect.innerHTML = '';
 
-      for(let i = 1; i <= 10; i++) {
-        seasonSelect.innerHTML += `<option value="${i}">Season ${i}</option>`;
-      }
-      for(let i = 1; i <= 24; i++) {
-        episodeSelect.innerHTML += `<option value="${i}">Episode ${i}</option>`;
-      }
+      for(let i = 1; i <= 10; i++) seasonSelect.innerHTML += `<option value="${i}">Season ${i}</option>`;
+      for(let i = 1; i <= 24; i++) episodeSelect.innerHTML += `<option value="${i}">Episode ${i}</option>`;
 
       seasonSelect.value = item.season || 1;
       episodeSelect.value = item.episode || 1;
@@ -473,7 +523,7 @@
       if (!currentItem) return;
       currentItem.season = parseInt(document.getElementById('seasonSelect').value);
       currentItem.episode = parseInt(document.getElementById('episodeSelect').value);
-      currentItem.currentTime = 0; // Reset position on new episode
+      currentItem.currentTime = 0;
       playMedia(currentItem);
     }
 
@@ -489,7 +539,7 @@
       sessionStartTime = 0;
     }
 
-    // --- UI Render ---
+    // --- UI Rendering ---
     function createCard(item, isResume = false) {
       const card = document.createElement('div');
       card.className = 'card';
@@ -552,6 +602,7 @@
     }
 
     window.onload = () => {
+      initServerSelector();
       initAuth();
       initNaturalTracker();
       fetchPopular();
