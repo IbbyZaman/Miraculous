@@ -3,610 +3,301 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StreamHub - Production Build</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <title>CineStream - Multi-Device Streaming</title>
   <style>
     :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent: #ef4444;
-      --success: #22c55e;
+      --bg-color: #0d0f12;
+      --card-bg: #161920;
+      --accent-color: #e50914;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text); line-height: 1.5; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
     header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 1rem 2rem; background-color: rgba(15, 23, 42, 0.95);
-      position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px);
-      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: rgba(13, 15, 18, 0.95);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid #222;
     }
 
-    .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
-    .nav-controls { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .logo { font-size: 1.5rem; font-weight: bold; color: var(--accent-color); }
+    .auth-controls { display: flex; gap: 1rem; align-items: center; }
 
-    input, select, button {
-      padding: 0.6rem 1rem; border-radius: 6px; border: 1px solid #334155;
-      background-color: var(--card-bg); color: var(--text); outline: none;
+    button {
+      background-color: var(--accent-color);
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    button.secondary { background-color: #333; }
+
+    main { padding: 2rem; flex: 1; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+    .player-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
     }
 
-    button { background-color: var(--primary); color: #fff; cursor: pointer; border: none; font-weight: 600; transition: background 0.2s; }
-    button:hover { background-color: var(--primary-hover); }
-    .btn-danger { background-color: var(--accent); }
-    .btn-danger:hover { background-color: #dc2626; }
-
-    .user-profile { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; }
-    .user-badge { background: #334155; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 600; }
-
-    .main-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-
-    /* Modals */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-      display: flex; align-items: center; justify-content: center; z-index: 1000;
-    }
-    .modal { background: var(--card-bg); padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid #334155; }
-    .modal h2 { margin-bottom: 1rem; }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; margin-bottom: 0.3rem; font-size: 0.85rem; color: var(--text-muted); }
-    .form-group input { width: 100%; }
-    .auth-error { color: var(--accent); font-size: 0.85rem; margin-top: 0.5rem; display: none; }
-
-    .hidden { display: none !important; }
-
-    /* Video Player Frame */
-    .player-section { margin-bottom: 2rem; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #334155; }
-    .iframe-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; }
-    .iframe-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-
-    .player-controls {
-      padding: 1rem; background: var(--card-bg); display: flex;
-      gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;
-    }
-    .playback-tracker-indicator {
-      display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--success);
-    }
-    .pulse-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; } }
-
-    /* Grid Layout */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
-    .card {
-      background: var(--card-bg); border-radius: 8px; overflow: hidden;
-      cursor: pointer; position: relative; transition: transform 0.2s, border-color 0.2s; border: 2px solid transparent;
-    }
-    .card:hover { transform: translateY(-4px); border-color: var(--primary); }
-    .card img { width: 100%; height: 260px; object-fit: cover; }
-    .card-info { padding: 0.75rem; }
-    .card-title { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
-
-    .resume-badge {
-      position: absolute; top: 8px; right: 8px; background: var(--accent);
-      color: #fff; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: bold;
+    /* Pop-up Shield Sandboxing */
+    .player-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
     }
 
-    /* Progress Bar Component */
-    .progress-bar-container {
-      width: 100%; height: 4px; background: #334155; position: absolute; bottom: 0; left: 0;
+    .server-picker {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 8px;
     }
-    .progress-bar-fill {
-      height: 100%; background: var(--primary); width: 0%; transition: width 0.3s;
+
+    .server-btn {
+      background: #252a34;
+      font-size: 0.85rem;
+      padding: 0.4rem 0.8rem;
+    }
+    .server-btn.active { background: var(--accent-color); }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .modal-content input {
+      padding: 0.75rem;
+      border-radius: 4px;
+      border: 1px solid #333;
+      background: #0d0f12;
+      color: #fff;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="logo"><i class="fa-solid fa-play"></i> StreamHub</div>
-    <div class="nav-controls">
-      <input type="text" id="searchInput" placeholder="Search..." oninput="handleSearch(this.value)">
-      <select id="serverSelect" onchange="changeServer()"></select>
-      <div id="userProfileArea" class="user-profile">
-        <span class="user-badge" id="userNameDisplay">Guest</span>
-        <button id="authBtn" onclick="openAuthModal()">Sign In</button>
-      </div>
+    <div class="logo">CineStream</div>
+    <div class="auth-controls">
+      <span id="user-display" style="font-size: 0.9rem; color: var(--text-muted);">Guest Mode</span>
+      <button id="auth-btn">Login / Sign Up</button>
     </div>
   </header>
 
+  <main>
+    <!-- Video Player Frame -->
+    <div class="player-container" id="player-box">
+      <iframe id="stream-iframe" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+    </div>
+
+    <!-- 14 Provider Switcher -->
+    <h3>Select Streaming Server</h3>
+    <div class="server-picker" id="server-list"></div>
+  </main>
+
   <!-- Auth Modal -->
-  <div id="authModal" class="modal-overlay hidden">
-    <div class="modal">
-      <h2 id="modalTitle">Sign In</h2>
-      <form id="authForm" onsubmit="handleAuthSubmit(event)">
-        <div class="form-group">
-          <label>Username</label>
-          <input type="text" id="authUsername" required autocomplete="username">
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="authPassword" required autocomplete="current-password">
-        </div>
-        <div id="authError" class="auth-error">Invalid credentials.</div>
-        <button type="submit" style="width: 100%; margin-top: 1rem;">Continue</button>
-        <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
-          <a href="#" onclick="toggleAuthMode()" id="authToggleLink" style="color: var(--primary);">Need an account? Register</a>
-        </p>
-      </form>
+  <div class="modal" id="auth-modal">
+    <div class="modal-content">
+      <h2>Cloud Sync Account</h2>
+      <input type="email" id="auth-email" placeholder="Email Address">
+      <input type="password" id="auth-password" placeholder="Password">
+      <button id="login-submit">Log In</button>
+      <button id="signup-submit" class="secondary">Create Account</button>
+      <button id="close-modal" class="secondary" style="margin-top: 0.5rem;">Cancel</button>
     </div>
   </div>
 
-  <div class="main-container">
-    <!-- Active Player Section -->
-    <div id="playerSection" class="player-section hidden">
-      <div class="iframe-wrapper">
-        <iframe 
-          id="videoPlayer" 
-          allowfullscreen 
-          allow="autoplay; encrypted-media; fullscreen; picture-in-picture" 
-          referrerpolicy="origin"
-          src="about:blank">
-        </iframe>
-      </div>
-      <div class="player-controls">
-        <div>
-          <h3 id="playerTitle">Select a Title</h3>
-          <div id="tvSelectors" class="hidden" style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
-            <select id="seasonSelect" onchange="handleEpisodeChange()"></select>
-            <select id="episodeSelect" onchange="handleEpisodeChange()"></select>
-          </div>
-        </div>
-        <div class="playback-tracker-indicator">
-          <div class="pulse-dot"></div>
-          <span id="trackerStatus">Syncing progress...</span>
-          <button onclick="cycleServer()" style="margin-left: 1rem; background: #475569;">Switch Server</button>
-          <button onclick="closePlayer()" class="btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Close</button>
-        </div>
-      </div>
-    </div>
+  <!-- Firebase Modular SDK Setup -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <!-- Continue Watching -->
-    <div id="continueSection" class="hidden">
-      <h2><i class="fa-solid fa-clock-rotate-left"></i> Continue Watching</h2>
-      <div class="grid" id="continueGrid"></div>
-      <hr style="margin: 2rem 0; border-color: #334155;">
-    </div>
+    // Your exact Firebase Project Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCWKIQX_4oFrj87GSTsCS9PydnXc7t1bcU",
+      authDomain: "cinestream1230.firebaseapp.com",
+      databaseURL: "https://cinestream1230-default-rtdb.firebaseio.com",
+      projectId: "cinestream1230",
+      storageBucket: "cinestream1230.firebasestorage.app",
+      messagingSenderId: "523084805053",
+      appId: "1:523084805053:web:b356cb9c6d8a8ded7a98d4"
+    };
 
-    <h2 id="sectionHeader">Trending Movies & Shows</h2>
-    <div class="grid" id="mainGrid"></div>
-  </div>
+    // Initialize Services
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  <script>
-    const TMDB_API_KEY = 'aa9ee919e21a5b01654ced0159fe1244';
     let currentUser = null;
-    let currentItem = null;
-    let isSignUp = false;
-    let sessionStartTime = 0;
+    let currentMedia = { id: "movie-123", type: "movie", time: 0 }; // Default active stream demo
 
-    // --- Embed Provider Map ---
-    const EMBED_PROVIDERS = {
-      "vidsrc.mov": {
-        name: "VidSrc.mov ⭐",
-        movie: (id) => `https://vidsrc.mov/embed/movie/${id}`,
-        tv: (id, s, e) => `https://vidsrc.mov/embed/tv/${id}/${s}/${e}`
-      },
-      "vidsrc.fyi": {
-        name: "VidSrc.fyi",
-        movie: (id) => `https://vidsrc.fyi/embed/movie/${id}`,
-        tv: (id, s, e) => `https://vidsrc.fyi/embed/tv/${id}/${s}/${e}`
-      },
-      "vidrock": {
-        name: "VidRock",
-        movie: (id) => `https://vidrock.net/embed/movie/${id}`,
-        tv: (id, s, e) => `https://vidrock.net/embed/tv/${id}/${s}/${e}`
-      },
-      "vidnest": {
-        name: "Vidnest",
-        movie: (id) => `https://vidnest.xyz/embed/movie/${id}`,
-        tv: (id, s, e) => `https://vidnest.xyz/embed/tv/${id}/${s}/${e}`
-      },
-      "vidking": {
-        name: "VidKing",
-        movie: (id) => `https://vidking.net/embed/movie/${id}`,
-        tv: (id, s, e) => `https://vidking.net/embed/tv/${id}/${s}/${e}`
-      },
-      "vidlink": {
-        name: "VidLink",
-        movie: (id) => `https://vidlink.pro/movie/${id}`,
-        tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}`
-      },
-      "vidfast": {
-        name: "VidFast",
-        movie: (id) => `https://vidfast.pro/movie/${id}`,
-        tv: (id, s, e) => `https://vidfast.pro/tv/${id}/${s}/${e}`
-      },
-      "vidup": {
-        name: "VidUp",
-        movie: (id) => `https://vidup.me/embed/movie/${id}`,
-        tv: (id, s, e) => `https://vidup.me/embed/tv/${id}/${s}/${e}`
-      },
-      "videasy": {
-        name: "Videasy",
-        movie: (id) => `https://player.videasy.net/movie/${id}`,
-        tv: (id, s, e) => `https://player.videasy.net/tv/${id}/${s}/${e}`
-      },
-      "111movies": {
-        name: "111Movies",
-        movie: (id) => `https://111movies.com/movie/${id}`,
-        tv: (id, s, e) => `https://111movies.com/tv/${id}/${s}/${e}`
-      },
-      "2embed": {
-        name: "2Embed",
-        movie: (id) => `https://www.2embed.cc/embed/${id}`,
-        tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
-      },
-      "multiembed": {
-        name: "MultiEmbed",
-        movie: (id) => `https://multiembed.mov/directstream.php?video_id=${id}`,
-        tv: (id, s, e) => `https://multiembed.mov/directstream.php?video_id=${id}&s=${s}&e=${e}`
-      },
-      "superflix": {
-        name: "SuperFlix",
-        movie: (id) => `https://superflixapi.dev/movie/${id}`,
-        tv: (id, s, e) => `https://superflixapi.dev/tv/${id}/${s}/${e}`
-      },
-      "peachify": {
-        name: "Peachify",
-        movie: (id) => `https://peachify.net/embed/movie/${id}`,
-        tv: (id, s, e) => `https://peachify.net/embed/tv/${id}/${s}/${e}`
-      }
-    };
+    // 14 Embed Providers Map
+    const providers = [
+      { name: "Server 1 (vidsrc.me)", url: (id) => `https://vidsrc.me/embed/movie?tmdb=${id}` },
+      { name: "Server 2 (vidsrc.to)", url: (id) => `https://vidsrc.to/embed/movie/${id}` },
+      { name: "Server 3 (2embed)", url: (id) => `https://www.2embed.cc/embed/${id}` },
+      { name: "Server 4 (SuperEmbed)", url: (id) => `https://multiembed.mov/directstream.php?video_id=${id}` },
+      { name: "Server 5 (VidLink)", url: (id) => `https://vidlink.pro/movie/${id}` },
+      { name: "Server 6 (EmbedSu)", url: (id) => `https://embed.su/embed/movie/${id}` },
+      { name: "Server 7 (AutoEmbed)", url: (id) => `https://player.autoembed.cc/embed/movie/${id}` },
+      { name: "Server 8 (MovieAPI)", url: (id) => `https://movieapi.club/movie/${id}` },
+      { name: "Server 9 (Nonton)", url: (id) => `https://www.NontonGo.win/embed/movie/${id}` },
+      { name: "Server 10 (Frembed)", url: (id) => `https://frembed.pro/api/film.php?id=${id}` },
+      { name: "Server 11 (Smashy)", url: (id) => `https://embed.smashystream.com/playere.php?tmdb=${id}` },
+      { name: "Server 12 (DBGO)", url: (id) => `https://dbgo.fun/video.php?id=${id}` },
+      { name: "Server 13 (FlixHQ)", url: (id) => `https://flixhq.click/embed/movie/${id}` },
+      { name: "Server 14 (111Movies)", url: (id) => `https://111movies.com/movie/${id}` }
+    ];
 
-    function initServerSelector() {
-      const select = document.getElementById('serverSelect');
-      select.innerHTML = '';
-      Object.keys(EMBED_PROVIDERS).forEach(key => {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.innerText = EMBED_PROVIDERS[key].name;
-        select.appendChild(opt);
-      });
-    }
+    // Populate Server Buttons
+    const serverListEl = document.getElementById("server-list");
+    const iframeEl = document.getElementById("stream-iframe");
 
-    // --- SHA-256 Hashing ---
-    async function hashPassword(password) {
-      const msgUint8 = new TextEncoder().encode(password);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    // --- Authentication ---
-    function initAuth() {
-      const activeSession = localStorage.getItem('streamhub_active_session');
-      if (activeSession) {
-        currentUser = activeSession;
-      }
-      updateUserUI();
-      loadContinueWatching();
-    }
-
-    function openAuthModal() {
-      if (currentUser) {
-        currentUser = null;
-        localStorage.removeItem('streamhub_active_session');
-        updateUserUI();
-        loadContinueWatching();
-      } else {
-        document.getElementById('authError').style.display = 'none';
-        document.getElementById('authModal').classList.remove('hidden');
-      }
-    }
-
-    function toggleAuthMode() {
-      isSignUp = !isSignUp;
-      document.getElementById('modalTitle').innerText = isSignUp ? 'Create Account' : 'Sign In';
-      document.getElementById('authToggleLink').innerText = isSignUp ? 'Already registered? Sign In' : 'Need an account? Register';
-      document.getElementById('authError').style.display = 'none';
-    }
-
-    async function handleAuthSubmit(e) {
-      e.preventDefault();
-      const username = document.getElementById('authUsername').value.trim();
-      const password = document.getElementById('authPassword').value;
-      const errorEl = document.getElementById('authError');
-
-      if (!username || !password) return;
-
-      const users = JSON.parse(localStorage.getItem('streamhub_users') || '{}');
-      const hashedPassword = await hashPassword(password);
-
-      if (isSignUp) {
-        if (users[username]) {
-          errorEl.innerText = "Username already exists.";
-          errorEl.style.display = 'block';
-          return;
-        }
-        users[username] = { passwordHash: hashedPassword, created: Date.now() };
-        localStorage.setItem('streamhub_users', JSON.stringify(users));
-        currentUser = username;
-      } else {
-        if (!users[username] || users[username].passwordHash !== hashedPassword) {
-          errorEl.innerText = "Invalid username or password.";
-          errorEl.style.display = 'block';
-          return;
-        }
-        currentUser = username;
-      }
-
-      localStorage.setItem('streamhub_active_session', currentUser);
-      document.getElementById('authModal').classList.add('hidden');
-      document.getElementById('authForm').reset();
-      updateUserUI();
-      loadContinueWatching();
-    }
-
-    function updateUserUI() {
-      const nameDisplay = document.getElementById('userNameDisplay');
-      const authBtn = document.getElementById('authBtn');
-      if (currentUser) {
-        nameDisplay.innerText = currentUser;
-        authBtn.innerText = 'Sign Out';
-      } else {
-        nameDisplay.innerText = 'Guest';
-        authBtn.innerText = 'Sign In';
-      }
-    }
-
-    // --- Natural Progress Tracker & Listeners ---
-    function getStorageKey() {
-      return currentUser ? `streamhub_progress_${currentUser}` : 'streamhub_progress_guest';
-    }
-
-    function initNaturalTracker() {
-      window.addEventListener('message', (event) => {
-        if (!currentItem) return;
-        let data = event.data;
-        if (typeof data === 'string') {
-          try { data = JSON.parse(data); } catch (e) { return; }
-        }
-
-        if (data && (data.event === 'timeupdate' || data.event === 'pause' || data.type === 'player:time')) {
-          const time = data.currentTime || data.seconds || data.time;
-          const duration = data.duration || data.totalTime;
-          if (time) updateProgress(time, duration);
-        }
-      });
-
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden' && currentItem) syncElapsedSessionTime();
-      });
-
-      window.addEventListener('beforeunload', () => {
-        if (currentItem) syncElapsedSessionTime();
-      });
-    }
-
-    function updateProgress(currentTime, duration = null) {
-      if (!currentItem) return;
-
-      currentItem.currentTime = Math.floor(currentTime);
-      if (duration) currentItem.duration = Math.floor(duration);
-
-      const percent = currentItem.duration 
-        ? Math.round((currentItem.currentTime / currentItem.duration) * 100) 
-        : null;
-
-      const mins = Math.floor(currentItem.currentTime / 60);
-      const secs = currentItem.currentTime % 60;
-      
-      document.getElementById('trackerStatus').innerText = percent 
-        ? `Progress: ${mins}m ${secs}s (${percent}%)`
-        : `Progress: ${mins}m ${secs}s`;
-
-      saveProgress(currentItem);
-    }
-
-    function syncElapsedSessionTime() {
-      if (!currentItem || !sessionStartTime) return;
-      const elapsedSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
-      if (elapsedSeconds > 5) {
-        const currentPos = (currentItem.currentTime || 0) + elapsedSeconds;
-        updateProgress(currentPos, currentItem.duration || null);
-      }
-    }
-
-    function saveProgress(itemData) {
-      const key = getStorageKey();
-      let records = JSON.parse(localStorage.getItem(key) || '{}');
-      
-      if (itemData.duration && (itemData.currentTime / itemData.duration) > 0.90) {
-        delete records[itemData.id];
-      } else {
-        records[itemData.id] = { ...itemData, lastUpdated: Date.now() };
-      }
-
-      localStorage.setItem(key, JSON.stringify(records));
-      loadContinueWatching();
-    }
-
-    function loadContinueWatching() {
-      const key = getStorageKey();
-      const records = JSON.parse(localStorage.getItem(key) || '{}');
-      const continueGrid = document.getElementById('continueGrid');
-      const continueSection = document.getElementById('continueSection');
-      
-      continueGrid.innerHTML = '';
-      const items = Object.values(records).sort((a, b) => b.lastUpdated - a.lastUpdated);
-
-      if (items.length === 0) {
-        continueSection.classList.add('hidden');
-        return;
-      }
-
-      continueSection.classList.remove('hidden');
-      items.forEach(item => continueGrid.appendChild(createCard(item, true)));
-    }
-
-    // --- Player Management ---
-    function getEmbedUrl(providerKey, tmdbId, type = "movie", season = 1, episode = 1, startAtSec = 0) {
-      const provider = EMBED_PROVIDERS[providerKey] || EMBED_PROVIDERS["vidsrc.mov"];
-      let baseUrl = type === "movie" 
-        ? provider.movie(tmdbId) 
-        : provider.tv(tmdbId, season, episode);
-
-      if (startAtSec > 0) {
-        const separator = baseUrl.includes("?") ? "&" : "?";
-        baseUrl += `${separator}start=${startAtSec}&time=${startAtSec}`;
-      }
-      return baseUrl;
-    }
-
-    function playMedia(item) {
-      syncElapsedSessionTime();
-      
-      const key = getStorageKey();
-      const records = JSON.parse(localStorage.getItem(key) || '{}');
-      const existingRecord = records[item.id];
-
-      currentItem = { 
-        ...item,
-        currentTime: existingRecord ? existingRecord.currentTime || 0 : (item.currentTime || 0),
-        duration: existingRecord ? existingRecord.duration || null : (item.duration || null)
+    providers.forEach((provider, idx) => {
+      const btn = document.createElement("button");
+      btn.className = `server-btn ${idx === 0 ? 'active' : ''}`;
+      btn.innerText = provider.name;
+      btn.onclick = () => {
+        document.querySelectorAll(".server-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        iframeEl.src = provider.url("550"); // Example TMDB ID
       };
+      serverListEl.appendChild(btn);
+    });
 
-      sessionStartTime = Date.now();
+    // Default load first provider
+    iframeEl.src = providers[0].url("550");
 
-      const playerSection = document.getElementById('playerSection');
-      const iframe = document.getElementById('videoPlayer');
-      const title = document.getElementById('playerTitle');
-      const server = document.getElementById('serverSelect').value;
-      const tvSelectors = document.getElementById('tvSelectors');
-
-      playerSection.classList.remove('hidden');
-      const mediaType = item.media_type || (item.first_air_date ? 'tv' : 'movie');
-      const startAt = currentItem.currentTime || 0;
-
-      if (mediaType === 'movie') {
-        tvSelectors.classList.add('hidden');
-        title.innerText = item.title || item.name;
-        iframe.src = getEmbedUrl(server, item.id, 'movie', 1, 1, startAt);
-      } else {
-        tvSelectors.classList.remove('hidden');
-        setupTVDropdowns(item);
-        const s = currentItem.season || 1;
-        const e = currentItem.episode || 1;
-        title.innerText = `${item.title || item.name} (S${s} E${e})`;
-        iframe.src = getEmbedUrl(server, item.id, 'tv', s, e, startAt);
-      }
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function cycleServer() {
-      const serverSelect = document.getElementById('serverSelect');
-      let nextIndex = (serverSelect.selectedIndex + 1) % serverSelect.options.length;
-      serverSelect.selectedIndex = nextIndex;
-      changeServer();
-    }
-
-    function setupTVDropdowns(item) {
-      const seasonSelect = document.getElementById('seasonSelect');
-      const episodeSelect = document.getElementById('episodeSelect');
-      
-      seasonSelect.innerHTML = '';
-      episodeSelect.innerHTML = '';
-
-      for(let i = 1; i <= 10; i++) seasonSelect.innerHTML += `<option value="${i}">Season ${i}</option>`;
-      for(let i = 1; i <= 24; i++) episodeSelect.innerHTML += `<option value="${i}">Episode ${i}</option>`;
-
-      seasonSelect.value = item.season || 1;
-      episodeSelect.value = item.episode || 1;
-    }
-
-    function handleEpisodeChange() {
-      if (!currentItem) return;
-      currentItem.season = parseInt(document.getElementById('seasonSelect').value);
-      currentItem.episode = parseInt(document.getElementById('episodeSelect').value);
-      currentItem.currentTime = 0;
-      playMedia(currentItem);
-    }
-
-    function changeServer() {
-      if (currentItem) playMedia(currentItem);
-    }
-
-    function closePlayer() {
-      syncElapsedSessionTime();
-      document.getElementById('playerSection').classList.add('hidden');
-      document.getElementById('videoPlayer').src = 'about:blank';
-      currentItem = null;
-      sessionStartTime = 0;
-    }
-
-    // --- UI Rendering ---
-    function createCard(item, isResume = false) {
-      const card = document.createElement('div');
-      card.className = 'card';
-
-      const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Poster';
-      const minsWatched = Math.floor((item.currentTime || 0) / 60);
-      const percentWatched = (item.duration && item.currentTime) 
-        ? Math.min(Math.round((item.currentTime / item.duration) * 100), 100) 
-        : 0;
-      
-      card.innerHTML = `
-        <img src="${poster}" alt="${item.title || item.name}">
-        ${isResume ? `<div class="resume-badge">Resume</div>` : ''}
-        <div class="card-info">
-          <div class="card-title">${item.title || item.name}</div>
-          <div class="card-meta">
-            ${item.season ? `S${item.season} E${item.episode} • ` : ''}
-            ${isResume ? `${minsWatched}m watched` : (item.release_date || item.first_air_date || '').substring(0, 4)}
-          </div>
-        </div>
-        ${isResume && percentWatched > 0 ? `
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: ${percentWatched}%;"></div>
-          </div>
-        ` : ''}
-      `;
-
-      card.onclick = () => playMedia(item);
-      return card;
-    }
-
-    async function fetchPopular() {
-      try {
-        const res = await fetch(`https://api.themoviedb.org/3/trending/all/week?api_key=${TMDB_API_KEY}`);
-        const data = await res.json();
-        const grid = document.getElementById('mainGrid');
-        grid.innerHTML = '';
-        data.results.forEach(item => grid.appendChild(createCard(item)));
-      } catch (err) {
-        console.error('API Error:', err);
-      }
-    }
-
-    async function handleSearch(query) {
-      if (!query.trim()) {
-        document.getElementById('sectionHeader').innerText = 'Trending Movies & Shows';
-        fetchPopular();
-        return;
-      }
-      document.getElementById('sectionHeader').innerText = `Search Results for "${query}"`;
-      try {
-        const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        const grid = document.getElementById('mainGrid');
-        grid.innerHTML = '';
-        data.results.filter(i => i.media_type !== 'person').forEach(item => grid.appendChild(createCard(item)));
-      } catch (err) {
-        console.error('Search error:', err);
-      }
-    }
-
-    window.onload = () => {
-      initServerSelector();
-      initAuth();
-      initNaturalTracker();
-      fetchPopular();
+    // Pop-up Shield: Intercept new window popup attempts
+    window.open = function () {
+      console.warn("Pop-up Shield blocked a popup redirect attempt.");
+      return null;
     };
+
+    // Firebase Auth Handlers
+    const authBtn = document.getElementById("auth-btn");
+    const modal = document.getElementById("auth-modal");
+    const closeModal = document.getElementById("close-modal");
+    const userDisplay = document.getElementById("user-display");
+
+    authBtn.onclick = () => {
+      if (currentUser) {
+        signOut(auth);
+      } else {
+        modal.classList.add("active");
+      }
+    };
+
+    closeModal.onclick = () => modal.classList.remove("active");
+
+    document.getElementById("login-submit").onclick = async () => {
+      const e = document.getElementById("auth-email").value;
+      const p = document.getElementById("auth-password").value;
+      try {
+        await signInWithEmailAndPassword(auth, e, p);
+        modal.classList.remove("active");
+      } catch (err) { alert(err.message); }
+    };
+
+    document.getElementById("signup-submit").onclick = async () => {
+      const e = document.getElementById("auth-email").value;
+      const p = document.getElementById("auth-password").value;
+      try {
+        await createUserWithEmailAndPassword(auth, e, p);
+        modal.classList.remove("active");
+      } catch (err) { alert(err.message); }
+    };
+
+    // Auth State Observer
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      if (user) {
+        userDisplay.innerText = user.email;
+        authBtn.innerText = "Log Out";
+        await loadUserProgress(user.uid);
+      } else {
+        userDisplay.innerText = "Guest Mode";
+        authBtn.innerText = "Login / Sign Up";
+      }
+    });
+
+    // Firestore Cross-Device Sync Operations
+    async function saveProgress(mediaId, timestamp) {
+      if (!currentUser) return;
+      try {
+        await setDoc(doc(db, "users", currentUser.uid, "progress", mediaId), {
+          timestamp: timestamp,
+          updatedAt: new Date()
+        }, { merge: true });
+      } catch (e) {
+        console.error("Sync error:", e);
+      }
+    }
+
+    async function loadUserProgress(uid) {
+      try {
+        const docRef = doc(db, "users", uid, "progress", currentMedia.id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          console.log("Synced timestamp found:", docSnap.data().timestamp);
+        }
+      } catch (e) {
+        console.error("Error loading progress:", e);
+      }
+    }
+
+    // Auto-save watch state when switching tabs/closing browser
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden" && currentUser) {
+        saveProgress(currentMedia.id, currentMedia.time);
+      }
+    });
   </script>
 </body>
 </html>
