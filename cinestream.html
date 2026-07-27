@@ -14,15 +14,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CineStream Hub</title>
 
-  <!-- POPUP & AD REDIRECT BLOCKER SCRIPT -->
+  <!-- POPUP & AD REDIRECT BLOCKER SHIELD -->
   <script>
-    // Trap and suppress window.open popups
+    // Suppress window.open popups on the host window
     window.open = function () {
       console.warn("CineStream Shield: Blocked popup window attempt.");
       return null;
     };
 
-    // Prevent iframe popups from redirecting the host window
+    // Prevent iframe redirects from navigating the main CineStream page
     window.onbeforeunload = function() {
       if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
         console.warn("CineStream Shield: Blocked top-level frame navigation from player.");
@@ -464,13 +464,12 @@
     <!-- Player Container -->
     <div class="player-container" id="playerContainer">
       <div class="player-wrapper">
-        <!-- Sandboxed iframe prevents popups and site redirects -->
+        <!-- Frame without strict sandbox so external streams work properly -->
         <iframe 
           id="videoPlayer" 
           src="" 
           allowfullscreen 
           allow="autoplay; encrypted-media; picture-in-picture"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
           referrerpolicy="origin">
         </iframe>
       </div>
