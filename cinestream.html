@@ -2,17 +2,34 @@
 <html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-6K9W3X96EY');
+  </script>
 
-  gtag('config', 'G-6K9W3X96EY');
-</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CineStream Hub</title>
+
+  <!-- POPUP & AD REDIRECT BLOCKER SCRIPT -->
+  <script>
+    // Trap and suppress window.open popups
+    window.open = function () {
+      console.warn("CineStream Shield: Blocked popup window attempt.");
+      return null;
+    };
+
+    // Prevent iframe popups from redirecting the host window
+    window.onbeforeunload = function() {
+      if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
+        console.warn("CineStream Shield: Blocked top-level frame navigation from player.");
+      }
+    };
+  </script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -27,6 +44,13 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+    }
+
+    /* TV Focused Ring Style */
+    :focus, :focus-visible, .tv-focused {
+      outline: 4px solid #e50914 !important;
+      outline-offset: 2px !important;
+      box-shadow: 0 0 15px rgba(229, 9, 20, 0.8) !important;
     }
 
     header {
@@ -94,12 +118,7 @@
       border: 1px solid #2e3346;
       background-color: #0f1015;
       color: #fff;
-      outline: none;
       font-size: 0.85rem;
-    }
-
-    .search-box input:focus, .key-box input:focus {
-      border-color: #e50914;
     }
 
     .btn-red {
@@ -212,7 +231,6 @@
       border: 1px solid #2e3346;
       padding: 0.4rem 0.8rem;
       border-radius: 6px;
-      outline: none;
     }
 
     .server-list {
@@ -273,7 +291,7 @@
       transition: transform 0.2s;
     }
 
-    .history-card:hover {
+    .history-card:hover, .history-card:focus {
       transform: translateY(-4px);
     }
 
@@ -325,7 +343,7 @@
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    .card:hover {
+    .card:hover, .card:focus {
       transform: translateY(-5px);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     }
@@ -391,7 +409,7 @@
       font-weight: 600;
     }
 
-    .page-btn:hover:not(:disabled) {
+    .page-btn:hover:not(:disabled), .page-btn:focus:not(:disabled) {
       background-color: #e50914;
       border-color: #e50914;
     }
@@ -418,14 +436,14 @@
     <div class="logo">CineStream</div>
     
     <div class="nav-tabs">
-      <button class="nav-btn active" id="btnMovies" onclick="switchCategory('movie')">Movies</button>
-      <button class="nav-btn" id="btnTV" onclick="switchCategory('tv')">TV Shows</button>
+      <button class="nav-btn active" id="btnMovies" tabindex="0" onclick="switchCategory('movie')">Movies</button>
+      <button class="nav-btn" id="btnTV" tabindex="0" onclick="switchCategory('tv')">TV Shows</button>
     </div>
 
     <div class="header-right">
       <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search any title...">
-        <button class="btn-red" onclick="executeSearch()">Search</button>
+        <input type="text" id="searchInput" tabindex="0" placeholder="Search any title...">
+        <button class="btn-red" id="searchBtn" tabindex="0" onclick="executeSearch()">Search</button>
       </div>
     </div>
   </header>
@@ -437,8 +455,8 @@
       <p>Enter your key below. Get one at <a href="https://www.themoviedb.org/settings/api" target="_blank">themoviedb.org/settings/api</a>.</p>
     </div>
     <div class="key-input-group">
-      <input type="text" id="apiKeyInput" placeholder="Paste TMDB Key Here...">
-      <button class="btn-red" onclick="saveApiKey()">Save Key</button>
+      <input type="text" id="apiKeyInput" tabindex="0" placeholder="Paste TMDB Key Here...">
+      <button class="btn-red" tabindex="0" onclick="saveApiKey()">Save Key</button>
     </div>
   </div>
 
@@ -446,11 +464,13 @@
     <!-- Player Container -->
     <div class="player-container" id="playerContainer">
       <div class="player-wrapper">
+        <!-- Sandboxed iframe prevents popups and site redirects -->
         <iframe 
           id="videoPlayer" 
           src="" 
           allowfullscreen 
           allow="autoplay; encrypted-media; picture-in-picture"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
           referrerpolicy="origin">
         </iframe>
       </div>
@@ -460,21 +480,21 @@
           <div class="player-title" id="playerTitle">Title</div>
           <div class="ep-selector-group" id="epGroup">
             <label>Season:</label>
-            <select id="seasonSelect" onchange="updateEpisodeList()"></select>
+            <select id="seasonSelect" tabindex="0" onchange="updateEpisodeList()"></select>
             <label>Episode:</label>
-            <select id="episodeSelect" onchange="loadMediaStream()"></select>
+            <select id="episodeSelect" tabindex="0" onchange="loadMediaStream()"></select>
           </div>
         </div>
 
         <div class="server-list">
           <span style="font-size: 0.85rem; color: #aaa;">Server:</span>
-          <button class="server-btn active" onclick="switchServer('vidsrc_sbs', this)">VidSrc SBS</button>
-          <button class="server-btn" onclick="switchServer('vidsrc_pro', this)">VidSrc Pro</button>
-          <button class="server-btn" onclick="switchServer('autoembed', this)">AutoEmbed</button>
-          <button class="server-btn" onclick="switchServer('embedsu', this)">EmbedSu</button>
+          <button class="server-btn active" tabindex="0" onclick="switchServer('vidsrc_sbs', this)">VidSrc SBS</button>
+          <button class="server-btn" tabindex="0" onclick="switchServer('vidsrc_pro', this)">VidSrc Pro</button>
+          <button class="server-btn" tabindex="0" onclick="switchServer('autoembed', this)">AutoEmbed</button>
+          <button class="server-btn" tabindex="0" onclick="switchServer('embedsu', this)">EmbedSu</button>
         </div>
 
-        <button class="close-btn" onclick="closePlayer()">Close Player</button>
+        <button class="close-btn" tabindex="0" onclick="closePlayer()">Close Player</button>
       </div>
     </div>
 
@@ -490,9 +510,9 @@
 
     <!-- Pagination -->
     <div class="pagination">
-      <button class="page-btn" id="prevBtn" onclick="changePage(-1)">← Previous</button>
+      <button class="page-btn" id="prevBtn" tabindex="0" onclick="changePage(-1)">← Previous</button>
       <span id="pageInfo" style="font-size: 0.9rem; color: #aaa;">Page 1</span>
-      <button class="page-btn" id="nextBtn" onclick="changePage(1)">Next →</button>
+      <button class="page-btn" id="nextBtn" tabindex="0" onclick="changePage(1)">Next →</button>
     </div>
   </main>
 
@@ -651,7 +671,9 @@
 
         const card = document.createElement('div');
         card.className = 'card';
+        card.tabIndex = 0;
         card.onclick = () => selectMedia(item);
+        card.onkeydown = (e) => { if (e.key === 'Enter') selectMedia(item); };
 
         card.innerHTML = `
           <img src="${poster}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/500x750?text=No+Poster'">
@@ -780,7 +802,6 @@
     function saveToHistory(media, type, season = null, episode = null) {
       let history = getWatchHistory();
       
-      // Remove previous entry if item was already watched
       history = history.filter(item => item.id !== media.id);
 
       const historyItem = {
@@ -795,7 +816,6 @@
 
       history.unshift(historyItem);
 
-      // Store max 10 entries
       if (history.length > 10) history.pop();
 
       localStorage.setItem('cinestream_history', JSON.stringify(history));
@@ -818,11 +838,13 @@
       history.forEach(item => {
         const card = document.createElement('div');
         card.className = 'history-card';
+        card.tabIndex = 0;
         
         const poster = item.poster ? (IMAGE_URL + item.poster) : 'https://via.placeholder.com/500x750?text=No+Poster';
         const progressText = item.type === 'tv' ? `S${item.season} E${item.episode}` : 'Movie';
 
         card.onclick = () => resumeFromHistory(item);
+        card.onkeydown = (e) => { if (e.key === 'Enter') resumeFromHistory(item); };
 
         card.innerHTML = `
           <img src="${poster}" alt="${item.title}">
@@ -864,6 +886,62 @@
         console.error('Error loading history item:', err);
       }
     }
+
+    /* --- SMART TV D-PAD SPATIAL NAVIGATION --- */
+    document.addEventListener('keydown', (e) => {
+      const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+      if (!keys.includes(e.key)) return;
+
+      const activeEl = document.activeElement;
+      if (!activeEl || activeEl === document.body) {
+        document.getElementById('btnMovies').focus();
+        return;
+      }
+
+      if (activeEl.tagName === 'INPUT') {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          document.getElementById('searchBtn').focus();
+        }
+        return;
+      }
+
+      const focusables = Array.from(document.querySelectorAll('[tabindex="0"], button, input, select')).filter(el => {
+        return el.offsetWidth > 0 && el.offsetHeight > 0 && getComputedStyle(el).visibility !== 'hidden';
+      });
+
+      const currentRect = activeEl.getBoundingClientRect();
+      let bestMatch = null;
+      let minDistance = Infinity;
+
+      focusables.forEach(el => {
+        if (el === activeEl) return;
+        const rect = el.getBoundingClientRect();
+
+        let isCandidate = false;
+        if (e.key === 'ArrowUp') isCandidate = rect.bottom <= currentRect.top + 10;
+        if (e.key === 'ArrowDown') isCandidate = rect.top >= currentRect.bottom - 10;
+        if (e.key === 'ArrowLeft') isCandidate = rect.right <= currentRect.left + 10;
+        if (e.key === 'ArrowRight') isCandidate = rect.left >= currentRect.right - 10;
+
+        if (isCandidate) {
+          const dx = (rect.left + rect.width / 2) - (currentRect.left + currentRect.width / 2);
+          const dy = (rect.top + rect.height / 2) - (currentRect.top + currentRect.height / 2);
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            bestMatch = el;
+          }
+        }
+      });
+
+      if (bestMatch) {
+        e.preventDefault();
+        bestMatch.focus();
+        bestMatch.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      }
+    });
 
     // Initial load
     fetchCatalog();
