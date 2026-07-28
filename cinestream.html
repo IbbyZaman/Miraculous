@@ -3,8 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineStream | Custom Player</title>
+  <title>CineStream | Custom Player & Cloud Sync</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // REPLACE WITH YOUR FIREBASE CONFIG IF NEEDED
+    const firebaseConfig = {
+      apiKey: "AIzaSyDummyKeyForCineStreamPlatform12345",
+      authDomain: "cinestream-app.firebaseapp.com",
+      projectId: "cinestream-app",
+      storageBucket: "cinestream-app.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abcdef"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    window.cineAuth = auth;
+    window.cineSignIn = () => signInWithPopup(auth, provider).catch(err => console.error("Auth error:", err));
+    window.cineSignOut = () => signOut(auth);
+
+    onAuthStateChanged(auth, async (user) => {
+      const authBtn = document.getElementById('authBtn');
+      const userAvatar = document.getElementById('userAvatar');
+      
+      if (user) {
+        authBtn.innerText = "Sign Out";
+        authBtn.onclick = window.cineSignOut;
+        if(user.photoURL) {
+          userAvatar.src = user.photoURL;
+          userAvatar.style.display = 'block';
+        }
+        await loadHistoryFromCloud(user.uid);
+      } else {
+        authBtn.innerText = "Sign In";
+        authBtn.onclick = openAuthModal;
+        userAvatar.style.display = 'none';
+      }
+    });
+
+    window.syncHistoryToCloud = async function(history) {
+      const user = auth.currentUser;
+      if (!user) return;
+      try {
+        await setDoc(doc(db, "users", user.uid), { history }, { merge: true });
+      } catch (err) {
+        console.error("Cloud sync failed:", err);
+      }
+    };
+
+    async function loadHistoryFromCloud(uid) {
+      try {
+        const snap = await getDoc(doc(db, "users", uid));
+        if (snap.exists() && snap.data().history) {
+          localStorage.setItem('cinestream_history', JSON.stringify(snap.data().history));
+          if (window.renderHistory) window.renderHistory();
+        }
+      } catch (err) {
+        console.error("Cloud load failed:", err);
+      }
+    }
+  </script>
+
   <style>
     :root {
       --bg: #0f0f13;
@@ -18,7 +86,7 @@
     body { background-color: var(--bg); color: var(--text); padding-bottom: 50px; }
     
     header {
-      background: var(--surface); padding: 20px; display: flex; justify-content: space-between;
+      background: var(--surface); padding: 15px 25px; display: flex; justify-content: space-between;
       align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333;
     }
     header h1 { color: var(--primary); font-size: 24px; cursor: pointer; }
@@ -26,7 +94,7 @@
     .controls { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
     input[type="text"] {
       padding: 10px 15px; border-radius: 20px; border: none; background: #2a2a32;
-      color: white; width: 250px; outline: none;
+      color: white; width: 220px; outline: none;
     }
     button {
       padding: 10px 15px; border: none; border-radius: 20px; background: #2a2a32;
@@ -35,6 +103,9 @@
     button:hover { background: #3a3a45; }
     button.active { background: var(--primary); }
     
+    .user-profile { display: flex; align-items: center; gap: 10px; }
+    .user-profile img { width: 35px; height: 35px; border-radius: 50%; display: none; object-fit: cover; }
+
     .api-banner { background: #ffcc00; color: #000; padding: 10px; text-align: center; display: none; }
     .api-banner input { padding: 5px; margin: 0 10px; border-radius: 5px; border: 1px solid #000; }
     .api-banner button { background: #000; color: #ffcc00; padding: 5px 10px; border-radius: 5px; }
@@ -77,11 +148,21 @@
     .history-card img { height: 100px; }
     .history-card .card-info { text-align: center; }
     .history-progress { font-size: 12px; color: var(--primary); margin-top: 5px; }
+
+    /* Auth Modal */
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content { background: var(--surface); padding: 30px; border-radius: 12px; text-align: center; width: 320px; }
+    .modal-content h3 { margin-bottom: 20px; }
+    .google-btn { background: #db4437; width: 100%; padding: 12px; border-radius: 8px; margin-top: 10px; }
   </style>
 </head>
 <body>
 
-  <!-- API Key Banner (Only shows if no key is found) -->
+  <!-- API Key Banner -->
   <div class="api-banner" id="keyBanner">
     TMDB API Key Required: 
     <input type="text" id="apiKeyInput" placeholder="Enter free TMDB key...">
@@ -94,6 +175,10 @@
       <input type="text" id="searchInput" placeholder="Search movies or shows...">
       <button id="btnMovies" class="active" onclick="switchCategory('movie')">Movies</button>
       <button id="btnTV" onclick="switchCategory('tv')">TV Shows</button>
+      <div class="user-profile">
+        <img id="userAvatar" src="" alt="User">
+        <button id="authBtn" onclick="openAuthModal()">Sign In</button>
+      </div>
     </div>
   </header>
 
@@ -142,12 +227,21 @@
     </div>
   </div>
 
+  <!-- Auth Modal -->
+  <div class="modal" id="authModal">
+    <div class="modal-content">
+      <h3>Sign in to CineStream</h3>
+      <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 20px;">Sync your watch history across all devices instantly.</p>
+      <button class="google-btn" onclick="handleGoogleSignIn()">Sign in with Google</button>
+      <br><br>
+      <button onclick="closeAuthModal()" style="background: #333; width: 100%;">Cancel</button>
+    </div>
+  </div>
+
   <script>
     // --- APP CONFIG ---
     const BASE_URL = 'https://api.themoviedb.org/3';
     const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
-    
-    // YOUR DEPLOYED CLOUDFLARE WORKER URL
     const WORKER_URL = "https://cinestream-proxy.0ibbyzaman.workers.dev"; 
 
     // STATE
@@ -175,6 +269,17 @@
     const pageInfo = document.getElementById('pageInfo');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
+
+    // AUTH MODAL TRIGGERS
+    function openAuthModal() { document.getElementById('authModal').classList.add('active'); }
+    function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
+    
+    async function handleGoogleSignIn() {
+      if (window.cineSignIn) {
+        await window.cineSignIn();
+        closeAuthModal();
+      }
+    }
 
     // --- INITIALIZATION ---
     if (!apiKey) keyBanner.style.display = 'block';
@@ -306,7 +411,6 @@
       document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       
-      // If user manually clicks a server button, force iframe mode
       if(window.hlsInstance) window.hlsInstance.destroy();
       nativeVideoPlayer.style.display = 'none';
       nativeVideoPlayer.pause();
@@ -320,7 +424,6 @@
       const season = seasonSelect.value || 1;
       const episode = episodeSelect.value || 1;
 
-      // 1. Try Direct Custom HLS Proxy first
       nativeVideoPlayer.style.display = 'block';
       iframeFallbackPlayer.style.display = 'none';
 
@@ -359,7 +462,6 @@
         nativeVideoPlayer.addEventListener('loadedmetadata', () => nativeVideoPlayer.play());
       }
 
-      // Save History
       saveToHistory(activeMedia, currentCategory, season, episode);
     }
 
@@ -387,7 +489,7 @@
       playerContainer.style.display = 'none';
     }
 
-    // --- HISTORY ---
+    // --- HISTORY & CLOUD SYNC ---
     function saveToHistory(media, type, season = null, episode = null) {
       let history = JSON.parse(localStorage.getItem('cinestream_history') || '[]');
       history = history.filter(item => item.id !== media.id);
@@ -399,6 +501,10 @@
       if (history.length > 12) history.pop();
       localStorage.setItem('cinestream_history', JSON.stringify(history));
       renderHistory();
+
+      if (window.syncHistoryToCloud) {
+        window.syncHistoryToCloud(history);
+      }
     }
 
     function renderHistory() {
@@ -423,6 +529,8 @@
         `;
       }).join('');
     }
+
+    window.renderHistory = renderHistory;
 
     async function resumeFromHistory(item) {
       currentCategory = item.type;
