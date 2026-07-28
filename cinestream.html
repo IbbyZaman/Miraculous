@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineStream | Custom Player & Email Auth</title>
+  <title>Netflix | CineStream</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   
   <!-- Firebase SDKs -->
@@ -12,7 +12,6 @@
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // YOUR ACTUAL FIREBASE CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyCWKIQX_4oFrj87GStSCs9PydnXc7t1bcU",
       authDomain: "cinestream1230.firebaseapp.com",
@@ -76,91 +75,118 @@
 
   <style>
     :root {
-      --bg: #0f0f13;
-      --surface: #1c1c22;
-      --primary: #e50914;
+      --bg: #141414;
+      --surface: #1f1f1f;
+      --primary: #E50914;
       --text: #ffffff;
-      --text-dim: #a0a0a5;
+      --text-dim: #b3b3b3;
     }
     
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding-bottom: 50px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding-bottom: 60px; overflow-x: hidden; }
     
     header {
-      background: var(--surface); padding: 15px 25px; display: flex; justify-content: space-between;
-      align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+      padding: 20px 4%px; display: flex; justify-content: space-between;
+      align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      transition: background-color 0.3s;
     }
-    header h1 { color: var(--primary); font-size: 24px; cursor: pointer; }
+    header.scrolled { background-color: #141414; }
+    header h1 { color: var(--primary); font-size: 28px; font-weight: 900; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; }
     
-    .controls { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+    .controls { display: flex; gap: 20px; align-items: center; }
     input[type="text"], input[type="email"], input[type="password"] {
-      padding: 10px 15px; border-radius: 20px; border: none; background: #2a2a32;
-      color: white; width: 220px; outline: none;
+      padding: 8px 15px; border-radius: 4px; border: 1px solid #333; background: rgba(0,0,0,0.75);
+      color: white; width: 220px; outline: none; font-size: 14px;
     }
     button {
-      padding: 10px 15px; border: none; border-radius: 20px; background: #2a2a32;
-      color: white; cursor: pointer; transition: 0.2s; font-weight: bold;
+      padding: 8px 16px; border: none; border-radius: 4px; background: #333;
+      color: white; cursor: pointer; transition: 0.2s; font-weight: 600; font-size: 14px;
     }
-    button:hover { background: #3a3a45; }
+    button:hover { background: #444; }
     button.active { background: var(--primary); }
+    button.red-btn { background: var(--primary); }
+    button.red-btn:hover { background: #f40612; }
     
     .user-profile { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-dim); }
 
-    .api-banner { background: #ffcc00; color: #000; padding: 10px; text-align: center; display: none; }
-    .api-banner input { padding: 5px; margin: 0 10px; border-radius: 5px; border: 1px solid #000; }
-    .api-banner button { background: #000; color: #ffcc00; padding: 5px 10px; border-radius: 5px; }
+    .api-banner { background: #e50914; color: #fff; padding: 10px; text-align: center; display: none; margin-top: 70px; }
+    .api-banner input { padding: 5px; margin: 0 10px; border-radius: 4px; border: none; background: #fff; color: #000; }
+    .api-banner button { background: #000; color: #fff; }
 
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    h2 { margin: 20px 0; font-size: 22px; }
+    /* Netflix Hero Banner */
+    .hero {
+      height: 70vh; position: relative; background-size: cover; background-position: center;
+      display: flex; align-items: flex-end; padding: 0 4% 80px 4%; margin-top: 0;
+      box-shadow: inset 0 -100px 80px -20px var(--bg);
+    }
+    .hero::after {
+      content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,20,20,0) 50%, rgba(20,20,20,0.8) 90%, var(--bg) 100%);
+    }
+    .hero-content { position: relative; z-index: 10; max-width: 600px; }
+    .hero-title { font-size: 48px; font-weight: 800; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.6); }
+    .hero-desc { font-size: 16px; color: #dedede; margin-bottom: 20px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .hero-buttons { display: flex; gap: 15px; }
+    .hero-buttons button { padding: 10px 24px; font-size: 16px; border-radius: 4px; display: flex; align-items: center; gap: 8px; }
+
+    .container { max-width: 100%; padding: 0 4%; margin-top: -40px; position: relative; z-index: 20; }
+    h2 { margin: 30px 0 15px 0; font-size: 20px; font-weight: 700; color: #e5e5e5; }
 
     /* Player Section */
     #playerContainer {
-      display: none; background: var(--surface); padding: 20px; border-radius: 12px; margin-bottom: 30px;
+      display: none; background: #000; padding: 20px 4%; margin-bottom: 30px; position: fixed; inset: 0; z-index: 2000; overflow-y: auto;
     }
+    .player-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
     .video-wrapper {
-      position: relative; padding-top: 56.25%; width: 100%; background: #000; border-radius: 8px; overflow: hidden;
+      position: relative; padding-top: 56.25%; width: 100%; background: #000; border-radius: 4px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     }
     video, iframe {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
     }
     
-    .player-controls { margin-top: 15px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .player-controls { margin-top: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; align-items: center; }
     .ep-group, .server-group { display: flex; gap: 10px; align-items: center; }
-    select { padding: 8px; border-radius: 5px; background: #2a2a32; color: white; border: none; }
+    select { padding: 8px 12px; border-radius: 4px; background: #222; color: white; border: 1px solid #444; font-size: 14px; outline: none; }
 
-    /* Grids */
+    /* Netflix Row Grids */
+    .row-container { position: relative; margin-bottom: 40px; }
     .grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;
+      display: flex; gap: 8px; overflow-x: auto; scroll-behavior: smooth; padding-bottom: 15px;
     }
-    .card {
-      background: var(--surface); border-radius: 10px; overflow: hidden; cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .card:hover { transform: scale(1.05); }
-    .card img { width: 100%; height: 270px; object-fit: cover; }
-    .card-info { padding: 10px; }
-    .card-title { font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); margin-top: 5px; }
+    .grid::-webkit-scrollbar { height: 6px; }
+    .grid::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
     
-    .pagination { display: flex; justify-content: center; gap: 20px; margin-top: 30px; align-items: center; }
+    .card {
+      min-width: 200px; width: 200px; background: var(--surface); border-radius: 4px; overflow: hidden; cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease; flex-shrink: 0; position: relative;
+    }
+    .card:hover { transform: scale(1.08); z-index: 50; box-shadow: 0 10px 20px rgba(0,0,0,0.7); }
+    .card img { width: 100%; height: 300px; object-fit: cover; display: block; }
+    .card-info { padding: 12px; background: #181818; }
+    .card-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+    .card-meta { display: flex; justify-content: space-between; font-size: 11px; color: #46d369; margin-top: 6px; font-weight: 700; }
+    .card-meta span.year { color: var(--text-dim); font-weight: normal; }
+    
+    .pagination { display: flex; justify-content: center; gap: 20px; margin-top: 30px; align-items: center; padding-bottom: 40px; }
     
     /* History Specifics */
-    .history-card img { height: 100px; }
-    .history-card .card-info { text-align: center; }
-    .history-progress { font-size: 12px; color: var(--primary); margin-top: 5px; }
+    .history-card { min-width: 240px; width: 240px; }
+    .history-card img { height: 135px; }
+    .history-progress { font-size: 11px; color: var(--primary); margin-top: 4px; font-weight: bold; }
 
     /* Auth Modal */
     .modal {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75); z-index: 3000; justify-content: center; align-items: center;
     }
     .modal.active { display: flex; }
-    .modal-content { background: var(--surface); padding: 30px; border-radius: 12px; text-align: center; width: 320px; display: flex; flex-direction: column; gap: 12px; }
-    .modal-content h3 { margin-bottom: 5px; }
-    .modal-content input { width: 100%; }
+    .modal-content { background: rgba(0,0,0,0.85); padding: 50px; border-radius: 8px; width: 420px; display: flex; flex-direction: column; gap: 20px; border: 1px solid #333; box-shadow: 0 15px 40px rgba(0,0,0,0.9); }
+    .modal-content h3 { margin-bottom: 10px; font-size: 28px; font-weight: 700; color: #fff; }
+    .modal-content input { width: 100%; padding: 16px; background: #333; border: none; border-radius: 4px; color: #fff; font-size: 16px; }
+    .modal-content button { padding: 14px; font-size: 16px; border-radius: 4px; font-weight: bold; }
   </style>
 </head>
-<body>
+<body onscroll="handleScroll()">
 
   <!-- API Key Banner -->
   <div class="api-banner" id="keyBanner">
@@ -169,24 +195,42 @@
     <button onclick="saveApiKey()">Save Key</button>
   </div>
 
-  <header>
-    <h1 onclick="window.location.reload()">CineStream</h1>
+  <header id="mainHeader">
+    <div style="display: flex; align-items: center; gap: 40px;">
+      <h1 onclick="window.location.reload()">CineStream</h1>
+      <div class="controls" style="gap: 15px;">
+        <button id="btnMovies" class="active" onclick="switchCategory('movie')" style="background:transparent;">Movies</button>
+        <button id="btnTV" onclick="switchCategory('tv')" style="background:transparent;">TV Shows</button>
+      </div>
+    </div>
     <div class="controls">
-      <input type="text" id="searchInput" placeholder="Search movies or shows...">
-      <button id="btnMovies" class="active" onclick="switchCategory('movie')">Movies</button>
-      <button id="btnTV" onclick="switchCategory('tv')">TV Shows</button>
+      <input type="text" id="searchInput" placeholder="Titles, people, genres">
       <div class="user-profile">
-        <span id="userDisplay" style="display:none;"></span>
-        <button id="authBtn" onclick="openAuthModal()">Sign In</button>
+        <span id="userDisplay" style="display:none; color: #fff; font-weight: 600;"></span>
+        <button id="authBtn" class="red-btn" onclick="openAuthModal()">Sign In</button>
       </div>
     </div>
   </header>
 
+  <!-- Netflix Hero Showcase -->
+  <div class="hero" id="heroBanner" style="background-image: url('https://via.placeholder.com/1920x1080?text=Netflix+Original');">
+    <div class="hero-content">
+      <div class="hero-title" id="heroTitle">Featured Title</div>
+      <div class="hero-desc" id="heroDesc">Explore trending entertainment on CineStream. Select any movie or show to begin streaming instantly with custom multi-server tracking.</div>
+      <div class="hero-buttons">
+        <button class="red-btn" id="heroPlayBtn">▶ Play</button>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     
-    <!-- Video Player Area -->
+    <!-- Video Player Overlay Area -->
     <div id="playerContainer">
-      <h2 id="playerTitle">Loading...</h2>
+      <div class="player-header">
+        <h2 id="playerTitle" style="margin:0; font-size: 24px;">Loading...</h2>
+        <button onclick="closePlayer()" style="background: #333; padding: 8px 20px;">✕ Close</button>
+      </div>
       <div class="video-wrapper">
         <video id="nativeVideoPlayer" controls></video>
         <iframe id="iframeFallbackPlayer" allowfullscreen></iframe>
@@ -199,50 +243,62 @@
         </div>
         
         <div class="server-group">
-          <span>Fallback Server:</span>
+          <span style="color:var(--text-dim); font-size:14px;">Server:</span>
           <button class="server-btn active" onclick="switchServer('vidsrc_sbs', this)">VidSrc SBS</button>
           <button class="server-btn" onclick="switchServer('vidsrc_pro', this)">VidSrc Pro</button>
           <button class="server-btn" onclick="switchServer('embed_su', this)">Embed.su</button>
           <button class="server-btn" onclick="switchServer('autoembed', this)">AutoEmbed</button>
         </div>
-        <button onclick="closePlayer()" style="background: #333;">Close Player</button>
       </div>
     </div>
 
-    <!-- Continue Watching (History) -->
-    <div id="historySection" style="display: none;">
+    <!-- Continue Watching Row -->
+    <div id="historySection" style="display: none;" class="row-container">
       <h2>Continue Watching</h2>
-      <div class="grid" id="historyGrid" style="grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); margin-bottom: 40px;"></div>
-      <hr style="border: 0; border-top: 1px solid #333; margin-bottom: 20px;">
+      <div class="grid" id="historyGrid"></div>
     </div>
 
-    <!-- Main Content -->
-    <h2 id="gridTitle">Popular Movies</h2>
-    <div class="grid" id="contentGrid"></div>
+    <!-- Main Dynamic Row -->
+    <h2 id="gridTitle">Trending Now</h2>
+    <div class="row-container">
+      <div class="grid" id="contentGrid"></div>
+    </div>
 
     <div class="pagination">
       <button id="prevBtn" onclick="changePage(-1)">Previous</button>
-      <span id="pageInfo">Page 1</span>
+      <span id="pageInfo" style="color:var(--text-dim);">Page 1</span>
       <button id="nextBtn" onclick="changePage(1)">Next</button>
     </div>
   </div>
 
-  <!-- Auth Modal (Email/Password) -->
+  <!-- Auth Modal -->
   <div class="modal" id="authModal">
     <div class="modal-content">
-      <h3>Account Access</h3>
-      <input type="email" id="authEmail" placeholder="Email address...">
-      <input type="password" id="authPassword" placeholder="Password...">
-      <button style="background: var(--primary);" onclick="handleEmailSignIn()">Sign In</button>
-      <button onclick="handleEmailSignUp()">Create Account</button>
-      <button onclick="closeAuthModal()" style="background: #333; margin-top: 10px;">Cancel</button>
+      <h3>Sign In</h3>
+      <input type="email" id="authEmail" placeholder="Email or phone number">
+      <input type="password" id="authPassword" placeholder="Password">
+      <button class="red-btn" onclick="handleEmailSignIn()">Sign In</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-dim);">
+        <span>New to CineStream? <a href="#" onclick="handleEmailSignUp(); return false;" style="color:#fff; text-decoration:none; font-weight:bold;">Sign up now.</a></span>
+        <a href="#" onclick="closeAuthModal(); return false;" style="color:var(--text-dim); text-decoration:none;">Cancel</a>
+      </div>
     </div>
   </div>
 
   <script>
+    function handleScroll() {
+      const header = document.getElementById('mainHeader');
+      if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    }
+
     // --- APP CONFIG ---
     const BASE_URL = 'https://api.themoviedb.org/3';
     const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
+    const BACKDROP_URL = 'https://image.tmdb.org/t/p/original';
     const WORKER_URL = "https://cinestream-proxy.0ibbyzaman.workers.dev"; 
 
     // STATE
@@ -270,8 +326,11 @@
     const pageInfo = document.getElementById('pageInfo');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
+    const heroBanner = document.getElementById('heroBanner');
+    const heroTitle = document.getElementById('heroTitle');
+    const heroDesc = document.getElementById('heroDesc');
+    const heroPlayBtn = document.getElementById('heroPlayBtn');
 
-    // AUTH MODAL TRIGGERS
     function openAuthModal() { document.getElementById('authModal').classList.add('active'); }
     function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
     
@@ -297,7 +356,6 @@
       }
     }
 
-    // --- INITIALIZATION ---
     if (!apiKey) keyBanner.style.display = 'block';
     fetchCatalog();
     renderHistory();
@@ -311,13 +369,12 @@
       fetchCatalog();
     }
 
-    // --- CATALOG & SEARCH ---
     function switchCategory(cat) {
       currentCategory = cat;
       activeQuery = ''; searchInput.value = ''; currentPage = 1;
       document.getElementById('btnMovies').classList.toggle('active', cat === 'movie');
       document.getElementById('btnTV').classList.toggle('active', cat === 'tv');
-      gridTitle.innerText = cat === 'movie' ? 'Popular Movies' : 'Popular TV Shows';
+      gridTitle.innerText = cat === 'movie' ? 'Trending Movies' : 'Trending TV Shows';
       fetchCatalog();
     }
 
@@ -329,7 +386,19 @@
         totalPages = Math.min(data.total_pages || 1, 500);
         updatePagination();
         displayGrid(data.results);
-      } catch (err) { contentGrid.innerHTML = `<p>Error loading content.</p>`; }
+        if (data.results && data.results.length > 0) {
+          setupHero(data.results[0]);
+        }
+      } catch (err) { contentGrid.innerHTML = `<p style="padding:20px;">Error loading content.</p>`; }
+    }
+
+    function setupHero(item) {
+      const title = item.title || item.name;
+      const backdrop = item.backdrop_path ? (BACKDROP_URL + item.backdrop_path) : (IMAGE_URL + item.poster_path);
+      heroBanner.style.backgroundImage = `url('${backdrop}')`;
+      heroTitle.innerText = title;
+      heroDesc.innerText = item.overview || "Explore trending entertainment on CineStream.";
+      heroPlayBtn.onclick = () => selectMedia(item);
     }
 
     searchInput.addEventListener('keypress', (e) => {
@@ -341,19 +410,19 @@
     });
 
     async function loadSearchResults() {
-      gridTitle.innerText = `Search: "${activeQuery}"`;
+      gridTitle.innerText = `Search Results: "${activeQuery}"`;
       try {
         const res = await fetch(`${BASE_URL}/search/${currentCategory}?api_key=${apiKey}&query=${encodeURIComponent(activeQuery)}&page=${currentPage}`);
         const data = await res.json();
         totalPages = data.total_pages || 1;
         updatePagination();
         displayGrid(data.results);
-      } catch (err) { contentGrid.innerHTML = `<p>Search error.</p>`; }
+      } catch (err) { contentGrid.innerHTML = `<p style="padding:20px;">Search error.</p>`; }
     }
 
     function changePage(dir) {
       currentPage = Math.max(1, Math.min(totalPages, currentPage + dir));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 400, behavior: 'smooth' });
       activeQuery ? loadSearchResults() : fetchCatalog();
     }
 
@@ -368,19 +437,22 @@
         const title = item.title || item.name;
         const year = (item.release_date || item.first_air_date || 'N/A').split('-')[0];
         const poster = item.poster_path ? (IMAGE_URL + item.poster_path) : 'https://via.placeholder.com/500x750?text=No+Poster';
+        const rating = Math.round((item.vote_average || 7) * 10) + '% Match';
         return `
           <div class="card" onclick='selectMedia(${JSON.stringify(item).replace(/'/g, "\\'")})'>
             <img src="${poster}" alt="${title}" loading="lazy">
             <div class="card-info">
               <div class="card-title">${title}</div>
-              <div class="card-meta"><span>${year}</span><span>★ ${item.vote_average?.toFixed(1) || 'N/A'}</span></div>
+              <div class="card-meta">
+                <span>${rating}</span>
+                <span class="year">${year}</span>
+              </div>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    // --- PLAYER & STREAMING LOGIC ---
     async function selectMedia(item) {
       activeMedia = item;
       playerTitle.innerText = item.title || item.name;
@@ -394,7 +466,6 @@
       }
       
       playerContainer.style.display = 'block';
-      playerContainer.scrollIntoView({ behavior: 'smooth' });
     }
 
     async function loadTVSeasons(tvId) {
@@ -416,7 +487,7 @@
         const res = await fetch(`${BASE_URL}/tv/${activeMedia.id}/season/${sNum}?api_key=${apiKey}`);
         const data = await res.json();
         data.episodes.forEach(ep => {
-          episodeSelect.innerHTML += `<option value="${ep.episode_number}">Ep ${ep.episode_number}: ${ep.name}</option>`;
+          episodeSelect.innerHTML += `<option value="${ep.episode_number}">Episode ${ep.episode_number}: ${ep.name}</option>`;
         });
       } catch (err) { console.error("Episode load failed"); }
       loadMediaStream();
@@ -505,7 +576,6 @@
       playerContainer.style.display = 'none';
     }
 
-    // --- HISTORY & CLOUD SYNC ---
     function saveToHistory(media, type, season = null, episode = null) {
       let history = JSON.parse(localStorage.getItem('cinestream_history') || '[]');
       history = history.filter(item => item.id !== media.id);
@@ -533,7 +603,7 @@
       hSection.style.display = 'block';
       hGrid.innerHTML = history.map(item => {
         const poster = item.poster ? (IMAGE_URL + item.poster) : 'https://via.placeholder.com/500x750';
-        const prog = item.type === 'tv' ? `S${item.season} E${item.episode}` : 'Movie';
+        const prog = item.type === 'tv' ? `Season ${item.season} Episode ${item.episode}` : 'Movie';
         return `
           <div class="card history-card" onclick='resumeFromHistory(${JSON.stringify(item).replace(/'/g, "\\'")})'>
             <img src="${poster}" alt="${item.title}" loading="lazy">
@@ -570,7 +640,6 @@
         
         loadMediaStream();
         playerContainer.style.display = 'block';
-        playerContainer.scrollIntoView({ behavior: 'smooth' });
       } catch (err) { console.error('History resume failed', err); }
     }
   </script>
