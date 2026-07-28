@@ -3,50 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineStream | Custom Player & Cloud Sync</title>
+  <title>CineStream | Custom Player & Email Auth</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   
   <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // REPLACE WITH YOUR FIREBASE CONFIG IF NEEDED
+    // YOUR ACTUAL FIREBASE CONFIG
     const firebaseConfig = {
-      apiKey: "AIzaSyDummyKeyForCineStreamPlatform12345",
-      authDomain: "cinestream-app.firebaseapp.com",
-      projectId: "cinestream-app",
-      storageBucket: "cinestream-app.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:abcdef"
+      apiKey: "AIzaSyCWKIQX_4oFrj87GStSCs9PydnXc7t1bcU",
+      authDomain: "cinestream1230.firebaseapp.com",
+      databaseURL: "https://cinestream1230-default-rtdb.firebaseio.com",
+      projectId: "cinestream1230",
+      storageBucket: "cinestream1230.firebasestorage.app",
+      messagingSenderId: "523084805053",
+      appId: "1:523084805053:web:b356cb9c6d8a8ded7a98d4"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
 
     window.cineAuth = auth;
-    window.cineSignIn = () => signInWithPopup(auth, provider).catch(err => console.error("Auth error:", err));
+    window.cineSignIn = (email, pass) => signInWithEmailAndPassword(auth, email, pass);
+    window.cineSignUp = (email, pass) => createUserWithEmailAndPassword(auth, email, pass);
     window.cineSignOut = () => signOut(auth);
 
     onAuthStateChanged(auth, async (user) => {
       const authBtn = document.getElementById('authBtn');
-      const userAvatar = document.getElementById('userAvatar');
+      const userDisplay = document.getElementById('userDisplay');
       
       if (user) {
         authBtn.innerText = "Sign Out";
         authBtn.onclick = window.cineSignOut;
-        if(user.photoURL) {
-          userAvatar.src = user.photoURL;
-          userAvatar.style.display = 'block';
-        }
+        userDisplay.innerText = user.email;
+        userDisplay.style.display = 'inline';
+        closeAuthModal();
         await loadHistoryFromCloud(user.uid);
       } else {
         authBtn.innerText = "Sign In";
         authBtn.onclick = openAuthModal;
-        userAvatar.style.display = 'none';
+        userDisplay.innerText = '';
+        userDisplay.style.display = 'none';
       }
     });
 
@@ -92,7 +93,7 @@
     header h1 { color: var(--primary); font-size: 24px; cursor: pointer; }
     
     .controls { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-    input[type="text"] {
+    input[type="text"], input[type="email"], input[type="password"] {
       padding: 10px 15px; border-radius: 20px; border: none; background: #2a2a32;
       color: white; width: 220px; outline: none;
     }
@@ -103,8 +104,7 @@
     button:hover { background: #3a3a45; }
     button.active { background: var(--primary); }
     
-    .user-profile { display: flex; align-items: center; gap: 10px; }
-    .user-profile img { width: 35px; height: 35px; border-radius: 50%; display: none; object-fit: cover; }
+    .user-profile { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-dim); }
 
     .api-banner { background: #ffcc00; color: #000; padding: 10px; text-align: center; display: none; }
     .api-banner input { padding: 5px; margin: 0 10px; border-radius: 5px; border: 1px solid #000; }
@@ -155,9 +155,9 @@
       background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;
     }
     .modal.active { display: flex; }
-    .modal-content { background: var(--surface); padding: 30px; border-radius: 12px; text-align: center; width: 320px; }
-    .modal-content h3 { margin-bottom: 20px; }
-    .google-btn { background: #db4437; width: 100%; padding: 12px; border-radius: 8px; margin-top: 10px; }
+    .modal-content { background: var(--surface); padding: 30px; border-radius: 12px; text-align: center; width: 320px; display: flex; flex-direction: column; gap: 12px; }
+    .modal-content h3 { margin-bottom: 5px; }
+    .modal-content input { width: 100%; }
   </style>
 </head>
 <body>
@@ -176,7 +176,7 @@
       <button id="btnMovies" class="active" onclick="switchCategory('movie')">Movies</button>
       <button id="btnTV" onclick="switchCategory('tv')">TV Shows</button>
       <div class="user-profile">
-        <img id="userAvatar" src="" alt="User">
+        <span id="userDisplay" style="display:none;"></span>
         <button id="authBtn" onclick="openAuthModal()">Sign In</button>
       </div>
     </div>
@@ -227,14 +227,15 @@
     </div>
   </div>
 
-  <!-- Auth Modal -->
+  <!-- Auth Modal (Email/Password) -->
   <div class="modal" id="authModal">
     <div class="modal-content">
-      <h3>Sign in to CineStream</h3>
-      <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 20px;">Sync your watch history across all devices instantly.</p>
-      <button class="google-btn" onclick="handleGoogleSignIn()">Sign in with Google</button>
-      <br><br>
-      <button onclick="closeAuthModal()" style="background: #333; width: 100%;">Cancel</button>
+      <h3>Account Access</h3>
+      <input type="email" id="authEmail" placeholder="Email address...">
+      <input type="password" id="authPassword" placeholder="Password...">
+      <button style="background: var(--primary);" onclick="handleEmailSignIn()">Sign In</button>
+      <button onclick="handleEmailSignUp()">Create Account</button>
+      <button onclick="closeAuthModal()" style="background: #333; margin-top: 10px;">Cancel</button>
     </div>
   </div>
 
@@ -274,10 +275,25 @@
     function openAuthModal() { document.getElementById('authModal').classList.add('active'); }
     function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
     
-    async function handleGoogleSignIn() {
-      if (window.cineSignIn) {
-        await window.cineSignIn();
-        closeAuthModal();
+    async function handleEmailSignIn() {
+      const email = document.getElementById('authEmail').value.trim();
+      const pass = document.getElementById('authPassword').value.trim();
+      if (!email || !pass) return alert('Enter email and password.');
+      try {
+        await window.cineSignIn(email, pass);
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function handleEmailSignUp() {
+      const email = document.getElementById('authEmail').value.trim();
+      const pass = document.getElementById('authPassword').value.trim();
+      if (!email || !pass) return alert('Enter email and password.');
+      try {
+        await window.cineSignUp(email, pass);
+      } catch (err) {
+        alert(err.message);
       }
     }
 
