@@ -1,70 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-6K9W3X96EY');
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CineStream - Multi-Device Streaming</title>
+  <title>CineStream Hub</title>
   <style>
-    :root {
-      --bg-color: #0d0f12;
-      --card-bg: #161920;
-      --accent-color: #e50914;
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
+      background-color: #0f1015;
+      color: #ffffff;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background-color: rgba(13, 15, 18, 0.95);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 1px solid #222;
+    /* TV Focused Ring Style */
+    :focus, :focus-visible, .tv-focused {
+      outline: 4px solid #e50914 !important;
+      outline-offset: 2px !important;
+      box-shadow: 0 0 15px rgba(229, 9, 20, 0.8) !important;
     }
 
-    .logo { font-size: 1.5rem; font-weight: bold; color: var(--accent-color); }
-    .auth-controls { display: flex; gap: 1rem; align-items: center; }
+    header {
+      background-color: #161822;
+      padding: 1rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #232736;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
 
-    button {
-      background-color: var(--accent-color);
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #e50914;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: 1px solid #2e3346;
+      color: #aaa;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .nav-btn.active, .nav-btn:hover {
+      background-color: #e50914;
+      color: #fff;
+      border-color: #e50914;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .search-box input, .key-box input, .auth-modal input {
+      width: 100%;
+      padding: 0.5rem 0.8rem;
+      border-radius: 6px;
+      border: 1px solid #2e3346;
+      background-color: #0f1015;
+      color: #fff;
+      font-size: 0.85rem;
+    }
+
+    .btn-red {
+      padding: 0.5rem 1rem;
+      background-color: #e50914;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    .btn-red:hover {
+      background-color: #b80710;
+    }
+
+    .btn-secondary {
+      background-color: #2e3346;
       color: #fff;
       border: none;
       padding: 0.5rem 1rem;
-      border-radius: 4px;
-      font-weight: 600;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background 0.2s;
+      font-weight: 600;
+      font-size: 0.85rem;
     }
-    button:hover { opacity: 0.9; }
-    button.secondary { background-color: #333; }
 
-    main { padding: 2rem; flex: 1; max-width: 1200px; margin: 0 auto; width: 100%; }
-
-    .player-container {
-      position: relative;
-      width: 100%;
-      padding-top: 56.25%; /* 16:9 Aspect Ratio */
-      background: #000;
+    /* Key Setup Banner */
+    .key-banner {
+      display: none;
+      background-color: #1a1d29;
+      border: 1px solid #2e3346;
+      padding: 1rem;
+      margin: 1rem 2rem 0 2rem;
       border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    /* Pop-up Shield Sandboxing */
-    .player-container iframe {
+    .key-banner p {
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .key-banner a {
+      color: #e50914;
+      text-decoration: underline;
+    }
+
+    .key-input-group {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Player Container */
+    .player-container {
+      display: none;
+      margin-bottom: 2.5rem;
+      background-color: #161822;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    }
+
+    .player-wrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      background: #000;
+    }
+
+    .player-wrapper iframe {
       position: absolute;
       top: 0;
       left: 0;
@@ -73,49 +196,256 @@
       border: none;
     }
 
-    .server-picker {
+    .player-controls {
+      padding: 1.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #161822;
+      border-top: 1px solid #232736;
+    }
+
+    .player-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .ep-selector-group {
+      display: none;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.4rem;
+    }
+
+    .ep-selector-group select {
+      background: #0f1015;
+      color: #fff;
+      border: 1px solid #2e3346;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+    }
+
+    .server-list {
       display: flex;
       gap: 0.5rem;
+      align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 2rem;
-      background: var(--card-bg);
-      padding: 1rem;
-      border-radius: 8px;
     }
 
     .server-btn {
-      background: #252a34;
-      font-size: 0.85rem;
+      background: #2e3346;
+      color: #ccc;
+      border: none;
       padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
     }
-    .server-btn.active { background: var(--accent-color); }
 
-    .modal {
+    .server-btn.active {
+      background: #e50914;
+      color: #fff;
+    }
+
+    .close-btn {
+      background-color: #381216;
+      color: #ff6b6b;
+      border: 1px solid #e50914;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* Continue Watching / History Section */
+    .history-section {
+      margin-bottom: 2.5rem;
+      display: none;
+    }
+
+    .history-grid {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+    }
+
+    .history-card {
+      min-width: 140px;
+      max-width: 140px;
+      background-color: #161822;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+
+    .history-card:hover, .history-card:focus {
+      transform: translateY(-4px);
+    }
+
+    .history-card img {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .history-info {
+      padding: 0.6rem;
+    }
+
+    .history-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-progress {
+      font-size: 0.75rem;
+      color: #e50914;
+      margin-top: 0.2rem;
+      font-weight: bold;
+    }
+
+    /* Content Grid */
+    .section-title {
+      font-size: 1.3rem;
+      margin-bottom: 1.2rem;
+      font-weight: 600;
+      color: #e0e0e0;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background-color: #161822;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover, .card:focus {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .card img {
+      width: 100%;
+      height: 270px;
+      object-fit: cover;
+      display: block;
+      background-color: #232736;
+    }
+
+    .card-info {
+      padding: 0.8rem;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.4rem;
+      font-size: 0.8rem;
+      color: #a0a0a0;
+    }
+
+    .rating {
+      color: #ffd700;
+      font-weight: bold;
+    }
+
+    .error-box {
+      padding: 2rem;
+      background: #1a1215;
+      border: 1px solid #5a1e24;
+      border-radius: 8px;
+      color: #ff8b8b;
+      line-height: 1.6;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    .page-btn {
+      background-color: #161822;
+      border: 1px solid #2e3346;
+      color: #fff;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .page-btn:hover:not(:disabled), .page-btn:focus:not(:disabled) {
+      background-color: #e50914;
+      border-color: #e50914;
+    }
+
+    .page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Auth Modal */
+    .auth-modal {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.85);
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      z-index: 2000;
     }
-    .modal.active { display: flex; }
-    .modal-content {
-      background: var(--card-bg);
+
+    .auth-modal.active { display: flex; }
+
+    .auth-card {
+      background: #161822;
+      border: 1px solid #2e3346;
       padding: 2rem;
-      border-radius: 8px;
+      border-radius: 10px;
       width: 100%;
-      max-width: 400px;
+      max-width: 380px;
       display: flex;
       flex-direction: column;
       gap: 1rem;
     }
-    .modal-content input {
-      padding: 0.75rem;
-      border-radius: 4px;
-      border: 1px solid #333;
-      background: #0d0f12;
-      color: #fff;
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background-color: #161822;
+      border-top: 1px solid #232736;
+      color: #707070;
+      font-size: 0.85rem;
+      margin-top: 2rem;
     }
   </style>
 </head>
@@ -123,42 +453,114 @@
 
   <header>
     <div class="logo">CineStream</div>
-    <div class="auth-controls">
-      <span id="user-display" style="font-size: 0.9rem; color: var(--text-muted);">Guest Mode</span>
-      <button id="auth-btn">Login / Sign Up</button>
+    
+    <div class="nav-tabs">
+      <button class="nav-btn active" id="btnMovies" tabindex="0" onclick="switchCategory('movie')">Movies</button>
+      <button class="nav-btn" id="btnTV" tabindex="0" onclick="switchCategory('tv')">TV Shows</button>
+    </div>
+
+    <div class="header-right">
+      <span id="userDisplay" style="font-size: 0.85rem; color: #aaa;">Guest Mode</span>
+      <button class="btn-red" id="authBtn" tabindex="0" onclick="openAuthModal()">Cloud Login</button>
+      
+      <div class="search-box">
+        <input type="text" id="searchInput" tabindex="0" placeholder="Search any title...">
+        <button class="btn-red" id="searchBtn" tabindex="0" onclick="executeSearch()">Search</button>
+      </div>
     </div>
   </header>
 
-  <main>
-    <!-- Video Player Frame -->
-    <div class="player-container" id="player-box">
-      <iframe id="stream-iframe" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+  <!-- Key Setup Bar -->
+  <div class="key-banner" id="keyBanner">
+    <div>
+      <strong>TMDB API Key Required</strong>
+      <p>Enter your key below. Get one at <a href="https://www.themoviedb.org/settings/api" target="_blank">themoviedb.org/settings/api</a>.</p>
     </div>
-
-    <!-- 14 Provider Switcher -->
-    <h3>Select Streaming Server</h3>
-    <div class="server-picker" id="server-list"></div>
-  </main>
-
-  <!-- Auth Modal -->
-  <div class="modal" id="auth-modal">
-    <div class="modal-content">
-      <h2>Cloud Sync Account</h2>
-      <input type="email" id="auth-email" placeholder="Email Address">
-      <input type="password" id="auth-password" placeholder="Password">
-      <button id="login-submit">Log In</button>
-      <button id="signup-submit" class="secondary">Create Account</button>
-      <button id="close-modal" class="secondary" style="margin-top: 0.5rem;">Cancel</button>
+    <div class="key-input-group">
+      <input type="text" id="apiKeyInput" tabindex="0" placeholder="Paste TMDB Key Here...">
+      <button class="btn-red" tabindex="0" onclick="saveApiKey()">Save Key</button>
     </div>
   </div>
 
-  <!-- Firebase Modular SDK Setup -->
+  <main>
+    <!-- Player Container -->
+    <div class="player-container" id="playerContainer">
+      <div class="player-wrapper">
+        <iframe 
+          id="videoPlayer" 
+          src="" 
+          allowfullscreen 
+          allow="autoplay; encrypted-media; picture-in-picture"
+          referrerpolicy="origin">
+        </iframe>
+      </div>
+      
+      <div class="player-controls">
+        <div>
+          <div class="player-title" id="playerTitle">Title</div>
+          <div class="ep-selector-group" id="epGroup">
+            <label>Season:</label>
+            <select id="seasonSelect" tabindex="0" onchange="updateEpisodeList()"></select>
+            <label>Episode:</label>
+            <select id="episodeSelect" tabindex="0" onchange="loadMediaStream()"></select>
+          </div>
+        </div>
+
+        <div class="server-list">
+          <span style="font-size: 0.85rem; color: #aaa;">Server:</span>
+          <button class="server-btn active" tabindex="0" onclick="switchServer('vidsrc_sbs', this)">VidSrc SBS</button>
+          <button class="server-btn" tabindex="0" onclick="switchServer('vidsrc_pro', this)">VidSrc Pro</button>
+          <button class="server-btn" tabindex="0" onclick="switchServer('autoembed', this)">AutoEmbed</button>
+          <button class="server-btn" tabindex="0" onclick="switchServer('embedsu', this)">EmbedSu</button>
+        </div>
+
+        <button class="close-btn" tabindex="0" onclick="closePlayer()">Close Player</button>
+      </div>
+    </div>
+
+    <!-- Continue Watching Row -->
+    <div class="history-section" id="historySection">
+      <h2 class="section-title">Continue Watching</h2>
+      <div class="history-grid" id="historyGrid"></div>
+    </div>
+
+    <!-- Content Grid -->
+    <h2 class="section-title" id="gridTitle">Popular Movies</h2>
+    <div class="content-grid" id="contentGrid"></div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button class="page-btn" id="prevBtn" tabindex="0" onclick="changePage(-1)">← Previous</button>
+      <span id="pageInfo" style="font-size: 0.9rem; color: #aaa;">Page 1</span>
+      <button class="page-btn" id="nextBtn" tabindex="0" onclick="changePage(1)">Next →</button>
+    </div>
+  </main>
+
+  <!-- Cloud Sync Auth Modal -->
+  <div class="auth-modal" id="authModal">
+    <div class="auth-card">
+      <h3 style="color: #e50914; margin-bottom: 0.5rem;">CineStream Sync Account</h3>
+      <input type="email" id="authEmail" placeholder="Email Address">
+      <input type="password" id="authPassword" placeholder="Password">
+      <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+        <button class="btn-red" style="flex: 1;" onclick="handleLogin()">Log In</button>
+        <button class="btn-secondary" style="flex: 1;" onclick="handleSignUp()">Sign Up</button>
+      </div>
+      <button class="btn-secondary" onclick="closeAuthModal()">Cancel</button>
+    </div>
+  </div>
+
+  <footer>
+    &copy; CineStream Hub. Powered by Miraculoushub.co.uk
+  </footer>
+
+  <!-- Firebase Modular ES SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Your exact Firebase Project Configuration
+    // Your exact Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCWKIQX_4oFrj87GSTsCS9PydnXc7t1bcU",
       authDomain: "cinestream1230.firebaseapp.com",
@@ -169,135 +571,512 @@
       appId: "1:523084805053:web:b356cb9c6d8a8ded7a98d4"
     };
 
-    // Initialize Services
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUser = null;
-    let currentMedia = { id: "movie-123", type: "movie", time: 0 }; // Default active stream demo
+    window.currentUser = null;
 
-    // 14 Embed Providers Map
-    const providers = [
-      { name: "Server 1 (vidsrc.me)", url: (id) => `https://vidsrc.me/embed/movie?tmdb=${id}` },
-      { name: "Server 2 (vidsrc.to)", url: (id) => `https://vidsrc.to/embed/movie/${id}` },
-      { name: "Server 3 (2embed)", url: (id) => `https://www.2embed.cc/embed/${id}` },
-      { name: "Server 4 (SuperEmbed)", url: (id) => `https://multiembed.mov/directstream.php?video_id=${id}` },
-      { name: "Server 5 (VidLink)", url: (id) => `https://vidlink.pro/movie/${id}` },
-      { name: "Server 6 (EmbedSu)", url: (id) => `https://embed.su/embed/movie/${id}` },
-      { name: "Server 7 (AutoEmbed)", url: (id) => `https://player.autoembed.cc/embed/movie/${id}` },
-      { name: "Server 8 (MovieAPI)", url: (id) => `https://movieapi.club/movie/${id}` },
-      { name: "Server 9 (Nonton)", url: (id) => `https://www.NontonGo.win/embed/movie/${id}` },
-      { name: "Server 10 (Frembed)", url: (id) => `https://frembed.pro/api/film.php?id=${id}` },
-      { name: "Server 11 (Smashy)", url: (id) => `https://embed.smashystream.com/playere.php?tmdb=${id}` },
-      { name: "Server 12 (DBGO)", url: (id) => `https://dbgo.fun/video.php?id=${id}` },
-      { name: "Server 13 (FlixHQ)", url: (id) => `https://flixhq.click/embed/movie/${id}` },
-      { name: "Server 14 (111Movies)", url: (id) => `https://111movies.com/movie/${id}` }
-    ];
-
-    // Populate Server Buttons
-    const serverListEl = document.getElementById("server-list");
-    const iframeEl = document.getElementById("stream-iframe");
-
-    providers.forEach((provider, idx) => {
-      const btn = document.createElement("button");
-      btn.className = `server-btn ${idx === 0 ? 'active' : ''}`;
-      btn.innerText = provider.name;
-      btn.onclick = () => {
-        document.querySelectorAll(".server-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        iframeEl.src = provider.url("550"); // Example TMDB ID
-      };
-      serverListEl.appendChild(btn);
-    });
-
-    // Default load first provider
-    iframeEl.src = providers[0].url("550");
-
-    // Pop-up Shield: Intercept new window popup attempts
-    window.open = function () {
-      console.warn("Pop-up Shield blocked a popup redirect attempt.");
-      return null;
-    };
-
-    // Firebase Auth Handlers
-    const authBtn = document.getElementById("auth-btn");
-    const modal = document.getElementById("auth-modal");
-    const closeModal = document.getElementById("close-modal");
-    const userDisplay = document.getElementById("user-display");
-
-    authBtn.onclick = () => {
-      if (currentUser) {
-        signOut(auth);
-      } else {
-        modal.classList.add("active");
-      }
-    };
-
-    closeModal.onclick = () => modal.classList.remove("active");
-
-    document.getElementById("login-submit").onclick = async () => {
-      const e = document.getElementById("auth-email").value;
-      const p = document.getElementById("auth-password").value;
+    // Authentication Handlers
+    window.handleLogin = async function() {
+      const email = document.getElementById("authEmail").value;
+      const pass = document.getElementById("authPassword").value;
       try {
-        await signInWithEmailAndPassword(auth, e, p);
-        modal.classList.remove("active");
+        await signInWithEmailAndPassword(auth, email, pass);
+        window.closeAuthModal();
       } catch (err) { alert(err.message); }
     };
 
-    document.getElementById("signup-submit").onclick = async () => {
-      const e = document.getElementById("auth-email").value;
-      const p = document.getElementById("auth-password").value;
+    window.handleSignUp = async function() {
+      const email = document.getElementById("authEmail").value;
+      const pass = document.getElementById("authPassword").value;
       try {
-        await createUserWithEmailAndPassword(auth, e, p);
-        modal.classList.remove("active");
+        await createUserWithEmailAndPassword(auth, email, pass);
+        window.closeAuthModal();
       } catch (err) { alert(err.message); }
     };
 
-    // Auth State Observer
+    window.handleSignOut = async function() {
+      await signOut(auth);
+    };
+
+    // State Listener
     onAuthStateChanged(auth, async (user) => {
-      currentUser = user;
+      window.currentUser = user;
+      const userDisplay = document.getElementById("userDisplay");
+      const authBtn = document.getElementById("authBtn");
+
       if (user) {
         userDisplay.innerText = user.email;
         authBtn.innerText = "Log Out";
-        await loadUserProgress(user.uid);
+        authBtn.onclick = window.handleSignOut;
+        await syncFromCloud(user.uid);
       } else {
         userDisplay.innerText = "Guest Mode";
-        authBtn.innerText = "Login / Sign Up";
+        authBtn.innerText = "Cloud Login";
+        authBtn.onclick = window.openAuthModal;
       }
     });
 
-    // Firestore Cross-Device Sync Operations
-    async function saveProgress(mediaId, timestamp) {
-      if (!currentUser) return;
+    // Cloud Sync Operations
+    window.syncHistoryToCloud = async function(historyArray) {
+      if (!window.currentUser) return;
       try {
-        await setDoc(doc(db, "users", currentUser.uid, "progress", mediaId), {
-          timestamp: timestamp,
+        await setDoc(doc(db, "users", window.currentUser.uid), {
+          history: historyArray,
           updatedAt: new Date()
         }, { merge: true });
-      } catch (e) {
-        console.error("Sync error:", e);
-      }
-    }
+      } catch(e) { console.error("Cloud sync save error:", e); }
+    };
 
-    async function loadUserProgress(uid) {
+    async function syncFromCloud(uid) {
       try {
-        const docRef = doc(db, "users", uid, "progress", currentMedia.id);
+        const docRef = doc(db, "users", uid);
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          console.log("Synced timestamp found:", docSnap.data().timestamp);
+        if (docSnap.exists() && docSnap.data().history) {
+          localStorage.setItem('cinestream_history', JSON.stringify(docSnap.data().history));
+          if (window.renderHistory) window.renderHistory();
         }
-      } catch (e) {
-        console.error("Error loading progress:", e);
+      } catch(e) { console.error("Cloud sync load error:", e); }
+    }
+  </script>
+
+  <!-- Core App Logic -->
+  <script>
+    const BASE_URL = 'https://api.themoviedb.org/3';
+    const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
+
+    let apiKey = localStorage.getItem('tmdb_api_key') || 'aa9ee919e21a5b01654ced0159fe1244';
+    let currentCategory = 'movie';
+    let activeMedia = null;
+    let activeServer = 'vidsrc_sbs';
+    let currentPage = 1;
+    let totalPages = 1;
+    let activeQuery = '';
+
+    const contentGrid = document.getElementById('contentGrid');
+    const gridTitle = document.getElementById('gridTitle');
+    const searchInput = document.getElementById('searchInput');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const playerContainer = document.getElementById('playerContainer');
+    const videoPlayer = document.getElementById('videoPlayer');
+    const playerTitle = document.getElementById('playerTitle');
+    const epGroup = document.getElementById('epGroup');
+    const seasonSelect = document.getElementById('seasonSelect');
+    const episodeSelect = document.getElementById('episodeSelect');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageInfo = document.getElementById('pageInfo');
+    const keyBanner = document.getElementById('keyBanner');
+
+    function openAuthModal() { document.getElementById('authModal').classList.add('active'); }
+    function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
+
+    function saveApiKey() {
+      const val = apiKeyInput.value.trim();
+      if (!val) {
+        alert('Please enter a valid API key.');
+        return;
+      }
+      apiKey = val;
+      localStorage.setItem('tmdb_api_key', apiKey);
+      alert('Key saved successfully!');
+      keyBanner.style.display = 'none';
+      fetchCatalog();
+    }
+
+    function switchCategory(cat) {
+      currentCategory = cat;
+      activeQuery = '';
+      searchInput.value = '';
+      currentPage = 1;
+      document.getElementById('btnMovies').classList.toggle('active', cat === 'movie');
+      document.getElementById('btnTV').classList.toggle('active', cat === 'tv');
+      gridTitle.innerText = cat === 'movie' ? 'Popular Movies' : 'Popular TV Shows';
+      fetchCatalog();
+    }
+
+    async function fetchCatalog() {
+      if (!apiKey) {
+        keyBanner.style.display = 'flex';
+        contentGrid.innerHTML = `
+          <div class="error-box">
+            <h3>API Key Required</h3>
+            <p>Please enter a free TMDB API key to load movies and TV shows.</p>
+          </div>`;
+        return;
+      }
+
+      contentGrid.innerHTML = '<p>Loading database catalog...</p>';
+      try {
+        const res = await fetch(`${BASE_URL}/${currentCategory}/popular?api_key=${apiKey}&page=${currentPage}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        
+        if (data.results && data.results.length > 0) {
+          totalPages = Math.min(data.total_pages || 1, 500);
+          updatePagination();
+          displayGrid(data.results);
+        } else {
+          contentGrid.innerHTML = '<p>No items found.</p>';
+        }
+      } catch (err) {
+        keyBanner.style.display = 'flex';
+        contentGrid.innerHTML = `
+          <div class="error-box">
+            <h3>Failed to load titles (${err.message})</h3>
+            <p>The system API key may be invalid or expired. Check key at <a href="https://www.themoviedb.org/settings/api" target="_blank" style="color: #e50914;">themoviedb.org/settings/api</a>.</p>
+          </div>`;
       }
     }
 
-    // Auto-save watch state when switching tabs/closing browser
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden" && currentUser) {
-        saveProgress(currentMedia.id, currentMedia.time);
+    async function executeSearch() {
+      const query = searchInput.value.trim();
+      if (!query) return;
+
+      activeQuery = query;
+      currentPage = 1;
+      loadSearchResults();
+    }
+
+    async function loadSearchResults() {
+      if (!apiKey) return;
+
+      gridTitle.innerText = `Search Results for: "${activeQuery}"`;
+      contentGrid.innerHTML = '<p>Searching title database...</p>';
+
+      try {
+        const res = await fetch(`${BASE_URL}/search/${currentCategory}?api_key=${apiKey}&query=${encodeURIComponent(activeQuery)}&page=${currentPage}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        if (data.results && data.results.length > 0) {
+          totalPages = data.total_pages || 1;
+          updatePagination();
+          displayGrid(data.results);
+        } else {
+          contentGrid.innerHTML = '<p>No titles matching that query were found.</p>';
+        }
+      } catch (err) {
+        contentGrid.innerHTML = `<div class="error-box"><p>Error executing search: ${err.message}</p></div>`;
+      }
+    }
+
+    function changePage(dir) {
+      currentPage += dir;
+      if (currentPage < 1) currentPage = 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (activeQuery) {
+        loadSearchResults();
+      } else {
+        fetchCatalog();
+      }
+    }
+
+    function updatePagination() {
+      pageInfo.innerText = `Page ${currentPage} of ${totalPages}`;
+      prevBtn.disabled = currentPage <= 1;
+      nextBtn.disabled = currentPage >= totalPages;
+    }
+
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') executeSearch();
+    });
+
+    function displayGrid(items) {
+      contentGrid.innerHTML = '';
+      items.forEach(item => {
+        const title = item.title || item.name;
+        const date = item.release_date || item.first_air_date || '';
+        const year = date ? date.split('-')[0] : 'N/A';
+        const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+        const poster = item.poster_path ? (IMAGE_URL + item.poster_path) : 'https://via.placeholder.com/500x750?text=No+Poster';
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.tabIndex = 0;
+        card.onclick = () => selectMedia(item);
+        card.onkeydown = (e) => { if (e.key === 'Enter') selectMedia(item); };
+
+        card.innerHTML = `
+          <img src="${poster}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/500x750?text=No+Poster'">
+          <div class="card-info">
+            <div class="card-title">${title}</div>
+            <div class="card-meta">
+              <span>${year}</span>
+              <span class="rating">★ ${rating}</span>
+            </div>
+          </div>
+        `;
+        contentGrid.appendChild(card);
+      });
+    }
+
+    async function selectMedia(item) {
+      activeMedia = item;
+      playerTitle.innerText = item.title || item.name;
+
+      if (currentCategory === 'tv') {
+        epGroup.style.display = 'flex';
+        await loadTVSeasons(item.id);
+      } else {
+        epGroup.style.display = 'none';
+        loadMediaStream();
+      }
+
+      playerContainer.style.display = 'block';
+      playerContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function loadTVSeasons(tvId) {
+      seasonSelect.innerHTML = '';
+      try {
+        const res = await fetch(`${BASE_URL}/tv/${tvId}?api_key=${apiKey}`);
+        const data = await res.json();
+
+        if (data.seasons && data.seasons.length > 0) {
+          data.seasons.forEach(s => {
+            if (s.season_number > 0) {
+              const opt = document.createElement('option');
+              opt.value = s.season_number;
+              opt.innerText = `Season ${s.season_number}`;
+              seasonSelect.appendChild(opt);
+            }
+          });
+        }
+        await updateEpisodeList();
+      } catch (err) {
+        seasonSelect.innerHTML = '<option value="1">Season 1</option>';
+        await updateEpisodeList();
+      }
+    }
+
+    async function updateEpisodeList() {
+      episodeSelect.innerHTML = '';
+      const seasonNum = seasonSelect.value || 1;
+      try {
+        const res = await fetch(`${BASE_URL}/tv/${activeMedia.id}/season/${seasonNum}?api_key=${apiKey}`);
+        const data = await res.json();
+
+        if (data.episodes && data.episodes.length > 0) {
+          data.episodes.forEach(ep => {
+            const opt = document.createElement('option');
+            opt.value = ep.episode_number;
+            opt.innerText = `Ep ${ep.episode_number}: ${ep.name}`;
+            episodeSelect.appendChild(opt);
+          });
+        }
+      } catch (err) {
+        for (let i = 1; i <= 24; i++) {
+          const opt = document.createElement('option');
+          opt.value = i;
+          opt.innerText = `Episode ${i}`;
+          episodeSelect.appendChild(opt);
+        }
+      }
+      loadMediaStream();
+    }
+
+    function switchServer(server, btn) {
+      activeServer = server;
+      document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadMediaStream();
+    }
+
+    function loadMediaStream() {
+      if (!activeMedia) return;
+
+      const id = activeMedia.id;
+      const season = seasonSelect.value || 1;
+      const episode = episodeSelect.value || 1;
+      let url = '';
+
+      if (currentCategory === 'movie') {
+        if (activeServer === 'vidsrc_sbs') url = `https://vidsrc.sbs/embed/movie/${id}`;
+        else if (activeServer === 'vidsrc_pro') url = `https://vidsrc.pro/embed/movie/${id}`;
+        else if (activeServer === 'autoembed') url = `https://player.autoembed.cc/embed/movie/${id}`;
+        else if (activeServer === 'embedsu') url = `https://embed.su/embed/movie/${id}`;
+
+        saveToHistory(activeMedia, 'movie');
+      } else {
+        if (activeServer === 'vidsrc_sbs') url = `https://vidsrc.sbs/embed/tv/${id}/${season}/${episode}`;
+        else if (activeServer === 'vidsrc_pro') url = `https://vidsrc.pro/embed/tv/${id}/${season}/${episode}`;
+        else if (activeServer === 'autoembed') url = `https://player.autoembed.cc/embed/tv/${id}/${season}/${episode}`;
+        else if (activeServer === 'embedsu') url = `https://embed.su/embed/tv/${id}/${season}/${episode}`;
+
+        saveToHistory(activeMedia, 'tv', season, episode);
+      }
+
+      videoPlayer.src = url;
+    }
+
+    function closePlayer() {
+      videoPlayer.src = '';
+      playerContainer.style.display = 'none';
+      activeMedia = null;
+    }
+
+    /* --- HISTORY & CLOUD SYNC SYSTEM --- */
+    function getWatchHistory() {
+      return JSON.parse(localStorage.getItem('cinestream_history') || '[]');
+    }
+
+    function saveToHistory(media, type, season = null, episode = null) {
+      let history = getWatchHistory();
+      
+      history = history.filter(item => item.id !== media.id);
+
+      const historyItem = {
+        id: media.id,
+        title: media.title || media.name,
+        poster: media.poster_path,
+        type: type,
+        season: season,
+        episode: episode,
+        timestamp: Date.now()
+      };
+
+      history.unshift(historyItem);
+
+      if (history.length > 10) history.pop();
+
+      localStorage.setItem('cinestream_history', JSON.stringify(history));
+      renderHistory();
+
+      if (window.syncHistoryToCloud) {
+        window.syncHistoryToCloud(history);
+      }
+    }
+
+    function renderHistory() {
+      const history = getWatchHistory();
+      const historySection = document.getElementById('historySection');
+      const historyGrid = document.getElementById('historyGrid');
+
+      if (history.length === 0) {
+        historySection.style.display = 'none';
+        return;
+      }
+
+      historySection.style.display = 'block';
+      historyGrid.innerHTML = '';
+
+      history.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'history-card';
+        card.tabIndex = 0;
+        
+        const poster = item.poster ? (IMAGE_URL + item.poster) : 'https://via.placeholder.com/500x750?text=No+Poster';
+        const progressText = item.type === 'tv' ? `S${item.season} E${item.episode}` : 'Movie';
+
+        card.onclick = () => resumeFromHistory(item);
+        card.onkeydown = (e) => { if (e.key === 'Enter') resumeFromHistory(item); };
+
+        card.innerHTML = `
+          <img src="${poster}" alt="${item.title}">
+          <div class="history-info">
+            <div class="history-title">${item.title}</div>
+            <div class="history-progress">${progressText}</div>
+          </div>
+        `;
+        historyGrid.appendChild(card);
+      });
+    }
+
+    window.renderHistory = renderHistory;
+
+    async function resumeFromHistory(item) {
+      currentCategory = item.type;
+      document.getElementById('btnMovies').classList.toggle('active', item.type === 'movie');
+      document.getElementById('btnTV').classList.toggle('active', item.type === 'tv');
+
+      try {
+        const res = await fetch(`${BASE_URL}/${item.type}/${item.id}?api_key=${apiKey}`);
+        const data = await res.json();
+        
+        activeMedia = data;
+        playerTitle.innerText = data.title || data.name;
+
+        if (item.type === 'tv') {
+          epGroup.style.display = 'flex';
+          await loadTVSeasons(data.id);
+          if (item.season) seasonSelect.value = item.season;
+          await updateEpisodeList();
+          if (item.episode) episodeSelect.value = item.episode;
+        } else {
+          epGroup.style.display = 'none';
+        }
+
+        loadMediaStream();
+        playerContainer.style.display = 'block';
+        playerContainer.scrollIntoView({ behavior: 'smooth' });
+      } catch (err) {
+        console.error('Error loading history item:', err);
+      }
+    }
+
+    /* --- SMART TV D-PAD SPATIAL NAVIGATION --- */
+    document.addEventListener('keydown', (e) => {
+      const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+      if (!keys.includes(e.key)) return;
+
+      const activeEl = document.activeElement;
+      if (!activeEl || activeEl === document.body) {
+        document.getElementById('btnMovies').focus();
+        return;
+      }
+
+      if (activeEl.tagName === 'INPUT') {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          document.getElementById('searchBtn').focus();
+        }
+        return;
+      }
+
+      const focusables = Array.from(document.querySelectorAll('[tabindex="0"], button, input, select')).filter(el => {
+        return el.offsetWidth > 0 && el.offsetHeight > 0 && getComputedStyle(el).visibility !== 'hidden';
+      });
+
+      const currentRect = activeEl.getBoundingClientRect();
+      let bestMatch = null;
+      let minDistance = Infinity;
+
+      focusables.forEach(el => {
+        if (el === activeEl) return;
+        const rect = el.getBoundingClientRect();
+
+        let isCandidate = false;
+        if (e.key === 'ArrowUp') isCandidate = rect.bottom <= currentRect.top + 10;
+        if (e.key === 'ArrowDown') isCandidate = rect.top >= currentRect.bottom - 10;
+        if (e.key === 'ArrowLeft') isCandidate = rect.right <= currentRect.left + 10;
+        if (e.key === 'ArrowRight') isCandidate = rect.left >= currentRect.right - 10;
+
+        if (isCandidate) {
+          const dx = (rect.left + rect.width / 2) - (currentRect.left + currentRect.width / 2);
+          const dy = (rect.top + rect.height / 2) - (currentRect.top + currentRect.height / 2);
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            bestMatch = el;
+          }
+        }
+      });
+
+      if (bestMatch) {
+        e.preventDefault();
+        bestMatch.focus();
+        bestMatch.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
       }
     });
+
+    // Initial load
+    fetchCatalog();
+    renderHistory();
   </script>
 </body>
 </html>
