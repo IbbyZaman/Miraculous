@@ -9,7 +9,7 @@
   <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -28,12 +28,7 @@
 
     window.cineAuth = auth;
     window.cineSignIn = (email, pass) => signInWithEmailAndPassword(auth, email, pass);
-    window.cineSignUp = async (email, pass, firstName, lastName) => {
-      const res = await createUserWithEmailAndPassword(auth, email, pass);
-      const displayName = lastName ? `${firstName} ${lastName}`.trim() : firstName;
-      await updateProfile(res.user, { displayName });
-      return res;
-    };
+    window.cineSignUp = (email, pass) => createUserWithEmailAndPassword(auth, email, pass);
     window.cineSignOut = () => signOut(auth);
 
     onAuthStateChanged(auth, async (user) => {
@@ -43,7 +38,7 @@
       if (user) {
         authBtn.innerText = "Sign Out";
         authBtn.onclick = window.cineSignOut;
-        userDisplay.innerText = user.displayName || user.email.split('@')[0];
+        userDisplay.innerText = user.email;
         userDisplay.style.display = 'inline';
         closeAuthModal();
         await loadHistoryFromCloud(user.uid);
@@ -142,7 +137,7 @@
     .container { max-width: 100%; padding: 0 4%; margin-top: -30px; position: relative; z-index: 20; }
     h2 { margin: 35px 0 15px 0; font-size: 22px; font-weight: 700; color: #e5e5e5; letter-spacing: 0.5px; }
 
-    /* Netflix Modal Player Experience */
+    /* Netflix Modal Player Experience (Cleaned & Fixed UI Layout) */
     #playerContainer {
       display: none; background: rgba(0, 0, 0, 0.95); position: fixed; inset: 0; z-index: 4000; justify-content: center; align-items: center; padding: 20px;
     }
@@ -202,11 +197,10 @@
       background: rgba(0,0,0,0.8); z-index: 5000; justify-content: center; align-items: center;
     }
     .modal.active { display: flex; }
-    .modal-content { background: rgba(0,0,0,0.88); padding: 40px 50px; border-radius: 8px; width: 420px; display: flex; flex-direction: column; gap: 16px; border: 1px solid #333; box-shadow: 0 20px 40px rgba(0,0,0,0.95); }
-    .modal-content h3 { margin-bottom: 5px; font-size: 28px; font-weight: 700; color: #fff; }
-    .modal-content input { width: 100%; padding: 14px; background: #333; border: none; border-radius: 4px; color: #fff; font-size: 15px; }
+    .modal-content { background: rgba(0,0,0,0.88); padding: 50px 60px; border-radius: 8px; width: 450px; display: flex; flex-direction: column; gap: 20px; border: 1px solid #333; box-shadow: 0 20px 40px rgba(0,0,0,0.95); }
+    .modal-content h3 { margin-bottom: 5px; font-size: 32px; font-weight: 700; color: #fff; }
+    .modal-content input { width: 100%; padding: 16px; background: #333; border: none; border-radius: 4px; color: #fff; font-size: 16px; }
     .modal-content button { padding: 14px; font-size: 16px; border-radius: 4px; font-weight: bold; }
-    .name-row { display: flex; gap: 10px; }
   </style>
 </head>
 <body onscroll="handleScroll()">
@@ -250,7 +244,7 @@
 
   <div class="container">
     
-    <!-- Netflix Video Player Modal Experience -->
+    <!-- Netflix Video Player Modal Experience (Fixed Layout Structure) -->
     <div id="playerContainer">
       <div class="player-modal-box">
         <div class="player-header">
@@ -259,8 +253,8 @@
         </div>
         
         <div class="video-wrapper">
-          <video id="nativeVideoPlayer" controls playsinline></video>
-          <iframe id="iframeFallbackPlayer" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+          <video id="nativeVideoPlayer" controls></video>
+          <iframe id="iframeFallbackPlayer" allowfullscreen></iframe>
         </div>
         
         <div class="player-body">
@@ -272,10 +266,10 @@
             
             <div class="server-group">
               <span style="color:var(--text-dim); font-size:13px;">Server:</span>
-              <button class="server-btn active" onclick="switchServer('custom_hls', this)">Custom Player (HLS)</button>
-              <button class="server-btn" onclick="switchServer('vidsrc_sbs', this)">VidSrc SBS</button>
+              <button class="server-btn active" onclick="switchServer('vidsrc_sbs', this)">VidSrc SBS</button>
               <button class="server-btn" onclick="switchServer('vidsrc_pro', this)">VidSrc Pro</button>
               <button class="server-btn" onclick="switchServer('embed_su', this)">Embed.su</button>
+              <button class="server-btn" onclick="switchServer('autoembed', this)">AutoEmbed</button>
             </div>
           </div>
         </div>
@@ -304,77 +298,18 @@
   <!-- Auth Modal -->
   <div class="modal" id="authModal">
     <div class="modal-content">
-      <h3 id="authModalTitle">Sign In</h3>
-      <div class="name-row" id="nameFields" style="display: none;">
-        <input type="text" id="authFirstName" placeholder="First Name">
-        <input type="text" id="authLastName" placeholder="Surname (Optional)">
-      </div>
-      <input type="email" id="authEmail" placeholder="Email address">
+      <h3>Sign In</h3>
+      <input type="email" id="authEmail" placeholder="Email or phone number">
       <input type="password" id="authPassword" placeholder="Password">
-      <button class="red-btn" id="authActionBtn" onclick="handleAuthSubmit()">Sign In</button>
+      <button class="red-btn" onclick="handleEmailSignIn()">Sign In</button>
       <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-dim);">
-        <span id="authToggleText">New to CineStream? <a href="#" onclick="toggleAuthMode(); return false;" style="color:#fff; text-decoration:none; font-weight:bold;">Sign up now.</a></span>
+        <span>New to CineStream? <a href="#" onclick="handleEmailSignUp(); return false;" style="color:#fff; text-decoration:none; font-weight:bold;">Sign up now.</a></span>
         <a href="#" onclick="closeAuthModal(); return false;" style="color:var(--text-dim); text-decoration:none;">Cancel</a>
       </div>
     </div>
   </div>
 
   <script>
-    let isSignUpMode = false;
-
-    function openAuthModal() { 
-      isSignUpMode = false;
-      updateAuthModalUI();
-      document.getElementById('authModal').classList.add('active'); 
-    }
-    
-    function closeAuthModal() { 
-      document.getElementById('authModal').classList.remove('active'); 
-    }
-
-    function toggleAuthMode() {
-      isSignUpMode = !isSignUpMode;
-      updateAuthModalUI();
-    }
-
-    function updateAuthModalUI() {
-      const title = document.getElementById('authModalTitle');
-      const nameFields = document.getElementById('nameFields');
-      const actionBtn = document.getElementById('authActionBtn');
-      const toggleText = document.getElementById('authToggleText');
-
-      if (isSignUpMode) {
-        title.innerText = "Sign Up";
-        nameFields.style.display = "flex";
-        actionBtn.innerText = "Sign Up";
-        toggleText.innerHTML = `Already have an account? <a href="#" onclick="toggleAuthMode(); return false;" style="color:#fff; text-decoration:none; font-weight:bold;">Sign in.</a>`;
-      } else {
-        title.innerText = "Sign In";
-        nameFields.style.display = "none";
-        actionBtn.innerText = "Sign In";
-        toggleText.innerHTML = `New to CineStream? <a href="#" onclick="toggleAuthMode(); return false;" style="color:#fff; text-decoration:none; font-weight:bold;">Sign up now.</a>`;
-      }
-    }
-
-    async function handleAuthSubmit() {
-      const email = document.getElementById('authEmail').value.trim();
-      const pass = document.getElementById('authPassword').value.trim();
-      if (!email || !pass) return alert('Enter email and password.');
-
-      try {
-        if (isSignUpMode) {
-          const firstName = document.getElementById('authFirstName').value.trim();
-          const lastName = document.getElementById('authLastName').value.trim();
-          if (!firstName) return alert('Please enter your first name.');
-          await window.cineSignUp(email, pass, firstName, lastName);
-        } else {
-          await window.cineSignIn(email, pass);
-        }
-      } catch (err) {
-        alert(err.message);
-      }
-    }
-
     function handleScroll() {
       const header = document.getElementById('mainHeader');
       if (window.scrollY > 40) {
@@ -394,7 +329,7 @@
     let apiKey = localStorage.getItem('tmdb_api_key') || 'aa9ee919e21a5b01654ced0159fe1244';
     let currentCategory = 'movie';
     let activeMedia = null;
-    let activeServer = 'custom_hls'; 
+    let activeServer = 'vidsrc_sbs'; 
     let currentPage = 1;
     let totalPages = 1;
     let activeQuery = '';
@@ -419,6 +354,31 @@
     const heroTitle = document.getElementById('heroTitle');
     const heroDesc = document.getElementById('heroDesc');
     const heroPlayBtn = document.getElementById('heroPlayBtn');
+
+    function openAuthModal() { document.getElementById('authModal').classList.add('active'); }
+    function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
+    
+    async function handleEmailSignIn() {
+      const email = document.getElementById('authEmail').value.trim();
+      const pass = document.getElementById('authPassword').value.trim();
+      if (!email || !pass) return alert('Enter email and password.');
+      try {
+        await window.cineSignIn(email, pass);
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function handleEmailSignUp() {
+      const email = document.getElementById('authEmail').value.trim();
+      const pass = document.getElementById('authPassword').value.trim();
+      if (!email || !pass) return alert('Enter email and password.');
+      try {
+        await window.cineSignUp(email, pass);
+      } catch (err) {
+        alert(err.message);
+      }
+    }
 
     if (!apiKey) keyBanner.style.display = 'block';
     fetchCatalog();
@@ -563,15 +523,10 @@
       btn.classList.add('active');
       
       if(window.hlsInstance) window.hlsInstance.destroy();
-      
-      if (server === 'custom_hls') {
-        loadMediaStream();
-      } else {
-        nativeVideoPlayer.style.display = 'none';
-        nativeVideoPlayer.pause();
-        iframeFallbackPlayer.style.display = 'block';
-        loadIframeFallback();
-      }
+      nativeVideoPlayer.style.display = 'none';
+      nativeVideoPlayer.pause();
+      iframeFallbackPlayer.style.display = 'block';
+      loadIframeFallback();
     }
 
     function loadMediaStream() {
@@ -579,11 +534,6 @@
       const id = activeMedia.id;
       const season = seasonSelect.value || 1;
       const episode = episodeSelect.value || 1;
-
-      if (activeServer !== 'custom_hls') {
-        loadIframeFallback();
-        return;
-      }
 
       nativeVideoPlayer.style.display = 'block';
       iframeFallbackPlayer.style.display = 'none';
@@ -615,7 +565,7 @@
             hls.destroy();
             nativeVideoPlayer.style.display = 'none';
             iframeFallbackPlayer.style.display = 'block';
-            switchServer('vidsrc_sbs', document.querySelector('.server-btn:nth-child(2)'));
+            loadIframeFallback();
           }
         });
       } else if (nativeVideoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
@@ -638,9 +588,9 @@
       if (activeServer === 'vidsrc_sbs') url = `https://vidsrc.sbs/embed/${path}`;
       else if (activeServer === 'vidsrc_pro') url = `https://vidsrc.pro/embed/${path}`;
       else if (activeServer === 'embed_su') url = `https://embed.su/embed/${path}`;
+      else if (activeServer === 'autoembed') url = `https://player.autoembed.cc/embed/${path}`;
 
       iframeFallbackPlayer.src = url;
-      saveToHistory(activeMedia, currentCategory, season, episode);
     }
 
     function closePlayer() {
