@@ -558,9 +558,9 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Corrected Firebase Config
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyCWKIQX_4oFrj87GStSCs9PydnXc7t1bcU",
       authDomain: "cinestream1230.firebaseapp.com",
@@ -576,8 +576,9 @@
     const db = getFirestore(app);
 
     window.currentUser = null;
+    let unsubscribeSnapshot = null;
 
-    // Authentication Handlers
+    // Auth Handlers
     window.handleLogin = async function() {
       const email = document.getElementById("authEmail").value;
       const pass = document.getElementById("authPassword").value;
@@ -597,10 +598,11 @@
     };
 
     window.handleSignOut = async function() {
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
       await signOut(auth);
     };
 
-    // State Listener
+    // Account State Listener
     onAuthStateChanged(auth, async (user) => {
       window.currentUser = user;
       const userDisplay = document.getElementById("userDisplay");
@@ -610,15 +612,28 @@
         userDisplay.innerText = user.email;
         authBtn.innerText = "Log Out";
         authBtn.onclick = window.handleSignOut;
-        await syncFromCloud(user.uid);
+
+        // Real-time listener: loads account history instantly when logging in anywhere
+        unsubscribeSnapshot = onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+          if (docSnap.exists() && docSnap.data().history) {
+            localStorage.setItem('cinestream_history', JSON.stringify(docSnap.data().history));
+            if (window.renderHistory) window.renderHistory();
+          } else {
+            // Push local guest history to account on first login
+            const localHist = JSON.parse(localStorage.getItem('cinestream_history') || '[]');
+            if (localHist.length > 0) window.syncHistoryToCloud(localHist);
+          }
+        });
       } else {
+        if (unsubscribeSnapshot) unsubscribeSnapshot();
         userDisplay.innerText = "Guest Mode";
         authBtn.innerText = "Cloud Login";
         authBtn.onclick = window.openAuthModal;
+        if (window.renderHistory) window.renderHistory();
       }
     });
 
-    // Cloud Sync Operations
+    // Write updates straight to account
     window.syncHistoryToCloud = async function(historyArray) {
       if (!window.currentUser) return;
       try {
@@ -628,17 +643,6 @@
         }, { merge: true });
       } catch(e) { console.error("Cloud sync save error:", e); }
     };
-
-    async function syncFromCloud(uid) {
-      try {
-        const docRef = doc(db, "users", uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists() && docSnap.data().history) {
-          localStorage.setItem('cinestream_history', JSON.stringify(docSnap.data().history));
-          if (window.renderHistory) window.renderHistory();
-        }
-      } catch(e) { console.error("Cloud sync load error:", e); }
-    }
   </script>
 
   <!-- Core App Logic -->
@@ -919,7 +923,7 @@
       activeMedia = null;
     }
 
-    /* --- HISTORY & CLOUD SYNC SYSTEM --- */
+    /* --- ACCOUNT HISTORY & REALTIME CLOUD SYNC --- */
     function getWatchHistory() {
       return JSON.parse(localStorage.getItem('cinestream_history') || '[]');
     }
@@ -1018,7 +1022,7 @@
       }
     }
 
-    /* --- SMART TV D-PAD SPATIAL NAVIGATION --- */
+    /* --- SMART TV D-PAD NAVIGATION --- */
     document.addEventListener('keydown', (e) => {
       const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
       if (!keys.includes(e.key)) return;
