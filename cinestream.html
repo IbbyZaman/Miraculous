@@ -9,7 +9,7 @@
   <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -28,7 +28,31 @@
 
     window.cineAuth = auth;
     window.cineSignIn = (email, pass) => signInWithEmailAndPassword(auth, email, pass);
-    window.cineSignUp = (email, pass) => createUserWithEmailAndPassword(auth, email, pass);
+    
+    // Updated Sign-Up handler to support optional first and last name fields
+    window.cineSignUp = async (email, pass, firstName, lastName) => {
+      const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+      const user = userCred.user;
+      
+      const fName = firstName ? firstName.trim() : "";
+      const lName = lastName ? lastName.trim() : "";
+      const fullName = `${fName} ${lName}`.trim();
+
+      if (fullName) {
+        await updateProfile(user, { displayName: fullName });
+      }
+
+      // Save additional metadata into Firestore users collection optionally
+      await setDoc(doc(db, "users", user.uid), {
+        email: email,
+        firstName: fName,
+        lastName: lName,
+        createdAt: new Date().toISOString()
+      }, { merge: true });
+
+      return user;
+    };
+
     window.cineSignOut = () => signOut(auth);
 
     onAuthStateChanged(auth, async (user) => {
@@ -38,7 +62,7 @@
       if (user) {
         authBtn.innerText = "Sign Out";
         authBtn.onclick = window.cineSignOut;
-        userDisplay.innerText = user.email;
+        userDisplay.innerText = user.displayName ? user.displayName : user.email;
         userDisplay.style.display = 'inline';
         closeAuthModal();
         await loadHistoryFromCloud(user.uid);
@@ -137,7 +161,7 @@
     .container { max-width: 100%; padding: 0 4%; margin-top: -30px; position: relative; z-index: 20; }
     h2 { margin: 35px 0 15px 0; font-size: 22px; font-weight: 700; color: #e5e5e5; letter-spacing: 0.5px; }
 
-    /* Netflix Modal Player Experience (Cleaned & Fixed UI Layout) */
+    /* Netflix Modal Player Experience */
     #playerContainer {
       display: none; background: rgba(0, 0, 0, 0.95); position: fixed; inset: 0; z-index: 4000; justify-content: center; align-items: center; padding: 20px;
     }
@@ -197,9 +221,9 @@
       background: rgba(0,0,0,0.8); z-index: 5000; justify-content: center; align-items: center;
     }
     .modal.active { display: flex; }
-    .modal-content { background: rgba(0,0,0,0.88); padding: 50px 60px; border-radius: 8px; width: 450px; display: flex; flex-direction: column; gap: 20px; border: 1px solid #333; box-shadow: 0 20px 40px rgba(0,0,0,0.95); }
-    .modal-content h3 { margin-bottom: 5px; font-size: 32px; font-weight: 700; color: #fff; }
-    .modal-content input { width: 100%; padding: 16px; background: #333; border: none; border-radius: 4px; color: #fff; font-size: 16px; }
+    .modal-content { background: rgba(0,0,0,0.88); padding: 40px 50px; border-radius: 8px; width: 450px; display: flex; flex-direction: column; gap: 15px; border: 1px solid #333; box-shadow: 0 20px 40px rgba(0,0,0,0.95); }
+    .modal-content h3 { margin-bottom: 5px; font-size: 28px; font-weight: 700; color: #fff; }
+    .modal-content input { width: 100%; padding: 14px; background: #333; border: none; border-radius: 4px; color: #fff; font-size: 15px; }
     .modal-content button { padding: 14px; font-size: 16px; border-radius: 4px; font-weight: bold; }
   </style>
 </head>
@@ -244,7 +268,7 @@
 
   <div class="container">
     
-    <!-- Netflix Video Player Modal Experience (Fixed Layout Structure) -->
+    <!-- Netflix Video Player Modal Experience -->
     <div id="playerContainer">
       <div class="player-modal-box">
         <div class="player-header">
@@ -295,15 +319,24 @@
     </div>
   </div>
 
-  <!-- Auth Modal -->
+  <!-- Auth Modal (Updated with Optional Name Fields for Sign Up) -->
   <div class="modal" id="authModal">
     <div class="modal-content">
-      <h3>Sign In</h3>
-      <input type="email" id="authEmail" placeholder="Email or phone number">
+      <h3 id="authModalTitle">Sign In</h3>
+      
+      <!-- Optional Name Fields (Hidden during Sign In, shown during Sign Up) -->
+      <div id="nameFieldsContainer" style="display: none; gap: 10px;">
+        <input type="text" id="authFirstName" placeholder="First Name (Optional)">
+        <input type="text" id="authLastName" placeholder="Last Name (Optional)">
+      </div>
+
+      <input type="email" id="authEmail" placeholder="Email address">
       <input type="password" id="authPassword" placeholder="Password">
-      <button class="red-btn" onclick="handleEmailSignIn()">Sign In</button>
+      
+      <button class="red-btn" id="authActionBtn" onclick="handleAuthSubmit()">Sign In</button>
+      
       <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-dim);">
-        <span>New to CineStream? <a href="#" onclick="handleEmailSignUp(); return false;" style="color:#fff; text-decoration:none; font-weight:bold;">Sign up now.</a></span>
+        <span id="authToggleText">New to CineStream? <a href="#" onclick="toggleAuthMode(); return false;" style="color:#fff; text-decoration:none; font-weight:bold;">Sign up now.</a></span>
         <a href="#" onclick="closeAuthModal(); return false;" style="color:var(--text-dim); text-decoration:none;">Cancel</a>
       </div>
     </div>
@@ -333,6 +366,7 @@
     let currentPage = 1;
     let totalPages = 1;
     let activeQuery = '';
+    let isSignUpMode = false;
 
     // DOM ELEMENTS
     const contentGrid = document.getElementById('contentGrid');
@@ -355,26 +389,54 @@
     const heroDesc = document.getElementById('heroDesc');
     const heroPlayBtn = document.getElementById('heroPlayBtn');
 
-    function openAuthModal() { document.getElementById('authModal').classList.add('active'); }
-    function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
+    function openAuthModal() { 
+      isSignUpMode = false;
+      updateAuthModalUI();
+      document.getElementById('authModal').classList.add('active'); 
+    }
     
-    async function handleEmailSignIn() {
-      const email = document.getElementById('authEmail').value.trim();
-      const pass = document.getElementById('authPassword').value.trim();
-      if (!email || !pass) return alert('Enter email and password.');
-      try {
-        await window.cineSignIn(email, pass);
-      } catch (err) {
-        alert(err.message);
-      }
+    function closeAuthModal() { 
+      document.getElementById('authModal').classList.remove('active'); 
     }
 
-    async function handleEmailSignUp() {
+    function toggleAuthMode() {
+      isSignUpMode = !isSignUpMode;
+      updateAuthModalUI();
+    }
+
+    function updateAuthModalUI() {
+      const title = document.getElementById('authModalTitle');
+      const actionBtn = document.getElementById('authActionBtn');
+      const toggleText = document.getElementById('authToggleText');
+      const nameFields = document.getElementById('nameFieldsContainer');
+
+      if (isSignUpMode) {
+        title.innerText = "Sign Up";
+        actionBtn.innerText = "Sign Up";
+        nameFields.style.display = 'flex';
+        toggleText.innerHTML = 'Already have an account? <a href="#" onclick="toggleAuthMode(); return false;" style="color:#fff; text-decoration:none; font-weight:bold;">Sign in.</a>';
+      } else {
+        title.innerText = "Sign In";
+        actionBtn.innerText = "Sign In";
+        nameFields.style.display = 'none';
+        toggleText.innerHTML = 'New to CineStream? <a href="#" onclick="toggleAuthMode(); return false;" style="color:#fff; text-decoration:none; font-weight:bold;">Sign up now.</a>';
+      }
+    }
+    
+    async function handleAuthSubmit() {
       const email = document.getElementById('authEmail').value.trim();
       const pass = document.getElementById('authPassword').value.trim();
+      const firstName = document.getElementById('authFirstName').value.trim();
+      const lastName = document.getElementById('authLastName').value.trim();
+
       if (!email || !pass) return alert('Enter email and password.');
+      
       try {
-        await window.cineSignUp(email, pass);
+        if (isSignUpMode) {
+          await window.cineSignUp(email, pass, firstName, lastName);
+        } else {
+          await window.cineSignIn(email, pass);
+        }
       } catch (err) {
         alert(err.message);
       }
