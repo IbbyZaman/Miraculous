@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OnStream Mobile Replica</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Mobile Container Simulation */
+        .phone-frame {
+            width: 100%;
+            max-width: 414px;
+            height: 100vh;
+            max-height: 896px;
+            background-color: #121212;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+
+        @media (min-width: 415px) {
+            .phone-frame {
+                border-radius: 40px;
+                border: 12px solid #2a2a2a;
+                height: 844px;
+            }
+        }
+
+        /* Screen Views */
+        .screen {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 70px;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: linear-gradient(to bottom, rgba(18,18,18,0.95), rgba(18,18,18,0));
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: #e50914;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #333;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        /* Hero Banner */
+        .hero-banner {
+            width: 100%;
+            height: 380px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px;
+            background-image: linear-gradient(to top, #121212 5%, rgba(18,18,18,0.2) 50%, rgba(18,18,18,0.7) 100%), 
+                                url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80');
+        }
+
+        .hero-title {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .hero-tags {
+            font-size: 12px;
+            color: #b3b3b3;
+            margin-bottom: 14px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        .btn-primary {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-action {
+            background-color: #e50914;
+            color: #ffffff;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .btn-google {
+            background-color: #4285F4;
+            color: #ffffff;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .btn-logout {
+            background-color: #222222;
+            color: #e50914;
+            margin-top: 15px;
+            width: 100%;
+            border: 1px solid #333;
+        }
+
+        /* Content Rows */
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 20px 20px 10px 20px;
+            color: #e5e5e5;
+        }
+
+        .horizontal-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 0 20px;
+            scrollbar-width: none;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .media-card {
+            flex: 0 0 110px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .media-card:active {
+            transform: scale(0.96);
+        }
+
+        .poster {
+            width: 110px;
+            height: 165px;
+            border-radius: 6px;
+            background-color: #2a2a2a;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 6px;
+            position: relative;
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .play-icon-sm {
+            width: 30px;
+            height: 30px;
+            background: rgba(229, 9, 20, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .media-title {
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #cccccc;
+        }
+
+        .media-subtext {
+            font-size: 10px;
+            color: #888888;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #181818;
+            border-top: 1px solid #282828;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #777777;
+            font-size: 10px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .nav-item.active {
+            color: #ffffff;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Detail View Screen */
+        .detail-backdrop {
+            width: 100%;
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(0,0,0,0.6);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .detail-content {
+            padding: 20px;
+        }
+
+        .detail-heading {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .detail-meta {
+            font-size: 12px;
+            color: #a0a0a0;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .synopsis {
+            font-size: 13px;
+            color: #cccccc;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        /* Profile & Auth Screen */
+        .profile-header {
+            padding: 24px 20px;
+            text-align: center;
+            background: #181818;
+            border-bottom: 1px solid #252525;
+        }
+
+        .profile-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: #e50914;
+            background-size: cover;
+            background-position: center;
+            margin: 0 auto 12px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .auth-box {
+            background: #181818;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #282828;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #333;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .auth-tab.active {
+            color: #fff;
+            border-bottom: 2px solid #e50914;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background-color: #222;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .divider {
+            margin: 16px 0;
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+        }
+
+        /* Video Player Modal */
+        #player-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .player-header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
+
+        .player-center-play {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.6);
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .player-controls {
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .player-scrub {
+            width: 100%;
+            accent-color: #e50914;
+        }
+
+        .player-meta-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #b3b3b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-frame">
+
+    <!-- HOME SCREEN -->
+    <div id="home-screen" class="screen active">
+        <div class="header">
+            <div class="logo">ONSTREAM</div>
+            <div class="profile-icon" id="header-avatar" onclick="switchScreen('profile-screen')">G</div>
+        </div>
+
+        <!-- Dynamic Hero Banner -->
+        <div class="hero-banner" id="hero-banner">
+            <div class="hero-title" id="hero-title">Loading...</div>
+            <div class="hero-tags" id="hero-tags"><span>----</span><span>---</span></div>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" id="hero-play-btn" onclick="openPlayer()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Play
+                </button>
+                <button class="btn btn-secondary" id="hero-detail-btn">Details</button>
+            </div>
+        </div>
+
+        <!-- CONTINUE WATCHING SECTION (FIREBASE REALTIME DATA) -->
+        <div id="continue-watching-section" style="display: none;">
+            <div class="section-title">Continue Watching</div>
+            <div class="horizontal-scroll" id="continue-watching-row">
+                <!-- Dynamically populated from Realtime Database -->
+            </div>
+        </div>
+
+        <div class="section-title">Trending Movies</div>
+        <div class="horizontal-scroll" id="trending-row">
+            <div style="color: #666; font-size: 12px; padding: 20px;">Loading trending content...</div>
+        </div>
+
+        <div class="section-title">Popular Movies</div>
+        <div class="horizontal-scroll" id="popular-row">
+            <div style="color: #666; font-size: 12px; padding: 20px;">Loading popular content...</div>
+        </div>
+    </div>
+
+    <!-- DETAIL SCREEN -->
+    <div id="detail-screen" class="screen">
+        <div class="detail-backdrop" id="detail-bg">
+            <button class="back-btn" onclick="switchScreen('home-screen')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+        </div>
+        <div class="detail-content">
+            <div class="detail-heading" id="detail-title">Movie Title</div>
+            <div class="detail-meta">
+                <span id="detail-year">2024</span>
+                <span id="detail-rating" style="color: #46d369;">Rating: 8.0</span>
+            </div>
+            <button class="btn btn-primary" id="detail-play-btn" style="margin-bottom: 16px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Play Movie
+            </button>
+            <div class="synopsis" id="detail-synopsis">Movie synopsis will appear here...</div>
+        </div>
+    </div>
+
+    <!-- PROFILE & AUTH SCREEN -->
+    <div id="profile-screen" class="screen">
+        <div class="header">
+            <div class="logo">Account</div>
+            <button class="back-btn" style="position:static;" onclick="switchScreen('home-screen')">✕</button>
+        </div>
+
+        <div class="profile-header">
+            <div class="profile-avatar" id="user-avatar">?</div>
+            <div id="user-name" style="font-weight: 700; font-size: 16px;">Guest User</div>
+            <div id="user-email" style="font-size: 12px; color: #888;">Sign in to save your history</div>
+            <button id="logout-btn" class="btn btn-logout" style="display: none;">Sign Out</button>
+        </div>
+
+        <!-- AUTHENTICATION CARD -->
+        <div class="auth-box" id="auth-box">
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tab-login" onclick="toggleAuthMode('login')">Sign In</div>
+                <div class="auth-tab" id="tab-signup" onclick="toggleAuthMode('signup')">Sign Up</div>
+            </div>
+
+            <!-- Username / Password Form -->
+            <form id="email-auth-form" onsubmit="event.preventDefault(); handleEmailAuth();">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="auth-email" placeholder="user@example.com" required />
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" required />
+                </div>
+                <button type="submit" class="btn btn-action" id="auth-submit-btn">Sign In</button>
+            </form>
+
+            <div class="divider">OR</div>
+
+            <!-- Google Auth -->
+            <button id="google-login-btn" class="btn btn-google">Sign In with Google</button>
+        </div>
+    </div>
+
+    <!-- BUILT-IN VIDEO PLAYER MODAL -->
+    <div id="player-modal">
+        <div class="player-header">
+            <button class="back-btn" style="position:static;" onclick="closePlayer()">✕</button>
+            <span style="font-size: 14px; font-weight: 600;" id="player-title">Media Playback</span>
+        </div>
+        <div class="player-center-play" onclick="togglePlayState()">
+            <span id="play-pause-icon">❚❚</span>
+        </div>
+        <div class="player-controls">
+            <div class="player-meta-row">
+                <span>00:42:10</span>
+                <span>-01:30:00</span>
+            </div>
+            <input type="range" class="player-scrub" value="30" min="0" max="100">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-top: 4px;">
+                <span>Audio: English (5.1)</span>
+                <span>Subtitles: English [CC]</span>
+                <span>1080p HD</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchScreen('home-screen')">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            Home
+        </button>
+        <button class="nav-item" onclick="switchScreen('profile-screen')">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+            Account
+        </button>
+    </div>
+
+</div>
+
+<!-- UI Scripts -->
+<script>
+    let authMode = 'login';
+
+    function switchScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function toggleAuthMode(mode) {
+        authMode = mode;
+        document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+        document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
+        document.getElementById('auth-submit-btn').innerText = mode === 'login' ? 'Sign In' : 'Sign Up';
+    }
+
+    function openDetail(title, bgUrl, synopsis, year, rating, mediaObj = null) {
+        document.getElementById('detail-title').innerText = title;
+        document.getElementById('detail-bg').style.backgroundImage = `url('${bgUrl}')`;
+        document.getElementById('detail-synopsis').innerText = synopsis || 'No description available.';
+        document.getElementById('detail-year').innerText = year || '';
+        document.getElementById('detail-rating').innerText = rating ? `Rating: ${rating}/10` : '';
+        
+        const detailPlayBtn = document.getElementById('detail-play-btn');
+        detailPlayBtn.onclick = () => {
+            if (mediaObj && window.saveToContinueWatching) {
+                window.saveToContinueWatching(mediaObj);
+            }
+            openPlayer(title);
+        };
+
+        switchScreen('detail-screen');
+    }
+
+    function openPlayer(title = "Media Playback") {
+        document.getElementById('player-title').innerText = title;
+        document.getElementById('player-modal').style.display = 'flex';
+    }
+
+    function closePlayer() {
+        document.getElementById('player-modal').style.display = 'none';
+    }
+
+    let isPlaying = true;
+    function togglePlayState() {
+        isPlaying = !isPlaying;
+        document.getElementById('play-pause-icon').innerText = isPlaying ? '❚❚' : '▶';
+    }
+</script>
+
+<!-- Firebase & Movie API Script -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+        getAuth, 
+        signInWithPopup, 
+        GoogleAuthProvider, 
+        createUserWithEmailAndPassword, 
+        signInWithEmailAndPassword, 
+        signOut, 
+        onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+        getDatabase, 
+        ref, 
+        set, 
+        onValue 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // ========================================================
+    // 1. CONFIGURATION KEYS
+    // ========================================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyCWKIQX_4oFrj87GStSCs9PydnXc7t1bcU",
+        authDomain: "cinestream1230.firebaseapp.com",
+        databaseURL: "https://cinestream1230-default-rtdb.firebaseio.com",
+        projectId: "cinestream1230",
+        storageBucket: "cinestream1230.firebasestorage.app",
+        messagingSenderId: "523084805053",
+        appId: "1:523084805053:web:b356cb9c6d8a8ded7a98d4"
+    };
+
+    const TMDB_API_KEY = "aa9ee919e21a5b01654ced0159fe1244";
+    const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
+
+    // ========================================================
+    // 2. FIREBASE INITIALIZATION
+    // ========================================================
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const provider = new GoogleAuthProvider();
+
+    let currentUser = null;
+    let continueWatchingUnsubscribe = null;
+
+    // Save/Update Continue Watching Item matched to screenshot schema
+    window.saveToContinueWatching = (media) => {
+        if (!currentUser) return;
+
+        const mediaId = media.id;
+        const watchRef = ref(db, `users/${currentUser.uid}/continueWatching/${mediaId}`);
+
+        const payload = {
+            id: media.id,
+            title: media.title || media.name || "Untitled",
+            poster: media.poster_path || media.poster || "",
+            type: media.media_type || media.type || "movie",
+            season: media.season || null,
+            episode: media.episode || null,
+            timestamp: Date.now(),
+            updatedAt: new Date().toLocaleString("en-US", { timeZoneName: "short" })
+        };
+
+        set(watchRef, payload).catch(err => console.error("Error updating watchlist:", err));
+    };
+
+    // Listen to Continue Watching Data
+    function listenToContinueWatching(uid) {
+        const watchRef = ref(db, `users/${uid}/continueWatching`);
+        
+        continueWatchingUnsubscribe = onValue(watchRef, (snapshot) => {
+            const section = document.getElementById('continue-watching-section');
+            const container = document.getElementById('continue-watching-row');
+            
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const items = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
+                
+                container.innerHTML = '';
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'media-card';
+                    
+                    const posterUrl = item.poster ? (item.poster.startsWith('http') ? item.poster : `${TMDB_IMAGE_BASE}${item.poster}`) : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=300&q=80';
+                    
+                    let subtext = item.type.toUpperCase();
+                    if (item.season && item.episode) {
+                        subtext = `S${item.season} E${item.episode}`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="poster" style="background-image: url('${posterUrl}');">
+                            <div class="play-overlay">
+                                <div class="play-icon-sm">▶</div>
+                            </div>
+                        </div>
+                        <div class="media-title">${item.title}</div>
+                        <div class="media-subtext">${subtext}</div>
+                    `;
+
+                    card.onclick = () => {
+                        window.saveToContinueWatching(item);
+                        openPlayer(item.title);
+                    };
+
+                    container.appendChild(card);
+                });
+
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        });
+    }
+
+    // Handle Email/Password Authentication
+    window.handleEmailAuth = async () => {
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-password').value;
+
+        try {
+            if (authMode === 'login') {
+                await signInWithEmailAndPassword(auth, email, password);
+                alert("Successfully signed in!");
+            } else {
+                await createUserWithEmailAndPassword(auth, email, password);
+                alert("Account created and signed in!");
+            }
+            document.getElementById('auth-email').value = '';
+            document.getElementById('auth-password').value = '';
+        } catch (error) {
+            alert("Auth Error: " + error.message);
+        }
+    };
+
+    // Google Sign-In
+    document.getElementById('google-login-btn').addEventListener('click', () => {
+        signInWithPopup(auth, provider).catch((error) => {
+            alert("Google Sign-In Error: " + error.message);
+        });
+    });
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        signOut(auth);
+    });
+
+    // Auth state listener
+    onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        const userNameElem = document.getElementById('user-name');
+        const userEmailElem = document.getElementById('user-email');
+        const userAvatarElem = document.getElementById('user-avatar');
+        const headerAvatarElem = document.getElementById('header-avatar');
+        const authBox = document.getElementById('auth-box');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        if (user) {
+            const displayName = user.displayName || user.email.split('@')[0];
+            userNameElem.innerText = displayName;
+            userEmailElem.innerText = user.email;
+
+            if (user.photoURL) {
+                userAvatarElem.style.backgroundImage = `url('${user.photoURL}')`;
+                userAvatarElem.innerText = '';
+                headerAvatarElem.style.backgroundImage = `url('${user.photoURL}')`;
+                headerAvatarElem.innerText = '';
+            } else {
+                const initial = displayName.charAt(0).toUpperCase();
+                userAvatarElem.style.backgroundImage = 'none';
+                userAvatarElem.innerText = initial;
+                headerAvatarElem.style.backgroundImage = 'none';
+                headerAvatarElem.innerText = initial;
+            }
+
+            authBox.style.display = 'none';
+            logoutBtn.style.display = 'block';
+
+            // Connect to Firebase Database for Continue Watching
+            listenToContinueWatching(user.uid);
+        } else {
+            userNameElem.innerText = "Guest User";
+            userEmailElem.innerText = "Sign in to save your history";
+            userAvatarElem.style.backgroundImage = 'none';
+            userAvatarElem.innerText = '?';
+            headerAvatarElem.style.backgroundImage = 'none';
+            headerAvatarElem.innerText = 'G';
+
+            authBox.style.display = 'block';
+            logoutBtn.style.display = 'none';
+
+            document.getElementById('continue-watching-section').style.display = 'none';
+        }
+    });
+
+    // ========================================================
+    // 3. FETCH MOVIES FROM TMDB API
+    // ========================================================
+    async function fetchMovies() {
+        try {
+            const trendingRes = await fetch(`https://api.themoviedb.org/3/trending/movie/day?api_key=${TMDB_API_KEY}`);
+            const trendingData = await trendingRes.json();
+
+            const popularRes = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}`);
+            const popularData = await popularRes.json();
+
+            if (trendingData.results && trendingData.results.length > 0) {
+                setupHeroBanner(trendingData.results[0]);
+                renderRow('trending-row', trendingData.results);
+            }
+
+            if (popularData.results) {
+                renderRow('popular-row', popularData.results);
+            }
+        } catch (err) {
+            console.error("Failed to fetch movies from TMDb:", err);
+            loadFallbackMovies();
+        }
+    }
+
+    function setupHeroBanner(movie) {
+        const bgUrl = movie.backdrop_path ? `${TMDB_IMAGE_BASE}${movie.backdrop_path}` : `${TMDB_IMAGE_BASE}${movie.poster_path}`;
+        const heroElem = document.getElementById('hero-banner');
+        heroElem.style.backgroundImage = `linear-gradient(to top, #121212 5%, rgba(18,18,18,0.2) 50%, rgba(18,18,18,0.7) 100%), url('${bgUrl}')`;
+        document.getElementById('hero-title').innerText = movie.title || movie.name;
+        
+        const year = (movie.release_date || '').split('-')[0];
+        document.getElementById('hero-tags').innerHTML = `<span>${year || '2024'}</span><span>TMDB Rating: ${movie.vote_average?.toFixed(1)}</span>`;
+
+        document.getElementById('hero-play-btn').onclick = () => {
+            if (window.saveToContinueWatching) window.saveToContinueWatching(movie);
+            openPlayer(movie.title || movie.name);
+        };
+
+        document.getElementById('hero-detail-btn').onclick = () => {
+            openDetail(movie.title || movie.name, bgUrl, movie.overview, year, movie.vote_average?.toFixed(1), movie);
+        };
+    }
+
+    function renderRow(elementId, movies) {
+        const container = document.getElementById(elementId);
+        container.innerHTML = '';
+
+        movies.forEach(movie => {
+            if (!movie.poster_path) return;
+
+            const card = document.createElement('div');
+            card.className = 'media-card';
+            const posterUrl = `${TMDB_IMAGE_BASE}${movie.poster_path}`;
+            const bgUrl = movie.backdrop_path ? `${TMDB_IMAGE_BASE}${movie.backdrop_path}` : posterUrl;
+            const year = (movie.release_date || '').split('-')[0];
+
+            card.innerHTML = `
+                <div class="poster" style="background-image: url('${posterUrl}');"></div>
+                <div class="media-title">${movie.title || movie.name}</div>
+            `;
+
+            card.onclick = () => {
+                openDetail(movie.title || movie.name, bgUrl, movie.overview, year, movie.vote_average?.toFixed(1), movie);
+            };
+
+            container.appendChild(card);
+        });
+    }
+
+    function loadFallbackMovies() {
+        const sampleMovies = [
+            {
+                id: "454639",
+                title: "Masters of the Universe",
+                backdrop_path: "/oRuyGUHdoaQxWP3SDfafGkStxTC.jpg",
+                poster_path: "/oRuyGUHdoaQxWP3SDfafGkStxTC.jpg",
+                overview: "A heroic fantasy action adventure movie.",
+                release_date: "2026-07-28",
+                vote_average: 8.5
+            }
+        ];
+
+        setupHeroBanner(sampleMovies[0]);
+    }
+
+    // Run fetch on startup
+    fetchMovies();
+</script>
+
+</body>
+</html>
