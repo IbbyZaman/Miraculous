@@ -107,7 +107,7 @@
             gap: 8px;
         }
 
-        nav a {
+        nav a, nav button.auth-nav-btn {
             color: var(--text-muted);
             text-decoration: none;
             padding: 8px 16px;
@@ -115,9 +115,12 @@
             font-size: 14px;
             font-weight: 600;
             transition: all 0.3s ease;
+            background: transparent;
+            border: none;
+            cursor: pointer;
         }
 
-        nav a:hover, nav a.active {
+        nav a:hover, nav a.active, nav button.auth-nav-btn:hover {
             color: #fff;
             background: rgba(255, 255, 255, 0.06);
         }
@@ -126,6 +129,35 @@
             color: var(--ladybug-red);
             border: 1px solid rgba(255, 23, 68, 0.3);
             box-shadow: 0 0 12px rgba(255, 23, 68, 0.2);
+        }
+
+        .auth-nav-btn.login-highlight {
+            border: 1px solid var(--ladybug-red);
+            color: var(--ladybug-red);
+        }
+
+        .auth-nav-btn.login-highlight:hover {
+            background: var(--ladybug-red);
+            color: #fff;
+        }
+
+        .user-nav-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 14px 4px 6px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-nav-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--ladybug-red);
+            box-shadow: 0 0 8px var(--ladybug-glow);
         }
 
         /* --- Layout Container --- */
@@ -254,6 +286,7 @@
             display: flex;
             flex-direction: column;
             position: relative;
+            cursor: pointer;
         }
 
         .media-card:hover {
@@ -459,6 +492,177 @@
             gap: 6px;
         }
 
+        /* --- Auth Modal Overlay --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .auth-card {
+            background: rgba(16, 18, 27, 0.95);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 35px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal-btn:hover {
+            color: var(--ladybug-red);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab-btn.active {
+            color: var(--ladybug-red);
+            border-bottom-color: var(--ladybug-red);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .form-group input {
+            background: rgba(8, 9, 12, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--ladybug-red);
+        }
+
+        /* --- Miraculous Profile Picture Selector --- */
+        .pfp-picker-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .pfp-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .pfp-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            object-fit: cover;
+            background: #12141d;
+            transition: all 0.2s ease;
+        }
+
+        .pfp-option:hover {
+            transform: scale(1.1);
+            border-color: rgba(255, 23, 68, 0.5);
+        }
+
+        .pfp-option.selected {
+            border-color: var(--ladybug-red);
+            box-shadow: 0 0 12px var(--ladybug-glow);
+            transform: scale(1.1);
+        }
+
+        .auth-submit-btn {
+            background: var(--ladybug-red);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px var(--ladybug-glow);
+            transition: all 0.3s ease;
+        }
+
+        .auth-submit-btn:hover {
+            background: #ff2a55;
+            transform: translateY(-2px);
+        }
+
+        .auth-error {
+            color: #ff3333;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+            text-align: center;
+        }
+
         footer {
             background: #050608;
             text-align: center;
@@ -507,6 +711,13 @@
             <a href="season-6.html">Season 6</a>
             <a href="specials.html">Specials</a>
             <a href="announcements.html">Announcements</a>
+            
+            <!-- Auth Navigation Buttons -->
+            <div id="auth-nav-container" style="display: flex; gap: 8px; align-items: center;">
+                <button class="auth-nav-btn login-highlight" id="open-auth-btn">
+                    <i class="fa-solid fa-user"></i> Sign In
+                </button>
+            </div>
         </nav>
     </header>
 
@@ -538,7 +749,7 @@
             <h3 class="section-title">Latest Season 6 Episodes</h3>
         </div>
         <div class="media-grid">
-            <a href="season-6.html" class="media-card">
+            <div class="media-card" onclick="saveAndWatch('season-6.html', 'thumbnails/622.jpg', 'Episode 6.22 - Lady Chaos')">
                 <div class="media-thumb" style="background-image: url('thumbnails/622.jpg');">
                     <div class="media-thumb-overlay">
                         <div class="play-icon"><i class="fa-solid fa-play"></i></div>
@@ -550,8 +761,8 @@
                         <div class="media-title">Lady Chaos</div>
                     </div>
                 </div>
-            </a>
-            <a href="season-6.html" class="media-card">
+            </div>
+            <div class="media-card" onclick="saveAndWatch('season-6.html', 'thumbnails/623.jpg', 'Episode 6.23 - Sadnansi')">
                 <div class="media-thumb" style="background-image: url('thumbnails/623.jpg');">
                     <div class="media-thumb-overlay">
                         <div class="play-icon"><i class="fa-solid fa-play"></i></div>
@@ -563,8 +774,8 @@
                         <div class="media-title">Sadnansi</div>
                     </div>
                 </div>
-            </a>
-            <a href="season-6.html" class="media-card">
+            </div>
+            <div class="media-card" onclick="saveAndWatch('season-6.html', 'thumbnails/624.jpg', 'Episode 6.24 - Queen Of The Dreadzone')">
                 <div class="media-thumb" style="background-image: url('thumbnails/624.jpg');">
                     <div class="media-thumb-overlay">
                         <div class="play-icon"><i class="fa-solid fa-play"></i></div>
@@ -576,7 +787,7 @@
                         <div class="media-title">Queen Of The Dreadzone</div>
                     </div>
                 </div>
-            </a>
+            </div>
         </div>
 
         <!-- Section: Upcoming Releases Countdowns -->
@@ -636,19 +847,284 @@
         </div>
     </div>
 
+    <!-- Firebase Auth Modal Container -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="auth-card">
+            <button class="close-modal-btn" id="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" id="tab-signin">Sign In</button>
+                <button class="auth-tab-btn" id="tab-signup">Sign Up</button>
+            </div>
+            
+            <!-- Sign In Form -->
+            <form class="auth-form" id="signin-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="signin-email" required placeholder="hero@miraculous.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signin-password" required placeholder="••••••••">
+                </div>
+                <div class="auth-error" id="signin-error"></div>
+                <button type="submit" class="auth-submit-btn">Sign In</button>
+            </form>
+
+            <!-- Sign Up Form with MLB Profile Picture Picker -->
+            <form class="auth-form" id="signup-form" style="display: none;">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="signup-name" required placeholder="LadybugFan">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="signup-email" required placeholder="hero@miraculous.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signup-password" required placeholder="••••••••">
+                </div>
+
+                <!-- Profile Picture Selection Section -->
+                <div>
+                    <div class="pfp-picker-title">
+                        <span>Choose Hero Avatar</span>
+                        <span style="font-weight: normal; opacity: 0.7;">(Optional)</span>
+                    </div>
+                    <div class="pfp-grid" id="pfp-options">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ladybug" title="Ladybug" class="pfp-option selected" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=ladybug">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=catnoir" title="Cat Noir" class="pfp-option" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=catnoir">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=renarouge" title="Rena Rouge" class="pfp-option" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=renarouge">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=carapace" title="Carapace" class="pfp-option" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=carapace">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=hawkmoth" title="Hawk Moth" class="pfp-option" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=hawkmoth">
+                    </div>
+                    <div class="form-group" style="margin-top: 8px;">
+                        <input type="url" id="custom-pfp-url" placeholder="Or paste custom image URL...">
+                    </div>
+                </div>
+
+                <div class="auth-error" id="signup-error"></div>
+                <button type="submit" class="auth-submit-btn">Create Account</button>
+            </form>
+        </div>
+    </div>
+
     <footer>
         &copy; 2026 Miraculous Hub. Built for fans, by fans.
     </footer>
 
-    <!-- Logic Script -->
-    <script>
-        // Check local storage for continue watching data
-        const lastWatched = localStorage.getItem('miraculous_last_watched');
-        const container = document.getElementById('continue-watching-container');
+    <!-- Firebase Modular Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            getDoc 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        if (lastWatched) {
+        // Firebase Configuration - REPLACE WITH YOUR PROJECT CONFIG DETAILS
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let selectedPfpUrl = "https://api.dicebear.com/7.x/bottts/svg?seed=ladybug";
+
+        // Modal Elements
+        const authModal = document.getElementById('auth-modal');
+        const openAuthBtn = document.getElementById('open-auth-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const tabSignin = document.getElementById('tab-signin');
+        const tabSignup = document.getElementById('tab-signup');
+        const signinForm = document.getElementById('signin-form');
+        const signupForm = document.getElementById('signup-form');
+        const authNavContainer = document.getElementById('auth-nav-container');
+
+        // PFP Selection Handling
+        const pfpOptions = document.querySelectorAll('.pfp-option');
+        const customPfpInput = document.getElementById('custom-pfp-url');
+
+        pfpOptions.forEach(img => {
+            img.addEventListener('click', () => {
+                pfpOptions.forEach(opt => opt.classList.remove('selected'));
+                img.classList.add('selected');
+                selectedPfpUrl = img.getAttribute('data-url');
+                customPfpInput.value = ''; // clear custom URL if preset chosen
+            });
+        });
+
+        customPfpInput.addEventListener('input', (e) => {
+            if (e.target.value.trim() !== '') {
+                pfpOptions.forEach(opt => opt.classList.remove('selected'));
+                selectedPfpUrl = e.target.value.trim();
+            }
+        });
+
+        // Modal Visibility Handlers
+        openAuthBtn.addEventListener('click', () => authModal.classList.add('active'));
+        closeModalBtn.addEventListener('click', () => authModal.classList.remove('active'));
+
+        // Tab Switchers
+        tabSignin.addEventListener('click', () => {
+            tabSignin.classList.add('active');
+            tabSignup.classList.remove('active');
+            signinForm.style.display = 'flex';
+            signupForm.style.display = 'none';
+        });
+
+        tabSignup.addEventListener('click', () => {
+            tabSignup.classList.add('active');
+            tabSignin.classList.remove('active');
+            signupForm.style.display = 'flex';
+            signinForm.style.display = 'none';
+        });
+
+        // Sign Up Execution
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const errorElement = document.getElementById('signup-error');
+
+            const finalPhotoUrl = customPfpInput.value.trim() || selectedPfpUrl;
+
             try {
-                const data = JSON.parse(lastWatched);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Update Firebase Auth profile with name and chosen PFP URL
+                await updateProfile(userCredential.user, { 
+                    displayName: name,
+                    photoURL: finalPhotoUrl
+                });
+                
+                // Save locally cached continue-watching item to Firestore if exists
+                const localData = localStorage.getItem('miraculous_last_watched');
+                const userDataObj = { photoURL: finalPhotoUrl, displayName: name };
+                if (localData) userDataObj.lastWatched = JSON.parse(localData);
+
+                await setDoc(doc(db, "users", userCredential.user.uid), userDataObj, { merge: true });
+
+                authModal.classList.remove('active');
+                signupForm.reset();
+                errorElement.style.display = 'none';
+            } catch (error) {
+                errorElement.textContent = error.message;
+                errorElement.style.display = 'block';
+            }
+        });
+
+        // Sign In Execution
+        signinForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+            const errorElement = document.getElementById('signin-error');
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                authModal.classList.remove('active');
+                signinForm.reset();
+                errorElement.style.display = 'none';
+            } catch (error) {
+                errorElement.textContent = error.message;
+                errorElement.style.display = 'block';
+            }
+        });
+
+        // State Listener
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            if (user) {
+                const avatarUrl = user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=ladybug';
+
+                // User active - Render Name & Avatar
+                authNavContainer.innerHTML = `
+                    <div class="user-nav-profile">
+                        <img src="${avatarUrl}" class="user-nav-avatar" alt="PFP" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=ladybug'">
+                        <span style="font-size: 14px; font-weight: 700; color: #fff;">
+                            ${user.displayName || 'Hero'}
+                        </span>
+                    </div>
+                    <button class="auth-nav-btn" id="logout-btn">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                `;
+
+                document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+                // Fetch history from Cloud Firestore
+                try {
+                    const docSnap = await getDoc(doc(db, "users", user.uid));
+                    if (docSnap.exists() && docSnap.data().lastWatched) {
+                        const cloudData = docSnap.data().lastWatched;
+                        localStorage.setItem('miraculous_last_watched', JSON.stringify(cloudData));
+                        renderContinueWatching(cloudData);
+                    }
+                } catch (e) {
+                    console.error("Firestore sync error:", e);
+                }
+
+            } else {
+                // User logged out
+                authNavContainer.innerHTML = `
+                    <button class="auth-nav-btn login-highlight" id="open-auth-btn">
+                        <i class="fa-solid fa-user"></i> Sign In
+                    </button>
+                `;
+                document.getElementById('open-auth-btn').addEventListener('click', () => authModal.classList.add('active'));
+            }
+        });
+
+        // Expose function globally to register watched video data
+        window.saveAndWatch = async function(pageUrl, thumbUrl, episodeTitle) {
+            const watchedData = {
+                page: pageUrl,
+                thumbnail: thumbUrl,
+                title: episodeTitle
+            };
+
+            // Save to localStorage
+            localStorage.setItem('miraculous_last_watched', JSON.stringify(watchedData));
+
+            // Sync with Firestore if logged in
+            if (currentUser) {
+                try {
+                    await setDoc(doc(db, "users", currentUser.uid), {
+                        lastWatched: watchedData
+                    }, { merge: true });
+                } catch (e) {
+                    console.error("Error saving episode data: ", e);
+                }
+            }
+
+            // Redirect user to streaming page
+            window.location.href = pageUrl;
+        };
+
+        // Render UI Block function for Continue Watching
+        function renderContinueWatching(data) {
+            const container = document.getElementById('continue-watching-container');
+            if (data) {
                 container.innerHTML = `
                     <div class="media-grid">
                         <a href="${data.page}" class="media-card" style="max-width: 340px;">
@@ -666,12 +1142,20 @@
                         </a>
                     </div>
                 `;
-            } catch (e) {
-                // fallback if parse fails
             }
         }
 
-        // Countdown Timer Logic
+        // Initialize local history check on initial load
+        const lastWatched = localStorage.getItem('miraculous_last_watched');
+        if (lastWatched) {
+            try {
+                renderContinueWatching(JSON.parse(lastWatched));
+            } catch (e) {}
+        }
+    </script>
+
+    <!-- Logic Script for Countdown timers -->
+    <script>
         const targetProtocol = new Date("August 1, 2026 08:00:00").getTime();
         const targetNemesis = new Date("August 8, 2026 08:00:00").getTime();
 
