@@ -870,7 +870,7 @@
                 <button type="submit" class="auth-submit-btn">Sign In</button>
             </form>
 
-            <!-- Sign Up Form with MLB Profile Picture Picker -->
+            <!-- Sign Up Form with Profile Picture Picker -->
             <form class="auth-form" id="signup-form" style="display: none;">
                 <div class="form-group">
                     <label>Username</label>
@@ -931,17 +931,18 @@
             getDoc 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Configuration - REPLACE WITH YOUR PROJECT CONFIG DETAILS
+        // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyCWKIQX_4oFrj87GStSCs9PydnXc7t1bcU",
+            authDomain: "cinestream1230.firebaseapp.com",
+            databaseURL: "https://cinestream1230-default-rtdb.firebaseio.com",
+            projectId: "cinestream1230",
+            storageBucket: "cinestream1230.firebasestorage.app",
+            messagingSenderId: "523084805053",
+            appId: "1:523084805053:web:b356cb9c6d8a8ded7a98d4"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase Services
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -968,7 +969,7 @@
                 pfpOptions.forEach(opt => opt.classList.remove('selected'));
                 img.classList.add('selected');
                 selectedPfpUrl = img.getAttribute('data-url');
-                customPfpInput.value = ''; // clear custom URL if preset chosen
+                customPfpInput.value = ''; // Clear custom input if preset clicked
             });
         });
 
@@ -1011,7 +1012,7 @@
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 
-                // Update Firebase Auth profile with name and chosen PFP URL
+                // Update Firebase profile display details
                 await updateProfile(userCredential.user, { 
                     displayName: name,
                     photoURL: finalPhotoUrl
@@ -1072,7 +1073,7 @@
 
                 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
-                // Fetch history from Cloud Firestore
+                // Fetch watch history from Cloud Firestore
                 try {
                     const docSnap = await getDoc(doc(db, "users", user.uid));
                     if (docSnap.exists() && docSnap.data().lastWatched) {
