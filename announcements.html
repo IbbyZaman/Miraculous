@@ -13,158 +13,257 @@
 
       gtag('config', 'G-6K9W3X96EY');
     </script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miraculous Hub - Announcements</title>
+    
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        /* Global Styles & Dark Theme Forced */
+        :root {
+            --bg-dark: #08090c;
+            --card-bg: rgba(22, 24, 33, 0.7);
+            --card-border: rgba(255, 23, 68, 0.15);
+            --ladybug-red: #ff1744;
+            --ladybug-glow: rgba(255, 23, 68, 0.35);
+            --catnoir-green: #00e676;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
         }
 
         body {
-            background-color: #0b0c10;
-            color: #c5c6c7;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 23, 68, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 230, 118, 0.03) 0%, transparent 40%);
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             scroll-behavior: smooth;
         }
 
-        /* Navigation Bar */
+        /* --- Header / Sticky Navbar --- */
         header {
-            background-color: #1f2833;
-            padding: 15px 30px;
+            background: rgba(8, 9, 12, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 18px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #e50914; 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
 
-        header h1 {
-            color: #ffffff;
-            font-size: 24px;
-            letter-spacing: 1px;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
         }
 
-        header h1 span {
-            color: #e50914;
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--ladybug-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px var(--ladybug-glow);
+        }
+
+        .logo-icon i {
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .logo-text {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            color: var(--ladybug-red);
         }
 
         nav {
             display: flex;
             align-items: center;
+            gap: 8px;
         }
 
         nav a {
-            color: #c5c6c7;
+            color: var(--text-muted);
             text-decoration: none;
-            margin-left: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
             font-weight: 600;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         nav a:hover, nav a.active {
-            color: #e50914;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
         }
 
-        /* Layout Container */
+        nav a.active {
+            color: var(--ladybug-red);
+            border: 1px solid rgba(255, 23, 68, 0.3);
+            box-shadow: 0 0 12px rgba(255, 23, 68, 0.2);
+        }
+
+        /* --- Layout Container --- */
         .container {
             max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
+            margin: 0 auto;
+            padding: 30px 20px;
             width: 100%;
             flex: 1;
         }
 
-        /* Hero Banner Section */
+        /* --- Hero Section --- */
         .hero-banner {
-            background: linear-gradient(135deg, #1f2833, #0b0c10);
-            border: 1px solid rgba(229, 9, 20, 0.3);
-            border-radius: 12px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
             padding: 40px 30px;
             text-align: center;
             margin-bottom: 35px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--ladybug-red), transparent);
         }
 
         .hero-banner h2 {
             color: #fff;
             font-size: 32px;
+            font-weight: 800;
             margin-bottom: 10px;
         }
 
         .hero-banner h2 span {
-            color: #e50914;
+            color: var(--ladybug-red);
         }
 
         .hero-banner p {
-            color: #8f9aa6;
+            color: var(--text-muted);
             font-size: 15px;
             max-width: 700px;
             margin: 0 auto;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
-        /* Section Titles */
+        /* --- Section Titles --- */
         .section-title {
-            color: #e50914;
-            margin: 35px 0 20px 0;
             font-size: 22px;
-            border-left: 4px solid #e50914;
-            padding-left: 10px;
+            font-weight: 800;
+            color: #fff;
+            margin: 40px 0 20px 0;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 10px;
         }
 
-        /* Announcement & Log Cards */
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 22px;
+            background: var(--ladybug-red);
+            border-radius: 4px;
+            box-shadow: 0 0 10px var(--ladybug-red);
+        }
+
+        /* --- Cards Styling --- */
         .card {
-            background-color: #1f2833;
-            border-radius: 8px;
-            padding: 22px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
             margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
 
         .card .tag {
             font-size: 11px;
-            color: #e50914;
+            color: var(--ladybug-red);
             text-transform: uppercase;
-            font-weight: bold;
+            font-weight: 800;
             letter-spacing: 1px;
-            margin-bottom: 6px;
-            display: block;
+            margin-bottom: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .card h4 {
             color: #fff;
-            font-size: 19px;
+            font-size: 20px;
+            font-weight: 700;
             margin-bottom: 10px;
         }
 
         .card p {
-            color: #c5c6c7;
+            color: var(--text-muted);
             font-size: 14px;
             line-height: 1.6;
             margin-bottom: 12px;
         }
 
-        /* Custom Featured Card Styling */
-        .card.featured-drop {
-            background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, #1f2833 60%);
-            border: 1px solid #e50914;
-            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.25);
+        .card p strong {
+            color: #fff;
         }
 
+        /* Featured Card Highlighting */
+        .card.featured-drop {
+            background: linear-gradient(135deg, rgba(255, 23, 68, 0.12) 0%, rgba(22, 24, 33, 0.8) 60%);
+            border: 1px solid rgba(255, 23, 68, 0.35);
+            box-shadow: 0 10px 30px rgba(255, 23, 68, 0.15);
+        }
+
+        .card.featured-drop:hover {
+            border-color: var(--ladybug-red);
+            box-shadow: 0 15px 35px var(--ladybug-glow);
+        }
+
+        /* --- Stats Grid --- */
         .info-stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -173,82 +272,93 @@
         }
 
         .stat-box {
-            background: rgba(11, 12, 16, 0.8);
+            background: rgba(8, 9, 12, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 12px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 12px;
             text-align: center;
         }
 
         .stat-value {
-            color: #39ff14;
+            color: var(--catnoir-green);
             font-size: 18px;
             font-weight: 800;
         }
 
         .stat-label {
-            color: #8a96a3;
+            color: var(--text-muted);
             font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
-            margin-top: 2px;
+            margin-top: 4px;
         }
 
+        /* --- Buttons --- */
         .btn-stream {
-            display: inline-block;
-            background: #e50914;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--ladybug-red);
             color: #ffffff;
             text-decoration: none;
             font-weight: 700;
             font-size: 14px;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 12px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 15px var(--ladybug-glow);
             margin-top: 5px;
         }
 
         .btn-stream:hover {
-            background: #ff1e27;
+            background: #ff335c;
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 23, 68, 0.5);
         }
 
-        /* Countdown Timer Box */
+        /* --- Countdown Timers --- */
         .timer-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 15px;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .timer-box {
-            background: #0b0c10;
-            border: 1px solid rgba(229, 9, 20, 0.4);
-            border-radius: 6px;
-            padding: 15px;
+            background: rgba(8, 9, 12, 0.7);
+            border: 1px solid rgba(255, 23, 68, 0.3);
+            border-radius: 14px;
+            padding: 18px;
             text-align: center;
         }
 
         .timer-box h5 {
             color: #ffffff;
             font-size: 15px;
-            margin-bottom: 8px;
+            font-weight: 700;
+            margin-bottom: 10px;
         }
 
         .timer-display {
             font-family: monospace;
-            font-size: 18px;
-            font-weight: bold;
-            color: #e50914;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--ladybug-red);
             letter-spacing: 1px;
+            background: rgba(255, 23, 68, 0.1);
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px dashed rgba(255, 23, 68, 0.3);
         }
 
-        /* Video Embed Container */
+        /* --- Video Embed Container --- */
         .video-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .video-wrapper {
@@ -256,8 +366,8 @@
             padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
             height: 0;
             overflow: hidden;
-            border-radius: 8px;
-            border: 1px solid #1f2833;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             background: #000;
         }
 
@@ -270,39 +380,32 @@
             border: 0;
         }
 
+        /* --- Footer --- */
         footer {
-            background-color: #0b0c10;
+            background: #050608;
             text-align: center;
-            padding: 20px;
+            padding: 30px;
             font-size: 14px;
-            color: #666;
-            border-top: 1px solid #1f2833;
-            margin-top: 40px;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 60px;
         }
 
-        /* Mobile Responsive */
+        /* --- Mobile Responsive --- */
         @media (max-width: 768px) {
             header {
-                padding: 15px;
+                padding: 15px 20px;
                 flex-direction: column;
-                gap: 10px;
-                text-align: center;
+                gap: 12px;
             }
 
             nav {
                 flex-wrap: wrap;
                 justify-content: center;
-                gap: 8px;
-            }
-
-            nav a {
-                margin: 0 6px;
-                font-size: 13px;
             }
 
             .container {
-                margin: 15px auto;
-                padding: 0 10px;
+                padding: 15px 10px;
             }
 
             .hero-banner {
@@ -312,6 +415,10 @@
             .hero-banner h2 {
                 font-size: 24px;
             }
+
+            .card {
+                padding: 18px;
+            }
         }
     </style>
 </head>
@@ -319,12 +426,15 @@
 
     <!-- Header / Navbar Navigation -->
     <header>
-        <h1>MIRACULOUS<span>HUB</span></h1>
+        <a href="index.html" class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-bug"></i></div>
+            <div class="logo-text">MIRACULOUS<span>HUB</span></div>
+        </a>
         <nav>
-            <a href="index.html">Home</a>
+            <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
             <a href="season-5.html">Season 5</a>
             <a href="season-6.html">Season 6</a>
-            <a href="specials.html">Special Episodes</a>
+            <a href="specials.html">Specials</a>
             <a href="announcements.html" class="active">Announcements</a>
         </nav>
     </header>
@@ -342,7 +452,7 @@
 
         <!-- Queen of the Dreadzone English Dub -->
         <div class="card featured-drop">
-            <span class="tag">🔥 New Episode Release • July 25, 2026</span>
+            <span class="tag"><i class="fa-solid fa-fire"></i> New Episode Release • July 25, 2026</span>
             <h4>Queen of the Dreadzone (English Dub) Is Live!</h4>
             <p>The wait is over! <strong>Queen of the Dreadzone</strong> is officially available in full English Dub. Head over to the Season 6 section to stream it now in 1080p HD quality!</p>
             
@@ -365,12 +475,12 @@
                 </div>
             </div>
 
-            <a href="season-6.html" class="btn-stream">▶ Stream Queen of the Dreadzone Now</a>
+            <a href="season-6.html" class="btn-stream"><i class="fa-solid fa-play"></i> Stream Queen of the Dreadzone Now</a>
         </div>
 
         <!-- Season 5 Full Drop Announcement -->
         <div class="card featured-drop">
-            <span class="tag">🔥 Major Archive Update • July 22, 2026</span>
+            <span class="tag"><i class="fa-solid fa-fire"></i> Major Archive Update • July 22, 2026</span>
             <h4>Full Season 5 Is Now Uploaded!</h4>
             <p>Every single episode of <strong>Season 5</strong> has officially been encoded, indexed, and uploaded in full quality. From <em>Evolution</em> all the way to the finale, you can now stream the full season right here on <strong>www.miraculoushub.co.uk</strong>.</p>
             
@@ -393,26 +503,26 @@
                 </div>
             </div>
 
-            <a href="season-5.html" class="btn-stream">▶ Stream Season 5 Now</a>
+            <a href="season-5.html" class="btn-stream"><i class="fa-solid fa-play"></i> Stream Season 5 Now</a>
         </div>
 
         <!-- Website Migration Notice -->
         <div class="card">
-            <span class="tag">Major Upgrade</span>
+            <span class="tag"><i class="fa-solid fa-rocket"></i> Major Upgrade</span>
             <h4>Website Migration</h4>
             <p>We officially dumped Google Sites! It was way too slow, restrictive, and basic for what we needed. We migrated the entire platform over to a proper custom web build that gives us full control over dark design, custom video players, and live countdown timers for a vastly superior streaming experience.</p>
         </div>
 
         <!-- URL Update Notice -->
         <div class="card">
-            <span class="tag">Important Notice</span>
+            <span class="tag"><i class="fa-solid fa-link"></i> Important Notice</span>
             <h4>New Domain Live: www.miraculoushub.co.uk</h4>
             <p>The new URL is now fixed and live! Please start using <strong>www.miraculoushub.co.uk</strong> moving forward as the old URL will soon be deleted and you won't be able to access the website through it.</p>
         </div>
 
         <!-- Finale Release Timers -->
         <div class="card">
-            <span class="tag">Release Dates & Live Countdowns</span>
+            <span class="tag"><i class="fa-solid fa-clock"></i> Release Dates & Live Countdowns</span>
             <h4>Season 6 Finale - Disney US Schedule</h4>
             <p>Disney US will release <strong>Secret Protocol</strong> on August 1st and <strong>Nemesis</strong> on August 8th. We will keep you updated on whether we will be livestreaming these directly on the website!</p>
             
@@ -430,7 +540,7 @@
 
         <!-- Season 6 Finale Trailers -->
         <div class="card">
-            <span class="tag">Trailers</span>
+            <span class="tag"><i class="fa-solid fa-film"></i> Trailers</span>
             <h4>Season 6 Finale Official Trailers</h4>
             <p>Watch the official trailers for the Season 6 final episodes directly on the site:</p>
             
@@ -446,14 +556,14 @@
 
         <!-- Season 7 Poster Reveal -->
         <div class="card">
-            <span class="tag">Season 7 Leak</span>
+            <span class="tag"><i class="fa-solid fa-bullhorn"></i> Season 7 Leak</span>
             <h4>Season 7 Poster Reveal</h4>
             <p>The official poster of S7 Miraculous Ladybug has been revealed! The big question on everyone's mind: why is Gabriel there alongside Chrysalis? Plus, Ladybug and Cat Noir look terrified. Season 7 is set to release on <strong>November 20th, 2026</strong>.</p>
         </div>
 
         <!-- The Dirtifiers English Dub -->
         <div class="card">
-            <span class="tag">New Release</span>
+            <span class="tag"><i class="fa-solid fa-circle-check"></i> New Release</span>
             <h4>The Dirtifiers (English Dub)</h4>
             <p>The English Dub for <em>The Dirtifiers</em> has just released and is now available to stream on the website!</p>
         </div>
@@ -462,25 +572,25 @@
         <h3 class="section-title">Website Updates & Feature Logs</h3>
 
         <div class="card">
-            <span class="tag">July 20, 2026</span>
+            <span class="tag"><i class="fa-solid fa-calendar"></i> July 20, 2026</span>
             <h4>Domain Migration</h4>
             <p>Successfully migrated the web project domain to GitHub Pages with a consistent dark-themed streaming layout.</p>
         </div>
 
         <div class="card">
-            <span class="tag">July 18, 2026</span>
+            <span class="tag"><i class="fa-solid fa-calendar"></i> July 18, 2026</span>
             <h4>Continue Watching System</h4>
             <p>Added dynamic <code>localStorage</code> tracking so you can seamlessly resume playback right where you left off on Season 5 and Season 6 episodes.</p>
         </div>
 
         <div class="card">
-            <span class="tag">July 10, 2026</span>
+            <span class="tag"><i class="fa-solid fa-calendar"></i> July 10, 2026</span>
             <h4>Countdown Timers Release</h4>
             <p>Launched live countdown modules for upcoming English dub release dates like Secret Protocol and Nemesis.</p>
         </div>
 
         <div class="card">
-            <span class="tag">Update 2.1 (17/07/2026)</span>
+            <span class="tag"><i class="fa-solid fa-code-branch"></i> Update 2.1 (17/07/2026)</span>
             <h4>Domain Sole Access & Season 6 Refresh</h4>
             <p>- The new domain (www.miraculoushub.co.uk) is now the primary way to access the website.<br>
                - Season 5 Part 1 is now available (the rest coming soon).<br>
@@ -488,13 +598,13 @@
         </div>
 
         <div class="card">
-            <span class="tag">Version 2</span>
+            <span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2</span>
             <h4>Stable Release Out of Beta</h4>
             <p>Now that the website is no longer unstable and almost completely fixed, we are officially out of beta! Domain transitioned to www.miraculoushub.co.uk.</p>
         </div>
 
         <div class="card">
-            <span class="tag">Version 2.6 Beta</span>
+            <span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2.6 Beta</span>
             <h4>Functionality Restoration</h4>
             <p>- Website is back up and functional.<br>
                - Season 6 is back online.<br>
@@ -503,7 +613,7 @@
         </div>
 
         <div class="card">
-            <span class="tag">Version 2.5.6 Beta</span>
+            <span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2.5.6 Beta</span>
             <h4>Announcements & Episode Additions</h4>
             <p>- Changed Update Logs to Announcements section.<br>
                - Added Season 2 page (links and images being updated).<br>
@@ -511,7 +621,7 @@
         </div>
 
         <div class="card">
-            <span class="tag">Version 2.5.5 Beta</span>
+            <span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2.5.5 Beta</span>
             <h4>Forced Dark Mode & Livestream Prep</h4>
             <p>- Added Update Log section.<br>
                - Added option for old website layout (forced dark mode).<br>
