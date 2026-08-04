@@ -2,123 +2,152 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OnStream Mobile Replica</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Streaming App</title>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --bg-color: #0f1014;
+            --surface-color: #181a20;
+            --surface-hover: #22252e;
+            --accent-color: #e50914;
+            --text-main: #ffffff;
+            --text-muted: #9e9e9e;
+            --border-color: #2a2d37;
+            --mobile-width: 414px;
+            --mobile-height: 896px;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: #121212;
-            color: #ffffff;
+            background-color: #050505;
+            color: var(--text-main);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 20px 0;
         }
 
-        /* Mobile Container Simulation */
-        .phone-frame {
+        /* Mobile Device Frame */
+        .mobile-container {
             width: 100%;
-            max-width: 414px;
-            height: 100vh;
-            max-height: 896px;
-            background-color: #121212;
-            display: flex;
-            flex-direction: column;
+            max-width: var(--mobile-width);
+            height: var(--mobile-height);
+            background-color: var(--bg-color);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 12px #262626;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
         }
 
-        @media (min-width: 415px) {
-            .phone-frame {
-                border-radius: 40px;
-                border: 12px solid #2a2a2a;
-                height: 844px;
-            }
+        /* Top Notch / Status Bar */
+        .status-bar {
+            height: 44px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 13px;
+            font-weight: 600;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(15,16,20,0.8), transparent);
+            pointer-events: none;
         }
 
-        /* Screen Views */
-        .screen {
-            display: none;
+        .notch {
+            width: 120px;
+            height: 25px;
+            background-color: #262626;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 101;
+        }
+
+        /* Content Views */
+        .screen-container {
             flex: 1;
             overflow-y: auto;
             padding-bottom: 70px;
+            scrollbar-width: none;
+        }
+
+        .screen-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .screen {
+            display: none;
+            padding-top: 44px;
+            animation: fadeIn 0.25s ease-in-out;
         }
 
         .screen.active {
             display: block;
         }
 
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            background: linear-gradient(to bottom, rgba(18,18,18,0.95), rgba(18,18,18,0));
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: 800;
-            color: #e50914;
-            letter-spacing: 0.5px;
-        }
-
-        .profile-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: #333;
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            overflow: hidden;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Hero Banner */
-        .hero-banner {
-            width: 100%;
-            height: 380px;
+        .hero {
             position: relative;
+            height: 380px;
+            width: 100%;
             background-size: cover;
             background-position: center;
             display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
+            align-items: flex-end;
             padding: 20px;
-            background-image: linear-gradient(to top, #121212 5%, rgba(18,18,18,0.2) 50%, rgba(18,18,18,0.7) 100%), 
-                                url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80');
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, var(--bg-color) 10%, transparent 70%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
         }
 
         .hero-title {
             font-size: 26px;
             font-weight: 700;
             margin-bottom: 8px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            line-height: 1.2;
         }
 
         .hero-tags {
-            font-size: 12px;
-            color: #b3b3b3;
-            margin-bottom: 14px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
         }
 
         .hero-buttons {
@@ -127,132 +156,167 @@
         }
 
         .btn {
-            flex: 1;
-            padding: 12px;
-            border-radius: 6px;
             border: none;
-            font-weight: 600;
+            outline: none;
+            padding: 10px 20px;
+            border-radius: 20px;
             font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: opacity 0.2s;
+            gap: 8px;
+            transition: transform 0.15s ease, background-color 0.15s ease;
         }
 
         .btn:active {
-            opacity: 0.8;
+            transform: scale(0.96);
         }
 
         .btn-primary {
-            background-color: #ffffff;
-            color: #000000;
+            background-color: var(--accent-color);
+            color: var(--text-main);
+            flex: 1;
+            justify-content: center;
         }
 
         .btn-secondary {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
             backdrop-filter: blur(10px);
         }
 
-        .btn-action {
-            background-color: #e50914;
-            color: #ffffff;
-            margin-top: 10px;
-            width: 100%;
+        /* Section Lists */
+        .section {
+            margin-top: 24px;
+            padding: 0 16px;
         }
 
-        .btn-google {
-            background-color: #4285F4;
-            color: #ffffff;
-            margin-top: 10px;
-            width: 100%;
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
         }
 
-        .btn-logout {
-            background-color: #222222;
-            color: #e50914;
-            margin-top: 15px;
-            width: 100%;
-            border: 1px solid #333;
-        }
-
-        /* Content Rows */
         .section-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
-            margin: 20px 20px 10px 20px;
-            color: #e5e5e5;
         }
 
-        .horizontal-scroll {
+        .horizontal-row {
             display: flex;
             gap: 12px;
             overflow-x: auto;
-            padding: 0 20px;
+            padding-bottom: 8px;
             scrollbar-width: none;
         }
 
-        .horizontal-scroll::-webkit-scrollbar {
+        .horizontal-row::-webkit-scrollbar {
             display: none;
         }
 
         .media-card {
-            flex: 0 0 110px;
+            flex: 0 0 125px;
             cursor: pointer;
-            transition: transform 0.2s;
-            position: relative;
+            transition: transform 0.2s ease;
         }
 
         .media-card:active {
-            transform: scale(0.96);
+            transform: scale(0.95);
         }
 
-        .poster {
-            width: 110px;
-            height: 165px;
-            border-radius: 6px;
-            background-color: #2a2a2a;
-            background-size: cover;
-            background-position: center;
+        .media-poster {
+            width: 125px;
+            height: 185px;
+            border-radius: 12px;
+            object-fit: cover;
+            background-color: var(--surface-color);
             margin-bottom: 6px;
-            position: relative;
         }
 
-        .play-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.3);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .play-icon-sm {
-            width: 30px;
-            height: 30px;
-            background: rgba(229, 9, 20, 0.9);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
+        .media-card-title {
             font-size: 12px;
-        }
-
-        .media-title {
-            font-size: 12px;
+            font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            color: #cccccc;
         }
 
-        .media-subtext {
-            font-size: 10px;
-            color: #888888;
+        .media-rating {
+            font-size: 11px;
+            color: #ffd700;
+            margin-top: 2px;
+        }
+
+        /* Detail Screen */
+        .detail-header {
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 50px;
+            left: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .detail-info {
+            padding: 20px 16px;
+        }
+
+        .detail-description {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-top: 12px;
+        }
+
+        /* Profile Screen */
+        .profile-header {
+            text-align: center;
+            padding: 24px 16px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color), #80050b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 12px;
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 0 16px;
+        }
+
+        .menu-item {
+            padding: 16px;
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            cursor: pointer;
         }
 
         /* Bottom Navigation Bar */
@@ -261,13 +325,14 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 60px;
-            background-color: #181818;
-            border-top: 1px solid #282828;
+            height: 65px;
+            background-color: rgba(24, 26, 32, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
             align-items: center;
-            z-index: 20;
+            z-index: 90;
         }
 
         .nav-item {
@@ -275,691 +340,383 @@
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            color: #777777;
+            color: var(--text-muted);
             font-size: 10px;
             cursor: pointer;
-            background: none;
-            border: none;
+            width: 25%;
+            transition: color 0.15s ease;
+        }
+
+        .nav-item i {
+            font-size: 18px;
         }
 
         .nav-item.active {
-            color: #ffffff;
+            color: var(--accent-color);
         }
 
-        .nav-item svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-        }
-
-        /* Detail View Screen */
-        .detail-backdrop {
-            width: 100%;
-            height: 250px;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-
-        .back-btn {
+        /* Fullscreen HTML5 Video Player Overlay */
+        .player-modal {
             position: absolute;
-            top: 16px;
-            left: 16px;
-            background: rgba(0,0,0,0.6);
-            border: none;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .detail-content {
-            padding: 20px;
-        }
-
-        .detail-heading {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .detail-meta {
-            font-size: 12px;
-            color: #a0a0a0;
-            display: flex;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-
-        .synopsis {
-            font-size: 13px;
-            color: #cccccc;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-
-        /* Profile & Auth Screen */
-        .profile-header {
-            padding: 24px 20px;
-            text-align: center;
-            background: #181818;
-            border-bottom: 1px solid #252525;
-        }
-
-        .profile-avatar {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background-color: #e50914;
-            background-size: cover;
-            background-position: center;
-            margin: 0 auto 12px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            overflow: hidden;
-        }
-
-        .auth-box {
-            background: #181818;
-            margin: 20px;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #282828;
-        }
-
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 16px;
-            border-bottom: 1px solid #333;
-        }
-
-        .auth-tab {
-            flex: 1;
-            padding: 8px;
-            text-align: center;
-            font-size: 14px;
-            color: #888;
-            cursor: pointer;
-        }
-
-        .auth-tab.active {
-            color: #fff;
-            border-bottom: 2px solid #e50914;
-            font-weight: 600;
-        }
-
-        .input-group {
-            margin-bottom: 12px;
-            text-align: left;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 11px;
-            color: #aaa;
-            margin-bottom: 4px;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #333;
-            background-color: #222;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        .divider {
-            margin: 16px 0;
-            font-size: 11px;
-            color: #666;
-            text-align: center;
-        }
-
-        /* Video Player Modal */
-        #player-modal {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            z-index: 100;
+            inset: 0;
+            background: #000;
+            z-index: 200;
             display: none;
             flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .player-header {
-            padding: 16px;
-            display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 16px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
         }
 
-        .player-center-play {
+        .player-modal.active {
+            display: flex;
+        }
+
+        .close-player {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.6);
-            border: 2px solid white;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
+            top: 50px;
+            right: 20px;
             color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 210;
+            background: rgba(0,0,0,0.6);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
         }
 
-        .player-controls {
-            padding: 20px;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .player-scrub {
+        video {
             width: 100%;
-            accent-color: #e50914;
-        }
-
-        .player-meta-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #b3b3b3;
+            height: 100%;
+            object-fit: contain;
         }
     </style>
 </head>
 <body>
 
-<div class="phone-frame">
-
-    <!-- HOME SCREEN -->
-    <div id="home-screen" class="screen active">
-        <div class="header">
-            <div class="logo">ONSTREAM</div>
-            <div class="profile-icon" id="header-avatar" onclick="switchScreen('profile-screen')">G</div>
-        </div>
-
-        <!-- Dynamic Hero Banner -->
-        <div class="hero-banner" id="hero-banner">
-            <div class="hero-title" id="hero-title">Loading...</div>
-            <div class="hero-tags" id="hero-tags"><span>----</span><span>---</span></div>
-            <div class="hero-buttons">
-                <button class="btn btn-primary" id="hero-play-btn" onclick="openPlayer()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Play
-                </button>
-                <button class="btn btn-secondary" id="hero-detail-btn">Details</button>
+    <div class="mobile-container">
+        <!-- Status Bar & Notch -->
+        <div class="notch"></div>
+        <div class="status-bar">
+            <span>9:41</span>
+            <div>
+                <i class="fa-solid fa-signal"></i>
+                <i class="fa-solid fa-wifi" style="margin: 0 4px;"></i>
+                <i class="fa-solid fa-battery-full"></i>
             </div>
         </div>
 
-        <!-- CONTINUE WATCHING SECTION (FIREBASE REALTIME DATA) -->
-        <div id="continue-watching-section" style="display: none;">
-            <div class="section-title">Continue Watching</div>
-            <div class="horizontal-scroll" id="continue-watching-row">
-                <!-- Dynamically populated from Realtime Database -->
-            </div>
-        </div>
-
-        <div class="section-title">Trending Movies</div>
-        <div class="horizontal-scroll" id="trending-row">
-            <div style="color: #666; font-size: 12px; padding: 20px;">Loading trending content...</div>
-        </div>
-
-        <div class="section-title">Popular Movies</div>
-        <div class="horizontal-scroll" id="popular-row">
-            <div style="color: #666; font-size: 12px; padding: 20px;">Loading popular content...</div>
-        </div>
-    </div>
-
-    <!-- DETAIL SCREEN -->
-    <div id="detail-screen" class="screen">
-        <div class="detail-backdrop" id="detail-bg">
-            <button class="back-btn" onclick="switchScreen('home-screen')">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-            </button>
-        </div>
-        <div class="detail-content">
-            <div class="detail-heading" id="detail-title">Movie Title</div>
-            <div class="detail-meta">
-                <span id="detail-year">2024</span>
-                <span id="detail-rating" style="color: #46d369;">Rating: 8.0</span>
-            </div>
-            <button class="btn btn-primary" id="detail-play-btn" style="margin-bottom: 16px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Play Movie
-            </button>
-            <div class="synopsis" id="detail-synopsis">Movie synopsis will appear here...</div>
-        </div>
-    </div>
-
-    <!-- PROFILE & AUTH SCREEN -->
-    <div id="profile-screen" class="screen">
-        <div class="header">
-            <div class="logo">Account</div>
-            <button class="back-btn" style="position:static;" onclick="switchScreen('home-screen')">✕</button>
-        </div>
-
-        <div class="profile-header">
-            <div class="profile-avatar" id="user-avatar">?</div>
-            <div id="user-name" style="font-weight: 700; font-size: 16px;">Guest User</div>
-            <div id="user-email" style="font-size: 12px; color: #888;">Sign in to save your history</div>
-            <button id="logout-btn" class="btn btn-logout" style="display: none;">Sign Out</button>
-        </div>
-
-        <!-- AUTHENTICATION CARD -->
-        <div class="auth-box" id="auth-box">
-            <div class="auth-tabs">
-                <div class="auth-tab active" id="tab-login" onclick="toggleAuthMode('login')">Sign In</div>
-                <div class="auth-tab" id="tab-signup" onclick="toggleAuthMode('signup')">Sign Up</div>
-            </div>
-
-            <!-- Username / Password Form -->
-            <form id="email-auth-form" onsubmit="event.preventDefault(); handleEmailAuth();">
-                <div class="input-group">
-                    <label>Email Address</label>
-                    <input type="email" id="auth-email" placeholder="user@example.com" required />
-                </div>
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" id="auth-password" placeholder="••••••••" required />
-                </div>
-                <button type="submit" class="btn btn-action" id="auth-submit-btn">Sign In</button>
-            </form>
-
-            <div class="divider">OR</div>
-
-            <!-- Google Auth -->
-            <button id="google-login-btn" class="btn btn-google">Sign In with Google</button>
-        </div>
-    </div>
-
-    <!-- BUILT-IN VIDEO PLAYER MODAL -->
-    <div id="player-modal">
-        <div class="player-header">
-            <button class="back-btn" style="position:static;" onclick="closePlayer()">✕</button>
-            <span style="font-size: 14px; font-weight: 600;" id="player-title">Media Playback</span>
-        </div>
-        <div class="player-center-play" onclick="togglePlayState()">
-            <span id="play-pause-icon">❚❚</span>
-        </div>
-        <div class="player-controls">
-            <div class="player-meta-row">
-                <span>00:42:10</span>
-                <span>-01:30:00</span>
-            </div>
-            <input type="range" class="player-scrub" value="30" min="0" max="100">
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-top: 4px;">
-                <span>Audio: English (5.1)</span>
-                <span>Subtitles: English [CC]</span>
-                <span>1080p HD</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- BOTTOM NAVIGATION -->
-    <div class="bottom-nav">
-        <button class="nav-item active" onclick="switchScreen('home-screen')">
-            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            Home
-        </button>
-        <button class="nav-item" onclick="switchScreen('profile-screen')">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-            Account
-        </button>
-    </div>
-
-</div>
-
-<!-- UI Scripts -->
-<script>
-    let authMode = 'login';
-
-    function switchScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
-    }
-
-    function toggleAuthMode(mode) {
-        authMode = mode;
-        document.getElementById('tab-login').classList.toggle('active', mode === 'login');
-        document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
-        document.getElementById('auth-submit-btn').innerText = mode === 'login' ? 'Sign In' : 'Sign Up';
-    }
-
-    function openDetail(title, bgUrl, synopsis, year, rating, mediaObj = null) {
-        document.getElementById('detail-title').innerText = title;
-        document.getElementById('detail-bg').style.backgroundImage = `url('${bgUrl}')`;
-        document.getElementById('detail-synopsis').innerText = synopsis || 'No description available.';
-        document.getElementById('detail-year').innerText = year || '';
-        document.getElementById('detail-rating').innerText = rating ? `Rating: ${rating}/10` : '';
-        
-        const detailPlayBtn = document.getElementById('detail-play-btn');
-        detailPlayBtn.onclick = () => {
-            if (mediaObj && window.saveToContinueWatching) {
-                window.saveToContinueWatching(mediaObj);
-            }
-            openPlayer(title);
-        };
-
-        switchScreen('detail-screen');
-    }
-
-    function openPlayer(title = "Media Playback") {
-        document.getElementById('player-title').innerText = title;
-        document.getElementById('player-modal').style.display = 'flex';
-    }
-
-    function closePlayer() {
-        document.getElementById('player-modal').style.display = 'none';
-    }
-
-    let isPlaying = true;
-    function togglePlayState() {
-        isPlaying = !isPlaying;
-        document.getElementById('play-pause-icon').innerText = isPlaying ? '❚❚' : '▶';
-    }
-</script>
-
-<!-- Firebase & Movie API Script -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { 
-        getAuth, 
-        signInWithPopup, 
-        GoogleAuthProvider, 
-        createUserWithEmailAndPassword, 
-        signInWithEmailAndPassword, 
-        signOut, 
-        onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { 
-        getDatabase, 
-        ref, 
-        set, 
-        onValue 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-    // ========================================================
-    // 1. CONFIGURATION KEYS
-    // ========================================================
-    const firebaseConfig = {
-        apiKey: "AIzaSyCWKIQX_4oFrj87GStSCs9PydnXc7t1bcU",
-        authDomain: "cinestream1230.firebaseapp.com",
-        databaseURL: "https://cinestream1230-default-rtdb.firebaseio.com",
-        projectId: "cinestream1230",
-        storageBucket: "cinestream1230.firebasestorage.app",
-        messagingSenderId: "523084805053",
-        appId: "1:523084805053:web:b356cb9c6d8a8ded7a98d4"
-    };
-
-    const TMDB_API_KEY = "aa9ee919e21a5b01654ced0159fe1244";
-    const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
-
-    // ========================================================
-    // 2. FIREBASE INITIALIZATION
-    // ========================================================
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const provider = new GoogleAuthProvider();
-
-    let currentUser = null;
-    let continueWatchingUnsubscribe = null;
-
-    // Save/Update Continue Watching Item matched to screenshot schema
-    window.saveToContinueWatching = (media) => {
-        if (!currentUser) return;
-
-        const mediaId = media.id;
-        const watchRef = ref(db, `users/${currentUser.uid}/continueWatching/${mediaId}`);
-
-        const payload = {
-            id: media.id,
-            title: media.title || media.name || "Untitled",
-            poster: media.poster_path || media.poster || "",
-            type: media.media_type || media.type || "movie",
-            season: media.season || null,
-            episode: media.episode || null,
-            timestamp: Date.now(),
-            updatedAt: new Date().toLocaleString("en-US", { timeZoneName: "short" })
-        };
-
-        set(watchRef, payload).catch(err => console.error("Error updating watchlist:", err));
-    };
-
-    // Listen to Continue Watching Data
-    function listenToContinueWatching(uid) {
-        const watchRef = ref(db, `users/${uid}/continueWatching`);
-        
-        continueWatchingUnsubscribe = onValue(watchRef, (snapshot) => {
-            const section = document.getElementById('continue-watching-section');
-            const container = document.getElementById('continue-watching-row');
+        <!-- Main Screen Container -->
+        <div class="screen-container">
             
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                const items = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
-                
-                container.innerHTML = '';
-                items.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'media-card';
-                    
-                    const posterUrl = item.poster ? (item.poster.startsWith('http') ? item.poster : `${TMDB_IMAGE_BASE}${item.poster}`) : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=300&q=80';
-                    
-                    let subtext = item.type.toUpperCase();
-                    if (item.season && item.episode) {
-                        subtext = `S${item.season} E${item.episode}`;
-                    }
-
-                    card.innerHTML = `
-                        <div class="poster" style="background-image: url('${posterUrl}');">
-                            <div class="play-overlay">
-                                <div class="play-icon-sm">▶</div>
-                            </div>
+            <!-- HOME SCREEN -->
+            <div id="screen-home" class="screen active">
+                <div id="hero-banner" class="hero">
+                    <div class="hero-overlay"></div>
+                    <div class="hero-content">
+                        <h1 id="hero-title" class="hero-title">Loading...</h1>
+                        <div id="hero-tags" class="hero-tags">
+                            <span>Action</span> • <span>Sci-Fi</span> • <span>2024</span>
                         </div>
-                        <div class="media-title">${item.title}</div>
-                        <div class="media-subtext">${subtext}</div>
-                    `;
+                        <div class="hero-buttons">
+                            <button class="btn btn-primary" onclick="openPlayer()">
+                                <i class="fa-solid fa-play"></i> Play
+                            </button>
+                            <button class="btn btn-secondary" onclick="openDetailCurrentHero()">
+                                <i class="fa-solid fa-circle-info"></i> Info
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-                    card.onclick = () => {
-                        window.saveToContinueWatching(item);
-                        openPlayer(item.title);
-                    };
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Trending Now</h2>
+                    </div>
+                    <div class="horizontal-row" id="trending-row"></div>
+                </div>
 
-                    container.appendChild(card);
-                });
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Popular Movies</h2>
+                    </div>
+                    <div class="horizontal-row" id="popular-row"></div>
+                </div>
+            </div>
 
-                section.style.display = 'block';
-            } else {
-                section.style.display = 'none';
+            <!-- SEARCH SCREEN -->
+            <div id="screen-search" class="screen">
+                <div style="padding: 16px;">
+                    <div style="background: var(--surface-color); padding: 10px 16px; border-radius: 12px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+                        <input type="text" id="search-input" placeholder="Search movies, shows..." oninput="handleSearch(this.value)" style="background: transparent; border: none; outline: none; color: white; width: 100%;">
+                    </div>
+                    <div class="section" style="padding: 0; margin-top: 20px;">
+                        <h3 style="margin-bottom: 12px;" id="search-heading">Top Searches</h3>
+                        <div id="search-results" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DETAIL SCREEN -->
+            <div id="screen-detail" class="screen">
+                <div id="detail-backdrop" class="detail-header">
+                    <div class="back-btn" onclick="switchScreen('home')">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </div>
+                </div>
+                <div class="detail-info">
+                    <h1 id="detail-title" class="hero-title">Movie Title</h1>
+                    <div id="detail-tags" class="hero-tags" style="margin-top: 6px;">
+                        <span id="detail-year">2024</span> • <span id="detail-rating">⭐ 8.5</span>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; margin: 16px 0;" onclick="openPlayer()">
+                        <i class="fa-solid fa-play"></i> Play Movie
+                    </button>
+                    <h3 style="font-size: 16px;">Overview</h3>
+                    <p id="detail-overview" class="detail-description">Movie synopsis goes here...</p>
+                </div>
+            </div>
+
+            <!-- PROFILE SCREEN -->
+            <div id="screen-profile" class="screen">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <h2>Alex Johnson</h2>
+                    <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">Premium Member</p>
+                </div>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <span><i class="fa-solid fa-bookmark" style="margin-right: 10px;"></i> Watchlist</span>
+                        <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
+                    </li>
+                    <li class="menu-item">
+                        <span><i class="fa-solid fa-clock-rotate-left" style="margin-right: 10px;"></i> History</span>
+                        <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
+                    </li>
+                    <li class="menu-item">
+                        <span><i class="fa-solid fa-gear" style="margin-right: 10px;"></i> Settings</span>
+                        <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
+                    </li>
+                    <li class="menu-item" style="color: var(--accent-color);">
+                        <span><i class="fa-solid fa-right-from-bracket" style="margin-right: 10px;"></i> Log Out</span>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchScreen('home', this)">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" onclick="switchScreen('search', this)">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Search</span>
+            </div>
+            <div class="nav-item" onclick="switchScreen('profile', this)">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </div>
+        </div>
+
+        <!-- Video Player Modal Overlay -->
+        <div id="player-modal" class="player-modal">
+            <div class="close-player" onclick="closePlayer()">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            <!-- Live Open-Source Sample Video Stream -->
+            <video id="active-video-player" controls preload="metadata">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" type="video/mp4">
+                Your browser does not support HTML5 video.
+            </video>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        const TMDB_API_KEY = "3fd2be6f0cd05663659781c6d643114b";
+        const BASE_IMAGE_URL = "https://image.tmdb.org/t/p/w500";
+        let currentHeroMovie = null;
+        let allMoviesCache = [];
+
+        // View Navigation Handler
+        function switchScreen(screenId, navElement = null) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(`screen-${screenId}`);
+            if (target) target.classList.add('active');
+
+            if (navElement) {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                navElement.classList.add('active');
             }
-        });
-    }
-
-    // Handle Email/Password Authentication
-    window.handleEmailAuth = async () => {
-        const email = document.getElementById('auth-email').value;
-        const password = document.getElementById('auth-password').value;
-
-        try {
-            if (authMode === 'login') {
-                await signInWithEmailAndPassword(auth, email, password);
-                alert("Successfully signed in!");
-            } else {
-                await createUserWithEmailAndPassword(auth, email, password);
-                alert("Account created and signed in!");
-            }
-            document.getElementById('auth-email').value = '';
-            document.getElementById('auth-password').value = '';
-        } catch (error) {
-            alert("Auth Error: " + error.message);
         }
-    };
 
-    // Google Sign-In
-    document.getElementById('google-login-btn').addEventListener('click', () => {
-        signInWithPopup(auth, provider).catch((error) => {
-            alert("Google Sign-In Error: " + error.message);
-        });
-    });
+        // Fetch Movies from TMDB API
+        async function fetchMovies() {
+            try {
+                const response = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_API_KEY}`);
+                if (!response.ok) throw new Error("API request failed");
+                
+                const data = await response.json();
+                allMoviesCache = data.results;
 
-    // Logout
-    document.getElementById('logout-btn').addEventListener('click', () => {
-        signOut(auth);
-    });
-
-    // Auth state listener
-    onAuthStateChanged(auth, (user) => {
-        currentUser = user;
-        const userNameElem = document.getElementById('user-name');
-        const userEmailElem = document.getElementById('user-email');
-        const userAvatarElem = document.getElementById('user-avatar');
-        const headerAvatarElem = document.getElementById('header-avatar');
-        const authBox = document.getElementById('auth-box');
-        const logoutBtn = document.getElementById('logout-btn');
-
-        if (user) {
-            const displayName = user.displayName || user.email.split('@')[0];
-            userNameElem.innerText = displayName;
-            userEmailElem.innerText = user.email;
-
-            if (user.photoURL) {
-                userAvatarElem.style.backgroundImage = `url('${user.photoURL}')`;
-                userAvatarElem.innerText = '';
-                headerAvatarElem.style.backgroundImage = `url('${user.photoURL}')`;
-                headerAvatarElem.innerText = '';
-            } else {
-                const initial = displayName.charAt(0).toUpperCase();
-                userAvatarElem.style.backgroundImage = 'none';
-                userAvatarElem.innerText = initial;
-                headerAvatarElem.style.backgroundImage = 'none';
-                headerAvatarElem.innerText = initial;
+                if (allMoviesCache.length > 0) {
+                    setupHeroBanner(allMoviesCache[0]);
+                    renderRow('trending-row', allMoviesCache.slice(1, 10));
+                    renderRow('popular-row', allMoviesCache.slice(10, 18));
+                    renderSearchResults(allMoviesCache.slice(0, 5));
+                }
+            } catch (err) {
+                console.warn("Using fallback local data:", err);
+                loadFallbackMovies();
             }
-
-            authBox.style.display = 'none';
-            logoutBtn.style.display = 'block';
-
-            // Connect to Firebase Database for Continue Watching
-            listenToContinueWatching(user.uid);
-        } else {
-            userNameElem.innerText = "Guest User";
-            userEmailElem.innerText = "Sign in to save your history";
-            userAvatarElem.style.backgroundImage = 'none';
-            userAvatarElem.innerText = '?';
-            headerAvatarElem.style.backgroundImage = 'none';
-            headerAvatarElem.innerText = 'G';
-
-            authBox.style.display = 'block';
-            logoutBtn.style.display = 'none';
-
-            document.getElementById('continue-watching-section').style.display = 'none';
         }
-    });
 
-    // ========================================================
-    // 3. FETCH MOVIES FROM TMDB API
-    // ========================================================
-    async function fetchMovies() {
-        try {
-            const trendingRes = await fetch(`https://api.themoviedb.org/3/trending/movie/day?api_key=${TMDB_API_KEY}`);
-            const trendingData = await trendingRes.json();
-
-            const popularRes = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}`);
-            const popularData = await popularRes.json();
-
-            if (trendingData.results && trendingData.results.length > 0) {
-                setupHeroBanner(trendingData.results[0]);
-                renderRow('trending-row', trendingData.results);
-            }
-
-            if (popularData.results) {
-                renderRow('popular-row', popularData.results);
-            }
-        } catch (err) {
-            console.error("Failed to fetch movies from TMDb:", err);
-            loadFallbackMovies();
+        // Setup Hero Banner
+        function setupHeroBanner(movie) {
+            currentHeroMovie = movie;
+            const heroEl = document.getElementById('hero-banner');
+            const backdropPath = movie.backdrop_path ? `${BASE_IMAGE_URL}${movie.backdrop_path}` : '';
+            heroEl.style.backgroundImage = `url('${backdropPath}')`;
+            document.getElementById('hero-title').innerText = movie.title || movie.name;
         }
-    }
 
-    function setupHeroBanner(movie) {
-        const bgUrl = movie.backdrop_path ? `${TMDB_IMAGE_BASE}${movie.backdrop_path}` : `${TMDB_IMAGE_BASE}${movie.poster_path}`;
-        const heroElem = document.getElementById('hero-banner');
-        heroElem.style.backgroundImage = `linear-gradient(to top, #121212 5%, rgba(18,18,18,0.2) 50%, rgba(18,18,18,0.7) 100%), url('${bgUrl}')`;
-        document.getElementById('hero-title').innerText = movie.title || movie.name;
-        
-        const year = (movie.release_date || '').split('-')[0];
-        document.getElementById('hero-tags').innerHTML = `<span>${year || '2024'}</span><span>TMDB Rating: ${movie.vote_average?.toFixed(1)}</span>`;
+        // Render Cards in Horizontal Row
+        function renderRow(containerId, movies) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
 
-        document.getElementById('hero-play-btn').onclick = () => {
-            if (window.saveToContinueWatching) window.saveToContinueWatching(movie);
-            openPlayer(movie.title || movie.name);
-        };
+            movies.forEach(movie => {
+                if (!movie.poster_path) return;
+                
+                const card = document.createElement('div');
+                card.className = 'media-card';
+                card.onclick = () => openDetail(movie);
 
-        document.getElementById('hero-detail-btn').onclick = () => {
-            openDetail(movie.title || movie.name, bgUrl, movie.overview, year, movie.vote_average?.toFixed(1), movie);
-        };
-    }
+                card.innerHTML = `
+                    <img class="media-poster" src="${BASE_IMAGE_URL}${movie.poster_path}" alt="${movie.title}" loading="lazy">
+                    <div class="media-card-title">${movie.title}</div>
+                    <div class="media-rating"><i class="fa-solid fa-star"></i> ${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
 
-    function renderRow(elementId, movies) {
-        const container = document.getElementById(elementId);
-        container.innerHTML = '';
-
-        movies.forEach(movie => {
-            if (!movie.poster_path) return;
-
-            const card = document.createElement('div');
-            card.className = 'media-card';
-            const posterUrl = `${TMDB_IMAGE_BASE}${movie.poster_path}`;
-            const bgUrl = movie.backdrop_path ? `${TMDB_IMAGE_BASE}${movie.backdrop_path}` : posterUrl;
-            const year = (movie.release_date || '').split('-')[0];
-
-            card.innerHTML = `
-                <div class="poster" style="background-image: url('${posterUrl}');"></div>
-                <div class="media-title">${movie.title || movie.name}</div>
-            `;
-
-            card.onclick = () => {
-                openDetail(movie.title || movie.name, bgUrl, movie.overview, year, movie.vote_average?.toFixed(1), movie);
-            };
-
-            container.appendChild(card);
-        });
-    }
-
-    function loadFallbackMovies() {
-        const sampleMovies = [
-            {
-                id: "454639",
-                title: "Masters of the Universe",
-                backdrop_path: "/oRuyGUHdoaQxWP3SDfafGkStxTC.jpg",
-                poster_path: "/oRuyGUHdoaQxWP3SDfafGkStxTC.jpg",
-                overview: "A heroic fantasy action adventure movie.",
-                release_date: "2026-07-28",
-                vote_average: 8.5
+        // Dynamic Search Handler
+        function handleSearch(query) {
+            const heading = document.getElementById('search-heading');
+            if (!query.trim()) {
+                heading.innerText = 'Top Searches';
+                renderSearchResults(allMoviesCache.slice(0, 5));
+                return;
             }
-        ];
 
-        setupHeroBanner(sampleMovies[0]);
-    }
+            heading.innerText = 'Search Results';
+            const filtered = allMoviesCache.filter(m => 
+                (m.title || '').toLowerCase().includes(query.toLowerCase())
+            );
+            renderSearchResults(filtered);
+        }
 
-    // Run fetch on startup
-    fetchMovies();
-</script>
+        // Render Search Results List
+        function renderSearchResults(movies) {
+            const container = document.getElementById('search-results');
+            container.innerHTML = '';
 
+            if (movies.length === 0) {
+                container.innerHTML = `<div style="color:var(--text-muted); padding:10px;">No movies found.</div>`;
+                return;
+            }
+
+            movies.forEach(movie => {
+                const item = document.createElement('div');
+                item.className = 'menu-item';
+                item.onclick = () => openDetail(movie);
+                item.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <img src="${BASE_IMAGE_URL}${movie.poster_path}" style="width:40px; height:55px; border-radius:6px; object-fit:cover;">
+                        <div>
+                            <div style="font-weight:600;">${movie.title}</div>
+                            <div style="font-size:12px; color:var(--text-muted);">${movie.release_date ? movie.release_date.split('-')[0] : ''}</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color: var(--text-muted);"></i>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Open Detail View
+        function openDetail(movie) {
+            currentHeroMovie = movie;
+            document.getElementById('detail-backdrop').style.backgroundImage = `url('${BASE_IMAGE_URL}${movie.backdrop_path || movie.poster_path}')`;
+            document.getElementById('detail-title').innerText = movie.title;
+            document.getElementById('detail-overview').innerText = movie.overview || "No description available.";
+            document.getElementById('detail-year').innerText = movie.release_date ? movie.release_date.split('-')[0] : 'N/A';
+            document.getElementById('detail-rating').innerText = `⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}`;
+            
+            switchScreen('detail');
+        }
+
+        function openDetailCurrentHero() {
+            if (currentHeroMovie) openDetail(currentHeroMovie);
+        }
+
+        // Video Player Controls
+        function openPlayer() {
+            const modal = document.getElementById('player-modal');
+            const player = document.getElementById('active-video-player');
+            modal.classList.add('active');
+            player.play().catch(e => console.log("Autoplay blocked:", e));
+        }
+
+        function closePlayer() {
+            const modal = document.getElementById('player-modal');
+            const player = document.getElementById('active-video-player');
+            player.pause();
+            modal.classList.remove('active');
+        }
+
+        // Fallback Movies List
+        function loadFallbackMovies() {
+            const sampleMovies = [
+                {
+                    id: "454639",
+                    title: "Dune: Part Two",
+                    poster_path: "/1pdfLPoLViEFiZjhv2kgCMm9Re.jpg",
+                    backdrop_path: "/xOMo8BRK7PfcJv9JCnx7s52B3gY.jpg",
+                    overview: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
+                    release_date: "2024-02-27",
+                    vote_average: 8.3
+                },
+                {
+                    id: "693134",
+                    title: "Godzilla x Kong",
+                    poster_path: "/z121Wiqw8g9HGvP3jGl1St0jWj7.jpg",
+                    backdrop_path: "/1XwY1A4Tep80d2p81y294c.jpg",
+                    overview: "Two ancient titans clash in an epic battle while humans uncover their intertwined origins.",
+                    release_date: "2024-03-27",
+                    vote_average: 7.2
+                }
+            ];
+
+            allMoviesCache = sampleMovies;
+            setupHeroBanner(sampleMovies[0]);
+            renderRow('trending-row', sampleMovies);
+            renderRow('popular-row', sampleMovies);
+            renderSearchResults(sampleMovies);
+        }
+
+        // Initialize App
+        fetchMovies();
+    </script>
 </body>
 </html>
