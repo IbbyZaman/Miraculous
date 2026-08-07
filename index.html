@@ -9,845 +9,641 @@
         gtag('js', new Date());
         gtag('config', 'G-6K9W3X96EY');
     </script>
-    
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="favicon.png">
-    <title>Miraculous Hub - Stream Ladybug & Cat Noir</title>
+    <title>Miraculous Hub — Stream Ladybug & Cat Noir</title>
 
-    <!-- Google Fonts & FontAwesome Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* ============ DESIGN TOKENS ============ */
         :root {
-            --bg-dark: #08090c;
-            --card-bg: rgba(22, 24, 33, 0.7);
-            --card-border: rgba(255, 23, 68, 0.15);
-            --ladybug-red: #ff1744;
-            --ladybug-glow: rgba(255, 23, 68, 0.4);
-            --catnoir-green: #00e676;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
+            --void: #0a0a12;
+            --void-2: #12111d;
+            --glass: rgba(26, 24, 40, 0.55);
+            --glass-hi: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --spot-red: #ef2340;
+            --spot-red-glow: rgba(239, 35, 64, 0.45);
+            --cat-green: #2dffa0;
+            --cat-green-glow: rgba(45, 255, 160, 0.35);
+            --gold: #ffc857;
+            --gold-glow: rgba(255, 200, 87, 0.35);
+            --text: #f4f2fb;
+            --muted: #9691ab;
+            --muted-dim: #6b6680;
+
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            --radius-lg: 22px;
+            --radius-md: 14px;
+            --radius-sm: 8px;
+
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        [data-theme="light"] {
+            --void: #f3f1fb;
+            --void-2: #e9e5f7;
+            --glass: rgba(255, 255, 255, 0.6);
+            --glass-hi: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(20, 15, 45, 0.08);
+            --text: #17142a;
+            --muted: #57516f;
+            --muted-dim: #8b84a3;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
 
         body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(255, 23, 68, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(0, 230, 118, 0.03) 0%, transparent 40%);
-            color: var(--text-main);
+            font-family: var(--font-body);
+            background-color: var(--void);
+            background-image:
+                radial-gradient(circle at 8% 15%, var(--spot-red-glow) 0%, transparent 32%),
+                radial-gradient(circle at 92% 75%, var(--cat-green-glow) 0%, transparent 32%),
+                radial-gradient(circle at 50% 100%, var(--gold-glow) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            transition: background-color 0.4s var(--ease), color 0.4s var(--ease);
         }
 
-        /* --- Modern Sticky Navbar --- */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+        }
+
+        a { color: inherit; }
+
+        ::selection { background: var(--spot-red); color: #fff; }
+
+        /* ============ SPOT MOTIF (signature element) ============ */
+        /* A graduated row of dots — the show's own visual language (ladybug spots)
+           reused as the site's structural divider / rating / progress motif. */
+        .spot-trail {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .spot-trail span {
+            display: block;
+            border-radius: 50%;
+            background: var(--spot-red);
+            box-shadow: 0 0 8px var(--spot-red-glow);
+        }
+        .spot-trail span:nth-child(1) { width: 5px; height: 5px; opacity: 0.4; }
+        .spot-trail span:nth-child(2) { width: 7px; height: 7px; opacity: 0.65; }
+        .spot-trail span:nth-child(3) { width: 9px; height: 9px; }
+        .spot-trail span:nth-child(4) { width: 6px; height: 6px; opacity: 0.5; background: var(--cat-green); box-shadow: 0 0 8px var(--cat-green-glow); }
+
+        /* ============ HEADER ============ */
         header {
-            background: rgba(8, 9, 12, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 18px 40px;
+            background: rgba(10, 10, 18, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 16px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 1000;
+            gap: 20px;
         }
+        [data-theme="light"] header { background: rgba(243, 241, 251, 0.72); }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
+        .logo { display: flex; align-items: center; gap: 11px; text-decoration: none; flex-shrink: 0; }
         .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: var(--ladybug-red);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 15px var(--ladybug-glow);
+            width: 34px; height: 34px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #ff5470, var(--spot-red));
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 18px var(--spot-red-glow);
+            position: relative;
         }
-
-        .logo-icon i {
-            color: #fff;
-            font-size: 16px;
+        .logo-icon::after {
+            content: ''; position: absolute; width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(0,0,0,0.35); top: 7px; right: 7px;
         }
+        .logo-icon i { color: #fff; font-size: 15px; }
+        .logo-text { font-family: var(--font-display); font-size: 21px; font-weight: 700; letter-spacing: -0.5px; }
+        .logo-text span { color: var(--spot-red); }
 
-        .logo-text {
-            color: #fff;
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
+        nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
-        .logo-text span {
-            color: var(--ladybug-red);
-        }
-
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        nav a, nav button.auth-nav-btn {
-            color: var(--text-muted);
+        nav a.nav-link, nav button.auth-nav-btn {
+            color: var(--muted);
             text-decoration: none;
-            padding: 8px 16px;
+            padding: 8px 15px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 600;
-            transition: all 0.3s ease;
+            font-family: var(--font-body);
+            transition: all 0.25s var(--ease);
             background: transparent;
             border: none;
             cursor: pointer;
+            white-space: nowrap;
+        }
+        nav a.nav-link:hover { color: var(--text); background: var(--glass-hi); }
+        nav a.nav-link.active {
+            color: var(--spot-red);
+            background: rgba(239, 35, 64, 0.1);
+            border: 1px solid rgba(239, 35, 64, 0.3);
         }
 
-        nav a:hover, nav a.active, nav button.auth-nav-btn:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.06);
+        .icon-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--glass-hi); border: 1px solid var(--glass-border);
+            color: var(--muted); cursor: pointer; transition: all 0.25s var(--ease);
+            flex-shrink: 0;
         }
+        .icon-btn:hover { color: var(--gold); border-color: var(--gold); transform: rotate(15deg); }
 
-        nav a.active {
-            color: var(--ladybug-red);
-            border: 1px solid rgba(255, 23, 68, 0.3);
-            box-shadow: 0 0 12px rgba(255, 23, 68, 0.2);
-        }
-
-        .auth-nav-btn.login-highlight {
-            border: 1px solid var(--ladybug-red);
-            color: var(--ladybug-red);
-        }
-
-        .auth-nav-btn.login-highlight:hover {
-            background: var(--ladybug-red);
-            color: #fff;
-        }
+        .auth-nav-btn.login-highlight { border: 1px solid var(--spot-red); color: var(--spot-red); }
+        .auth-nav-btn.login-highlight:hover { background: var(--spot-red); color: #fff; }
 
         .user-nav-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 4px 14px 4px 6px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; align-items: center; gap: 9px;
+            background: var(--glass-hi); padding: 4px 14px 4px 5px;
+            border-radius: 30px; border: 1px solid var(--glass-border);
+            cursor: pointer; transition: all 0.25s var(--ease);
         }
-
+        .user-nav-profile:hover { border-color: var(--spot-red); }
         .user-nav-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--ladybug-red);
-            box-shadow: 0 0 8px var(--ladybug-glow);
+            width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
+            border: 2px solid var(--spot-red); box-shadow: 0 0 8px var(--spot-red-glow);
         }
 
-        /* --- Layout Container --- */
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 30px 20px;
-            width: 100%;
-            flex: 1;
-        }
+        /* ============ LAYOUT ============ */
+        .container { max-width: 1280px; margin: 0 auto; padding: 30px 20px 20px; width: 100%; flex: 1; }
 
-        /* --- Hero Spotlight Section --- */
+        /* ============ HERO CAROUSEL ============ */
         .hero-spotlight {
-            position: relative;
-            border-radius: 24px;
-            overflow: hidden;
-            background: linear-gradient(90deg, #0d0f17 0%, rgba(13, 15, 23, 0.6) 60%, transparent 100%),
-                        url('https://wallpapers.com/images/hd/miraculous-ladybug-and-cat-noir-rooftop-x6q7j92l4a7d32s8.jpg') center/cover no-repeat;
-            min-height: 380px;
-            display: flex;
-            align-items: center;
-            padding: 50px;
-            margin-bottom: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            position: relative; border-radius: var(--radius-lg); overflow: hidden;
+            min-height: 400px; border: 1px solid var(--glass-border);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5); margin-bottom: 44px;
         }
-
-        .hero-content {
-            max-width: 580px;
-            z-index: 2;
+        .hero-slides { position: relative; width: 100%; height: 400px; }
+        .hero-slide {
+            position: absolute; inset: 0; display: flex; align-items: center; padding: 50px;
+            opacity: 0; visibility: hidden; transform: scale(1.03);
+            transition: opacity 0.9s var(--ease), transform 1.1s var(--ease), visibility 0.9s;
+            background-size: cover; background-position: center;
         }
-
+        .hero-slide::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(100deg, rgba(8,8,14,0.94) 15%, rgba(8,8,14,0.55) 55%, rgba(8,8,14,0.15) 100%);
+        }
+        .hero-slide.active { opacity: 1; visibility: visible; transform: scale(1); z-index: 2; }
+        .hero-content { max-width: 560px; position: relative; z-index: 2; }
         .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 23, 68, 0.15);
-            border: 1px solid var(--ladybug-red);
-            color: var(--ladybug-red);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
+            display: inline-flex; align-items: center; gap: 7px;
+            background: rgba(239, 35, 64, 0.15); border: 1px solid var(--spot-red);
+            color: #ff5c78; padding: 6px 14px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+            margin-bottom: 16px; font-family: var(--font-mono);
         }
-
         .hero-title {
-            font-size: 42px;
-            font-weight: 800;
-            line-height: 1.15;
-            color: #fff;
-            margin-bottom: 15px;
+            font-family: var(--font-display); font-size: 44px; font-weight: 800;
+            line-height: 1.1; color: #fff; margin-bottom: 14px; letter-spacing: -1px;
         }
-
-        .hero-description {
-            color: var(--text-muted);
-            font-size: 15px;
-            line-height: 1.6;
-            margin-bottom: 25px;
-        }
-
+        .hero-description { color: #cbc7db; font-size: 15px; line-height: 1.65; margin-bottom: 26px; max-width: 480px; }
         .hero-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--ladybug-red);
-            color: #fff;
-            padding: 12px 28px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 15px;
-            box-shadow: 0 8px 25px var(--ladybug-glow);
-            transition: all 0.3s ease;
+            display: inline-flex; align-items: center; gap: 10px; background: var(--spot-red);
+            color: #fff; padding: 13px 28px; border-radius: 30px; text-decoration: none;
+            font-weight: 700; font-size: 14.5px; box-shadow: 0 10px 28px var(--spot-red-glow);
+            transition: all 0.3s var(--ease); border: none; cursor: pointer;
         }
+        .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 32px var(--spot-red-glow); background: #ff2f52; }
 
-        .hero-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(255, 23, 68, 0.6);
-            background: #ff2a55;
+        .hero-nav {
+            position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+            z-index: 3; display: flex; gap: 10px; background: rgba(0,0,0,0.35);
+            padding: 8px 14px; border-radius: 30px; backdrop-filter: blur(8px);
         }
+        .hero-dot {
+            width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.3);
+            cursor: pointer; transition: all 0.3s var(--ease); border: none;
+        }
+        .hero-dot.active { background: var(--spot-red); box-shadow: 0 0 10px var(--spot-red-glow); width: 22px; border-radius: 5px; }
 
-        /* --- Section Titles --- */
+        .hero-arrow {
+            position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
+            width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(255,255,255,0.15); color: #fff; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s var(--ease); backdrop-filter: blur(8px);
+        }
+        .hero-arrow:hover { background: var(--spot-red); }
+        .hero-arrow.prev { left: 18px; }
+        .hero-arrow.next { right: 18px; }
+
+        /* ============ SECTION HEADER ============ */
         .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 40px 0 20px 0;
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 48px 0 20px; gap: 16px; flex-wrap: wrap;
         }
-
         .section-title {
-            font-size: 22px;
-            font-weight: 800;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-family: var(--font-display); font-size: 23px; font-weight: 700; color: var(--text);
+            display: flex; align-items: center; gap: 14px;
         }
+        .section-sub { color: var(--muted); font-size: 13px; margin-top: 2px; font-weight: 500; }
 
-        .section-title::before {
-            content: '';
-            width: 4px;
-            height: 22px;
-            background: var(--ladybug-red);
-            border-radius: 4px;
-            box-shadow: 0 0 10px var(--ladybug-red);
+        /* ============ TOOLBAR (filter/search/sort) ============ */
+        .toolbar {
+            display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
         }
+        .toolbar input[type="text"], .toolbar select {
+            background: var(--glass); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: 30px;
+            padding: 9px 16px; color: var(--text); font-size: 13px; font-family: var(--font-body);
+            outline: none; transition: border-color 0.25s var(--ease);
+        }
+        .toolbar input[type="text"] { min-width: 190px; }
+        .toolbar input[type="text"]:focus, .toolbar select:focus { border-color: var(--spot-red); }
+        .toolbar select { cursor: pointer; }
 
-        /* --- Cards & Grids --- */
-        .media-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 22px;
-        }
+        /* ============ CARDS & GRIDS ============ */
+        .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 20px; }
 
         .media-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            overflow: hidden;
-            text-decoration: none;
-            border: 1px solid var(--card-border);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            cursor: pointer;
+            background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border-radius: var(--radius-md); overflow: hidden; text-decoration: none;
+            border: 1px solid var(--glass-border); transition: all 0.35s var(--ease);
+            display: flex; flex-direction: column; position: relative; cursor: pointer;
         }
-
-        .media-card:hover {
-            transform: translateY(-6px);
-            border-color: var(--ladybug-red);
-            box-shadow: 0 12px 30px rgba(255, 23, 68, 0.25);
-        }
+        .media-card:hover { transform: translateY(-6px); border-color: var(--spot-red); box-shadow: 0 16px 32px rgba(239, 35, 64, 0.22); }
 
         .media-thumb {
-            width: 100%;
-            height: 160px;
-            background-color: #12141d;
-            background-size: cover;
-            background-position: center;
-            position: relative;
+            width: 100%; height: 155px; background-color: var(--void-2);
+            background-size: cover; background-position: center; position: relative;
         }
-
         .media-thumb-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, transparent 50%, rgba(8, 9, 12, 0.9) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, transparent 45%, rgba(8,8,14,0.92) 100%);
+            display: flex; align-items: center; justify-content: center;
         }
-
         .play-icon {
-            width: 45px;
-            height: 45px;
-            background: rgba(255, 23, 68, 0.9);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 16px;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px var(--ladybug-glow);
+            width: 44px; height: 44px; background: rgba(239, 35, 64, 0.92); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px;
+            opacity: 0; transform: scale(0.8); transition: all 0.3s var(--ease);
+            box-shadow: 0 0 22px var(--spot-red-glow);
+        }
+        .media-card:hover .play-icon { opacity: 1; transform: scale(1); }
+
+        .card-fav-btn {
+            position: absolute; top: 10px; right: 10px; z-index: 4;
+            width: 30px; height: 30px; border-radius: 50%; border: none;
+            background: rgba(8,8,14,0.55); backdrop-filter: blur(6px);
+            color: rgba(255,255,255,0.7); font-size: 13px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s var(--ease);
+        }
+        .card-fav-btn:hover { transform: scale(1.15); }
+        .card-fav-btn.active { color: var(--gold); background: rgba(255, 200, 87, 0.18); }
+
+        .watched-badge {
+            position: absolute; top: 10px; left: 10px; z-index: 4;
+            display: flex; align-items: center; gap: 5px;
+            background: rgba(45, 255, 160, 0.16); border: 1px solid var(--cat-green);
+            color: var(--cat-green); font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; padding: 4px 9px; border-radius: 20px; font-family: var(--font-mono);
         }
 
-        .media-card:hover .play-icon {
-            opacity: 1;
-            transform: scale(1);
-        }
+        .media-details { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .media-tag { font-size: 10.5px; color: var(--spot-red); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-family: var(--font-mono); }
+        .media-title { font-size: 15.5px; color: var(--text); font-weight: 700; line-height: 1.3; font-family: var(--font-display); }
 
-        .media-details {
-            padding: 18px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+        .card-actions { display: flex; gap: 8px; margin-top: auto; }
+        .mark-watched-btn {
+            flex: 1; background: var(--glass-hi); border: 1px solid var(--glass-border);
+            color: var(--muted); font-size: 11.5px; font-weight: 700; padding: 8px; border-radius: 20px;
+            cursor: pointer; transition: all 0.25s var(--ease); text-align: center;
         }
-
-        .media-tag {
-            font-size: 11px;
-            color: var(--ladybug-red);
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 6px;
-        }
-
-        .media-title {
-            font-size: 16px;
-            color: #fff;
-            font-weight: 700;
-            line-height: 1.3;
-        }
+        .mark-watched-btn:hover { border-color: var(--cat-green); color: var(--cat-green); }
+        .mark-watched-btn.done { background: rgba(45,255,160,0.12); border-color: var(--cat-green); color: var(--cat-green); }
 
         .empty-notice {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 30px;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 14px;
-            border: 1px dashed rgba(255, 255, 255, 0.15);
+            background: var(--glass); backdrop-filter: blur(10px); border-radius: var(--radius-md);
+            padding: 34px; text-align: center; color: var(--muted); font-size: 14px;
+            border: 1px dashed var(--glass-border); grid-column: 1 / -1;
         }
+        .empty-notice i { font-size: 24px; margin-bottom: 10px; color: var(--muted-dim); display: block; }
 
-        /* --- Countdown Section --- */
-        .countdown-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-        }
-
+        /* ============ COUNTDOWN ============ */
+        .countdown-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
         .countdown-card {
-            background: linear-gradient(135deg, rgba(22, 24, 33, 0.9) 0%, rgba(15, 17, 23, 0.9) 100%);
-            border-radius: 20px;
-            padding: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+            background: linear-gradient(150deg, var(--glass) 0%, var(--glass-hi) 100%);
+            backdrop-filter: blur(14px); border-radius: var(--radius-lg); padding: 24px;
+            border: 1px solid var(--glass-border); box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+            text-align: center; position: relative; overflow: hidden;
         }
-
         .countdown-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, var(--ladybug-red), var(--catnoir-green));
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, var(--spot-red), var(--gold), var(--cat-green));
         }
-
-        .countdown-card h4 {
-            color: #fff;
-            font-size: 20px;
-            font-weight: 800;
-            margin-bottom: 4px;
-        }
-
+        .countdown-card h4 { font-family: var(--font-display); font-size: 20px; font-weight: 700; margin-bottom: 4px; }
         .dub-label {
-            font-size: 12px;
-            color: var(--catnoir-green);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
-            display: block;
+            font-size: 11px; color: var(--cat-green); font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 18px; display: block; font-family: var(--font-mono);
         }
+        .timer-display { display: flex; justify-content: center; gap: 10px; margin-bottom: 16px; }
+        .time-box { background: var(--void-2); padding: 11px 8px; border-radius: 10px; min-width: 58px; border: 1px solid var(--glass-border); }
+        .time-value { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--text); }
+        .time-label { font-size: 9px; color: var(--muted); text-transform: uppercase; font-weight: 600; margin-top: 3px; letter-spacing: 0.5px; }
 
-        .timer-display {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
+        .ics-btn {
+            display: inline-flex; align-items: center; gap: 7px; background: transparent;
+            border: 1px solid var(--glass-border); color: var(--muted); font-size: 12px;
+            font-weight: 600; padding: 8px 16px; border-radius: 20px; cursor: pointer;
+            transition: all 0.25s var(--ease);
         }
+        .ics-btn:hover { border-color: var(--gold); color: var(--gold); }
 
-        .time-box {
-            background: rgba(8, 9, 12, 0.8);
-            padding: 12px;
-            border-radius: 12px;
-            min-width: 65px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .time-value {
-            font-size: 22px;
-            font-weight: 800;
-            color: #fff;
-        }
-
-        .time-label {
-            font-size: 10px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: 600;
-            margin-top: 4px;
-        }
-
-        /* --- Directory Hub Cards --- */
-        .hub-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
+        /* ============ HUB DIRECTORY ============ */
+        .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 18px; }
         .hub-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 25px;
-            text-decoration: none;
-            border: 1px solid var(--card-border);
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            background: var(--glass); backdrop-filter: blur(12px); border-radius: var(--radius-md);
+            padding: 24px; text-decoration: none; border: 1px solid var(--glass-border);
+            transition: all 0.3s var(--ease); display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .hub-card:hover { transform: translateY(-5px); border-color: var(--spot-red); box-shadow: 0 12px 28px rgba(239,35,64,0.18); }
+        .hub-card h3 { font-family: var(--font-display); font-size: 19px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        .hub-card p { color: var(--muted); font-size: 13.5px; line-height: 1.5; margin-bottom: 18px; }
+        .hub-action { color: var(--spot-red); font-size: 12.5px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+
+        /* ============ CHARACTER BIOS ============ */
+        .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+        .char-card {
+            background: var(--glass); backdrop-filter: blur(12px); border-radius: var(--radius-md);
+            padding: 20px; border: 1px solid var(--glass-border); text-align: center;
+            transition: all 0.3s var(--ease); cursor: pointer;
+        }
+        .char-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+        .char-avatar {
+            width: 76px; height: 76px; border-radius: 50%; margin: 0 auto 14px; object-fit: cover;
+            border: 3px solid var(--glass-border); transition: all 0.3s var(--ease); background: var(--void-2);
+        }
+        .char-card:hover .char-avatar { border-color: var(--gold); box-shadow: 0 0 20px var(--gold-glow); }
+        .char-name { font-family: var(--font-display); font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+        .char-power { font-size: 11px; color: var(--cat-green); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-family: var(--font-mono); }
+        .char-identity {
+            font-size: 12px; color: var(--muted); filter: blur(5px); transition: filter 0.3s var(--ease);
+            padding: 6px 8px; background: var(--glass-hi); border-radius: 8px;
+        }
+        .char-card:hover .char-identity { filter: blur(0); }
+        .char-identity::before { content: '🔒 tap to reveal identity — '; opacity: 0.7; }
+
+        /* ============ TRIVIA QUIZ ============ */
+        .quiz-card {
+            background: var(--glass); backdrop-filter: blur(14px); border-radius: var(--radius-lg);
+            padding: 32px; border: 1px solid var(--glass-border); max-width: 640px; margin: 0 auto;
+        }
+        .quiz-progress { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .quiz-progress-label { font-size: 12px; color: var(--muted); font-family: var(--font-mono); font-weight: 600; }
+        .quiz-score { font-family: var(--font-mono); font-size: 13px; color: var(--gold); font-weight: 700; }
+        .quiz-question { font-family: var(--font-display); font-size: 19px; font-weight: 700; margin-bottom: 22px; line-height: 1.4; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-option {
+            background: var(--glass-hi); border: 1px solid var(--glass-border); color: var(--text);
+            padding: 14px 18px; border-radius: 12px; font-size: 14px; font-weight: 600; text-align: left;
+            cursor: pointer; transition: all 0.2s var(--ease); font-family: var(--font-body);
+        }
+        .quiz-option:hover:not(:disabled) { border-color: var(--gold); transform: translateX(4px); }
+        .quiz-option.correct { background: rgba(45,255,160,0.15); border-color: var(--cat-green); color: var(--cat-green); }
+        .quiz-option.wrong { background: rgba(239,35,64,0.15); border-color: var(--spot-red); color: #ff8a9a; }
+        .quiz-option:disabled { cursor: default; }
+        .quiz-result { text-align: center; }
+        .quiz-result h3 { font-family: var(--font-display); font-size: 26px; margin-bottom: 8px; }
+        .quiz-restart-btn {
+            margin-top: 18px; background: var(--spot-red); color: #fff; border: none; padding: 12px 28px;
+            border-radius: 30px; font-weight: 700; cursor: pointer; font-size: 14px;
         }
 
-        .hub-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--ladybug-red);
-            box-shadow: 0 10px 25px rgba(255, 23, 68, 0.2);
+        /* ============ NEWS FEED ============ */
+        .news-list { display: flex; flex-direction: column; gap: 14px; }
+        .news-item {
+            background: var(--glass); backdrop-filter: blur(10px); border-radius: var(--radius-md);
+            padding: 18px 22px; border: 1px solid var(--glass-border); text-decoration: none;
+            display: flex; justify-content: space-between; align-items: center; gap: 20px;
+            transition: all 0.25s var(--ease);
         }
+        .news-item:hover { border-color: var(--gold); transform: translateX(4px); }
+        .news-date { font-family: var(--font-mono); font-size: 11px; color: var(--gold); font-weight: 700; margin-bottom: 5px; letter-spacing: 0.5px; }
+        .news-title { font-family: var(--font-display); font-weight: 700; font-size: 15.5px; margin-bottom: 3px; }
+        .news-excerpt { font-size: 13px; color: var(--muted); }
+        .news-item i.fa-arrow-right { color: var(--muted-dim); flex-shrink: 0; }
 
-        .hub-card h3 {
-            color: #fff;
-            font-size: 20px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .hub-card p {
-            color: var(--text-muted);
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-
-        .hub-action {
-            color: var(--ladybug-red);
-            font-size: 13px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* --- Auth Modal Overlay --- */
+        /* ============ AUTH MODAL ============ */
         .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            padding: 20px;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(10px);
+            display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px;
         }
+        .modal-overlay.active { display: flex; }
 
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .auth-card {
-            background: rgba(16, 18, 27, 0.95);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 35px;
-            width: 100%;
-            max-width: 440px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            position: relative;
-            max-height: 90vh;
-            overflow-y: auto;
+        .auth-card, .profile-card {
+            background: var(--void-2); border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+            padding: 34px; width: 100%; max-width: 440px; box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+            position: relative; max-height: 90vh; overflow-y: auto;
         }
 
         .close-modal-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 20px;
-            cursor: pointer;
-            transition: color 0.3s ease;
+            position: absolute; top: 18px; right: 18px; background: transparent; border: none;
+            color: var(--muted); font-size: 19px; cursor: pointer; transition: color 0.25s var(--ease);
         }
+        .close-modal-btn:hover { color: var(--spot-red); }
 
-        .close-modal-btn:hover {
-            color: var(--ladybug-red);
-        }
-
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 25px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
+        .auth-tabs { display: flex; margin-bottom: 24px; border-bottom: 1px solid var(--glass-border); }
         .auth-tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
+            flex: 1; padding: 12px; background: transparent; border: none; color: var(--muted);
+            font-weight: 700; font-size: 14.5px; cursor: pointer; border-bottom: 2px solid transparent;
+            transition: all 0.25s var(--ease); font-family: var(--font-body);
         }
+        .auth-tab-btn.active { color: var(--spot-red); border-bottom-color: var(--spot-red); }
 
-        .auth-tab-btn.active {
-            color: var(--ladybug-red);
-            border-bottom-color: var(--ladybug-red);
-        }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .form-group label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
+        .auth-form { display: flex; flex-direction: column; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .form-group input {
-            background: rgba(8, 9, 12, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 12px 16px;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s ease;
+            background: var(--void); border: 1px solid var(--glass-border); border-radius: 10px;
+            padding: 12px 15px; color: var(--text); font-size: 14px; outline: none;
+            transition: border-color 0.25s var(--ease); font-family: var(--font-body);
         }
+        .form-group input:focus { border-color: var(--spot-red); }
 
-        .form-group input:focus {
-            border-color: var(--ladybug-red);
-        }
-
-        /* --- Miraculous Profile Picture Selector --- */
-        .pfp-picker-title {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .pfp-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .pfp-option {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            cursor: pointer;
-            object-fit: cover;
-            background: #12141d;
-            transition: all 0.2s ease;
-        }
-
-        .pfp-option:hover {
-            transform: scale(1.1);
-            border-color: rgba(255, 23, 68, 0.5);
-        }
-
-        .pfp-option.selected {
-            border-color: var(--ladybug-red);
-            box-shadow: 0 0 12px var(--ladybug-glow);
-            transform: scale(1.1);
-        }
+        .pfp-picker-title { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .pfp-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; margin-bottom: 10px; }
+        .pfp-option { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 2px solid transparent; cursor: pointer; object-fit: cover; background: var(--void); transition: all 0.2s var(--ease); }
+        .pfp-option:hover { transform: scale(1.1); border-color: rgba(239,35,64,0.5); }
+        .pfp-option.selected { border-color: var(--spot-red); box-shadow: 0 0 12px var(--spot-red-glow); transform: scale(1.1); }
 
         .auth-submit-btn {
-            background: var(--ladybug-red);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            padding: 14px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px var(--ladybug-glow);
-            transition: all 0.3s ease;
+            background: var(--spot-red); color: #fff; border: none; border-radius: 10px; padding: 14px;
+            font-weight: 700; font-size: 14.5px; cursor: pointer; margin-top: 6px;
+            box-shadow: 0 6px 18px var(--spot-red-glow); transition: all 0.25s var(--ease);
         }
+        .auth-submit-btn:hover { background: #ff2f52; transform: translateY(-2px); }
+        .auth-error { color: #ff5c78; font-size: 13px; margin-top: 4px; display: none; text-align: center; }
 
-        .auth-submit-btn:hover {
-            background: #ff2a55;
-            transform: translateY(-2px);
+        /* Profile modal */
+        .profile-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 24px; }
+        .profile-avatar-lg { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; border: 3px solid var(--spot-red); box-shadow: 0 0 22px var(--spot-red-glow); margin-bottom: 12px; }
+        .profile-name { font-family: var(--font-display); font-size: 21px; font-weight: 700; }
+        .profile-stats { display: flex; gap: 14px; margin-top: 18px; width: 100%; }
+        .stat-box { flex: 1; background: var(--glass-hi); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px; text-align: center; }
+        .stat-value { font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: var(--gold); }
+        .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+        .logout-full-btn {
+            width: 100%; margin-top: 20px; background: transparent; border: 1px solid var(--spot-red);
+            color: var(--spot-red); padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer;
+            transition: all 0.25s var(--ease);
         }
+        .logout-full-btn:hover { background: var(--spot-red); color: #fff; }
 
-        .auth-error {
-            color: #ff3333;
-            font-size: 13px;
-            margin-top: 5px;
-            display: none;
-            text-align: center;
-        }
+        footer { background: var(--void-2); text-align: center; padding: 30px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--glass-border); margin-top: 60px; }
 
-        footer {
-            background: #050608;
-            text-align: center;
-            padding: 30px;
-            font-size: 14px;
-            color: var(--text-muted);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            margin-top: 60px;
-        }
-
-        /* --- Mobile Responsive --- */
+        /* ============ MOBILE ============ */
         @media (max-width: 768px) {
-            header {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .hero-spotlight {
-                padding: 30px 20px;
-                min-height: auto;
-            }
-
-            .hero-title {
-                font-size: 28px;
-            }
-
-            nav {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
+            header { padding: 14px 18px; flex-direction: column; gap: 12px; }
+            nav { flex-wrap: wrap; justify-content: center; }
+            .hero-slide { padding: 28px 24px; }
+            .hero-slides { height: 460px; }
+            .hero-title { font-size: 30px; }
+            .hero-arrow { display: none; }
+            .section-header { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header / Navbar Layout Navigation -->
+    <!-- Header / Navbar -->
     <header>
         <a href="index.html" class="logo">
             <div class="logo-icon"><i class="fa-solid fa-bug"></i></div>
             <div class="logo-text">MIRACULOUS<span>HUB</span></div>
         </a>
         <nav>
-            <a href="index.html" class="active"><i class="fa-solid fa-house"></i> Home</a>
-            <a href="season-5.html">Season 5</a>
-            <a href="season-6.html">Season 6</a>
-            <a href="specials.html">Specials</a>
-            <a href="announcements.html">Announcements</a>
-            
-            <!-- Auth Navigation Buttons -->
+            <a href="index.html" class="nav-link active">Home</a>
+            <a href="season-5.html" class="nav-link">Season 5</a>
+            <a href="season-6.html" class="nav-link">Season 6</a>
+            <a href="specials.html" class="nav-link">Specials</a>
+            <a href="announcements.html" class="nav-link">Announcements</a>
+            <button class="icon-btn" id="theme-toggle" title="Toggle theme"><i class="fa-solid fa-moon"></i></button>
             <div id="auth-nav-container" style="display: flex; gap: 8px; align-items: center;">
-                <button class="auth-nav-btn login-highlight" id="open-auth-btn">
-                    <i class="fa-solid fa-user"></i> Sign In
-                </button>
+                <button class="auth-nav-btn login-highlight" id="open-auth-btn"><i class="fa-solid fa-user"></i> Sign In</button>
             </div>
         </nav>
     </header>
 
     <div class="container">
 
-        <!-- Hero Spotlight Banner -->
+        <!-- Hero Carousel -->
         <div class="hero-spotlight">
-            <div class="hero-content">
-                <div class="hero-badge"><i class="fa-solid fa-bolt"></i> Ultimate Portal</div>
-                <h1 class="hero-title">Welcome to Miraculous Hub</h1>
-                <p class="hero-description">Your premier dark-mode portal for Paris's greatest heroes. Stream all seasons, track fresh episode releases, and stay tuned with live countdowns!</p>
-                <a href="season-6.html" class="hero-btn"><i class="fa-solid fa-play"></i> Start Streaming S6</a>
-            </div>
+            <div class="hero-slides" id="hero-slides"></div>
+            <button class="hero-arrow prev" id="hero-prev"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="hero-arrow next" id="hero-next"><i class="fa-solid fa-chevron-right"></i></button>
+            <div class="hero-nav" id="hero-nav"></div>
         </div>
 
-        <!-- Section: Continue Watching -->
+        <!-- Continue Watching -->
         <div class="section-header">
-            <h3 class="section-title">Continue Watching</h3>
+            <h3 class="section-title"><span class="spot-trail"><span></span><span></span><span></span><span></span></span>Continue Watching</h3>
         </div>
         <div id="continue-watching-container">
-            <div class="empty-notice">
-                <i class="fa-solid fa-film" style="font-size: 24px; margin-bottom: 10px; color: var(--text-muted);"></i>
-                <p>No active history found. Choose an episode to start streaming!</p>
+            <div class="media-grid">
+                <div class="empty-notice">
+                    <i class="fa-solid fa-film"></i>
+                    <p>No active history found. Choose an episode below to start streaming!</p>
+                </div>
             </div>
         </div>
 
-        <!-- Section: Latest Season 6 Episodes -->
+        <!-- Episode Library -->
         <div class="section-header">
-            <h3 class="section-title">Latest Season 6 Episodes</h3>
-        </div>
-        <div class="media-grid">
-            <div class="media-card" onclick="saveAndWatch('season-6.html', 'thumbnails/622.jpg', 'Episode 6.22 - Lady Chaos')">
-                <div class="media-thumb" style="background-image: url('thumbnails/622.jpg');">
-                    <div class="media-thumb-overlay">
-                        <div class="play-icon"><i class="fa-solid fa-play"></i></div>
-                    </div>
-                </div>
-                <div class="media-details">
-                    <div>
-                        <div class="media-tag">Episode 6.22</div>
-                        <div class="media-title">Lady Chaos</div>
-                    </div>
-                </div>
+            <div>
+                <h3 class="section-title"><span class="spot-trail"><span></span><span></span><span></span><span></span></span>Episode Library</h3>
+                <div class="section-sub" id="episode-count-label"></div>
             </div>
-            <div class="media-card" onclick="saveAndWatch('season-6.html', 'thumbnails/623.jpg', 'Episode 6.23 - Sadnansi')">
-                <div class="media-thumb" style="background-image: url('thumbnails/623.jpg');">
-                    <div class="media-thumb-overlay">
-                        <div class="play-icon"><i class="fa-solid fa-play"></i></div>
-                    </div>
-                </div>
-                <div class="media-details">
-                    <div>
-                        <div class="media-tag">Episode 6.23</div>
-                        <div class="media-title">Sadnansi</div>
-                    </div>
-                </div>
-            </div>
-            <div class="media-card" onclick="saveAndWatch('season-6.html', 'thumbnails/624.jpg', 'Episode 6.24 - Queen Of The Dreadzone')">
-                <div class="media-thumb" style="background-image: url('thumbnails/624.jpg');">
-                    <div class="media-thumb-overlay">
-                        <div class="play-icon"><i class="fa-solid fa-play"></i></div>
-                    </div>
-                </div>
-                <div class="media-details">
-                    <div>
-                        <div class="media-tag">Episode 6.24</div>
-                        <div class="media-title">Queen Of The Dreadzone</div>
-                    </div>
-                </div>
+            <div class="toolbar">
+                <input type="text" id="episode-search" placeholder="Search episodes...">
+                <select id="season-filter">
+                    <option value="all">All Seasons</option>
+                    <option value="Season 5">Season 5</option>
+                    <option value="Season 6">Season 6</option>
+                </select>
+                <select id="episode-sort">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="az">A → Z</option>
+                </select>
             </div>
         </div>
+        <div class="media-grid" id="episode-grid"></div>
 
-        <!-- Section: Upcoming Releases Countdowns -->
+        <!-- Favorites -->
         <div class="section-header">
-            <h3 class="section-title">Upcoming Releases</h3>
+            <h3 class="section-title"><span class="spot-trail"><span></span><span></span><span></span><span></span></span>Your Favorites</h3>
         </div>
-        <div class="countdown-grid">
-            <div class="countdown-card">
-                <h4>Secret Protocol</h4>
-                <span class="dub-label"><i class="fa-solid fa-microphone"></i> English Dub Release</span>
-                <div class="timer-display" id="timer-protocol">
-                    <div class="time-box"><div class="time-value" id="p-days">00</div><div class="time-label">Days</div></div>
-                    <div class="time-box"><div class="time-value" id="p-hours">00</div><div class="time-label">Hours</div></div>
-                    <div class="time-box"><div class="time-value" id="p-mins">00</div><div class="time-label">Mins</div></div>
-                    <div class="time-box"><div class="time-value" id="p-secs">00</div><div class="time-label">Secs</div></div>
-                </div>
-            </div>
+        <div class="media-grid" id="favorites-grid"></div>
 
-            <div class="countdown-card">
-                <h4>Nemesis</h4>
-                <span class="dub-label"><i class="fa-solid fa-microphone"></i> English Dub Release</span>
-                <div class="timer-display" id="timer-nemesis">
-                    <div class="time-box"><div class="time-value" id="n-days">00</div><div class="time-label">Days</div></div>
-                    <div class="time-box"><div class="time-value" id="n-hours">00</div><div class="time-label">Hours</div></div>
-                    <div class="time-box"><div class="time-value" id="n-mins">00</div><div class="time-label">Mins</div></div>
-                    <div class="time-box"><div class="time-value" id="n-secs">00</div><div class="time-label">Secs</div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section: Quick Hub Directories -->
+        <!-- Upcoming Releases -->
         <div class="section-header">
-            <h3 class="section-title">Explore Hub Directories</h3>
+            <h3 class="section-title"><span class="spot-trail"><span></span><span></span><span></span><span></span></span>Upcoming Releases</h3>
+        </div>
+        <div class="countdown-grid" id="countdown-grid"></div>
+
+        <!-- Character Bios -->
+        <div class="section-header">
+            <h3 class="section-title"><span class="spot-trail"><span></span><span></span><span></span><span></span></span>Meet the Heroes</h3>
+        </div>
+        <div class="char-grid" id="char-grid"></div>
+
+        <!-- Trivia Quiz -->
+        <div class="section-header">
+            <h3 class="section-title"><span class="spot-trail"><span></span><span></span><span></span><span></span></span>Miraculous Trivia</h3>
+        </div>
+        <div class="quiz-card" id="quiz-card"></div>
+
+        <!-- News -->
+        <div class="section-header">
+            <h3 class="section-title"><span class="spot-trail"><span></span><span></span><span></span><span></span></span>Latest News</h3>
+        </div>
+        <div class="news-list" id="news-list"></div>
+
+        <!-- Hub Directories -->
+        <div class="section-header">
+            <h3 class="section-title"><span class="spot-trail"><span></span><span></span><span></span><span></span></span>Explore Directories</h3>
         </div>
         <div class="hub-grid">
             <a href="season-5.html" class="hub-card">
-                <div>
-                    <h3><i class="fa-solid fa-tv" style="color: var(--ladybug-red);"></i> Season 5</h3>
-                    <p>Stream all episodes from Evolution to Action.</p>
-                </div>
+                <div><h3><i class="fa-solid fa-tv" style="color: var(--spot-red);"></i> Season 5</h3><p>Stream all episodes from Evolution to Action.</p></div>
                 <span class="hub-action">Browse Season 5 <i class="fa-solid fa-arrow-right"></i></span>
             </a>
             <a href="season-6.html" class="hub-card">
-                <div>
-                    <h3><i class="fa-solid fa-sparkles" style="color: var(--catnoir-green);"></i> Season 6</h3>
-                    <p>Stream all the latest Season 6 episode lineup.</p>
-                </div>
+                <div><h3><i class="fa-solid fa-sparkles" style="color: var(--cat-green);"></i> Season 6</h3><p>Stream all the latest Season 6 episode lineup.</p></div>
                 <span class="hub-action">Browse Season 6 <i class="fa-solid fa-arrow-right"></i></span>
             </a>
             <a href="specials.html" class="hub-card">
-                <div>
-                    <h3><i class="fa-solid fa-film" style="color: #ffb703;"></i> Special Episodes</h3>
-                    <p>Explore movie features and world specials.</p>
-                </div>
+                <div><h3><i class="fa-solid fa-film" style="color: var(--gold);"></i> Special Episodes</h3><p>Explore movie features and world specials.</p></div>
                 <span class="hub-action">Browse Specials <i class="fa-solid fa-arrow-right"></i></span>
             </a>
         </div>
     </div>
 
-    <!-- Firebase Auth Modal Container -->
+    <!-- Auth Modal -->
     <div class="modal-overlay" id="auth-modal">
         <div class="auth-card">
             <button class="close-modal-btn" id="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
@@ -855,42 +651,18 @@
                 <button class="auth-tab-btn active" id="tab-signin">Sign In</button>
                 <button class="auth-tab-btn" id="tab-signup">Sign Up</button>
             </div>
-            
-            <!-- Sign In Form -->
             <form class="auth-form" id="signin-form">
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="signin-email" required placeholder="hero@miraculous.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="signin-password" required placeholder="••••••••">
-                </div>
+                <div class="form-group"><label>Email Address</label><input type="email" id="signin-email" required placeholder="hero@miraculous.com"></div>
+                <div class="form-group"><label>Password</label><input type="password" id="signin-password" required placeholder="••••••••"></div>
                 <div class="auth-error" id="signin-error"></div>
                 <button type="submit" class="auth-submit-btn">Sign In</button>
             </form>
-
-            <!-- Sign Up Form with Profile Picture Picker -->
             <form class="auth-form" id="signup-form" style="display: none;">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="signup-name" required placeholder="LadybugFan">
-                </div>
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="signup-email" required placeholder="hero@miraculous.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="signup-password" required placeholder="••••••••">
-                </div>
-
-                <!-- Profile Picture Selection Section -->
+                <div class="form-group"><label>Username</label><input type="text" id="signup-name" required placeholder="LadybugFan"></div>
+                <div class="form-group"><label>Email Address</label><input type="email" id="signup-email" required placeholder="hero@miraculous.com"></div>
+                <div class="form-group"><label>Password</label><input type="password" id="signup-password" required placeholder="••••••••"></div>
                 <div>
-                    <div class="pfp-picker-title">
-                        <span>Choose Hero Avatar</span>
-                        <span style="font-weight: normal; opacity: 0.7;">(Optional)</span>
-                    </div>
+                    <div class="pfp-picker-title"><span>Choose Hero Avatar</span><span style="font-weight: normal; opacity: 0.7;">(Optional)</span></div>
                     <div class="pfp-grid" id="pfp-options">
                         <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ladybug" title="Ladybug" class="pfp-option selected" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=ladybug">
                         <img src="https://api.dicebear.com/7.x/bottts/svg?seed=catnoir" title="Cat Noir" class="pfp-option" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=catnoir">
@@ -898,40 +670,84 @@
                         <img src="https://api.dicebear.com/7.x/bottts/svg?seed=carapace" title="Carapace" class="pfp-option" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=carapace">
                         <img src="https://api.dicebear.com/7.x/bottts/svg?seed=hawkmoth" title="Hawk Moth" class="pfp-option" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=hawkmoth">
                     </div>
-                    <div class="form-group" style="margin-top: 8px;">
-                        <input type="url" id="custom-pfp-url" placeholder="Or paste custom image URL...">
-                    </div>
+                    <div class="form-group" style="margin-top: 8px;"><input type="url" id="custom-pfp-url" placeholder="Or paste custom image URL..."></div>
                 </div>
-
                 <div class="auth-error" id="signup-error"></div>
                 <button type="submit" class="auth-submit-btn">Create Account</button>
             </form>
         </div>
     </div>
 
-    <footer>
-        &copy; 2026 Miraculous Hub. Built for fans, by fans.
-    </footer>
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profile-modal">
+        <div class="profile-card">
+            <button class="close-modal-btn" id="close-profile-btn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="profile-header">
+                <img id="profile-avatar-lg" class="profile-avatar-lg" src="" alt="Avatar">
+                <div class="profile-name" id="profile-name-lg"></div>
+                <div class="profile-stats">
+                    <div class="stat-box"><div class="stat-value" id="stat-watched">0</div><div class="stat-label">Watched</div></div>
+                    <div class="stat-box"><div class="stat-value" id="stat-favorites">0</div><div class="stat-label">Favorites</div></div>
+                </div>
+            </div>
+            <button class="logout-full-btn" id="logout-btn-profile">Sign Out</button>
+        </div>
+    </div>
 
-    <!-- Firebase Modular Scripts -->
+    <footer>&copy; 2026 Miraculous Hub. Built for fans, by fans.</footer>
+
+    <!-- ============ APP DATA ============ -->
+    <script>
+        const EPISODES = [
+            { id: 'e622', season: 'Season 6', ep: '6.22', title: 'Lady Chaos', thumb: 'thumbnails/622.jpg', page: 'season-6.html', order: 22 },
+            { id: 'e623', season: 'Season 6', ep: '6.23', title: 'Sadnansi', thumb: 'thumbnails/623.jpg', page: 'season-6.html', order: 23 },
+            { id: 'e624', season: 'Season 6', ep: '6.24', title: 'Queen Of The Dreadzone', thumb: 'thumbnails/624.jpg', page: 'season-6.html', order: 24 },
+        ];
+
+        const RELEASES = [
+            { id: 'protocol', name: 'Secret Protocol', label: 'English Dub Release', date: 'August 1, 2026 08:00:00' },
+            { id: 'nemesis', name: 'Nemesis', label: 'English Dub Release', date: 'August 8, 2026 08:00:00' },
+        ];
+
+        const HERO_SLIDES = [
+            { badge: 'Ultimate Portal', title: 'Welcome to Miraculous Hub', desc: "Your premier dark-mode portal for Paris's greatest heroes. Stream all seasons, track fresh episode releases, and stay tuned with live countdowns!", cta: 'Start Streaming S6', href: 'season-6.html', bg: 'https://wallpapers.com/images/hd/miraculous-ladybug-and-cat-noir-rooftop-x6q7j92l4a7d32s8.jpg' },
+            { badge: 'Now Airing', title: 'Season 6 Is In Full Swing', desc: 'New akumas, new alliances, and the Dreadzone looms. Catch up on the latest episodes before the next drop.', cta: 'Browse Season 6', href: 'season-6.html', bg: 'https://wallpapers.com/images/hd/miraculous-ladybug-and-cat-noir-rooftop-x6q7j92l4a7d32s8.jpg' },
+            { badge: 'Fan Favorite', title: 'Relive Every Transformation', desc: 'From Season 5 origins to the specials that changed everything — the full archive is right here.', cta: 'Browse Specials', href: 'specials.html', bg: 'https://wallpapers.com/images/hd/miraculous-ladybug-and-cat-noir-rooftop-x6q7j92l4a7d32s8.jpg' },
+        ];
+
+        const CHARACTERS = [
+            { name: 'Ladybug', power: 'Lucky Charm', identity: 'Marinette Dupain-Cheng', seed: 'ladybug' },
+            { name: 'Cat Noir', power: 'Cataclysm', identity: 'Adrien Agreste', seed: 'catnoir' },
+            { name: 'Rena Rouge', power: 'Mirage', identity: 'Alya Césaire', seed: 'renarouge' },
+            { name: 'Carapace', power: 'Shell-ter', identity: 'Nino Lahiffe', seed: 'carapace' },
+            { name: 'Queen Bee', power: 'Venom', identity: 'Chloé Bourgeois', seed: 'queenbee' },
+            { name: 'Hawk Moth', power: 'Akumatization', identity: 'Gabriel Agreste', seed: 'hawkmoth' },
+        ];
+
+        const QUIZ = [
+            { q: "What is Ladybug's signature power?", options: ['Cataclysm', 'Lucky Charm', 'Mirage', 'Venom'], correct: 1 },
+            { q: "What is the name of Cat Noir's kwami?", options: ['Tikki', 'Trixx', 'Plagg', 'Wayzz'], correct: 2 },
+            { q: 'Which city is Miraculous set in?', options: ['London', 'New York', 'Paris', 'Tokyo'], correct: 2 },
+            { q: 'Who is the primary antagonist akumatizing citizens?', options: ['Hawk Moth', 'Shadow Moth', 'Both A and B (same person, later reveal)', 'Mayura'], correct: 2 },
+            { q: "What object does Cat Noir use to destroy things?", options: ['Cataclysm', 'Lucky Charm', 'Venom', 'Mirage'], correct: 0 },
+        ];
+
+        const NEWS = [
+            { date: 'Aug 1, 2026', title: 'Secret Protocol Drops Today', excerpt: 'The English dub of the newest special is officially live — akuma alert.' },
+            { date: 'Jul 22, 2026', title: 'Season 6 Midpoint Recap', excerpt: 'Catching up on every twist since the Dreadzone arc began.' },
+            { date: 'Jul 10, 2026', title: 'Nemesis Trailer Breakdown', excerpt: 'Frame-by-frame look at next week\\'s biggest reveal.' },
+        ];
+    </script>
+
+    <!-- ============ FIREBASE + APP LOGIC ============ -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { 
-            getAuth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword, 
-            signOut, 
-            onAuthStateChanged,
-            updateProfile
+        import {
+            getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+            signOut, onAuthStateChanged, updateProfile
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            setDoc, 
-            getDoc 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCWKIQX_4oFrj87GStSCs9PydnXc7t1bcU",
             authDomain: "cinestream1230.firebaseapp.com",
@@ -942,7 +758,6 @@
             appId: "1:523084805053:web:b356cb9c6d8a8ded7a98d4"
         };
 
-        // Initialize Firebase Services
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -950,7 +765,280 @@
         let currentUser = null;
         let selectedPfpUrl = "https://api.dicebear.com/7.x/bottts/svg?seed=ladybug";
 
-        // Modal Elements
+        /* ---------- THEME ---------- */
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('miraculous_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const cur = document.documentElement.getAttribute('data-theme');
+            const next = cur === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('miraculous_theme', next);
+            themeToggle.innerHTML = next === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        });
+
+        /* ---------- HERO CAROUSEL ---------- */
+        const heroSlidesEl = document.getElementById('hero-slides');
+        const heroNavEl = document.getElementById('hero-nav');
+        let heroIndex = 0, heroTimer = null;
+
+        HERO_SLIDES.forEach((s, i) => {
+            const slide = document.createElement('div');
+            slide.className = 'hero-slide' + (i === 0 ? ' active' : '');
+            slide.style.backgroundImage = `url('${s.bg}')`;
+            slide.innerHTML = `
+                <div class="hero-content">
+                    <div class="hero-badge"><i class="fa-solid fa-bolt"></i> ${s.badge}</div>
+                    <h1 class="hero-title">${s.title}</h1>
+                    <p class="hero-description">${s.desc}</p>
+                    <a href="${s.href}" class="hero-btn"><i class="fa-solid fa-play"></i> ${s.cta}</a>
+                </div>`;
+            heroSlidesEl.appendChild(slide);
+
+            const dot = document.createElement('button');
+            dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
+            dot.addEventListener('click', () => goToSlide(i));
+            heroNavEl.appendChild(dot);
+        });
+
+        function goToSlide(i) {
+            document.querySelectorAll('.hero-slide').forEach((el, idx) => el.classList.toggle('active', idx === i));
+            document.querySelectorAll('.hero-dot').forEach((el, idx) => el.classList.toggle('active', idx === i));
+            heroIndex = i;
+            resetHeroTimer();
+        }
+        function nextSlide() { goToSlide((heroIndex + 1) % HERO_SLIDES.length); }
+        function prevSlide() { goToSlide((heroIndex - 1 + HERO_SLIDES.length) % HERO_SLIDES.length); }
+        function resetHeroTimer() { clearInterval(heroTimer); heroTimer = setInterval(nextSlide, 6500); }
+        document.getElementById('hero-next').addEventListener('click', nextSlide);
+        document.getElementById('hero-prev').addEventListener('click', prevSlide);
+        resetHeroTimer();
+
+        /* ---------- EPISODE LIBRARY (search / filter / sort / watched / favorite) ---------- */
+        const episodeGrid = document.getElementById('episode-grid');
+        const favoritesGrid = document.getElementById('favorites-grid');
+        const episodeSearch = document.getElementById('episode-search');
+        const seasonFilter = document.getElementById('season-filter');
+        const episodeSort = document.getElementById('episode-sort');
+        const countLabel = document.getElementById('episode-count-label');
+
+        function getWatched() { return JSON.parse(localStorage.getItem('miraculous_watched') || '[]'); }
+        function setWatched(arr) { localStorage.setItem('miraculous_watched', JSON.stringify(arr)); syncUserDoc({ watched: arr }); }
+        function getFavorites() { return JSON.parse(localStorage.getItem('miraculous_favorites') || '[]'); }
+        function setFavorites(arr) { localStorage.setItem('miraculous_favorites', JSON.stringify(arr)); syncUserDoc({ favorites: arr }); }
+
+        function toggleWatched(id) {
+            const w = getWatched();
+            const idx = w.indexOf(id);
+            if (idx > -1) w.splice(idx, 1); else w.push(id);
+            setWatched(w);
+            renderEpisodes();
+            renderFavorites();
+            renderProfileStats();
+        }
+        function toggleFavorite(id) {
+            const f = getFavorites();
+            const idx = f.indexOf(id);
+            if (idx > -1) f.splice(idx, 1); else f.push(id);
+            setFavorites(f);
+            renderEpisodes();
+            renderFavorites();
+            renderProfileStats();
+        }
+
+        function episodeCard(ep) {
+            const watched = getWatched().includes(ep.id);
+            const fav = getFavorites().includes(ep.id);
+            const card = document.createElement('div');
+            card.className = 'media-card';
+            card.innerHTML = `
+                ${watched ? `<div class="watched-badge"><i class="fa-solid fa-check"></i> Watched</div>` : ''}
+                <button class="card-fav-btn ${fav ? 'active' : ''}" title="Favorite"><i class="fa-solid fa-star"></i></button>
+                <div class="media-thumb" style="background-image:url('${ep.thumb}')">
+                    <div class="media-thumb-overlay"><div class="play-icon"><i class="fa-solid fa-play"></i></div></div>
+                </div>
+                <div class="media-details">
+                    <div>
+                        <div class="media-tag">Episode ${ep.ep}</div>
+                        <div class="media-title">${ep.title}</div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="mark-watched-btn ${watched ? 'done' : ''}">${watched ? '<i class="fa-solid fa-check"></i> Watched' : 'Mark Watched'}</button>
+                    </div>
+                </div>`;
+            card.querySelector('.media-thumb').addEventListener('click', () => saveAndWatch(ep.page, ep.thumb, `Episode ${ep.ep} - ${ep.title}`));
+            card.querySelector('.card-fav-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(ep.id); });
+            card.querySelector('.mark-watched-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleWatched(ep.id); });
+            return card;
+        }
+
+        function renderEpisodes() {
+            let list = [...EPISODES];
+            const q = episodeSearch.value.trim().toLowerCase();
+            const season = seasonFilter.value;
+            const sort = episodeSort.value;
+
+            if (q) list = list.filter(e => e.title.toLowerCase().includes(q) || e.ep.includes(q));
+            if (season !== 'all') list = list.filter(e => e.season === season);
+            if (sort === 'newest') list.sort((a, b) => b.order - a.order);
+            if (sort === 'oldest') list.sort((a, b) => a.order - b.order);
+            if (sort === 'az') list.sort((a, b) => a.title.localeCompare(b.title));
+
+            episodeGrid.innerHTML = '';
+            countLabel.textContent = `${list.length} episode${list.length === 1 ? '' : 's'}`;
+            if (!list.length) {
+                episodeGrid.innerHTML = `<div class="empty-notice"><i class="fa-solid fa-magnifying-glass"></i><p>No episodes match your search.</p></div>`;
+                return;
+            }
+            list.forEach(ep => episodeGrid.appendChild(episodeCard(ep)));
+        }
+
+        function renderFavorites() {
+            const favIds = getFavorites();
+            const favs = EPISODES.filter(e => favIds.includes(e.id));
+            favoritesGrid.innerHTML = '';
+            if (!favs.length) {
+                favoritesGrid.innerHTML = `<div class="empty-notice"><i class="fa-solid fa-star"></i><p>Star an episode to add it to your favorites.</p></div>`;
+                return;
+            }
+            favs.forEach(ep => favoritesGrid.appendChild(episodeCard(ep)));
+        }
+
+        episodeSearch.addEventListener('input', renderEpisodes);
+        seasonFilter.addEventListener('change', renderEpisodes);
+        episodeSort.addEventListener('change', renderEpisodes);
+        renderEpisodes();
+        renderFavorites();
+
+        /* ---------- COUNTDOWNS (multi + add to calendar) ---------- */
+        const countdownGrid = document.getElementById('countdown-grid');
+        RELEASES.forEach(r => {
+            const card = document.createElement('div');
+            card.className = 'countdown-card';
+            card.innerHTML = `
+                <h4>${r.name}</h4>
+                <span class="dub-label"><i class="fa-solid fa-microphone"></i> ${r.label}</span>
+                <div class="timer-display" id="timer-${r.id}">
+                    <div class="time-box"><div class="time-value" id="${r.id}-days">00</div><div class="time-label">Days</div></div>
+                    <div class="time-box"><div class="time-value" id="${r.id}-hours">00</div><div class="time-label">Hours</div></div>
+                    <div class="time-box"><div class="time-value" id="${r.id}-mins">00</div><div class="time-label">Mins</div></div>
+                    <div class="time-box"><div class="time-value" id="${r.id}-secs">00</div><div class="time-label">Secs</div></div>
+                </div>
+                <button class="ics-btn" data-id="${r.id}"><i class="fa-solid fa-calendar-plus"></i> Add to Calendar</button>`;
+            countdownGrid.appendChild(card);
+            card.querySelector('.ics-btn').addEventListener('click', () => downloadIcs(r));
+        });
+
+        function downloadIcs(release) {
+            const start = new Date(release.date);
+            const end = new Date(start.getTime() + 30 * 60000);
+            const fmt = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            const ics = [
+                'BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT',
+                `UID:${release.id}@miraculoushub`,
+                `DTSTART:${fmt(start)}`, `DTEND:${fmt(end)}`,
+                `SUMMARY:${release.name} — ${release.label}`,
+                `DESCRIPTION:${release.name} releases on Miraculous Hub!`,
+                'END:VEVENT', 'END:VCALENDAR'
+            ].join('\\r\\n');
+            const blob = new Blob([ics], { type: 'text/calendar' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${release.id}-release.ics`;
+            link.click();
+        }
+
+        function updateCountdowns() {
+            const now = Date.now();
+            RELEASES.forEach(r => {
+                const target = new Date(r.date).getTime();
+                const diff = target - now;
+                const timerEl = document.getElementById(`timer-${r.id}`);
+                if (!timerEl) return;
+                if (diff > 0) {
+                    document.getElementById(`${r.id}-days`).textContent = String(Math.floor(diff / 86400000)).padStart(2, '0');
+                    document.getElementById(`${r.id}-hours`).textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0');
+                    document.getElementById(`${r.id}-mins`).textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+                    document.getElementById(`${r.id}-secs`).textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+                } else {
+                    timerEl.innerHTML = '<div style="color: var(--cat-green); font-weight: 800; padding: 10px;">RELEASED & AVAILABLE!</div>';
+                }
+            });
+        }
+        setInterval(updateCountdowns, 1000);
+        updateCountdowns();
+
+        /* ---------- CHARACTER BIOS ---------- */
+        const charGrid = document.getElementById('char-grid');
+        CHARACTERS.forEach(c => {
+            const card = document.createElement('div');
+            card.className = 'char-card';
+            card.innerHTML = `
+                <img class="char-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=${c.seed}" alt="${c.name}">
+                <div class="char-name">${c.name}</div>
+                <div class="char-power">${c.power}</div>
+                <div class="char-identity">${c.identity}</div>`;
+            charGrid.appendChild(card);
+        });
+
+        /* ---------- TRIVIA QUIZ ---------- */
+        const quizCard = document.getElementById('quiz-card');
+        let quizIndex = 0, quizScore = 0;
+
+        function renderQuiz() {
+            if (quizIndex >= QUIZ.length) {
+                quizCard.innerHTML = `
+                    <div class="quiz-result">
+                        <h3>You scored ${quizScore} / ${QUIZ.length}</h3>
+                        <p style="color: var(--muted); font-size: 14px;">${quizScore === QUIZ.length ? 'Perfect! True Miraculous Holder.' : 'Nice try — give it another go!'}</p>
+                        <button class="quiz-restart-btn" id="quiz-restart">Play Again</button>
+                    </div>`;
+                document.getElementById('quiz-restart').addEventListener('click', () => { quizIndex = 0; quizScore = 0; renderQuiz(); });
+                return;
+            }
+            const q = QUIZ[quizIndex];
+            quizCard.innerHTML = `
+                <div class="quiz-progress">
+                    <span class="quiz-progress-label">Question ${quizIndex + 1} / ${QUIZ.length}</span>
+                    <span class="quiz-score">Score: ${quizScore}</span>
+                </div>
+                <div class="quiz-question">${q.q}</div>
+                <div class="quiz-options">
+                    ${q.options.map((opt, i) => `<button class="quiz-option" data-i="${i}">${opt}</button>`).join('')}
+                </div>`;
+            quizCard.querySelectorAll('.quiz-option').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const chosen = parseInt(btn.dataset.i);
+                    quizCard.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+                    if (chosen === q.correct) { btn.classList.add('correct'); quizScore++; }
+                    else {
+                        btn.classList.add('wrong');
+                        quizCard.querySelector(`[data-i="${q.correct}"]`).classList.add('correct');
+                    }
+                    setTimeout(() => { quizIndex++; renderQuiz(); }, 1100);
+                });
+            });
+        }
+        renderQuiz();
+
+        /* ---------- NEWS FEED ---------- */
+        const newsList = document.getElementById('news-list');
+        NEWS.forEach(n => {
+            const item = document.createElement('a');
+            item.className = 'news-item';
+            item.href = 'announcements.html';
+            item.innerHTML = `
+                <div>
+                    <div class="news-date">${n.date}</div>
+                    <div class="news-title">${n.title}</div>
+                    <div class="news-excerpt">${n.excerpt}</div>
+                </div>
+                <i class="fa-solid fa-arrow-right"></i>`;
+            newsList.appendChild(item);
+        });
+
+        /* ---------- AUTH MODAL ---------- */
         const authModal = document.getElementById('auth-modal');
         const openAuthBtn = document.getElementById('open-auth-btn');
         const closeModalBtn = document.getElementById('close-modal-btn');
@@ -960,234 +1048,140 @@
         const signupForm = document.getElementById('signup-form');
         const authNavContainer = document.getElementById('auth-nav-container');
 
-        // PFP Selection Handling
         const pfpOptions = document.querySelectorAll('.pfp-option');
         const customPfpInput = document.getElementById('custom-pfp-url');
-
         pfpOptions.forEach(img => {
             img.addEventListener('click', () => {
                 pfpOptions.forEach(opt => opt.classList.remove('selected'));
                 img.classList.add('selected');
                 selectedPfpUrl = img.getAttribute('data-url');
-                customPfpInput.value = ''; // Clear custom input if preset clicked
+                customPfpInput.value = '';
             });
         });
-
         customPfpInput.addEventListener('input', (e) => {
-            if (e.target.value.trim() !== '') {
-                pfpOptions.forEach(opt => opt.classList.remove('selected'));
-                selectedPfpUrl = e.target.value.trim();
-            }
+            if (e.target.value.trim() !== '') { pfpOptions.forEach(opt => opt.classList.remove('selected')); selectedPfpUrl = e.target.value.trim(); }
         });
 
-        // Modal Visibility Handlers
         openAuthBtn.addEventListener('click', () => authModal.classList.add('active'));
         closeModalBtn.addEventListener('click', () => authModal.classList.remove('active'));
+        tabSignin.addEventListener('click', () => { tabSignin.classList.add('active'); tabSignup.classList.remove('active'); signinForm.style.display = 'flex'; signupForm.style.display = 'none'; });
+        tabSignup.addEventListener('click', () => { tabSignup.classList.add('active'); tabSignin.classList.remove('active'); signupForm.style.display = 'flex'; signinForm.style.display = 'none'; });
 
-        // Tab Switchers
-        tabSignin.addEventListener('click', () => {
-            tabSignin.classList.add('active');
-            tabSignup.classList.remove('active');
-            signinForm.style.display = 'flex';
-            signupForm.style.display = 'none';
-        });
-
-        tabSignup.addEventListener('click', () => {
-            tabSignup.classList.add('active');
-            tabSignin.classList.remove('active');
-            signupForm.style.display = 'flex';
-            signinForm.style.display = 'none';
-        });
-
-        // Sign Up Execution
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('signup-name').value;
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
             const errorElement = document.getElementById('signup-error');
-
             const finalPhotoUrl = customPfpInput.value.trim() || selectedPfpUrl;
-
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                
-                // Update Firebase profile display details
-                await updateProfile(userCredential.user, { 
-                    displayName: name,
-                    photoURL: finalPhotoUrl
-                });
-                
-                // Save locally cached continue-watching item to Firestore if exists
+                await updateProfile(userCredential.user, { displayName: name, photoURL: finalPhotoUrl });
                 const localData = localStorage.getItem('miraculous_last_watched');
-                const userDataObj = { photoURL: finalPhotoUrl, displayName: name };
+                const userDataObj = { photoURL: finalPhotoUrl, displayName: name, watched: getWatched(), favorites: getFavorites() };
                 if (localData) userDataObj.lastWatched = JSON.parse(localData);
-
                 await setDoc(doc(db, "users", userCredential.user.uid), userDataObj, { merge: true });
-
                 authModal.classList.remove('active');
                 signupForm.reset();
                 errorElement.style.display = 'none';
-            } catch (error) {
-                errorElement.textContent = error.message;
-                errorElement.style.display = 'block';
-            }
+            } catch (error) { errorElement.textContent = error.message; errorElement.style.display = 'block'; }
         });
 
-        // Sign In Execution
         signinForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('signin-email').value;
             const password = document.getElementById('signin-password').value;
             const errorElement = document.getElementById('signin-error');
-
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 authModal.classList.remove('active');
                 signinForm.reset();
                 errorElement.style.display = 'none';
-            } catch (error) {
-                errorElement.textContent = error.message;
-                errorElement.style.display = 'block';
-            }
+            } catch (error) { errorElement.textContent = error.message; errorElement.style.display = 'block'; }
         });
 
-        // State Listener
+        /* ---------- PROFILE MODAL ---------- */
+        const profileModal = document.getElementById('profile-modal');
+        document.getElementById('close-profile-btn').addEventListener('click', () => profileModal.classList.remove('active'));
+        document.getElementById('logout-btn-profile').addEventListener('click', () => { signOut(auth); profileModal.classList.remove('active'); });
+
+        function renderProfileStats() {
+            document.getElementById('stat-watched').textContent = getWatched().length;
+            document.getElementById('stat-favorites').textContent = getFavorites().length;
+        }
+
+        function openProfile() {
+            if (!currentUser) return;
+            document.getElementById('profile-avatar-lg').src = currentUser.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=ladybug';
+            document.getElementById('profile-name-lg').textContent = currentUser.displayName || 'Hero';
+            renderProfileStats();
+            profileModal.classList.add('active');
+        }
+
+        async function syncUserDoc(partial) {
+            if (!currentUser) return;
+            try { await setDoc(doc(db, "users", currentUser.uid), partial, { merge: true }); }
+            catch (e) { console.error('Sync error:', e); }
+        }
+
+        /* ---------- AUTH STATE ---------- */
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
             if (user) {
                 const avatarUrl = user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=ladybug';
-
-                // User active - Render Name & Avatar
                 authNavContainer.innerHTML = `
-                    <div class="user-nav-profile">
+                    <div class="user-nav-profile" id="user-profile-trigger">
                         <img src="${avatarUrl}" class="user-nav-avatar" alt="PFP" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=ladybug'">
-                        <span style="font-size: 14px; font-weight: 700; color: #fff;">
-                            ${user.displayName || 'Hero'}
-                        </span>
+                        <span style="font-size: 13.5px; font-weight: 700; color: var(--text);">${user.displayName || 'Hero'}</span>
                     </div>
-                    <button class="auth-nav-btn" id="logout-btn">
-                        <i class="fa-solid fa-right-from-bracket"></i> Logout
-                    </button>
-                `;
-
+                    <button class="auth-nav-btn" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i></button>`;
+                document.getElementById('user-profile-trigger').addEventListener('click', openProfile);
                 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
-                // Fetch watch history from Cloud Firestore
                 try {
                     const docSnap = await getDoc(doc(db, "users", user.uid));
-                    if (docSnap.exists() && docSnap.data().lastWatched) {
-                        const cloudData = docSnap.data().lastWatched;
-                        localStorage.setItem('miraculous_last_watched', JSON.stringify(cloudData));
-                        renderContinueWatching(cloudData);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        if (data.lastWatched) { localStorage.setItem('miraculous_last_watched', JSON.stringify(data.lastWatched)); renderContinueWatching(data.lastWatched); }
+                        if (Array.isArray(data.watched)) localStorage.setItem('miraculous_watched', JSON.stringify(data.watched));
+                        if (Array.isArray(data.favorites)) localStorage.setItem('miraculous_favorites', JSON.stringify(data.favorites));
+                        renderEpisodes(); renderFavorites();
                     }
-                } catch (e) {
-                    console.error("Firestore sync error:", e);
-                }
-
+                } catch (e) { console.error("Firestore sync error:", e); }
             } else {
-                // User logged out
-                authNavContainer.innerHTML = `
-                    <button class="auth-nav-btn login-highlight" id="open-auth-btn">
-                        <i class="fa-solid fa-user"></i> Sign In
-                    </button>
-                `;
+                authNavContainer.innerHTML = `<button class="auth-nav-btn login-highlight" id="open-auth-btn"><i class="fa-solid fa-user"></i> Sign In</button>`;
                 document.getElementById('open-auth-btn').addEventListener('click', () => authModal.classList.add('active'));
             }
         });
 
-        // Expose function globally to register watched video data
-        window.saveAndWatch = async function(pageUrl, thumbUrl, episodeTitle) {
-            const watchedData = {
-                page: pageUrl,
-                thumbnail: thumbUrl,
-                title: episodeTitle
-            };
-
-            // Save to localStorage
+        /* ---------- CONTINUE WATCHING / SAVE ---------- */
+        window.saveAndWatch = async function (pageUrl, thumbUrl, episodeTitle) {
+            const watchedData = { page: pageUrl, thumbnail: thumbUrl, title: episodeTitle };
             localStorage.setItem('miraculous_last_watched', JSON.stringify(watchedData));
-
-            // Sync with Firestore if logged in
-            if (currentUser) {
-                try {
-                    await setDoc(doc(db, "users", currentUser.uid), {
-                        lastWatched: watchedData
-                    }, { merge: true });
-                } catch (e) {
-                    console.error("Error saving episode data: ", e);
-                }
-            }
-
-            // Redirect user to streaming page
+            if (currentUser) { try { await setDoc(doc(db, "users", currentUser.uid), { lastWatched: watchedData }, { merge: true }); } catch (e) { console.error(e); } }
             window.location.href = pageUrl;
         };
 
-        // Render UI Block function for Continue Watching
         function renderContinueWatching(data) {
             const container = document.getElementById('continue-watching-container');
-            if (data) {
-                container.innerHTML = `
-                    <div class="media-grid">
-                        <a href="${data.page}" class="media-card" style="max-width: 340px;">
-                            <div class="media-thumb" style="background-image: url('${data.thumbnail}');">
-                                <div class="media-thumb-overlay">
-                                    <div class="play-icon"><i class="fa-solid fa-play"></i></div>
-                                </div>
-                            </div>
-                            <div class="media-details">
-                                <div>
-                                    <div class="media-tag">Resume Playback</div>
-                                    <div class="media-title">${data.title}</div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                `;
-            }
+            if (!data) return;
+            container.innerHTML = `
+                <div class="media-grid">
+                    <a href="${data.page}" class="media-card" style="max-width: 340px;">
+                        <div class="media-thumb" style="background-image: url('${data.thumbnail}');">
+                            <div class="media-thumb-overlay"><div class="play-icon"><i class="fa-solid fa-play"></i></div></div>
+                        </div>
+                        <div class="media-details">
+                            <div><div class="media-tag">Resume Playback</div><div class="media-title">${data.title}</div></div>
+                        </div>
+                    </a>
+                </div>`;
         }
 
-        // Initialize local history check on initial load
         const lastWatched = localStorage.getItem('miraculous_last_watched');
-        if (lastWatched) {
-            try {
-                renderContinueWatching(JSON.parse(lastWatched));
-            } catch (e) {}
-        }
-    </script>
+        if (lastWatched) { try { renderContinueWatching(JSON.parse(lastWatched)); } catch (e) {} }
 
-    <!-- Logic Script for Countdown timers -->
-    <script>
-        const targetProtocol = new Date("August 1, 2026 08:00:00").getTime();
-        const targetNemesis = new Date("August 8, 2026 08:00:00").getTime();
-
-        function updateCountdowns() {
-            const now = new Date().getTime();
-            
-            // Protocol Timer
-            const diffProtocol = targetProtocol - now;
-            if (diffProtocol > 0) {
-                document.getElementById('p-days').textContent = String(Math.floor(diffProtocol / (1000 * 60 * 60 * 24))).padStart(2, '0');
-                document.getElementById('p-hours').textContent = String(Math.floor((diffProtocol % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-                document.getElementById('p-mins').textContent = String(Math.floor((diffProtocol % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-                document.getElementById('p-secs').textContent = String(Math.floor((diffProtocol % (1000 * 60)) / 1000)).padStart(2, '0');
-            } else {
-                document.getElementById('timer-protocol').innerHTML = '<div style="color: var(--catnoir-green); font-weight: 800; padding: 10px;">RELEASED & AVAILABLE!</div>';
-            }
-
-            // Nemesis Timer
-            const diffNemesis = targetNemesis - now;
-            if (diffNemesis > 0) {
-                document.getElementById('n-days').textContent = String(Math.floor(diffNemesis / (1000 * 60 * 60 * 24))).padStart(2, '0');
-                document.getElementById('n-hours').textContent = String(Math.floor((diffNemesis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-                document.getElementById('n-mins').textContent = String(Math.floor((diffNemesis % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-                document.getElementById('n-secs').textContent = String(Math.floor((diffNemesis % (1000 * 60)) / 1000)).padStart(2, '0');
-            } else {
-                document.getElementById('timer-nemesis').innerHTML = '<div style="color: var(--catnoir-green); font-weight: 800; padding: 10px;">RELEASED & AVAILABLE!</div>';
-            }
-        }
-
-        setInterval(updateCountdowns, 1000);
-        updateCountdowns();
+        renderProfileStats();
     </script>
 </body>
 </html>
