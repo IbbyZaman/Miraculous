@@ -130,32 +130,66 @@
 
         .container { max-width: 1280px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
 
-        /* Now-watching banner (no embedded video — points out to your own player/source) */
-        .now-watching {
+        /* ============ CUSTOM PLAYER SHELL ============ */
+        /* Chrome/frame around an embed you provide per-episode (iframe URL).
+           We can't script third-party playback (play/pause/seek) — only the
+           iframe's own controls can do that — so this focuses on what a custom
+           frame *can* own: status, queue, and episode navigation. */
+        .player-card {
             background: var(--glass); backdrop-filter: blur(14px); border-radius: var(--radius-lg);
-            padding: 26px 30px; margin-bottom: 36px; border: 1px solid var(--glass-border);
-            box-shadow: 0 16px 34px rgba(0,0,0,0.35); display: flex; align-items: center; gap: 22px;
-            flex-wrap: wrap; transition: border-color 0.3s var(--ease);
+            padding: 22px; margin-bottom: 36px; border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 44px rgba(0,0,0,0.4); transition: border-color 0.3s var(--ease);
         }
-        .now-watching.armed { border-color: var(--cat-green); }
-        .now-watching-icon {
-            width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
-            background: var(--glass-hi); border: 1px solid var(--glass-border);
-            display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--muted);
+        .player-card.armed { border-color: var(--cat-green); }
+
+        .player-frame {
+            position: relative; width: 100%; padding-bottom: 56.25%; height: 0;
+            border-radius: var(--radius-md); overflow: hidden; background: #000;
+            border: 1px solid var(--glass-border); box-shadow: inset 0 0 40px rgba(0,0,0,0.85);
         }
-        .now-watching.armed .now-watching-icon { color: var(--cat-green); border-color: var(--cat-green); }
-        .now-watching-body { flex: 1; min-width: 220px; }
-        .now-watching-eyebrow { font-family: var(--font-mono); font-size: 11px; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-        .now-watching-title { font-family: var(--font-display); font-size: 19px; font-weight: 700; margin-bottom: 3px; }
-        .now-watching-desc { color: var(--muted); font-size: 13.5px; }
-        .now-watching-btn {
-            background: var(--spot-red); color: #fff; border: none; padding: 12px 24px; border-radius: 30px;
-            font-weight: 700; font-size: 13.5px; cursor: pointer; text-decoration: none;
-            display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 8px 20px var(--spot-red-glow);
-            transition: all 0.25s var(--ease);
+        .player-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+
+        .player-placeholder {
+            position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 14px; color: var(--muted);
+            background: radial-gradient(circle, var(--void-2) 0%, var(--void) 100%);
         }
-        .now-watching-btn:hover { transform: translateY(-2px); }
-        .now-watching-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+        .player-placeholder i { font-size: 42px; color: var(--muted-dim); }
+        .player-placeholder small { font-size: 12px; color: var(--muted-dim); max-width: 280px; text-align: center; line-height: 1.5; }
+
+        .player-toolbar {
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--glass-border); flex-wrap: wrap;
+        }
+        .player-status-badge {
+            display: inline-flex; align-items: center; gap: 7px; background: var(--glass-hi); color: var(--muted);
+            padding: 6px 14px; border-radius: 20px; font-size: 10.5px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1px; border: 1px solid var(--glass-border); font-family: var(--font-mono); align-self: flex-start;
+        }
+        .player-card.armed .player-status-badge { background: rgba(45,255,160,0.12); color: var(--cat-green); border-color: rgba(45,255,160,0.35); }
+        .player-info { flex: 1; min-width: 200px; }
+        .player-info h2 { font-family: var(--font-display); font-size: 19px; font-weight: 700; margin-bottom: 3px; }
+        .player-info p { color: var(--muted); font-size: 13px; }
+
+        .player-nav-btns { display: flex; gap: 8px; }
+        .player-nav-btn {
+            background: var(--glass-hi); border: 1px solid var(--glass-border); color: var(--text);
+            width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; font-size: 13px; transition: all 0.25s var(--ease);
+        }
+        .player-nav-btn:hover:not(:disabled) { border-color: var(--spot-red); color: var(--spot-red); }
+        .player-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        /* Up Next strip */
+        .up-next-strip { display: flex; gap: 12px; overflow-x: auto; padding-top: 16px; margin-top: 4px; }
+        .up-next-card {
+            flex: 0 0 auto; width: 140px; cursor: pointer; border-radius: 10px; overflow: hidden;
+            border: 1px solid var(--glass-border); background: var(--glass-hi); transition: all 0.25s var(--ease);
+        }
+        .up-next-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+        .up-next-thumb { width: 100%; height: 78px; background-size: cover; background-position: center; background-color: var(--void-2); }
+        .up-next-label { padding: 7px 9px; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .up-next-eyebrow { font-size: 9px; color: var(--muted-dim); text-transform: uppercase; font-family: var(--font-mono); padding: 0 9px 6px; }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; margin: 40px 0 20px; gap: 16px; flex-wrap: wrap; }
         .section-title { font-family: var(--font-display); font-size: 23px; font-weight: 700; display: flex; align-items: center; gap: 14px; }
@@ -271,7 +305,7 @@
         @media (max-width: 768px) {
             header { padding: 14px 18px; flex-direction: column; gap: 12px; }
             nav { flex-wrap: wrap; justify-content: center; }
-            .now-watching { padding: 20px; }
+            .player-card { padding: 16px; }
             .episode-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
             .thumbnail-box { height: 100px; }
         }
@@ -299,15 +333,30 @@
 
     <div class="container">
 
-        <!-- Now watching banner: no embedded player. "Watch" opens whatever URL you set per-episode. -->
-        <div class="now-watching" id="now-watching">
-            <div class="now-watching-icon" id="now-watching-icon"><i class="fa-solid fa-circle-play"></i></div>
-            <div class="now-watching-body">
-                <div class="now-watching-eyebrow">Season 5</div>
-                <div class="now-watching-title" id="now-watching-title">Select an episode</div>
-                <div class="now-watching-desc" id="now-watching-desc">Pick an episode below — it'll open wherever you've set it to stream from.</div>
+        <!-- Custom player shell: chrome, status, up-next queue — the iframe itself is your embed. -->
+        <div class="player-card" id="player-card">
+            <div class="player-frame" id="player-frame">
+                <div class="player-placeholder" id="player-placeholder">
+                    <i class="fa-solid fa-circle-play"></i>
+                    <p style="font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--text);">Select an episode below</p>
+                    <small>The player will load whichever embed URL you've set for that episode.</small>
+                </div>
             </div>
-            <button class="now-watching-btn" id="now-watching-btn" disabled><i class="fa-solid fa-arrow-up-right-from-square"></i> Watch</button>
+            <div class="player-toolbar">
+                <div>
+                    <div class="player-status-badge" id="player-status-badge"><i class="fa-solid fa-circle" style="font-size:6px;"></i> Ready</div>
+                    <div class="player-info">
+                        <h2 id="player-title">No episode selected</h2>
+                        <p id="player-desc">Choose a Season 5 episode from the list to load it here.</p>
+                    </div>
+                </div>
+                <div class="player-nav-btns">
+                    <button class="player-nav-btn" id="player-prev-btn" disabled title="Previous episode"><i class="fa-solid fa-backward-step"></i></button>
+                    <button class="player-nav-btn" id="player-next-btn" disabled title="Next episode"><i class="fa-solid fa-forward-step"></i></button>
+                </div>
+            </div>
+            <div class="up-next-eyebrow" id="up-next-eyebrow" style="display:none;">Up Next</div>
+            <div class="up-next-strip" id="up-next-strip"></div>
         </div>
 
         <div class="section-header">
@@ -382,36 +431,39 @@
     <footer>&copy; 2026 Miraculous Hub. For personal configurations.</footer>
 
     <script>
-        // Fill in `watchUrl` per episode with wherever you're legally hosting/licensing playback.
-        // Leave it empty/null and the card just won't have an active "Watch" button yet.
+        // Fill in `embedUrl` per episode with an iframe-embeddable URL you have the
+        // right to serve (your own licensed player, a self-hosted embed, etc).
+        // Leave it null and the player shows a placeholder for that episode.
+        // NOTE: values must always be quoted strings or the literal `null` — an
+        // unquoted URL is invalid JavaScript and will break the whole page.
         const episodeData = [
-            { id: "501", title: "Evolution", watchUrl: https://drive.google.com/file/d/1qhqpvc8VrOcvpEzz4ESp_Yh4JmvbdXbw/view?usp=sharing },
-            { id: "502", title: "Multiplication", watchUrl: https://drive.google.com/file/d/1TSPfyOR6v1qcZHTKI19XqXi_Imptz5Sp/view?usp=sharing },
-            { id: "503", title: "Destruction", watchUrl: null },
-            { id: "504", title: "Jubilation", watchUrl: null },
-            { id: "505", title: "Illusion", watchUrl: null },
-            { id: "506", title: "Determination", watchUrl: null },
-            { id: "507", title: "Passion", watchUrl: null },
-            { id: "508", title: "Reunion", watchUrl: null },
-            { id: "509", title: "Elation", watchUrl: null },
-            { id: "510", title: "Transmission (The Kwamis' Choice – Part 1)", watchUrl: null },
-            { id: "511", title: "Deflagration (The Kwamis' Choice – Part 2)", watchUrl: null },
-            { id: "512", title: "Perfection", watchUrl: null },
-            { id: "513", title: "Migration", watchUrl: null },
-            { id: "514", title: "Derision", watchUrl: null },
-            { id: "515", title: "Intuition", watchUrl: null },
-            { id: "516", title: "Protection", watchUrl: null },
-            { id: "517", title: "Adoration", watchUrl: null },
-            { id: "518", title: "Emotion", watchUrl: null },
-            { id: "519", title: "Pretension", watchUrl: null },
-            { id: "520", title: "Revelation", watchUrl: null },
-            { id: "521", title: "Confrontation", watchUrl: null },
-            { id: "522", title: "Collusion", watchUrl: null },
-            { id: "523", title: "Revolution", watchUrl: null },
-            { id: "524", title: "Representation", watchUrl: null },
-            { id: "525", title: "Conformation - The Final Day Part 1", watchUrl: null },
-            { id: "526", title: "Re-Creation - The Final Day Part 2", watchUrl: null },
-            { id: "527", title: "Action", watchUrl: null }
+            { id: "501", title: "Evolution", embedUrl: null },
+            { id: "502", title: "Multiplication", embedUrl: null },
+            { id: "503", title: "Destruction", embedUrl: null },
+            { id: "504", title: "Jubilation", embedUrl: null },
+            { id: "505", title: "Illusion", embedUrl: null },
+            { id: "506", title: "Determination", embedUrl: null },
+            { id: "507", title: "Passion", embedUrl: null },
+            { id: "508", title: "Reunion", embedUrl: null },
+            { id: "509", title: "Elation", embedUrl: null },
+            { id: "510", title: "Transmission (The Kwamis' Choice – Part 1)", embedUrl: null },
+            { id: "511", title: "Deflagration (The Kwamis' Choice – Part 2)", embedUrl: null },
+            { id: "512", title: "Perfection", embedUrl: null },
+            { id: "513", title: "Migration", embedUrl: null },
+            { id: "514", title: "Derision", embedUrl: null },
+            { id: "515", title: "Intuition", embedUrl: null },
+            { id: "516", title: "Protection", embedUrl: null },
+            { id: "517", title: "Adoration", embedUrl: null },
+            { id: "518", title: "Emotion", embedUrl: null },
+            { id: "519", title: "Pretension", embedUrl: null },
+            { id: "520", title: "Revelation", embedUrl: null },
+            { id: "521", title: "Confrontation", embedUrl: null },
+            { id: "522", title: "Collusion", embedUrl: null },
+            { id: "523", title: "Revolution", embedUrl: null },
+            { id: "524", title: "Representation", embedUrl: null },
+            { id: "525", title: "Conformation - The Final Day Part 1", embedUrl: null },
+            { id: "526", title: "Re-Creation - The Final Day Part 2", embedUrl: null },
+            { id: "527", title: "Action", embedUrl: null }
         ];
 
         const gridContainer = document.getElementById('grid-container');
@@ -441,29 +493,69 @@
             buildGrid();
         }
 
-        function armNowWatching(ep, formattedEpNum) {
-            const banner = document.getElementById('now-watching');
-            const icon = document.getElementById('now-watching-icon');
-            const title = document.getElementById('now-watching-title');
-            const desc = document.getElementById('now-watching-desc');
-            const btn = document.getElementById('now-watching-btn');
+        let activeIndex = -1;
 
-            banner.classList.add('armed');
-            icon.innerHTML = '<i class="fa-solid fa-signal"></i>';
-            title.textContent = `Episode ${formattedEpNum}: ${ep.title}`;
+        function loadEpisode(index) {
+            if (index < 0 || index >= episodeData.length) return;
+            activeIndex = index;
+            const ep = episodeData[index];
+            const formattedEpNum = formatEpNum(ep.id);
 
-            if (ep.watchUrl) {
-                desc.textContent = 'Ready to watch — opens in a new tab.';
-                btn.disabled = false;
-                btn.onclick = () => window.open(ep.watchUrl, '_blank', 'noopener');
+            document.querySelectorAll('.episode-card').forEach(c => c.classList.remove('is-armed'));
+            const cardEl = document.getElementById(`card-${ep.id}`);
+            if (cardEl) cardEl.classList.add('is-armed');
+
+            const playerCard = document.getElementById('player-card');
+            const frame = document.getElementById('player-frame');
+            const statusBadge = document.getElementById('player-status-badge');
+            const titleEl = document.getElementById('player-title');
+            const descEl = document.getElementById('player-desc');
+
+            if (ep.embedUrl) {
+                playerCard.classList.add('armed');
+                statusBadge.innerHTML = '<i class="fa-solid fa-signal"></i> Streaming Now';
+                frame.innerHTML = `<iframe src="${ep.embedUrl}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+                descEl.textContent = 'Now playing on Miraculous Hub.';
             } else {
-                desc.textContent = 'No watch link set for this episode yet.';
-                btn.disabled = true;
-                btn.onclick = null;
+                playerCard.classList.remove('armed');
+                statusBadge.innerHTML = '<i class="fa-solid fa-circle" style="font-size:6px;"></i> Ready';
+                frame.innerHTML = `
+                    <div class="player-placeholder">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                        <p style="font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--text);">No embed set for this episode yet</p>
+                        <small>Add an embedUrl for episode ${ep.id} in the script to make it playable here.</small>
+                    </div>`;
+                descEl.textContent = 'Waiting on a playback source for this episode.';
             }
+            titleEl.textContent = `Episode ${formattedEpNum}: ${ep.title}`;
 
+            document.getElementById('player-prev-btn').disabled = index <= 0;
+            document.getElementById('player-next-btn').disabled = index >= episodeData.length - 1;
+
+            renderUpNext(index);
             saveProgress(`Episode ${formattedEpNum}: ${ep.title}`, 'season-5.html', `thumbnails/${ep.id}.jpg`);
         }
+
+        function renderUpNext(index) {
+            const strip = document.getElementById('up-next-strip');
+            const eyebrow = document.getElementById('up-next-eyebrow');
+            const upcoming = episodeData.slice(index + 1, index + 6);
+            strip.innerHTML = '';
+            if (!upcoming.length) { eyebrow.style.display = 'none'; return; }
+            eyebrow.style.display = 'block';
+            upcoming.forEach(ep => {
+                const item = document.createElement('div');
+                item.className = 'up-next-card';
+                item.innerHTML = `
+                    <div class="up-next-thumb" style="background-image:url('thumbnails/${ep.id}.jpg')"></div>
+                    <div class="up-next-label">${ep.title}</div>`;
+                item.addEventListener('click', () => { loadEpisode(episodeData.indexOf(ep)); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+                strip.appendChild(item);
+            });
+        }
+
+        document.getElementById('player-prev-btn').addEventListener('click', () => { loadEpisode(activeIndex - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        document.getElementById('player-next-btn').addEventListener('click', () => { loadEpisode(activeIndex + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
         function buildGrid() {
             let list = [...episodeData];
@@ -507,9 +599,7 @@
                         </div>
                     </div>`;
                 card.querySelector('.thumbnail-box').addEventListener('click', () => {
-                    document.querySelectorAll('.episode-card').forEach(c => c.classList.remove('is-armed'));
-                    card.classList.add('is-armed');
-                    armNowWatching(ep, formattedEpNum);
+                    loadEpisode(episodeData.indexOf(ep));
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
                 card.querySelector('.card-fav-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(ep.id); });
