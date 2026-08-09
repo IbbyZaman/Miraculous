@@ -295,13 +295,15 @@
                 <div class="composer-row">
                     <input type="text" id="post-title" placeholder="Post title" required>
                     <select id="post-tag">
-                        <option value="fire">🔥 New Episode Release</option>
-                        <option value="rocket">🚀 Major Upgrade</option>
-                        <option value="link">🔗 Important Notice</option>
-                        <option value="film">🎬 Trailer</option>
-                        <option value="bullhorn">📣 Leak / Rumor</option>
-                        <option value="check">✅ New Release</option>
+                        <option value="🔥 New Episode Release">🔥 New Episode Release</option>
+                        <option value="🚀 Major Upgrade">🚀 Major Upgrade</option>
+                        <option value="🔗 Important Notice">🔗 Important Notice</option>
+                        <option value="🎬 Trailer">🎬 Trailer</option>
+                        <option value="📣 Leak / Rumor">📣 Leak / Rumor</option>
+                        <option value="✅ New Release">✅ New Release</option>
+                        <option value="__custom__">✏️ Custom category...</option>
                     </select>
+                    <input type="text" id="post-tag-custom" placeholder="Type your custom category" style="display:none;">
                 </div>
                 <textarea id="post-body" placeholder="What's the announcement?" required></textarea>
                 <input type="url" id="post-embed" placeholder="Optional: embeddable video URL (e.g. a YouTube trailer embed link)">
@@ -311,6 +313,57 @@
         </div>
 
         <div id="live-posts-container"></div>
+
+        <!-- Original site announcements (static — edit these directly in the HTML if needed) -->
+        <div class="card featured-drop">
+            <span class="tag"><i class="fa-solid fa-fire"></i> New Episode Release • July 25, 2026</span>
+            <h4>Queen of the Dreadzone (English Dub) Is Live!</h4>
+            <p>The wait is over! <strong>Queen of the Dreadzone</strong> is officially available in full English Dub. Head over to the Season 6 section to stream it now in 1080p HD quality!</p>
+            <div class="info-stats-grid">
+                <div class="stat-box"><div class="stat-value">S6 EP24</div><div class="stat-label">Episode</div></div>
+                <div class="stat-box"><div class="stat-value">1080p</div><div class="stat-label">HD Stream</div></div>
+                <div class="stat-box"><div class="stat-value">ENG DUB</div><div class="stat-label">Audio Track</div></div>
+                <div class="stat-box"><div class="stat-value">READY</div><div class="stat-label">Status</div></div>
+            </div>
+            <a href="season-6.html" class="btn-stream"><i class="fa-solid fa-play"></i> Stream Queen of the Dreadzone Now</a>
+        </div>
+
+        <div class="card featured-drop">
+            <span class="tag"><i class="fa-solid fa-fire"></i> Major Archive Update • July 22, 2026</span>
+            <h4>Full Season 5 Is Now Uploaded!</h4>
+            <p>Every single episode of <strong>Season 5</strong> has officially been encoded, indexed, and uploaded in full quality. From <em>Evolution</em> all the way to the finale, you can now stream the full season right here.</p>
+            <div class="info-stats-grid">
+                <div class="stat-box"><div class="stat-value">27 / 27</div><div class="stat-label">Episodes Ready</div></div>
+                <div class="stat-box"><div class="stat-value">1080p</div><div class="stat-label">HD Stream</div></div>
+                <div class="stat-box"><div class="stat-value">ENG DUB</div><div class="stat-label">Audio Track</div></div>
+                <div class="stat-box"><div class="stat-value">100%</div><div class="stat-label">Complete</div></div>
+            </div>
+            <a href="season-5.html" class="btn-stream"><i class="fa-solid fa-play"></i> Stream Season 5 Now</a>
+        </div>
+
+        <div class="card">
+            <span class="tag"><i class="fa-solid fa-rocket"></i> Major Upgrade</span>
+            <h4>Website Migration</h4>
+            <p>We officially dumped Google Sites! It was way too slow, restrictive, and basic for what we needed. We migrated the entire platform over to a proper custom web build that gives us full control over dark design, custom video players, and live countdown timers for a vastly superior streaming experience.</p>
+        </div>
+
+        <div class="card">
+            <span class="tag"><i class="fa-solid fa-link"></i> Important Notice</span>
+            <h4>New Domain Live: www.miraculoushub.co.uk</h4>
+            <p>The new URL is now fixed and live! Please start using <strong>www.miraculoushub.co.uk</strong> moving forward as the old URL will soon be deleted and you won't be able to access the website through it.</p>
+        </div>
+
+        <div class="card">
+            <span class="tag"><i class="fa-solid fa-bullhorn"></i> Season 7 Leak</span>
+            <h4>Season 7 Poster Reveal</h4>
+            <p>The official poster of S7 Miraculous Ladybug has been revealed! The big question on everyone's mind: why is Gabriel there alongside Chrysalis? Plus, Ladybug and Cat Noir look terrified. Season 7 is set to release on <strong>November 20th, 2026</strong>.</p>
+        </div>
+
+        <div class="card">
+            <span class="tag"><i class="fa-solid fa-circle-check"></i> New Release</span>
+            <h4>The Dirtifiers (English Dub)</h4>
+            <p>The English Dub for <em>The Dirtifiers</em> has just released and is now available to stream on the website!</p>
+        </div>
 
         <!-- Finale Release Timers -->
         <div class="card">
@@ -339,7 +392,41 @@
         <div class="card"><span class="tag"><i class="fa-solid fa-calendar"></i> July 20, 2026</span><h4>Domain Migration</h4><p>Migrated the site to a custom dark-themed build with its own streaming layout.</p></div>
         <div class="card"><span class="tag"><i class="fa-solid fa-calendar"></i> July 18, 2026</span><h4>Continue Watching System</h4><p>Added <code>localStorage</code> tracking so you can resume browsing right where you left off.</p></div>
         <div class="card"><span class="tag"><i class="fa-solid fa-calendar"></i> July 10, 2026</span><h4>Countdown Timers Release</h4><p>Launched live countdown modules for upcoming release dates.</p></div>
+
+        <div class="card">
+            <span class="tag"><i class="fa-solid fa-code-branch"></i> Update 2.1 (17/07/2026)</span>
+            <h4>Domain Sole Access & Season 6 Refresh</h4>
+            <p>- The new domain is now the primary way to access the website.<br>
+               - Season 5 Part 1 is now available (the rest coming soon).<br>
+               - Season 6 has reverted back to its old design with updated episode cards.</p>
+        </div>
+
         <div class="card"><span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2</span><h4>Stable Release Out of Beta</h4><p>The website is now considered stable and out of beta.</p></div>
+
+        <div class="card">
+            <span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2.6 Beta</span>
+            <h4>Functionality Restoration</h4>
+            <p>- Website is back up and functional.<br>
+               - Season 6 is back online.<br>
+               - Restoring links and pages across Seasons 1-5 and Special Episodes.<br>
+               - Adding recommendation poll for new shows.</p>
+        </div>
+
+        <div class="card">
+            <span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2.5.6 Beta</span>
+            <h4>Announcements & Episode Additions</h4>
+            <p>- Changed Update Logs to Announcements section.<br>
+               - Added Season 2 page (links and images being updated).<br>
+               - Went live with episodes <em>Rigenerazione</em> and <em>Heartfixer</em>.</p>
+        </div>
+
+        <div class="card">
+            <span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2.5.5 Beta</span>
+            <h4>Forced Dark Mode & Livestream Prep</h4>
+            <p>- Added Update Log section.<br>
+               - Added option for old website layout (forced dark mode).<br>
+               - Configured livestreaming options for newly released episodes.</p>
+        </div>
 
     </div>
 
@@ -476,14 +563,18 @@
         let currentUser = null;
         let selectedPfpUrl = "https://api.dicebear.com/7.x/bottts/svg?seed=ladybug";
 
-        const TAG_META = {
-            fire: { icon: 'fa-fire', label: 'New Episode Release' },
-            rocket: { icon: 'fa-rocket', label: 'Major Upgrade' },
-            link: { icon: 'fa-link', label: 'Important Notice' },
-            film: { icon: 'fa-film', label: 'Trailer' },
-            bullhorn: { icon: 'fa-bullhorn', label: 'Leak / Rumor' },
-            check: { icon: 'fa-circle-check', label: 'New Release' }
-        };
+        // Tag is now free text — no fixed key set. This just picks a sensible
+        // icon by keyword match, falling back to a generic megaphone.
+        function iconForTag(tagText) {
+            const t = (tagText || '').toLowerCase();
+            if (t.includes('episode') || t.includes('release') && t.includes('new')) return 'fa-fire';
+            if (t.includes('upgrade') || t.includes('update')) return 'fa-rocket';
+            if (t.includes('notice') || t.includes('domain') || t.includes('link')) return 'fa-link';
+            if (t.includes('trailer') || t.includes('video')) return 'fa-film';
+            if (t.includes('leak') || t.includes('rumor')) return 'fa-bullhorn';
+            if (t.includes('release')) return 'fa-circle-check';
+            return 'fa-bullhorn';
+        }
 
         function isYoutubeWatchUrl(url) {
             return /youtube\.com\/watch\?v=|youtu\.be\//.test(url);
@@ -515,7 +606,6 @@
             postsContainer.innerHTML = '';
             snap.forEach((docSnap) => {
                 const post = docSnap.data();
-                const meta = TAG_META[post.tag] || TAG_META.fire;
                 const dateStr = post.createdAt?.toDate
                     ? post.createdAt.toDate().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
                     : 'Just now';
@@ -524,7 +614,7 @@
                 card.className = 'card featured-drop';
                 card.innerHTML = `
                     ${currentUser && currentUser.email === ADMIN_EMAIL ? `<button class="card-delete-btn" title="Delete post"><i class="fa-solid fa-trash"></i></button>` : ''}
-                    <span class="tag"><i class="fa-solid ${meta.icon}"></i> ${meta.label} • ${dateStr}</span>
+                    <span class="tag"><i class="fa-solid ${iconForTag(post.tag)}"></i> ${post.tag || 'Announcement'} • ${dateStr}</span>
                     <h4>${post.title}</h4>
                     <p>${post.body}</p>
                     ${post.embedUrl ? `<div class="video-grid"><div class="video-wrapper"><iframe src="${post.embedUrl}" allowfullscreen loading="lazy"></iframe></div></div>` : ''}
@@ -541,12 +631,22 @@
         const composerCard = document.getElementById('composer-card');
         const composerForm = document.getElementById('composer-form');
         const composerError = document.getElementById('composer-error');
+        const postTagSelect = document.getElementById('post-tag');
+        const postTagCustom = document.getElementById('post-tag-custom');
+
+        postTagSelect.addEventListener('change', () => {
+            const isCustom = postTagSelect.value === '__custom__';
+            postTagCustom.style.display = isCustom ? 'block' : 'none';
+            if (isCustom) postTagCustom.focus();
+        });
 
         composerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
             const title = document.getElementById('post-title').value.trim();
-            const tag = document.getElementById('post-tag').value;
+            const tag = postTagSelect.value === '__custom__'
+                ? postTagCustom.value.trim()
+                : postTagSelect.value;
             const body = document.getElementById('post-body').value.trim();
             let embedInput = document.getElementById('post-embed').value.trim();
             const embedUrl = embedInput ? toEmbeddable(embedInput) : null;
@@ -558,6 +658,7 @@
                     createdAt: serverTimestamp()
                 });
                 composerForm.reset();
+                postTagCustom.style.display = 'none';
                 composerError.style.display = 'none';
             } catch (err) {
                 composerError.textContent = err.message;
