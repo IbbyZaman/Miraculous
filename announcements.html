@@ -1,671 +1,676 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Favicon / Paw Print Icon -->
     <link rel="icon" type="image/png" href="favicon.png">
 
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-6K9W3X96EY');
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-6K9W3X96EY');
     </script>
-    
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Miraculous Hub - Announcements</title>
-    
-    <!-- Google Fonts & FontAwesome Icons -->
+    <title>Miraculous Hub — Announcements</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --bg-dark: #08090c;
-            --card-bg: rgba(22, 24, 33, 0.7);
-            --card-border: rgba(255, 23, 68, 0.15);
-            --ladybug-red: #ff1744;
-            --ladybug-glow: rgba(255, 23, 68, 0.35);
-            --catnoir-green: #00e676;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
+            --void: #0a0a12; --void-2: #12111d;
+            --glass: rgba(26, 24, 40, 0.55); --glass-hi: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --spot-red: #ef2340; --spot-red-glow: rgba(239, 35, 64, 0.45);
+            --cat-green: #2dffa0; --cat-green-glow: rgba(45, 255, 160, 0.35);
+            --gold: #ffc857; --gold-glow: rgba(255, 200, 87, 0.35);
+            --text: #f4f2fb; --muted: #9691ab; --muted-dim: #6b6680;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius-lg: 22px; --radius-md: 14px;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        [data-theme="light"] {
+            --void: #f3f1fb; --void-2: #e9e5f7;
+            --glass: rgba(255, 255, 255, 0.6); --glass-hi: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(20, 15, 45, 0.08);
+            --text: #17142a; --muted: #57516f; --muted-dim: #8b84a3;
         }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(255, 23, 68, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(0, 230, 118, 0.03) 0%, transparent 40%);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            scroll-behavior: smooth;
+            font-family: var(--font-body); background-color: var(--void);
+            background-image:
+                radial-gradient(circle at 8% 15%, var(--spot-red-glow) 0%, transparent 32%),
+                radial-gradient(circle at 92% 75%, var(--cat-green-glow) 0%, transparent 32%);
+            background-attachment: fixed; color: var(--text); min-height: 100vh;
+            display: flex; flex-direction: column; overflow-x: hidden;
+            transition: background-color 0.4s var(--ease), color 0.4s var(--ease);
         }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
 
-        /* --- Header / Sticky Navbar --- */
+        .spot-trail { display: flex; align-items: center; gap: 6px; }
+        .spot-trail span { display: block; border-radius: 50%; background: var(--spot-red); box-shadow: 0 0 8px var(--spot-red-glow); }
+        .spot-trail span:nth-child(1) { width: 5px; height: 5px; opacity: 0.4; }
+        .spot-trail span:nth-child(2) { width: 7px; height: 7px; opacity: 0.65; }
+        .spot-trail span:nth-child(3) { width: 9px; height: 9px; }
+        .spot-trail span:nth-child(4) { width: 6px; height: 6px; opacity: 0.5; background: var(--cat-green); box-shadow: 0 0 8px var(--cat-green-glow); }
+
         header {
-            background: rgba(8, 9, 12, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 18px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            background: rgba(10, 10, 18, 0.72); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--glass-border); padding: 16px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000; gap: 20px;
         }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
+        [data-theme="light"] header { background: rgba(243, 241, 251, 0.72); }
+        .logo { display: flex; align-items: center; gap: 11px; text-decoration: none; flex-shrink: 0; }
         .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: var(--ladybug-red);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 15px var(--ladybug-glow);
+            width: 34px; height: 34px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #ff5470, var(--spot-red));
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 18px var(--spot-red-glow); position: relative;
         }
-
-        .logo-icon i {
-            color: #fff;
-            font-size: 16px;
+        .logo-icon::after { content: ''; position: absolute; width: 6px; height: 6px; border-radius: 50%; background: rgba(0,0,0,0.35); top: 7px; right: 7px; }
+        .logo-icon i { color: #fff; font-size: 15px; }
+        .logo-text { font-family: var(--font-display); font-size: 21px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); }
+        .logo-text span { color: var(--spot-red); }
+        nav { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        nav a.nav-link, nav button.auth-nav-btn {
+            color: var(--muted); text-decoration: none; padding: 8px 15px; border-radius: 20px;
+            font-size: 13.5px; font-weight: 600; font-family: var(--font-body);
+            transition: all 0.25s var(--ease); background: transparent; border: none; cursor: pointer; white-space: nowrap;
         }
-
-        .logo-text {
-            color: #fff;
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
+        nav a.nav-link:hover { color: var(--text); background: var(--glass-hi); }
+        nav a.nav-link.active { color: var(--spot-red); background: rgba(239, 35, 64, 0.1); border: 1px solid rgba(239, 35, 64, 0.3); }
+        .icon-btn {
+            width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: var(--glass-hi); border: 1px solid var(--glass-border); color: var(--muted);
+            cursor: pointer; transition: all 0.25s var(--ease); flex-shrink: 0;
         }
-
-        .logo-text span {
-            color: var(--ladybug-red);
+        .icon-btn:hover { color: var(--gold); border-color: var(--gold); transform: rotate(15deg); }
+        .auth-nav-btn.login-highlight { border: 1px solid var(--spot-red); color: var(--spot-red); }
+        .auth-nav-btn.login-highlight:hover { background: var(--spot-red); color: #fff; }
+        .user-nav-profile {
+            display: flex; align-items: center; gap: 9px; background: var(--glass-hi);
+            padding: 4px 14px 4px 5px; border-radius: 30px; border: 1px solid var(--glass-border);
+            cursor: pointer; transition: all 0.25s var(--ease);
         }
+        .user-nav-profile:hover { border-color: var(--spot-red); }
+        .user-nav-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 2px solid var(--spot-red); box-shadow: 0 0 8px var(--spot-red-glow); }
 
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
 
-        nav a {
-            color: var(--text-muted);
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        nav a:hover, nav a.active {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        nav a.active {
-            color: var(--ladybug-red);
-            border: 1px solid rgba(255, 23, 68, 0.3);
-            box-shadow: 0 0 12px rgba(255, 23, 68, 0.2);
-        }
-
-        /* --- Layout Container --- */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px 20px;
-            width: 100%;
-            flex: 1;
-        }
-
-        /* --- Hero Section --- */
         .hero-banner {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 40px 30px;
-            text-align: center;
-            margin-bottom: 35px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-            position: relative;
-            overflow: hidden;
+            background: var(--glass); backdrop-filter: blur(14px); border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg); padding: 42px 30px; text-align: center; margin-bottom: 36px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); position: relative; overflow: hidden;
         }
-
         .hero-banner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--ladybug-red), transparent);
+            content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 50%; height: 2px; background: linear-gradient(90deg, transparent, var(--spot-red), transparent);
         }
+        .hero-banner h2 { font-family: var(--font-display); font-size: 32px; font-weight: 800; margin-bottom: 10px; }
+        .hero-banner h2 span { color: var(--spot-red); }
+        .hero-banner p { color: var(--muted); font-size: 15px; max-width: 680px; margin: 0 auto; line-height: 1.6; }
 
-        .hero-banner h2 {
-            color: #fff;
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 10px;
-        }
-
-        .hero-banner h2 span {
-            color: var(--ladybug-red);
-        }
-
-        .hero-banner p {
-            color: var(--text-muted);
-            font-size: 15px;
-            max-width: 700px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        /* --- Section Titles --- */
         .section-title {
-            font-size: 22px;
-            font-weight: 800;
-            color: #fff;
-            margin: 40px 0 20px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-family: var(--font-display); font-size: 22px; font-weight: 700;
+            margin: 44px 0 20px; display: flex; align-items: center; gap: 14px;
         }
 
-        .section-title::before {
-            content: '';
-            width: 4px;
-            height: 22px;
-            background: var(--ladybug-red);
-            border-radius: 4px;
-            box-shadow: 0 0 10px var(--ladybug-red);
+        /* ---------- Admin composer ---------- */
+        .composer-card {
+            background: linear-gradient(150deg, rgba(255,200,87,0.08), var(--glass) 60%);
+            backdrop-filter: blur(14px); border: 1px solid var(--gold-glow); border-radius: var(--radius-lg);
+            padding: 26px; margin-bottom: 30px; display: none;
+        }
+        .composer-card.visible { display: block; }
+        .composer-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+        .composer-header i { color: var(--gold); font-size: 16px; }
+        .composer-header h4 { font-family: var(--font-display); font-size: 17px; font-weight: 700; }
+        .composer-form { display: flex; flex-direction: column; gap: 12px; }
+        .composer-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .composer-form input, .composer-form textarea, .composer-form select {
+            background: var(--void); border: 1px solid var(--glass-border); border-radius: 10px;
+            padding: 11px 14px; color: var(--text); font-size: 13.5px; font-family: var(--font-body);
+            outline: none; transition: border-color 0.25s var(--ease); flex: 1; min-width: 180px;
+        }
+        .composer-form input:focus, .composer-form textarea:focus, .composer-form select:focus { border-color: var(--gold); }
+        .composer-form textarea { resize: vertical; min-height: 80px; width: 100%; }
+        .composer-submit-btn {
+            align-self: flex-start; background: var(--gold); color: #1a1508; border: none; padding: 11px 26px;
+            border-radius: 30px; font-weight: 700; font-size: 13.5px; cursor: pointer; transition: all 0.25s var(--ease);
+        }
+        .composer-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px var(--gold-glow); }
+        .composer-error { color: #ff5c78; font-size: 12.5px; display: none; }
+        .admin-badge {
+            display: inline-flex; align-items: center; gap: 5px; background: rgba(255,200,87,0.15);
+            border: 1px solid var(--gold); color: var(--gold); font-size: 10px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 9px; border-radius: 20px;
+            font-family: var(--font-mono); margin-left: 8px;
         }
 
-        /* --- Cards Styling --- */
+        /* ---------- Cards ---------- */
         .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 26px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            margin-bottom: 25px;
-            transition: all 0.3s ease;
+            background: var(--glass); backdrop-filter: blur(12px); border-radius: var(--radius-md);
+            padding: 24px; border: 1px solid var(--glass-border); box-shadow: 0 10px 24px rgba(0,0,0,0.3);
+            margin-bottom: 20px; transition: all 0.3s var(--ease);
         }
-
-        .card:hover {
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-
+        .card:hover { border-color: rgba(255,255,255,0.16); transform: translateY(-2px); }
         .card .tag {
-            font-size: 11px;
-            color: var(--ladybug-red);
-            text-transform: uppercase;
-            font-weight: 800;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            font-size: 10.5px; color: var(--spot-red); text-transform: uppercase; font-weight: 800;
+            letter-spacing: 1px; margin-bottom: 8px; display: inline-flex; align-items: center; gap: 6px;
+            font-family: var(--font-mono);
         }
-
-        .card h4 {
-            color: #fff;
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .card p {
-            color: var(--text-muted);
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 12px;
-        }
-
-        .card p strong {
-            color: #fff;
-        }
-
-        /* Featured Card Highlighting */
+        .card h4 { font-family: var(--font-display); font-size: 19px; font-weight: 700; margin-bottom: 10px; }
+        .card p { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 4px; }
+        .card p strong { color: var(--text); }
         .card.featured-drop {
-            background: linear-gradient(135deg, rgba(255, 23, 68, 0.12) 0%, rgba(22, 24, 33, 0.8) 60%);
-            border: 1px solid rgba(255, 23, 68, 0.35);
-            box-shadow: 0 10px 30px rgba(255, 23, 68, 0.15);
+            background: linear-gradient(135deg, rgba(239,35,64,0.12) 0%, var(--glass) 60%);
+            border: 1px solid rgba(239,35,64,0.35); box-shadow: 0 10px 28px rgba(239,35,64,0.15);
         }
-
-        .card.featured-drop:hover {
-            border-color: var(--ladybug-red);
-            box-shadow: 0 15px 35px var(--ladybug-glow);
+        .card.featured-drop:hover { border-color: var(--spot-red); box-shadow: 0 14px 32px var(--spot-red-glow); }
+        .card-delete-btn {
+            float: right; background: transparent; border: 1px solid var(--glass-border); color: var(--muted-dim);
+            width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 11px; transition: all 0.2s var(--ease);
         }
+        .card-delete-btn:hover { border-color: var(--spot-red); color: var(--spot-red); }
 
-        /* --- Stats Grid --- */
-        .info-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 12px;
-            margin: 20px 0;
-        }
+        .info-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin: 18px 0; }
+        .stat-box { background: var(--void-2); border: 1px solid var(--glass-border); padding: 13px; border-radius: 10px; text-align: center; }
+        .stat-value { color: var(--cat-green); font-size: 17px; font-weight: 800; font-family: var(--font-mono); }
+        .stat-label { color: var(--muted); font-size: 10.5px; font-weight: 700; text-transform: uppercase; margin-top: 4px; }
 
-        .stat-box {
-            background: rgba(8, 9, 12, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 14px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .stat-value {
-            color: var(--catnoir-green);
-            font-size: 18px;
-            font-weight: 800;
-        }
-
-        .stat-label {
-            color: var(--text-muted);
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
-
-        /* --- Buttons --- */
         .btn-stream {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--ladybug-red);
-            color: #ffffff;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 14px;
-            padding: 12px 24px;
-            border-radius: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px var(--ladybug-glow);
-            margin-top: 5px;
+            display: inline-flex; align-items: center; gap: 8px; background: var(--spot-red); color: #fff;
+            text-decoration: none; font-weight: 700; font-size: 13.5px; padding: 11px 22px; border-radius: 12px;
+            text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s var(--ease);
+            box-shadow: 0 6px 18px var(--spot-red-glow); margin-top: 4px;
         }
+        .btn-stream:hover { background: #ff335c; transform: translateY(-2px); }
 
-        .btn-stream:hover {
-            background: #ff335c;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 23, 68, 0.5);
-        }
-
-        /* --- Countdown Timers --- */
-        .timer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .timer-box {
-            background: rgba(8, 9, 12, 0.7);
-            border: 1px solid rgba(255, 23, 68, 0.3);
-            border-radius: 14px;
-            padding: 18px;
-            text-align: center;
-        }
-
-        .timer-box h5 {
-            color: #ffffff;
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
+        .timer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 18px; }
+        .timer-box { background: var(--void-2); border: 1px solid rgba(239,35,64,0.3); border-radius: 12px; padding: 16px; text-align: center; }
+        .timer-box h5 { font-size: 14px; font-weight: 700; margin-bottom: 9px; }
         .timer-display {
-            font-family: monospace;
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--ladybug-red);
-            letter-spacing: 1px;
-            background: rgba(255, 23, 68, 0.1);
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px dashed rgba(255, 23, 68, 0.3);
+            font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: var(--spot-red);
+            letter-spacing: 1px; background: rgba(239,35,64,0.1); padding: 7px; border-radius: 8px;
+            border: 1px dashed rgba(239,35,64,0.3);
         }
 
-        /* --- Video Embed Container --- */
-        .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 16px; }
         .video-wrapper {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-            overflow: hidden;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: #000;
+            position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px;
+            border: 1px solid var(--glass-border); background: #000;
         }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
-        .video-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
+        .empty-notice { text-align: center; color: var(--muted); font-size: 13.5px; padding: 20px; }
+
+        /* ---------- Auth / Profile modals (shared) ---------- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .auth-card, .profile-card {
+            background: var(--void-2); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 34px;
+            width: 100%; max-width: 440px; box-shadow: 0 25px 60px rgba(0,0,0,0.7); position: relative; max-height: 90vh; overflow-y: auto;
         }
-
-        /* --- Footer --- */
-        footer {
-            background: #050608;
-            text-align: center;
-            padding: 30px;
-            font-size: 14px;
-            color: var(--text-muted);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            margin-top: 60px;
+        .close-modal-btn { position: absolute; top: 18px; right: 18px; background: transparent; border: none; color: var(--muted); font-size: 19px; cursor: pointer; transition: color 0.25s var(--ease); }
+        .close-modal-btn:hover { color: var(--spot-red); }
+        .auth-tabs { display: flex; margin-bottom: 24px; border-bottom: 1px solid var(--glass-border); }
+        .auth-tab-btn { flex: 1; padding: 12px; background: transparent; border: none; color: var(--muted); font-weight: 700; font-size: 14.5px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.25s var(--ease); font-family: var(--font-body); }
+        .auth-tab-btn.active { color: var(--spot-red); border-bottom-color: var(--spot-red); }
+        .auth-form { display: flex; flex-direction: column; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input {
+            background: var(--void); border: 1px solid var(--glass-border); border-radius: 10px; padding: 12px 15px;
+            color: var(--text); font-size: 14px; outline: none; transition: border-color 0.25s var(--ease); font-family: var(--font-body);
         }
+        .form-group input:focus { border-color: var(--spot-red); }
+        .pfp-picker-title { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .pfp-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; margin-bottom: 10px; }
+        .pfp-option { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 2px solid transparent; cursor: pointer; object-fit: cover; background: var(--void); transition: all 0.2s var(--ease); }
+        .pfp-option:hover { transform: scale(1.1); border-color: rgba(239,35,64,0.5); }
+        .pfp-option.selected { border-color: var(--spot-red); box-shadow: 0 0 12px var(--spot-red-glow); transform: scale(1.1); }
+        .auth-submit-btn { background: var(--spot-red); color: #fff; border: none; border-radius: 10px; padding: 14px; font-weight: 700; font-size: 14.5px; cursor: pointer; margin-top: 6px; box-shadow: 0 6px 18px var(--spot-red-glow); transition: all 0.25s var(--ease); }
+        .auth-submit-btn:hover { background: #ff2f52; transform: translateY(-2px); }
+        .auth-error { color: #ff5c78; font-size: 13px; margin-top: 4px; display: none; text-align: center; }
+        .profile-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 24px; }
+        .profile-avatar-lg { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; border: 3px solid var(--spot-red); box-shadow: 0 0 22px var(--spot-red-glow); margin-bottom: 12px; }
+        .profile-name { font-family: var(--font-display); font-size: 21px; font-weight: 700; }
+        .profile-stats { display: flex; gap: 14px; margin-top: 18px; width: 100%; }
+        .stat-box2 { flex: 1; background: var(--glass-hi); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px; text-align: center; }
+        .logout-full-btn { width: 100%; margin-top: 20px; background: transparent; border: 1px solid var(--spot-red); color: var(--spot-red); padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.25s var(--ease); }
+        .logout-full-btn:hover { background: var(--spot-red); color: #fff; }
 
-        /* --- Mobile Responsive --- */
+        footer { background: var(--void-2); text-align: center; padding: 30px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--glass-border); margin-top: 60px; }
+
         @media (max-width: 768px) {
-            header {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            nav {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .container {
-                padding: 15px 10px;
-            }
-
-            .hero-banner {
-                padding: 25px 15px;
-            }
-
-            .hero-banner h2 {
-                font-size: 24px;
-            }
-
-            .card {
-                padding: 18px;
-            }
+            header { padding: 14px 18px; flex-direction: column; gap: 12px; }
+            nav { flex-wrap: wrap; justify-content: center; }
+            .hero-banner { padding: 26px 18px; }
+            .hero-banner h2 { font-size: 24px; }
+            .card { padding: 17px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header / Navbar Navigation -->
     <header>
         <a href="index.html" class="logo">
             <div class="logo-icon"><i class="fa-solid fa-bug"></i></div>
             <div class="logo-text">MIRACULOUS<span>HUB</span></div>
         </a>
         <nav>
-            <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
-            <a href="season-5.html">Season 5</a>
-            <a href="season-6.html">Season 6</a>
-            <a href="specials.html">Specials</a>
-            <a href="announcements.html" class="active">Announcements</a>
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="season-5.html" class="nav-link">Season 5</a>
+            <a href="season-6.html" class="nav-link">Season 6</a>
+            <a href="specials.html" class="nav-link">Specials</a>
+            <a href="announcements.html" class="nav-link active">Announcements</a>
+            <button class="icon-btn" id="theme-toggle" title="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+            <div id="auth-nav-container" style="display: flex; gap: 8px; align-items: center;">
+                <button class="auth-nav-btn login-highlight" id="open-auth-btn"><i class="fa-solid fa-user"></i> Sign In</button>
+            </div>
         </nav>
     </header>
 
     <div class="container">
 
-        <!-- Hero Section -->
         <div class="hero-banner">
             <h2>Site <span>Announcements</span> & Updates</h2>
-            <p>Stay up to date with the latest Miraculous Ladybug episode leaks, dub release timers, trailers, and website updates.</p>
+            <p>Stay up to date with the latest Miraculous Ladybug release timers, trailers, and website updates.</p>
         </div>
 
-        <!-- Section: Latest Announcements -->
-        <h3 class="section-title">Latest Announcements</h3>
+        <h3 class="section-title"><span class="spot-trail"><span></span><span></span><span></span><span></span></span>Latest Announcements</h3>
 
-        <!-- Queen of the Dreadzone English Dub -->
-        <div class="card featured-drop">
-            <span class="tag"><i class="fa-solid fa-fire"></i> New Episode Release • July 25, 2026</span>
-            <h4>Queen of the Dreadzone (English Dub) Is Live!</h4>
-            <p>The wait is over! <strong>Queen of the Dreadzone</strong> is officially available in full English Dub. Head over to the Season 6 section to stream it now in 1080p HD quality!</p>
-            
-            <div class="info-stats-grid">
-                <div class="stat-box">
-                    <div class="stat-value">S6 EP24</div>
-                    <div class="stat-label">Episode</div>
+        <!-- Admin-only composer: only renders/functions for the signed-in admin account -->
+        <div class="composer-card" id="composer-card">
+            <div class="composer-header"><i class="fa-solid fa-pen-nib"></i><h4>New Post</h4><span class="admin-badge"><i class="fa-solid fa-shield"></i> Admin</span></div>
+            <form class="composer-form" id="composer-form">
+                <div class="composer-row">
+                    <input type="text" id="post-title" placeholder="Post title" required>
+                    <select id="post-tag">
+                        <option value="fire">🔥 New Episode Release</option>
+                        <option value="rocket">🚀 Major Upgrade</option>
+                        <option value="link">🔗 Important Notice</option>
+                        <option value="film">🎬 Trailer</option>
+                        <option value="bullhorn">📣 Leak / Rumor</option>
+                        <option value="check">✅ New Release</option>
+                    </select>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-value">1080p</div>
-                    <div class="stat-label">HD Stream</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value">ENG DUB</div>
-                    <div class="stat-label">Audio Track</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value">READY</div>
-                    <div class="stat-label">Status</div>
-                </div>
-            </div>
-
-            <a href="season-6.html" class="btn-stream"><i class="fa-solid fa-play"></i> Stream Queen of the Dreadzone Now</a>
+                <textarea id="post-body" placeholder="What's the announcement?" required></textarea>
+                <input type="url" id="post-embed" placeholder="Optional: embeddable video URL (e.g. a YouTube trailer embed link)">
+                <button type="submit" class="composer-submit-btn"><i class="fa-solid fa-paper-plane"></i> Publish</button>
+                <div class="composer-error" id="composer-error"></div>
+            </form>
         </div>
 
-        <!-- Season 5 Full Drop Announcement -->
-        <div class="card featured-drop">
-            <span class="tag"><i class="fa-solid fa-fire"></i> Major Archive Update • July 22, 2026</span>
-            <h4>Full Season 5 Is Now Uploaded!</h4>
-            <p>Every single episode of <strong>Season 5</strong> has officially been encoded, indexed, and uploaded in full quality. From <em>Evolution</em> all the way to the finale, you can now stream the full season right here on <strong>www.miraculoushub.co.uk</strong>.</p>
-            
-            <div class="info-stats-grid">
-                <div class="stat-box">
-                    <div class="stat-value">27 / 27</div>
-                    <div class="stat-label">Episodes Ready</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value">1080p</div>
-                    <div class="stat-label">HD Stream</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value">ENG DUB</div>
-                    <div class="stat-label">Audio Track</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value">100%</div>
-                    <div class="stat-label">Complete</div>
-                </div>
-            </div>
-
-            <a href="season-5.html" class="btn-stream"><i class="fa-solid fa-play"></i> Stream Season 5 Now</a>
-        </div>
-
-        <!-- Website Migration Notice -->
-        <div class="card">
-            <span class="tag"><i class="fa-solid fa-rocket"></i> Major Upgrade</span>
-            <h4>Website Migration</h4>
-            <p>We officially dumped Google Sites! It was way too slow, restrictive, and basic for what we needed. We migrated the entire platform over to a proper custom web build that gives us full control over dark design, custom video players, and live countdown timers for a vastly superior streaming experience.</p>
-        </div>
-
-        <!-- URL Update Notice -->
-        <div class="card">
-            <span class="tag"><i class="fa-solid fa-link"></i> Important Notice</span>
-            <h4>New Domain Live: www.miraculoushub.co.uk</h4>
-            <p>The new URL is now fixed and live! Please start using <strong>www.miraculoushub.co.uk</strong> moving forward as the old URL will soon be deleted and you won't be able to access the website through it.</p>
-        </div>
+        <div id="live-posts-container"></div>
 
         <!-- Finale Release Timers -->
         <div class="card">
             <span class="tag"><i class="fa-solid fa-clock"></i> Release Dates & Live Countdowns</span>
-            <h4>Season 6 Finale - Disney US Schedule</h4>
-            <p>Disney US will release <strong>Secret Protocol</strong> on August 1st and <strong>Nemesis</strong> on August 8th. We will keep you updated on whether we will be livestreaming these directly on the website!</p>
-            
+            <h4>Season 6 Finale — Disney US Schedule</h4>
+            <p>Disney US scheduled <strong>Secret Protocol</strong> for August 1st and <strong>Nemesis</strong> for August 8th.</p>
             <div class="timer-grid">
-                <div class="timer-box">
-                    <h5>Secret Protocol (S6 EP25)</h5>
-                    <div class="timer-display" id="timer-secret-protocol">Loading...</div>
-                </div>
-                <div class="timer-box">
-                    <h5>Nemesis (S6 EP26)</h5>
-                    <div class="timer-display" id="timer-nemesis">Loading...</div>
-                </div>
+                <div class="timer-box"><h5>Secret Protocol (S6 EP25)</h5><div class="timer-display" id="timer-secret-protocol">Loading...</div></div>
+                <div class="timer-box"><h5>Nemesis (S6 EP26)</h5><div class="timer-display" id="timer-nemesis">Loading...</div></div>
             </div>
         </div>
 
-        <!-- Season 6 Finale Trailers -->
+        <!-- Official trailer embeds — legitimate YouTube embeds -->
         <div class="card">
             <span class="tag"><i class="fa-solid fa-film"></i> Trailers</span>
             <h4>Season 6 Finale Official Trailers</h4>
-            <p>Watch the official trailers for the Season 6 final episodes directly on the site:</p>
-            
+            <p>Watch the official trailers for the Season 6 final episodes:</p>
             <div class="video-grid">
-                <div class="video-wrapper">
-                    <iframe src="https://www.youtube.com/embed/Ox5CiUeCcog" title="Season 6 Final Episodes Trailer" allowfullscreen></iframe>
-                </div>
-                <div class="video-wrapper">
-                    <iframe src="https://www.youtube.com/embed/vsP70MOgGKI" title="Secret Protocol Teaser" allowfullscreen></iframe>
-                </div>
+                <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/Ox5CiUeCcog" title="Season 6 Final Episodes Trailer" allowfullscreen></iframe></div>
+                <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/vsP70MOgGKI" title="Secret Protocol Teaser" allowfullscreen></iframe></div>
             </div>
         </div>
 
-        <!-- Season 7 Poster Reveal -->
-        <div class="card">
-            <span class="tag"><i class="fa-solid fa-bullhorn"></i> Season 7 Leak</span>
-            <h4>Season 7 Poster Reveal</h4>
-            <p>The official poster of S7 Miraculous Ladybug has been revealed! The big question on everyone's mind: why is Gabriel there alongside Chrysalis? Plus, Ladybug and Cat Noir look terrified. Season 7 is set to release on <strong>November 20th, 2026</strong>.</p>
-        </div>
+        <h3 class="section-title"><span class="spot-trail"><span></span><span></span><span></span><span></span></span>Website Updates & Feature Logs</h3>
 
-        <!-- The Dirtifiers English Dub -->
-        <div class="card">
-            <span class="tag"><i class="fa-solid fa-circle-check"></i> New Release</span>
-            <h4>The Dirtifiers (English Dub)</h4>
-            <p>The English Dub for <em>The Dirtifiers</em> has just released and is now available to stream on the website!</p>
-        </div>
-
-        <!-- Section: Feature & Version Logs -->
-        <h3 class="section-title">Website Updates & Feature Logs</h3>
-
-        <div class="card">
-            <span class="tag"><i class="fa-solid fa-calendar"></i> July 20, 2026</span>
-            <h4>Domain Migration</h4>
-            <p>Successfully migrated the web project domain to GitHub Pages with a consistent dark-themed streaming layout.</p>
-        </div>
-
-        <div class="card">
-            <span class="tag"><i class="fa-solid fa-calendar"></i> July 18, 2026</span>
-            <h4>Continue Watching System</h4>
-            <p>Added dynamic <code>localStorage</code> tracking so you can seamlessly resume playback right where you left off on Season 5 and Season 6 episodes.</p>
-        </div>
-
-        <div class="card">
-            <span class="tag"><i class="fa-solid fa-calendar"></i> July 10, 2026</span>
-            <h4>Countdown Timers Release</h4>
-            <p>Launched live countdown modules for upcoming English dub release dates like Secret Protocol and Nemesis.</p>
-        </div>
-
-        <div class="card">
-            <span class="tag"><i class="fa-solid fa-code-branch"></i> Update 2.1 (17/07/2026)</span>
-            <h4>Domain Sole Access & Season 6 Refresh</h4>
-            <p>- The new domain (www.miraculoushub.co.uk) is now the primary way to access the website.<br>
-               - Season 5 Part 1 is now available (the rest coming soon).<br>
-               - Season 6 has reverted back to its old design with updated episode cards.</p>
-        </div>
-
-        <div class="card">
-            <span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2</span>
-            <h4>Stable Release Out of Beta</h4>
-            <p>Now that the website is no longer unstable and almost completely fixed, we are officially out of beta! Domain transitioned to www.miraculoushub.co.uk.</p>
-        </div>
-
-        <div class="card">
-            <span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2.6 Beta</span>
-            <h4>Functionality Restoration</h4>
-            <p>- Website is back up and functional.<br>
-               - Season 6 is back online.<br>
-               - Restoring links and pages across Seasons 1-5 and Special Episodes.<br>
-               - Adding recommendation poll for new shows.</p>
-        </div>
-
-        <div class="card">
-            <span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2.5.6 Beta</span>
-            <h4>Announcements & Episode Additions</h4>
-            <p>- Changed Update Logs to Announcements section.<br>
-               - Added Season 2 page (links and images being updated).<br>
-               - Went live with episodes <em>Rigenerazione</em> and <em>Heartfixer</em>.</p>
-        </div>
-
-        <div class="card">
-            <span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2.5.5 Beta</span>
-            <h4>Forced Dark Mode & Livestream Prep</h4>
-            <p>- Added Update Log section.<br>
-               - Added option for old website layout (forced dark mode).<br>
-               - Configured livestreaming options for newly released episodes.</p>
-        </div>
+        <div class="card"><span class="tag"><i class="fa-solid fa-calendar"></i> July 20, 2026</span><h4>Domain Migration</h4><p>Migrated the site to a custom dark-themed build with its own streaming layout.</p></div>
+        <div class="card"><span class="tag"><i class="fa-solid fa-calendar"></i> July 18, 2026</span><h4>Continue Watching System</h4><p>Added <code>localStorage</code> tracking so you can resume browsing right where you left off.</p></div>
+        <div class="card"><span class="tag"><i class="fa-solid fa-calendar"></i> July 10, 2026</span><h4>Countdown Timers Release</h4><p>Launched live countdown modules for upcoming release dates.</p></div>
+        <div class="card"><span class="tag"><i class="fa-solid fa-code-branch"></i> Version 2</span><h4>Stable Release Out of Beta</h4><p>The website is now considered stable and out of beta.</p></div>
 
     </div>
 
-    <footer>
-        &copy; 2026 Miraculous Hub. All rights reserved.
-    </footer>
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="auth-card">
+            <button class="close-modal-btn" id="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" id="tab-signin">Sign In</button>
+                <button class="auth-tab-btn" id="tab-signup">Sign Up</button>
+            </div>
+            <form class="auth-form" id="signin-form">
+                <div class="form-group"><label>Email Address</label><input type="email" id="signin-email" required placeholder="hero@miraculous.com"></div>
+                <div class="form-group"><label>Password</label><input type="password" id="signin-password" required placeholder="••••••••"></div>
+                <div class="auth-error" id="signin-error"></div>
+                <button type="submit" class="auth-submit-btn">Sign In</button>
+            </form>
+            <form class="auth-form" id="signup-form" style="display: none;">
+                <div class="form-group"><label>Username</label><input type="text" id="signup-name" required placeholder="LadybugFan"></div>
+                <div class="form-group"><label>Email Address</label><input type="email" id="signup-email" required placeholder="hero@miraculous.com"></div>
+                <div class="form-group"><label>Password</label><input type="password" id="signup-password" required placeholder="••••••••"></div>
+                <div>
+                    <div class="pfp-picker-title"><span>Choose Hero Avatar</span><span style="font-weight: normal; opacity: 0.7;">(Optional)</span></div>
+                    <div class="pfp-grid" id="pfp-options">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ladybug" title="Ladybug" class="pfp-option selected" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=ladybug">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=catnoir" title="Cat Noir" class="pfp-option" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=catnoir">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=renarouge" title="Rena Rouge" class="pfp-option" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=renarouge">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=carapace" title="Carapace" class="pfp-option" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=carapace">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=hawkmoth" title="Hawk Moth" class="pfp-option" data-url="https://api.dicebear.com/7.x/bottts/svg?seed=hawkmoth">
+                    </div>
+                    <div class="form-group" style="margin-top: 8px;"><input type="url" id="custom-pfp-url" placeholder="Or paste custom image URL..."></div>
+                </div>
+                <div class="auth-error" id="signup-error"></div>
+                <button type="submit" class="auth-submit-btn">Create Account</button>
+            </form>
+        </div>
+    </div>
 
-    <!-- Countdown Timer Script -->
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profile-modal">
+        <div class="profile-card">
+            <button class="close-modal-btn" id="close-profile-btn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="profile-header">
+                <img id="profile-avatar-lg" class="profile-avatar-lg" src="" alt="Avatar">
+                <div class="profile-name" id="profile-name-lg"></div>
+                <div class="profile-stats">
+                    <div class="stat-box2"><div class="stat-value" id="stat-watched">0</div><div class="stat-label">Watched</div></div>
+                    <div class="stat-box2"><div class="stat-value" id="stat-favorites">0</div><div class="stat-label">Favorites</div></div>
+                </div>
+            </div>
+            <button class="logout-full-btn" id="logout-btn-profile">Sign Out</button>
+        </div>
+    </div>
+
+    <footer>&copy; 2026 Miraculous Hub. All rights reserved.</footer>
+
     <script>
         function startCountdown(targetDateStr, elementId) {
             const timerElement = document.getElementById(elementId);
             if (!timerElement) return;
-
             const targetDate = new Date(targetDateStr).getTime();
-
             function updateTimer() {
                 const now = new Date().getTime();
                 const distance = targetDate - now;
-
-                if (distance < 0) {
-                    timerElement.innerHTML = "RELEASED & AVAILABLE!";
-                    return;
-                }
-
+                if (distance < 0) { timerElement.innerHTML = "RELEASED & AVAILABLE!"; return; }
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
                 timerElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
             }
-
             updateTimer();
             setInterval(updateTimer, 1000);
         }
-
-        // Pass ISO 8601 strings with timezone offset (e.g., EDT / UTC-4) for consistent calculation across viewers
         startCountdown("2026-08-01T08:00:00-04:00", "timer-secret-protocol");
         startCountdown("2026-08-08T08:00:00-04:00", "timer-nemesis");
+
+        /* ---------- THEME ---------- */
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('miraculous_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        themeToggle.addEventListener('click', () => {
+            const cur = document.documentElement.getAttribute('data-theme');
+            const next = cur === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('miraculous_theme', next);
+            themeToggle.innerHTML = next === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        });
+    </script>
+
+    <!-- ============ FIREBASE: AUTH + ADMIN-GATED LIVE POSTS ============ -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import {
+            getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+            signOut, onAuthStateChanged, updateProfile
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import {
+            getFirestore, doc, setDoc, getDoc, collection, addDoc,
+            query, orderBy, onSnapshot, deleteDoc, serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Only this email can post/delete announcements from the UI.
+        // IMPORTANT: this constant only controls what the *interface* shows.
+        // Actual enforcement must live in your Firestore Security Rules — see
+        // the matching rule in the comment block below. Without that rule,
+        // someone could still write to the "posts" collection directly.
+        const ADMIN_EMAIL = "ibrahimzaman0@outlook.com";
+
+        /*
+          Suggested Firestore rule (Firebase Console → Firestore → Rules):
+
+          match /posts/{postId} {
+            allow read: if true;
+            allow create, update, delete: if request.auth != null
+              && request.auth.token.email == "ibrahimzaman0@outlook.com";
+          }
+        */
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWKIQX_4oFrj87GStSCs9PydnXc7t1bcU",
+            authDomain: "cinestream1230.firebaseapp.com",
+            databaseURL: "https://cinestream1230-default-rtdb.firebaseio.com",
+            projectId: "cinestream1230",
+            storageBucket: "cinestream1230.firebasestorage.app",
+            messagingSenderId: "523084805053",
+            appId: "1:523084805053:web:b356cb9c6d8a8ded7a98d4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+        let selectedPfpUrl = "https://api.dicebear.com/7.x/bottts/svg?seed=ladybug";
+
+        const TAG_META = {
+            fire: { icon: 'fa-fire', label: 'New Episode Release' },
+            rocket: { icon: 'fa-rocket', label: 'Major Upgrade' },
+            link: { icon: 'fa-link', label: 'Important Notice' },
+            film: { icon: 'fa-film', label: 'Trailer' },
+            bullhorn: { icon: 'fa-bullhorn', label: 'Leak / Rumor' },
+            check: { icon: 'fa-circle-check', label: 'New Release' }
+        };
+
+        function isYoutubeWatchUrl(url) {
+            return /youtube\.com\/watch\?v=|youtu\.be\//.test(url);
+        }
+        function toEmbeddable(url) {
+            // Convenience: auto-convert a plain YouTube watch link to an embed link.
+            try {
+                if (url.includes('youtu.be/')) {
+                    const id = url.split('youtu.be/')[1].split(/[?&]/)[0];
+                    return `https://www.youtube.com/embed/${id}`;
+                }
+                if (url.includes('youtube.com/watch')) {
+                    const id = new URL(url).searchParams.get('v');
+                    if (id) return `https://www.youtube.com/embed/${id}`;
+                }
+            } catch (e) {}
+            return url;
+        }
+
+        /* ---------- Live posts feed (public read, admin write) ---------- */
+        const postsContainer = document.getElementById('live-posts-container');
+        const postsQuery = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+
+        onSnapshot(postsQuery, (snap) => {
+            if (snap.empty) {
+                postsContainer.innerHTML = `<div class="card"><p class="empty-notice">No live posts yet.</p></div>`;
+                return;
+            }
+            postsContainer.innerHTML = '';
+            snap.forEach((docSnap) => {
+                const post = docSnap.data();
+                const meta = TAG_META[post.tag] || TAG_META.fire;
+                const dateStr = post.createdAt?.toDate
+                    ? post.createdAt.toDate().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                    : 'Just now';
+
+                const card = document.createElement('div');
+                card.className = 'card featured-drop';
+                card.innerHTML = `
+                    ${currentUser && currentUser.email === ADMIN_EMAIL ? `<button class="card-delete-btn" title="Delete post"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    <span class="tag"><i class="fa-solid ${meta.icon}"></i> ${meta.label} • ${dateStr}</span>
+                    <h4>${post.title}</h4>
+                    <p>${post.body}</p>
+                    ${post.embedUrl ? `<div class="video-grid"><div class="video-wrapper"><iframe src="${post.embedUrl}" allowfullscreen loading="lazy"></iframe></div></div>` : ''}
+                `;
+                const delBtn = card.querySelector('.card-delete-btn');
+                if (delBtn) delBtn.addEventListener('click', async () => {
+                    if (confirm('Delete this post?')) await deleteDoc(doc(db, 'posts', docSnap.id));
+                });
+                postsContainer.appendChild(card);
+            });
+        });
+
+        /* ---------- Admin composer ---------- */
+        const composerCard = document.getElementById('composer-card');
+        const composerForm = document.getElementById('composer-form');
+        const composerError = document.getElementById('composer-error');
+
+        composerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
+            const title = document.getElementById('post-title').value.trim();
+            const tag = document.getElementById('post-tag').value;
+            const body = document.getElementById('post-body').value.trim();
+            let embedInput = document.getElementById('post-embed').value.trim();
+            const embedUrl = embedInput ? toEmbeddable(embedInput) : null;
+
+            try {
+                await addDoc(collection(db, 'posts'), {
+                    title, tag, body, embedUrl,
+                    authorEmail: currentUser.email,
+                    createdAt: serverTimestamp()
+                });
+                composerForm.reset();
+                composerError.style.display = 'none';
+            } catch (err) {
+                composerError.textContent = err.message;
+                composerError.style.display = 'block';
+            }
+        });
+
+        /* ---------- Auth modal ---------- */
+        const authModal = document.getElementById('auth-modal');
+        const openAuthBtn = document.getElementById('open-auth-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const tabSignin = document.getElementById('tab-signin');
+        const tabSignup = document.getElementById('tab-signup');
+        const signinForm = document.getElementById('signin-form');
+        const signupForm = document.getElementById('signup-form');
+        const authNavContainer = document.getElementById('auth-nav-container');
+
+        const pfpOptions = document.querySelectorAll('.pfp-option');
+        const customPfpInput = document.getElementById('custom-pfp-url');
+        pfpOptions.forEach(img => {
+            img.addEventListener('click', () => {
+                pfpOptions.forEach(opt => opt.classList.remove('selected'));
+                img.classList.add('selected');
+                selectedPfpUrl = img.getAttribute('data-url');
+                customPfpInput.value = '';
+            });
+        });
+        customPfpInput.addEventListener('input', (e) => {
+            if (e.target.value.trim() !== '') { pfpOptions.forEach(opt => opt.classList.remove('selected')); selectedPfpUrl = e.target.value.trim(); }
+        });
+
+        openAuthBtn.addEventListener('click', () => authModal.classList.add('active'));
+        closeModalBtn.addEventListener('click', () => authModal.classList.remove('active'));
+        tabSignin.addEventListener('click', () => { tabSignin.classList.add('active'); tabSignup.classList.remove('active'); signinForm.style.display = 'flex'; signupForm.style.display = 'none'; });
+        tabSignup.addEventListener('click', () => { tabSignup.classList.add('active'); tabSignin.classList.remove('active'); signupForm.style.display = 'flex'; signinForm.style.display = 'none'; });
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const errorElement = document.getElementById('signup-error');
+            const finalPhotoUrl = customPfpInput.value.trim() || selectedPfpUrl;
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, { displayName: name, photoURL: finalPhotoUrl });
+                await setDoc(doc(db, "users", userCredential.user.uid), { photoURL: finalPhotoUrl, displayName: name }, { merge: true });
+                authModal.classList.remove('active');
+                signupForm.reset();
+                errorElement.style.display = 'none';
+            } catch (error) { errorElement.textContent = error.message; errorElement.style.display = 'block'; }
+        });
+
+        signinForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+            const errorElement = document.getElementById('signin-error');
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                authModal.classList.remove('active');
+                signinForm.reset();
+                errorElement.style.display = 'none';
+            } catch (error) { errorElement.textContent = error.message; errorElement.style.display = 'block'; }
+        });
+
+        const profileModal = document.getElementById('profile-modal');
+        document.getElementById('close-profile-btn').addEventListener('click', () => profileModal.classList.remove('active'));
+        document.getElementById('logout-btn-profile').addEventListener('click', () => { signOut(auth); profileModal.classList.remove('active'); });
+
+        function renderProfileStats() {
+            document.getElementById('stat-watched').textContent = JSON.parse(localStorage.getItem('miraculous_watched') || '[]').length;
+            document.getElementById('stat-favorites').textContent = JSON.parse(localStorage.getItem('miraculous_favorites') || '[]').length;
+        }
+        function openProfile() {
+            if (!currentUser) return;
+            document.getElementById('profile-avatar-lg').src = currentUser.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=ladybug';
+            document.getElementById('profile-name-lg').textContent = currentUser.displayName || 'Hero';
+            renderProfileStats();
+            profileModal.classList.add('active');
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            if (user) {
+                const avatarUrl = user.photoURL || 'https://api.dicebear.com/7.x/bottts/svg?seed=ladybug';
+                const isAdmin = user.email === ADMIN_EMAIL;
+                authNavContainer.innerHTML = `
+                    <div class="user-nav-profile" id="user-profile-trigger">
+                        <img src="${avatarUrl}" class="user-nav-avatar" alt="PFP" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=ladybug'">
+                        <span style="font-size: 13.5px; font-weight: 700; color: var(--text);">${user.displayName || 'Hero'}</span>
+                        ${isAdmin ? '<span class="admin-badge"><i class="fa-solid fa-shield"></i> Admin</span>' : ''}
+                    </div>
+                    <button class="auth-nav-btn" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i></button>`;
+                document.getElementById('user-profile-trigger').addEventListener('click', openProfile);
+                document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+                composerCard.classList.toggle('visible', isAdmin);
+
+                try {
+                    const docSnap = await getDoc(doc(db, "users", user.uid));
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        if (Array.isArray(data.watched)) localStorage.setItem('miraculous_watched', JSON.stringify(data.watched));
+                        if (Array.isArray(data.favorites)) localStorage.setItem('miraculous_favorites', JSON.stringify(data.favorites));
+                    }
+                } catch (e) { console.error("Firestore sync error:", e); }
+            } else {
+                authNavContainer.innerHTML = `<button class="auth-nav-btn login-highlight" id="open-auth-btn"><i class="fa-solid fa-user"></i> Sign In</button>`;
+                document.getElementById('open-auth-btn').addEventListener('click', () => authModal.classList.add('active'));
+                composerCard.classList.remove('visible');
+            }
+        });
     </script>
 </body>
 </html>
