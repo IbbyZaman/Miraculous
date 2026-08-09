@@ -131,10 +131,6 @@
         .container { max-width: 1280px; margin: 0 auto; padding: 30px 20px; width: 100%; flex: 1; }
 
         /* ============ CUSTOM PLAYER SHELL ============ */
-        /* Chrome/frame around an embed you provide per-episode (iframe URL).
-           We can't script third-party playback (play/pause/seek) — only the
-           iframe's own controls can do that — so this focuses on what a custom
-           frame *can* own: status, queue, and episode navigation. */
         .player-card {
             background: var(--glass); backdrop-filter: blur(14px); border-radius: var(--radius-lg);
             padding: 22px; margin-bottom: 36px; border: 1px solid var(--glass-border);
@@ -333,7 +329,6 @@
 
     <div class="container">
 
-        <!-- Custom player shell: chrome, status, up-next queue — the iframe itself is your embed. -->
         <div class="player-card" id="player-card">
             <div class="player-frame" id="player-frame">
                 <div class="player-placeholder" id="player-placeholder">
@@ -431,39 +426,42 @@
     <footer>&copy; 2026 Miraculous Hub. For personal configurations.</footer>
 
     <script>
-        // Fill in `embedUrl` per episode with an iframe-embeddable URL you have the
-        // right to serve (your own licensed player, a self-hosted embed, etc).
-        // Leave it null and the player shows a placeholder for that episode.
-        // NOTE: values must always be quoted strings or the literal `null` — an
-        // unquoted URL is invalid JavaScript and will break the whole page.
+        // Converts standard Google Drive view/sharing links into /preview embeds
+        function formatGDriveUrl(url) {
+            if (!url) return null;
+            return url.replace(/\/view(\?.*)?$/, '/preview');
+        }
+
+        // Add Google Drive URLs or external video links into embedUrl.
+        // Add custom thumbnail URLs or local image paths into thumbnail.
         const episodeData = [
-            { id: "501", title: "Evolution", embedUrl: null },
-            { id: "502", title: "Multiplication", embedUrl: null },
-            { id: "503", title: "Destruction", embedUrl: null },
-            { id: "504", title: "Jubilation", embedUrl: null },
-            { id: "505", title: "Illusion", embedUrl: null },
-            { id: "506", title: "Determination", embedUrl: null },
-            { id: "507", title: "Passion", embedUrl: null },
-            { id: "508", title: "Reunion", embedUrl: null },
-            { id: "509", title: "Elation", embedUrl: null },
-            { id: "510", title: "Transmission (The Kwamis' Choice – Part 1)", embedUrl: null },
-            { id: "511", title: "Deflagration (The Kwamis' Choice – Part 2)", embedUrl: null },
-            { id: "512", title: "Perfection", embedUrl: null },
-            { id: "513", title: "Migration", embedUrl: null },
-            { id: "514", title: "Derision", embedUrl: null },
-            { id: "515", title: "Intuition", embedUrl: null },
-            { id: "516", title: "Protection", embedUrl: null },
-            { id: "517", title: "Adoration", embedUrl: null },
-            { id: "518", title: "Emotion", embedUrl: null },
-            { id: "519", title: "Pretension", embedUrl: null },
-            { id: "520", title: "Revelation", embedUrl: null },
-            { id: "521", title: "Confrontation", embedUrl: null },
-            { id: "522", title: "Collusion", embedUrl: null },
-            { id: "523", title: "Revolution", embedUrl: null },
-            { id: "524", title: "Representation", embedUrl: null },
-            { id: "525", title: "Conformation - The Final Day Part 1", embedUrl: null },
-            { id: "526", title: "Re-Creation - The Final Day Part 2", embedUrl: null },
-            { id: "527", title: "Action", embedUrl: null }
+            { id: "501", title: "Evolution", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1qhqpvc8VrOcvpEzz4ESp_Yh4JmvbdXbw/view?usp=sharing"), thumbnail: null },
+            { id: "502", title: "Multiplication", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1TSPfyOR6v1qcZHTKI19XqXi_Imptz5Sp/view?usp=sharing"), thumbnail: null },
+            { id: "503", title: "Destruction", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1UvHZ2cXkxiXq-ilJtlvhCm1lX7V4Xw-l/view?usp=sharing"), thumbnail: null },
+            { id: "504", title: "Jubilation", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/122oDJTXT35zpW9dAaa0WVidWQ_6BBbR-/view?usp=sharing"), thumbnail: null },
+            { id: "505", title: "Illusion", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1s4VU8JSlIdZ1K4YQR9KV1gIiPWdDVhqp/view?usp=sharing"), thumbnail: null },
+            { id: "506", title: "Determination", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1N0vjxpKCGEUUyKnJhpx8m5RfhWnP-AFu/view?usp=sharing"), thumbnail: null },
+            { id: "507", title: "Passion", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1oVjIEVznpVfM6uvdHM7EY6AJeR8acg4B/view?usp=sharing"), thumbnail: null },
+            { id: "508", title: "Reunion", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1sM1JSCtSdR5lpa3iqgXM2sEpULeGZ4hN/view?usp=sharing"), thumbnail: null },
+            { id: "509", title: "Elation", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1KJ3ExcBPQAxNdt2n9o8nPBuwXSJ7KE_H/view?usp=sharing"), thumbnail: null },
+            { id: "510", title: "Transmission (The Kwamis' Choice – Part 1)", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1keG3eES8dcGJMRQ6nTID0deeZB_gDfUT/view?usp=sharing"), thumbnail: null },
+            { id: "511", title: "Deflagration (The Kwamis' Choice – Part 2)", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1oKqi3qo-e7ybHmwnqOKLpuPltmLupHC1/view?usp=sharing"), thumbnail: null },
+            { id: "512", title: "Perfection", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/120_d0FAXVtFfhmxGgbPcFgWJMTC_Fb9W/view?usp=sharing"), thumbnail: null },
+            { id: "513", title: "Migration", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1BfJHZnfrkURt8tHZr2bkxrFf3QmXkYM3/view?usp=sharing"), thumbnail: null },
+            { id: "514", title: "Derision", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1qviR8kg6Bu19mrCymKQJiy_XIR7DNkqy/view?usp=sharing"), thumbnail: null },
+            { id: "515", title: "Intuition", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1oU5d0k97Gy9l9MhUnjqPYBdIgmtS1wF8/view?usp=sharing"), thumbnail: null },
+            { id: "516", title: "Protection", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1wF6gfNNv4i_RWd-bB_r9iFVEFv7N-JN6/view?usp=sharing"), thumbnail: null },
+            { id: "517", title: "Adoration", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1ba_zzJswWdtqNzWDyTgmt8WYK0Enr93v/view?usp=sharing"), thumbnail: null },
+            { id: "518", title: "Emotion", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1ixFGWnNTXV1AxylGQnDxK6v6sw_gczEd/view?usp=sharing"), thumbnail: null },
+            { id: "519", title: "Pretension", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1wXXauC4N8eX0ZRIYmNrJNgLHncW2fkao/view?usp=sharing"), thumbnail: null },
+            { id: "520", title: "Revelation", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1o-TZvaLiNmFufhQUU-toiNlQHAVUxhdR/view?usp=sharing"), thumbnail: null },
+            { id: "521", title: "Confrontation", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1nP95tfEtuyakWge4l-64B-AySBSJtzS_/view?usp=sharing"), thumbnail: null },
+            { id: "522", title: "Collusion", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1ZlXdei7W56tEjro637_TbXp2kueYQbYV/view?usp=sharing"), thumbnail: null },
+            { id: "523", title: "Revolution", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1rM7fe0y9_2a5bARtc3vXasLYQwuhmn77/view?usp=sharing"), thumbnail: null },
+            { id: "524", title: "Representation", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1vS9SOR7qBndw2ZtGl504WdBy9RRWU1XO/view?usp=sharing"), thumbnail: null },
+            { id: "525", title: "Conformation - The Final Day Part 1", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1nP95tfEtuyakWge4l-64B-AySBSJtzS_/view?usp=sharing"), thumbnail: null },
+            { id: "526", title: "Re-Creation - The Final Day Part 2", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1zcSFtNzkE7p2rH7W6GJ-tkRR8VXo_6g9/view?usp=sharing"), thumbnail: null },
+            { id: "527", title: "Action", embedUrl: formatGDriveUrl("https://drive.google.com/file/d/1smyqfBP3JQLVe9QN4YhOFvTJI0OKtLl4/view?usp=sharing"), thumbnail: null }
         ];
 
         const gridContainer = document.getElementById('grid-container');
@@ -500,6 +498,7 @@
             activeIndex = index;
             const ep = episodeData[index];
             const formattedEpNum = formatEpNum(ep.id);
+            const thumbImg = ep.thumbnail || `thumbnails/${ep.id}.jpg`;
 
             document.querySelectorAll('.episode-card').forEach(c => c.classList.remove('is-armed'));
             const cardEl = document.getElementById(`card-${ep.id}`);
@@ -533,7 +532,7 @@
             document.getElementById('player-next-btn').disabled = index >= episodeData.length - 1;
 
             renderUpNext(index);
-            saveProgress(`Episode ${formattedEpNum}: ${ep.title}`, 'season-5.html', `thumbnails/${ep.id}.jpg`);
+            saveProgress(`Episode ${formattedEpNum}: ${ep.title}`, 'season-5.html', thumbImg);
         }
 
         function renderUpNext(index) {
@@ -546,8 +545,9 @@
             upcoming.forEach(ep => {
                 const item = document.createElement('div');
                 item.className = 'up-next-card';
+                const thumbImg = ep.thumbnail || `thumbnails/${ep.id}.jpg`;
                 item.innerHTML = `
-                    <div class="up-next-thumb" style="background-image:url('thumbnails/${ep.id}.jpg')"></div>
+                    <div class="up-next-thumb" style="background-image:url('${thumbImg}')"></div>
                     <div class="up-next-label">${ep.title}</div>`;
                 item.addEventListener('click', () => { loadEpisode(episodeData.indexOf(ep)); window.scrollTo({ top: 0, behavior: 'smooth' }); });
                 strip.appendChild(item);
@@ -580,13 +580,15 @@
                 const formattedEpNum = formatEpNum(ep.id);
                 const isWatched = watched.includes(ep.id);
                 const isFav = favorites.includes(ep.id);
+                const thumbImg = ep.thumbnail || `thumbnails/${ep.id}.jpg`;
+
                 const card = document.createElement('div');
                 card.className = 'episode-card';
                 card.id = `card-${ep.id}`;
                 card.innerHTML = `
                     ${isWatched ? `<div class="watched-badge"><i class="fa-solid fa-check"></i> Watched</div>` : ''}
                     <button class="card-fav-btn ${isFav ? 'active' : ''}" title="Favorite"><i class="fa-solid fa-star"></i></button>
-                    <div class="thumbnail-box" style="background-image: url('thumbnails/${ep.id}.jpg');">
+                    <div class="thumbnail-box" style="background-image: url('${thumbImg}');">
                         <div class="play-overlay"><i class="fa-solid fa-play"></i></div>
                     </div>
                     <div class="episode-details">
@@ -630,7 +632,7 @@
         });
     </script>
 
-    <!-- ============ FIREBASE AUTH (functional sign-in / sign-up / profile) ============ -->
+    <!-- ============ FIREBASE AUTH ============ -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import {
