@@ -104,7 +104,7 @@
   <p class="kicker" id="episodeCode"></p><h1 id="title"></h1><p class="sub" id="seasonLabel"></p>
   <div class="watch-actions">
    <button class="watch-action primary-action" id="download">⬇ Download Episode</button>
-   <button class="watch-action" id="watched">✓ Mark as watched</button>
+   <button class="watch-action" id="watched">✓ Mark as watched</button><button class="watch-action" id="favourite">♡ Favourite</button>
    <button class="watch-action" id="share">Share</button>
   </div>
   <div class="description" id="description">Your viewing progress is saved locally in this browser.</div>
@@ -115,7 +115,7 @@
 <footer class="footer"><div><div class="brand"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></div></div><div class="footer-links"><div><b>Explore</b><a href="index.html">Home</a><a href="episodes.html">Episodes</a></div><div><b>Support</b><a href="#">Help</a></div></div><p class="copyright">© 2026 MiraculousHub. Fan project.</p></footer>
 <div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
 <div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
-<script src="data.js"></script><script src="common.js"></script>
+<script src="data.js"></script><script type="module" src="firebase.js"></script><script src="common.js"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const season=Number(params.get("season")||1), number=Number(params.get("episode")||1);
@@ -129,18 +129,20 @@ const idx=MH_EPISODES.findIndex(x=>x.season===ep.season&&x.episode===ep.episode)
 if(prev)$("prev").href=`watch.html?season=${prev.season}&episode=${prev.episode}`;else $("prev").style.visibility="hidden";
 if(next)$("next").href=`watch.html?season=${next.season}&episode=${next.episode}`;else $("next").style.visibility="hidden";
 const v=$("video"),player=$("player"),stage=$("stage"),area=$("progressArea"),current=$("current"),buffer=$("buffer"),knob=$("knob"),time=$("time"),posKey=`mh-pos-${key}`;
+let cloudLoaded=false;
 let dragging=false,hideTimer;
 function fmt(sec){sec=Math.max(0,Math.floor(sec||0));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`}
-function update(){const pct=v.duration?Math.min(100,v.currentTime/v.duration*100):0;current.style.width=pct+"%";knob.style.left=pct+"%";if(v.buffered.length)buffer.style.width=(v.duration?Math.min(100,v.buffered.end(v.buffered.length-1)/v.duration*100):0)+"%";time.textContent=`${fmt(v.currentTime)} / ${fmt(v.duration)}`;if(v.duration&&v.currentTime>0)mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:pct})}
+function update(){const pct=v.duration?Math.min(100,v.currentTime/v.duration*100):0;current.style.width=pct+"%";knob.style.left=pct+"%";if(v.buffered.length)buffer.style.width=(v.duration?Math.min(100,v.buffered.end(v.buffered.length-1)/v.duration*100):0)+"%";time.textContent=`${fmt(v.currentTime)} / ${fmt(v.duration)}`;if(v.duration&&v.currentTime>0)mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:pct,seconds:v.currentTime})}
 function showToast(msg){$("toast").textContent=msg;$("toast").classList.add("show");clearTimeout(showToast.t);showToast.t=setTimeout(()=>$("toast").classList.remove("show"),900)}
 function setUI(){const p=!v.paused;player.classList.toggle("playing",p);$("play").textContent=p?"❚❚":"▶";$("centerPlay").textContent=p?"❚❚":"▶"}
 async function toggle(){if(!media)return;try{v.paused?await v.play():v.pause()}catch{}setUI()}
 function seek(x){if(!v.duration)return;const r=area.getBoundingClientRect(),p=Math.max(0,Math.min(1,(x-r.left)/r.width));v.currentTime=p*v.duration;update()}
 if(media){v.src=media.video}else{$("playerMessage").hidden=false;$("centerPlay").disabled=true;$("download").disabled=true;$("download").textContent="⬇ Download unavailable"}
 $("play").onclick=toggle;$("centerPlay").onclick=toggle;v.addEventListener("play",setUI);v.addEventListener("pause",setUI);
-v.addEventListener("loadedmetadata",()=>{const saved=Number(localStorage.getItem(posKey)||0);if(saved>0&&saved<v.duration-5)v.currentTime=saved;update()});
-v.addEventListener("timeupdate",()=>{update();if(Math.floor(v.currentTime)%5===0)localStorage.setItem(posKey,String(v.currentTime))});
-v.addEventListener("progress",update);v.addEventListener("ended",()=>{mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100});localStorage.removeItem(posKey);showToast("Episode finished")});
+v.addEventListener("loadedmetadata",async()=>{let saved=Number(localStorage.getItem(posKey)||0);if(window.MH_CLOUD&&window.MH_USER){try{const cloud=await window.MH_CLOUD.getPlayback(`s${ep.season}e${ep.episode}`);if(cloud&&Number(cloud.seconds)>saved)saved=Number(cloud.seconds);cloudLoaded=true}catch{}}if(saved>0&&saved<v.duration-5)v.currentTime=saved;update()});
+let lastCloudSave=0;
+v.addEventListener("timeupdate",()=>{update();localStorage.setItem(posKey,String(v.currentTime));if(window.MH_USER&&Date.now()-lastCloudSave>10000&&v.currentTime>0){lastCloudSave=Date.now();mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:v.duration?v.currentTime/v.duration*100:0,seconds:v.currentTime});}});
+v.addEventListener("progress",update);v.addEventListener("ended",()=>{mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100,seconds:v.duration||0});mhMarkCloudWatched?.(ep).catch?.(()=>{});localStorage.removeItem(posKey);showToast("Episode finished")});
 area.addEventListener("pointerdown",e=>{dragging=true;area.classList.add("dragging");area.setPointerCapture(e.pointerId);seek(e.clientX)});
 area.addEventListener("pointermove",e=>{if(dragging)seek(e.clientX)});area.addEventListener("pointerup",e=>{if(dragging)seek(e.clientX);dragging=false;area.classList.remove("dragging")});area.addEventListener("pointercancel",()=>{dragging=false;area.classList.remove("dragging")});
 $("back").onclick=()=>{v.currentTime=Math.max(0,v.currentTime-10);showToast("−10 seconds")};$("forward").onclick=()=>{v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);showToast("+10 seconds")};
@@ -150,7 +152,9 @@ document.querySelectorAll("[data-speed]").forEach(b=>b.onclick=()=>{v.playbackRa
 $("pip").onclick=async()=>{try{if(document.pictureInPictureElement)await document.exitPictureInPicture();else if(document.pictureInPictureEnabled)await v.requestPictureInPicture()}catch{showToast("Picture-in-picture unavailable")}};
 $("theater").onclick=()=>{player.classList.toggle("theater");showToast(player.classList.contains("theater")?"Theater mode on":"Theater mode off");$("settingsMenu").hidden=true};
 $("fullscreen").onclick=async()=>{try{document.fullscreenElement?await document.exitFullscreen():await player.requestFullscreen()}catch{showToast("Fullscreen unavailable")}};
-$("watched").onclick=()=>{localStorage.setItem(posKey,String(v.duration||0));mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100});$("watched").textContent="✓ Watched";showToast("Marked as watched")};
+$("watched").onclick=async()=>{if(!window.MH_USER){mhOpenAuth("signin");return}localStorage.setItem(posKey,String(v.duration||0));mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100,seconds:v.duration||0});await mhMarkCloudWatched(ep).catch(()=>{});$("watched").textContent="✓ Watched";showToast("Marked as watched")};
+$("favourite").onclick=async()=>{if(!window.MH_USER){mhOpenAuth("signin");return}try{const on=await mhToggleFavourite(ep);$("favourite").textContent=on?"♥ Favourited":"♡ Favourite";showToast(on?"Added to favourites":"Removed from favourites")}catch{showToast("Could not update favourite")}};
+window.addEventListener("mh-auth-changed",async e=>{if(!e.detail)return;try{if(await mhIsFavourite(ep))$("favourite").textContent="♥ Favourited";if(await window.MH_CLOUD.getWatched(`s${ep.season}e${ep.episode}`))$("watched").textContent="✓ Watched";const cloud=await window.MH_CLOUD.getPlayback(`s${ep.season}e${ep.episode}`);if(cloud?.seconds&&v.duration&&cloud.seconds<v.duration-5)v.currentTime=cloud.seconds}catch{}});
 $("share").onclick=async()=>{try{if(navigator.share)await navigator.share({title:`${ep.title} — MiraculousHub`,url:location.href});else{await navigator.clipboard.writeText(location.href);$("share").textContent="Copied!"}}catch{}};
 $("download").onclick=()=>{
   if(!media?.download) return;

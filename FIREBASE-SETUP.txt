@@ -1,0 +1,16 @@
+FIREBASE AUTH + FIRESTORE SETUP
+
+1. Firebase Console -> Authentication -> Sign-in method. Enable Email/Password. Enable Google if you want the Google button.
+2. Firebase Console -> Firestore Database -> Create database.
+3. Firestore -> Rules: paste the contents of firestore.rules and Publish.
+4. Your Firebase web config is already in firebase.js. Do NOT put your Cloudflare service-account JSON in this site.
+5. Upload all files from this ZIP to your site.
+
+Data saved per signed-in user:
+- playback: position/progress for episodes
+- watched: episodes marked watched
+- favourites: favourite episodes
+
+The site keeps localStorage as a fallback/cache and syncs signed-in data with Firestore.
+
+Google sign-in may require Firebase Console -> Authentication -> Settings -> Authorized domains. Add your production domain there.
