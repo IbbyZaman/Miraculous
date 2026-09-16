@@ -10,13 +10,18 @@ const VIDEOS = {
   "/video/pharaoh": {
     id: "1hq5gCYHleseBv_Qm3_8rRXCPluBIPy7C",
     filename: "S01E03 - The Pharaoh.mp4"
+  },
+  "/video/secret-protocol": {
+    id: "1WNfkFBPZZuS4n2NpspIRQuhbBSAOQc9m",
+    filename: "S06E25 - Secret Protocol.mp4"
   }
 };
 
 const DOWNLOADS = {
   "/download/stormy-weather": VIDEOS["/video"],
   "/download/bubbler": VIDEOS["/video/bubbler"],
-  "/download/pharaoh": VIDEOS["/video/pharaoh"]
+  "/download/pharaoh": VIDEOS["/video/pharaoh"],
+  "/download/secret-protocol": VIDEOS["/video/secret-protocol"]
 };
 
 function base64url(data) {
@@ -149,11 +154,13 @@ Video routes:
 /video
 /video/bubbler
 /video/pharaoh
+/video/secret-protocol
 
 Download routes:
 /download/stormy-weather
 /download/bubbler
 /download/pharaoh
+/download/secret-protocol
 `,
         { headers: { ...corsHeaders(), "Content-Type": "text/plain; charset=utf-8" } }
       );

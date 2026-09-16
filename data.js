@@ -4,5 +4,6 @@ window.MH_SPECIALS = ["New York: United Heroez", "Shanghai: The Legend of Lady D
 window.MH_MEDIA = {
   "1-1": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/stormy-weather"},
   "1-2": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/bubbler", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/bubbler"},
-  "1-3": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/pharaoh", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/pharaoh"}
+  "1-3": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/pharaoh", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/pharaoh"},
+  "6-25": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/secret-protocol", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/secret-protocol"}
 };
