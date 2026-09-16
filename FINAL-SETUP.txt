@@ -1,0 +1,25 @@
+MiraculousHub final build
+
+Included:
+- Firebase Authentication + Firestore cloud sync
+- Google Analytics: G-6K9W3X96EY
+- favicon.png reference on all main pages
+- Seasons 1-6 + Specials catalogue
+- S01E01 Stormy Weather, S01E02 The Bubbler, S01E03 The Pharaoh
+- Cloudflare video/download route mappings
+- Mobile/landscape player improvements
+
+Firebase:
+1. Enable Email/Password and Google sign-in in Firebase Authentication.
+2. Create Firestore.
+3. Apply firestore.rules.
+4. Add your deployed website domain to Firebase Authentication Authorized domains.
+
+Cloudflare:
+Use the included worker.js and keep GOOGLE_SERVICE_ACCOUNT as a Worker secret.
+
+Favicon:
+favicon.png should be in the same directory as index.html, episodes.html and watch.html.
+
+Copyright:
+Only stream/download content you are authorized to distribute.

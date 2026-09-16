@@ -1,14 +1,18 @@
-Cloudflare Worker setup
-1. Create/open your Worker.
-2. Replace its code with worker.js.
-3. In Worker Settings > Variables and Secrets, keep GOOGLE_SERVICE_ACCOUNT as a Secret containing your existing service-account JSON.
-4. Deploy.
-5. Test the endpoints in a new browser tab:
-   /video
-   /video/bubbler
-   /download/stormy-weather
-   /download/bubbler
+CLOUDFLARE SETUP
 
-The website starts downloads in a hidden iframe, so clicking Download Episode does not navigate the main MiraculousHub page away.
+1. Replace the Worker code with worker.js.
+2. Deploy the Worker.
+3. Keep GOOGLE_SERVICE_ACCOUNT as an encrypted Worker secret; do not paste it into the website.
+4. Share the three Google Drive files with the service account as Viewer.
 
-The frontend already points to the current Worker hostname. If you create a new Worker hostname, update MH_MEDIA in data.js.
+Routes:
+/video
+/video/bubbler
+/video/pharaoh
+/download/stormy-weather
+/download/bubbler
+/download/pharaoh
+
+The website uses a hidden iframe for downloads so clicking Download Episode does not navigate the current page.
+
+Note: large downloads are subject to browser, Cloudflare Worker, and Google Drive transfer limits.
