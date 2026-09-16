@@ -1,0 +1,12 @@
+Cloudflare Worker setup
+1. Create/open your Worker.
+2. Replace its code with worker.js.
+3. In Worker Settings > Variables and Secrets, keep GOOGLE_SERVICE_ACCOUNT as a Secret containing your existing service-account JSON.
+4. Deploy.
+5. Test:
+   /video
+   /video/bubbler
+   /download/stormy-weather
+   /download/bubbler
+
+The frontend already points to the current Worker hostname. If you create a new Worker hostname, update MH_MEDIA in data.js.
