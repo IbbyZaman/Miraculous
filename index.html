@@ -2,6 +2,35 @@
 <header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a><nav class="nav"><a class="active" href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="#">Music</a><a href="#">The Show</a></nav><div class="actions"><button class="icon-btn" id="searchOpen">⌕</button><button class="theme-btn" id="themeToggle">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button></div></header>
 <section class="hero"><div class="hero-copy"><p class="kicker">MIRACULOUS LADYBUG</p><h1>Your Miraculous<br><span>watch hub.</span></h1><p class="hero-sub">Episodes, specials and your personal Continue Watching list — all in one clean, ad-free place.</p><div class="hero-actions"><a class="primary" href="episodes.html">Browse Episodes</a><a class="secondary" href="#latest">Latest Episodes</a></div></div><div class="hero-art"><div class="orb a"></div><div class="orb b"></div><div class="hero-tile"><small>SEASON 6</small><strong>NEMESIS</strong><span>EPISODE 26</span><div class="play-circle">▶</div></div></div></section>
 <main class="container">
+<section class="live-section" id="live">
+  <div class="section-heading">
+    <div>
+      <span class="live-badge">● LIVE</span>
+      <h2>Live Stream</h2>
+      <p>Watch the MiraculousHub live stream.</p>
+    </div>
+  </div>
+
+  <div class="live-player-card">
+    <div class="live-player">
+      <video id="homeLiveVideo" controls playsinline preload="metadata"
+             poster="" aria-label="MiraculousHub live stream"></video>
+      <div class="live-player-overlay" id="livePlayerMessage">
+        <div class="live-player-icon">▶</div>
+        <strong>Live stream</strong>
+        <span>The stream will appear here when it is online.</span>
+      </div>
+    </div>
+    <div class="live-player-info">
+      <div>
+        <strong>MiraculousHub Live</strong>
+        <span id="liveStatus">Offline</span>
+      </div>
+      <button type="button" id="liveFullscreenBtn" class="live-action">Fullscreen</button>
+    </div>
+  </div>
+</section>
+
 <section class="section" id="continueSection" hidden><div class="section-head"><div><p class="kicker">PICK UP WHERE YOU LEFT OFF</p><h2>Continue Watching</h2></div><a class="show-all" href="episodes.html">Show all</a></div><div class="continue-row" id="continueRow"></div></section>
 <section class="section"><div class="section-head"><div><p class="kicker">WHAT'S NEXT</p><h2>Upcoming Episodes</h2></div></div><div class="upcoming"><div class="datebox"><span>NEXT</span><strong>SOON</strong></div><div class="upcoming-copy"><small>Season 6</small><h3>New episode coming soon</h3><p>Keep an eye on MiraculousHub for the latest release.</p></div><div class="badge">UPCOMING</div></div></section>
 <section class="section" id="latest"><div class="section-head"><div><p class="kicker">NEWEST RELEASES</p><h2>Latest Episodes</h2></div><a class="show-all" href="episodes.html">Show all</a></div><div class="grid" id="latestGrid"></div></section>
@@ -13,4 +42,56 @@
 const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
 document.querySelector("#latestGrid").innerHTML=latest.map(e=>`<a class="card" href="watch.html?season=${e.season}&episode=${e.episode}"><div class="art">${e.new?'<span class="new">NEW</span>':''}<span class="epno">SEASON ${e.season} · EPISODE ${e.episode}</span></div><div class="card-info"><h3>${e.title}</h3><p>${e.code}</p></div></a>`).join("");
 function renderCW(){const box=document.querySelector("#continueSection"),row=document.querySelector("#continueRow"),items=mhGetProgress();if(!items.length){box.hidden=true;return;}box.hidden=false;row.innerHTML=items.map(x=>`<a class="continue-card" href="watch.html?season=${x.season}&episode=${x.episode}"><div class="thumb"><span class="thumb-label">S${x.season} · E${x.episode}</span><div class="watch-progress" style="width:${Math.round(x.progress||0)}%"></div></div><div class="continue-info"><strong>${x.title||"Episode"}</strong><p>${Math.round(x.progress||0)}% watched</p></div></a>`).join("");}renderCW();
-</script></body></html>
+</script>
+<script>
+(() => {
+  // Put your authorised live stream URL here when you have one.
+  // Examples: an MP4/WebM stream URL or an HLS .m3u8 URL.
+  const LIVE_STREAM_URL = "";
+
+  const video = document.getElementById("homeLiveVideo");
+  const message = document.getElementById("livePlayerMessage");
+  const status = document.getElementById("liveStatus");
+  const fullscreen = document.getElementById("liveFullscreenBtn");
+
+  if (!video) return;
+
+  function setStatus(text) {
+    if (status) status.textContent = text;
+  }
+
+  if (LIVE_STREAM_URL) {
+    video.src = LIVE_STREAM_URL;
+    message?.classList.add("hidden");
+    setStatus("Live");
+  } else {
+    setStatus("Offline");
+  }
+
+  video.addEventListener("playing", () => {
+    message?.classList.add("hidden");
+    setStatus("Live");
+  });
+
+  video.addEventListener("waiting", () => setStatus("Buffering…"));
+  video.addEventListener("pause", () => {
+    if (LIVE_STREAM_URL) setStatus("Paused");
+  });
+  video.addEventListener("error", () => {
+    message?.classList.remove("hidden");
+    setStatus("Offline");
+  });
+
+  fullscreen?.addEventListener("click", async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await (video.parentElement?.requestFullscreen?.() || video.requestFullscreen?.());
+      }
+    } catch {}
+  });
+})();
+</script>
+
+</body></html>

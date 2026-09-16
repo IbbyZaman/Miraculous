@@ -22,3 +22,175 @@
 [hidden]{display:none!important}
 @media(max-width:950px){.grid{grid-template-columns:repeat(3,1fr)}.nav{gap:13px}.nav a:nth-child(3),.nav a:nth-child(4){display:none}.hero-art{min-width:280px}.hero-tile{right:10px}}
 @media(max-width:680px){.topbar{padding:0 4vw;height:64px;gap:12px}.brand-text{display:none}.actions{margin-left:auto}.lang-btn{display:none}.signin{padding:0 10px}.hero{display:block;padding:50px 6vw 25px}.hero-art{height:225px;min-width:0;margin-top:15px}.hero-tile{width:190px;height:205px;right:calc(50% - 95px);top:10px;padding:20px}.hero-tile strong{font-size:22px}.orb.a{width:300px;height:170px;right:calc(50% - 150px)}.orb.b{width:255px;height:150px;right:calc(50% - 127px)}.container{width:88vw}.grid{grid-template-columns:repeat(2,1fr);gap:9px}.art{height:145px}.upcoming{padding:15px;gap:12px}.datebox{width:60px;height:60px}.badge{display:none}.footer{grid-template-columns:1fr}.footer-links{justify-content:flex-start}.watch-meta h1{font-size:25px}}
+
+
+/* ===== MiraculousHub responsive/mobile pass ===== */
+html { overflow-x: hidden; }
+body { overflow-x: hidden; }
+
+.live-section {
+  width: min(1200px, calc(100% - 32px));
+  margin: 28px auto 42px;
+}
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  margin-bottom: 6px;
+}
+
+.live-player-card {
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  background: #111;
+  box-shadow: 0 14px 45px rgba(0,0,0,.22);
+}
+
+.live-player {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #050505;
+}
+
+.live-player video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.live-player-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  padding: 24px;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(45,45,45,.28), rgba(0,0,0,.82));
+}
+
+.live-player-overlay.hidden { display: none; }
+
+.live-player-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,.12);
+}
+
+.live-player-overlay span {
+  opacity: .72;
+  font-size: .9rem;
+}
+
+.live-player-info {
+  min-height: 58px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.live-player-info > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.live-player-info span {
+  font-size: .78rem;
+  opacity: .65;
+}
+
+.live-action {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 8px 13px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .live-section {
+    width: 100%;
+    margin: 20px 0 30px;
+  }
+
+  .live-section .section-heading {
+    padding: 0 14px;
+  }
+
+  .live-player-card {
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .live-player {
+    aspect-ratio: 16 / 9;
+  }
+
+  .live-player-info {
+    padding: 9px 12px;
+  }
+
+  .live-action {
+    min-height: 42px;
+  }
+
+  /* Generic mobile layout fixes */
+  .container, .content, main, .page-content {
+    max-width: 100%;
+  }
+
+  img, video, iframe {
+    max-width: 100%;
+  }
+
+  .grid, .episode-grid, .cards, .episodes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  nav, .nav, .navbar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  nav::-webkit-scrollbar, .nav::-webkit-scrollbar, .navbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (max-width: 420px) {
+  .grid, .episode-grid, .cards, .episodes-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .live-player-info {
+    align-items: stretch;
+  }
+
+  .live-action {
+    padding-inline: 10px;
+  }
+}
