@@ -152,7 +152,22 @@ $("theater").onclick=()=>{player.classList.toggle("theater");showToast(player.cl
 $("fullscreen").onclick=async()=>{try{document.fullscreenElement?await document.exitFullscreen():await player.requestFullscreen()}catch{showToast("Fullscreen unavailable")}};
 $("watched").onclick=()=>{localStorage.setItem(posKey,String(v.duration||0));mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100});$("watched").textContent="✓ Watched";showToast("Marked as watched")};
 $("share").onclick=async()=>{try{if(navigator.share)await navigator.share({title:`${ep.title} — MiraculousHub`,url:location.href});else{await navigator.clipboard.writeText(location.href);$("share").textContent="Copied!"}}catch{}};
-$("download").onclick=()=>{if(media?.download)location.href=media.download};
+$("download").onclick=()=>{
+  if(!media?.download) return;
+  // Start the attachment download in a hidden browsing context so the
+  // MiraculousHub page itself never navigates away.
+  let frame=document.getElementById("mhDownloadFrame");
+  if(!frame){
+    frame=document.createElement("iframe");
+    frame.id="mhDownloadFrame";
+    frame.name="mhDownloadFrame";
+    frame.hidden=true;
+    frame.setAttribute("aria-hidden","true");
+    document.body.appendChild(frame);
+  }
+  frame.src=media.download;
+  showToast("Download started");
+};
 function activity(){player.classList.add("show-ui");clearTimeout(hideTimer);if(!v.paused)hideTimer=setTimeout(()=>player.classList.remove("show-ui"),2200)}
 player.addEventListener("pointermove",activity);player.addEventListener("pointerdown",activity);v.addEventListener("play",activity);v.addEventListener("pause",()=>player.classList.add("show-ui"));
 stage.addEventListener("dblclick",()=>$("fullscreen").click());

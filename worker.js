@@ -40,12 +40,13 @@ export default {
     const url=new URL(request.url);
     if(request.method==="OPTIONS") return new Response(null,{headers:cors()});
 
-    let item=VIDEOS[url.pathname];
-    const isDownload=url.pathname.startsWith("/download/");
-    if(isDownload){
-      const key=url.pathname.replace("/download/","");
-      item=Object.values(VIDEOS).find(x=>key==="bubbler"&&x.id==="1mHkQXdh5JowLNUKGHRDgWM1PyOk9xcO9" || key==="stormy-weather"&&x.id==="13kJTw_ybytXBuMlYmpwG1kGZLqu3Kd5y");
-    }
+    const DOWNLOADS = {
+      "/download/stormy-weather": VIDEOS["/video"],
+      "/download/bubbler": VIDEOS["/video/bubbler"]
+    };
+
+    const isDownload = Object.prototype.hasOwnProperty.call(DOWNLOADS, url.pathname);
+    const item = isDownload ? DOWNLOADS[url.pathname] : VIDEOS[url.pathname];
 
     if(!item) return new Response("Miraculous Video Server",{status:404,headers:cors(new Headers({"Content-Type":"text/plain"}))});
 
@@ -59,7 +60,10 @@ export default {
       out.set("Content-Type",gr.headers.get("Content-Type")||"video/mp4");
       out.set("Accept-Ranges","bytes");
       for(const n of ["Content-Length","Content-Range"]){const v=gr.headers.get(n);if(v)out.set(n,v);}
-      if(isDownload)out.set("Content-Disposition",`attachment; filename="${item.filename}"`);
+      if(isDownload){
+        out.set("Content-Disposition", `attachment; filename="${item.filename}"; filename*=UTF-8''${encodeURIComponent(item.filename)}`);
+        out.set("Cache-Control", "no-store");
+      }
       if(request.method==="HEAD")return new Response(null,{status:gr.status,headers:out});
       return new Response(gr.body,{status:gr.status,headers:out});
     }catch(e){

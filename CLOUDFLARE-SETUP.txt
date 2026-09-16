@@ -3,10 +3,12 @@ Cloudflare Worker setup
 2. Replace its code with worker.js.
 3. In Worker Settings > Variables and Secrets, keep GOOGLE_SERVICE_ACCOUNT as a Secret containing your existing service-account JSON.
 4. Deploy.
-5. Test:
+5. Test the endpoints in a new browser tab:
    /video
    /video/bubbler
    /download/stormy-weather
    /download/bubbler
+
+The website starts downloads in a hidden iframe, so clicking Download Episode does not navigate the main MiraculousHub page away.
 
 The frontend already points to the current Worker hostname. If you create a new Worker hostname, update MH_MEDIA in data.js.
