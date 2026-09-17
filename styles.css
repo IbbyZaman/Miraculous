@@ -208,6 +208,3 @@ body { overflow-x: hidden; }
 @media(max-width:900px) and (orientation:landscape){
  .topbar{height:52px}.hero{padding:25px 5vw}.hero-art{display:none}.container{width:94vw}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
-
-/* Episode thumbnails */
-.art{background-size:cover;background-position:center;min-height:190px;position:relative;overflow:hidden}.art:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.52));pointer-events:none}.art .epno,.art .availability,.art .new{z-index:2}.thumb{background-size:cover;background-position:center}

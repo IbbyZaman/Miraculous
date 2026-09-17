@@ -2,33 +2,32 @@ window.MH_EPISODES = [{"season": 1, "episode": 1, "title": "Stormy Weather", "co
 window.MH_SPECIALS = ["New York: United Heroez", "Shanghai: The Legend of Lady Dragon", "Awakening - The Movie", "Miraculous World Paris: Tales of Shadybug and Claw Noir", "London: At the Edge of Time", "Miraculous World: Tokyo, Stellar Force"];
 
 window.MH_MEDIA = {
-  "1-1": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/stormy-weather"},
-  "1-2": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/bubbler", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/bubbler"},
-  "1-3": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/pharaoh", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/pharaoh"},
-  "6-1": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/climatiqueen", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/climatiqueen"},
-  "6-2": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/the-illustrhater", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/the-illustrhater"},
-  "6-3": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/sublimation", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/sublimation"},
-  "6-4": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/daddycop", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/daddycop"},
-  "6-5": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/werepapas", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/werepapas"},
-  "6-6": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/sleeping-syren", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/sleeping-syren"},
-  "6-7": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/el-toro-de-piedra", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/el-toro-de-piedra"},
-  "6-8": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/vampigami", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/vampigami"},
-  "6-9": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/mr-agreste", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/mr-agreste"},
-  "6-10": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/the-dark-castle", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/the-dark-castle"},
-  "6-11": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/revelator", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/revelator"},
-  "6-12": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/wreckless-driver", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/wreckless-driver"},
-  "6-13": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/yaksi-gozen", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/yaksi-gozen"},
-  "6-14": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/grandiaper", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/grandiaper"},
-  "6-15": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/the-ruler", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/the-ruler"},
-  "6-16": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/noe", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/noe"},
-  "6-17": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/a-fairy-good-night", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/a-fairy-good-night"},
-  "6-18": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/the-dirtifiers", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/the-dirtifiers"},
-  "6-19": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/riginarazione", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/riginarazione"},
-  "6-20": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/heartfixer", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/heartfixer"},
-  "6-21": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/the-chained-titans", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/the-chained-titans"},
-  "6-22": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/lady-chaos", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/lady-chaos"},
-  "6-23": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/sadnansi", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/sadnansi"},
-  "6-24": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/queen-of-the-dreadzone", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/queen-of-the-dreadzone"},
-  "6-25": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/secret-protocol", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/secret-protocol"},
-  "6-26": {video:"https://miraculous-video.ibbyzaman4.workers.dev/video/nemesis", download:"https://miraculous-video.ibbyzaman4.workers.dev/download/nemesis"}
+  "1-1": {
+    video: "https://miraculous-video.ibbyzaman4.workers.dev/video",
+    download: "https://miraculous-video.ibbyzaman4.workers.dev/download/stormy-weather"
+  },
+  "1-2": {
+    video: "https://miraculous-video.ibbyzaman4.workers.dev/video/bubbler",
+    download: "https://miraculous-video.ibbyzaman4.workers.dev/download/bubbler"
+  },
+  "1-3": {
+    video: "https://miraculous-video.ibbyzaman4.workers.dev/video/pharaoh",
+    download: "https://miraculous-video.ibbyzaman4.workers.dev/download/pharaoh"
+  },
+  "6-20": {
+    video: "https://miraculous-video.ibbyzaman4.workers.dev/video/heartfixer",
+    download: "https://miraculous-video.ibbyzaman4.workers.dev/download/heartfixer"
+  },
+  "6-24": {
+    video: "https://miraculous-video.ibbyzaman4.workers.dev/video/queen-of-the-dreadzone",
+    download: "https://miraculous-video.ibbyzaman4.workers.dev/download/queen-of-the-dreadzone"
+  },
+  "6-25": {
+    video: "https://miraculous-video.ibbyzaman4.workers.dev/video/secret-protocol",
+    download: "https://miraculous-video.ibbyzaman4.workers.dev/download/secret-protocol"
+  },
+  "6-26": {
+    video: "https://miraculous-video.ibbyzaman4.workers.dev/video/nemesis",
+    download: "https://miraculous-video.ibbyzaman4.workers.dev/download/nemesis"
+  }
 };

@@ -114,9 +114,10 @@
   <div class="watch-actions">
    <button class="watch-action primary-action" id="download">⬇ Download Episode</button>
    <button class="watch-action" id="watched">✓ Mark as watched</button>
+   <button class="watch-action" id="favourite">♡ Favourite</button>
    <button class="watch-action" id="share">Share</button>
   </div>
-  <div class="description" id="description">Your viewing progress is saved locally in this browser.</div>
+  <div class="description" id="description">Sign in to sync your watch progress, watched status and favourites across devices. A small local cache is kept only as a fallback.</div>
   <p class="watch-note">Download availability depends on whether this episode has an authorised download source connected to MiraculousHub.</p>
   <div class="prevnext"><a id="prev" href="#">← Previous</a><a id="next" href="#">Next →</a></div>
  </section>
@@ -126,64 +127,602 @@
 <div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
 <script src="data.js"></script><script type="module" src="firebase.js"></script><script src="common.js"></script>
 <script>
-const params=new URLSearchParams(location.search);
-const season=Number(params.get("season")||1), number=Number(params.get("episode")||1);
-const ep=(window.MH_EPISODES||[]).find(x=>x.season===season&&x.episode===number)||(window.MH_EPISODES||[])[0];
-const $=id=>document.getElementById(id), key=`${ep.season}-${ep.episode}`, media=(window.MH_MEDIA||{})[key];
-document.title=`MiraculousHub — ${ep.title}`;
-$("episodeCode").textContent=`SEASON ${ep.season} · EPISODE ${ep.episode}`;
-$("title").textContent=ep.title;$("seasonLabel").textContent=`Miraculous Ladybug · Season ${ep.season}`;
-$("playerTitle").textContent=ep.title;$("playerCode").textContent=ep.code;const poster=`thumbnails/${ep.code}.svg`;v.poster=poster;
-const idx=MH_EPISODES.findIndex(x=>x.season===ep.season&&x.episode===ep.episode), prev=MH_EPISODES[idx-1], next=MH_EPISODES[idx+1];
-if(prev)$("prev").href=`watch.html?season=${prev.season}&episode=${prev.episode}`;else $("prev").style.visibility="hidden";
-if(next)$("next").href=`watch.html?season=${next.season}&episode=${next.episode}`;else $("next").style.visibility="hidden";
-const v=$("video"),player=$("player"),stage=$("stage"),area=$("progressArea"),current=$("current"),buffer=$("buffer"),knob=$("knob"),time=$("time"),posKey=`mh-pos-${key}`;
-let dragging=false,hideTimer;
-function fmt(sec){sec=Math.max(0,Math.floor(sec||0));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`}
-function update(){const pct=v.duration?Math.min(100,v.currentTime/v.duration*100):0;current.style.width=pct+"%";knob.style.left=pct+"%";if(v.buffered.length)buffer.style.width=(v.duration?Math.min(100,v.buffered.end(v.buffered.length-1)/v.duration*100):0)+"%";time.textContent=`${fmt(v.currentTime)} / ${fmt(v.duration)}`;if(v.duration&&v.currentTime>0)mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:pct})}
-function showToast(msg){$("toast").textContent=msg;$("toast").classList.add("show");clearTimeout(showToast.t);showToast.t=setTimeout(()=>$("toast").classList.remove("show"),900)}
-function setUI(){const p=!v.paused;player.classList.toggle("playing",p);$("play").textContent=p?"❚❚":"▶";$("centerPlay").textContent=p?"❚❚":"▶"}
-async function toggle(){if(!media)return;try{v.paused?await v.play():v.pause()}catch{}setUI()}
-function seek(x){if(!v.duration)return;const r=area.getBoundingClientRect(),p=Math.max(0,Math.min(1,(x-r.left)/r.width));v.currentTime=p*v.duration;update()}
-if(media){v.src=media.video}else{$("playerMessage").hidden=false;$("centerPlay").disabled=true;$("download").disabled=true;$("download").textContent="⬇ Download unavailable"}
-$("play").onclick=toggle;$("centerPlay").onclick=toggle;v.addEventListener("play",setUI);v.addEventListener("pause",setUI);
-v.addEventListener("loadedmetadata",()=>{const saved=Number(localStorage.getItem(posKey)||0);if(saved>0&&saved<v.duration-5)v.currentTime=saved;update()});
-v.addEventListener("timeupdate",()=>{update();if(Math.floor(v.currentTime)%5===0)localStorage.setItem(posKey,String(v.currentTime))});
-v.addEventListener("progress",update);v.addEventListener("ended",()=>{mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100});localStorage.removeItem(posKey);showToast("Episode finished")});
-area.addEventListener("pointerdown",e=>{dragging=true;area.classList.add("dragging");area.setPointerCapture(e.pointerId);seek(e.clientX)});
-area.addEventListener("pointermove",e=>{if(dragging)seek(e.clientX)});area.addEventListener("pointerup",e=>{if(dragging)seek(e.clientX);dragging=false;area.classList.remove("dragging")});area.addEventListener("pointercancel",()=>{dragging=false;area.classList.remove("dragging")});
-$("back").onclick=()=>{v.currentTime=Math.max(0,v.currentTime-10);showToast("−10 seconds")};$("forward").onclick=()=>{v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);showToast("+10 seconds")};
-$("mute").onclick=()=>{v.muted=!v.muted;$("mute").textContent=v.muted?"🔇":"🔊"};$("volume").oninput=e=>{v.volume=+e.target.value;v.muted=v.volume===0;$("mute").textContent=v.muted?"🔇":"🔊"};
-$("settings").onclick=e=>{e.stopPropagation();$("settingsMenu").hidden=!$("settingsMenu").hidden};document.addEventListener("click",e=>{if(!e.target.closest(".settings-wrap"))$("settingsMenu").hidden=true});
-document.querySelectorAll("[data-speed]").forEach(b=>b.onclick=()=>{v.playbackRate=+b.dataset.speed;showToast(`Speed ${b.textContent}`);$("settingsMenu").hidden=true});
-$("pip").onclick=async()=>{try{if(document.pictureInPictureElement)await document.exitPictureInPicture();else if(document.pictureInPictureEnabled)await v.requestPictureInPicture()}catch{showToast("Picture-in-picture unavailable")}};
-$("theater").onclick=()=>{player.classList.toggle("theater");showToast(player.classList.contains("theater")?"Theater mode on":"Theater mode off");$("settingsMenu").hidden=true};
-$("fullscreen").onclick=async()=>{try{document.fullscreenElement?await document.exitFullscreen():await player.requestFullscreen()}catch{showToast("Fullscreen unavailable")}};
-$("watched").onclick=()=>{localStorage.setItem(posKey,String(v.duration||0));mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100});$("watched").textContent="✓ Watched";showToast("Marked as watched")};
-$("share").onclick=async()=>{try{if(navigator.share)await navigator.share({title:`${ep.title} — MiraculousHub`,url:location.href});else{await navigator.clipboard.writeText(location.href);$("share").textContent="Copied!"}}catch{}};
-$("download").onclick=()=>{
-  if(!media?.download){showToast("Download unavailable");return}
-  // Start the attachment download without navigating away from MiraculousHub.
-  let frame=document.getElementById("mhDownloadFrame");
-  if(!frame){
-    frame=document.createElement("iframe");
-    frame.id="mhDownloadFrame";
-    frame.setAttribute("aria-hidden","true");
-    frame.style.position="fixed";
-    frame.style.width="1px";
-    frame.style.height="1px";
-    frame.style.left="-10000px";
-    frame.style.top="-10000px";
-    frame.style.border="0";
-    frame.style.opacity="0";
+const params = new URLSearchParams(location.search);
+const season = Number(params.get("season") || 1);
+const number = Number(params.get("episode") || 1);
+
+const ep =
+  (window.MH_EPISODES || []).find(
+    x => x.season === season && x.episode === number
+  ) || (window.MH_EPISODES || [])[0];
+
+const $ = id => document.getElementById(id);
+const key = `${ep.season}-${ep.episode}`;
+const media = (window.MH_MEDIA || {})[key];
+const posKey = `mh-pos-${key}`;
+
+document.title = `MiraculousHub — ${ep.title}`;
+
+$("episodeCode").textContent =
+  `SEASON ${ep.season} · EPISODE ${ep.episode}`;
+
+$("title").textContent = ep.title;
+$("seasonLabel").textContent =
+  `Miraculous Ladybug · Season ${ep.season}`;
+
+$("playerTitle").textContent = ep.title;
+$("playerCode").textContent = ep.code;
+
+const idx = MH_EPISODES.findIndex(
+  x => x.season === ep.season && x.episode === ep.episode
+);
+
+const prev = MH_EPISODES[idx - 1];
+const next = MH_EPISODES[idx + 1];
+
+if (prev) {
+  $("prev").href =
+    `watch.html?season=${prev.season}&episode=${prev.episode}`;
+} else {
+  $("prev").style.visibility = "hidden";
+}
+
+if (next) {
+  $("next").href =
+    `watch.html?season=${next.season}&episode=${next.episode}`;
+} else {
+  $("next").style.visibility = "hidden";
+}
+
+const v = $("video");
+const player = $("player");
+const stage = $("stage");
+const area = $("progressArea");
+const current = $("current");
+const buffer = $("buffer");
+const knob = $("knob");
+const time = $("time");
+
+let dragging = false;
+let hideTimer;
+let cloudSaveTimer = null;
+let lastCloudSave = 0;
+let lastProgressSaveSecond = -1;
+let cloudPosition = 0;
+
+function fmt(sec) {
+  sec = Math.max(0, Math.floor(sec || 0));
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+
+  return h
+    ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+    : `${m}:${String(s).padStart(2, "0")}`;
+}
+
+function episodeProgress() {
+  return v.duration
+    ? Math.min(100, v.currentTime / v.duration * 100)
+    : 0;
+}
+
+function update() {
+  const pct = episodeProgress();
+
+  current.style.width = pct + "%";
+  knob.style.left = pct + "%";
+
+  if (v.buffered.length) {
+    const end = v.buffered.end(v.buffered.length - 1);
+    buffer.style.width =
+      (v.duration
+        ? Math.min(100, end / v.duration * 100)
+        : 0) + "%";
+  }
+
+  time.textContent =
+    `${fmt(v.currentTime)} / ${fmt(v.duration)}`;
+
+}
+
+function saveCloudPosition(force = false) {
+  if (!window.MH_USER || !window.MH_CLOUD || !v.duration) return;
+
+  const now = Date.now();
+
+  if (!force && now - lastCloudSave < 5000) return;
+
+  lastCloudSave = now;
+
+  window.MH_CLOUD.savePlayback(
+    `s${ep.season}e${ep.episode}`,
+    {
+      season: ep.season,
+      episode: ep.episode,
+      title: ep.title,
+      progress: episodeProgress(),
+      position: v.currentTime,
+      duration: v.duration
+    }
+  ).catch(() => {});
+}
+
+function scheduleCloudPosition() {
+  if (!window.MH_USER) return;
+
+  clearTimeout(cloudSaveTimer);
+
+  cloudSaveTimer = setTimeout(() => {
+    saveCloudPosition();
+  }, 900);
+}
+
+function showToast(msg) {
+  $("toast").textContent = msg;
+  $("toast").classList.add("show");
+
+  clearTimeout(showToast.t);
+
+  showToast.t = setTimeout(() => {
+    $("toast").classList.remove("show");
+  }, 1000);
+}
+
+function setUI() {
+  const playing = !v.paused;
+
+  player.classList.toggle("playing", playing);
+  $("play").textContent = playing ? "❚❚" : "▶";
+  $("centerPlay").textContent = playing ? "❚❚" : "▶";
+}
+
+async function toggle() {
+  if (!media) return;
+
+  try {
+    if (v.paused) {
+      await v.play();
+    } else {
+      v.pause();
+    }
+  } catch {}
+
+  setUI();
+}
+
+function seek(x) {
+  if (!v.duration) return;
+
+  const r = area.getBoundingClientRect();
+
+  const p = Math.max(
+    0,
+    Math.min(1, (x - r.left) / r.width)
+  );
+
+  v.currentTime = p * v.duration;
+  update();
+  saveCloudPosition(true);
+}
+
+async function restoreCloudPosition() {
+  if (!window.MH_CLOUD || !window.MH_USER) return;
+
+  try {
+    const cloud =
+      await window.MH_CLOUD.getPlayback(
+        `s${ep.season}e${ep.episode}`
+      );
+
+    if (
+      cloud &&
+      Number(cloud.position) > 0 &&
+      v.duration &&
+      Number(cloud.position) < v.duration - 5
+    ) {
+      v.currentTime = Number(cloud.position);
+      cloudPosition = Number(cloud.position);
+      update();
+      return;
+    }
+  } catch {}
+
+  // Local cache is only a fallback when cloud data
+  // does not contain a usable position.
+  const cached = Number(
+    localStorage.getItem(posKey) || 0
+  );
+
+  if (
+    cached > 0 &&
+    v.duration &&
+    cached < v.duration - 5
+  ) {
+    v.currentTime = cached;
+  }
+
+  update();
+}
+
+async function updateAccountData() {
+  if (!window.MH_USER || !window.MH_CLOUD) return;
+
+  try {
+    const watched =
+      await window.MH_CLOUD.getWatched(
+        `s${ep.season}e${ep.episode}`
+      );
+
+    if (watched) {
+      $("watched").textContent = "✓ Watched";
+    }
+
+    const favourite =
+      await window.MH_CLOUD.getFavourite(
+        `s${ep.season}e${ep.episode}`
+      );
+
+    $("favourite").textContent =
+      favourite ? "♥ Favourited" : "♡ Favourite";
+  } catch {}
+}
+
+if (media) {
+  v.src = media.video;
+  $("description").textContent =
+    "Your signed-in account can sync playback progress, watched status and favourites across devices.";
+} else {
+  $("playerMessage").hidden = false;
+  $("playerMessage").querySelector("strong").textContent =
+    "Episode source not connected yet";
+  $("playerMessage").querySelector("span").textContent =
+    "This Season 6 episode is unlocked in the catalogue, but a video source has not been connected to MiraculousHub yet.";
+  $("centerPlay").disabled = true;
+  $("download").disabled = true;
+  $("download").textContent = "⬇ Download unavailable";
+}
+
+$("play").onclick = toggle;
+$("centerPlay").onclick = toggle;
+
+v.addEventListener("play", setUI);
+v.addEventListener("pause", () => {
+  setUI();
+  saveCloudPosition(true);
+});
+
+v.addEventListener("loadedmetadata", async () => {
+  await restoreCloudPosition();
+  await updateAccountData();
+});
+
+v.addEventListener("timeupdate", () => {
+  update();
+
+  if (v.currentTime > 0) {
+    localStorage.setItem(
+      posKey,
+      String(v.currentTime)
+    );
+
+    const second = Math.floor(v.currentTime);
+
+    if (
+      second % 5 === 0 &&
+      second !== lastProgressSaveSecond
+    ) {
+      lastProgressSaveSecond = second;
+
+      window.mhSaveProgress({
+        season: ep.season,
+        episode: ep.episode,
+        title: ep.title,
+        progress: episodeProgress(),
+        position: v.currentTime,
+        duration: v.duration
+      });
+    }
+  }
+
+  scheduleCloudPosition();
+});
+
+v.addEventListener("progress", update);
+
+v.addEventListener("ended", async () => {
+  window.mhSaveProgress({
+    season: ep.season,
+    episode: ep.episode,
+    title: ep.title,
+    progress: 100,
+    position: v.duration || 0,
+    duration: v.duration || 0
+  });
+
+  localStorage.removeItem(posKey);
+
+  if (window.MH_USER && window.MH_CLOUD) {
+    await window.MH_CLOUD.markWatched(
+      `s${ep.season}e${ep.episode}`,
+      ep
+    ).catch(() => {});
+
+    $("watched").textContent = "✓ Watched";
+  }
+
+  saveCloudPosition(true);
+  showToast("Episode finished");
+});
+
+area.addEventListener("pointerdown", e => {
+  dragging = true;
+  area.classList.add("dragging");
+  area.setPointerCapture(e.pointerId);
+  seek(e.clientX);
+});
+
+area.addEventListener("pointermove", e => {
+  if (dragging) seek(e.clientX);
+});
+
+area.addEventListener("pointerup", e => {
+  if (dragging) seek(e.clientX);
+
+  dragging = false;
+  area.classList.remove("dragging");
+});
+
+area.addEventListener("pointercancel", () => {
+  dragging = false;
+  area.classList.remove("dragging");
+});
+
+$("back").onclick = () => {
+  v.currentTime =
+    Math.max(0, v.currentTime - 10);
+
+  update();
+  saveCloudPosition(true);
+  showToast("−10 seconds");
+};
+
+$("forward").onclick = () => {
+  v.currentTime =
+    Math.min(
+      v.duration || Infinity,
+      v.currentTime + 10
+    );
+
+  update();
+  saveCloudPosition(true);
+  showToast("+10 seconds");
+};
+
+$("mute").onclick = () => {
+  v.muted = !v.muted;
+  $("mute").textContent =
+    v.muted ? "🔇" : "🔊";
+};
+
+$("volume").oninput = e => {
+  v.volume = +e.target.value;
+  v.muted = v.volume === 0;
+  $("mute").textContent =
+    v.muted ? "🔇" : "🔊";
+};
+
+$("settings").onclick = e => {
+  e.stopPropagation();
+  $("settingsMenu").hidden =
+    !$("settingsMenu").hidden;
+};
+
+document.addEventListener("click", e => {
+  if (!e.target.closest(".settings-wrap")) {
+    $("settingsMenu").hidden = true;
+  }
+});
+
+document.querySelectorAll("[data-speed]")
+  .forEach(b => {
+    b.onclick = () => {
+      v.playbackRate = +b.dataset.speed;
+      showToast(`Speed ${b.textContent}`);
+      $("settingsMenu").hidden = true;
+    };
+  });
+
+$("pip").onclick = async () => {
+  try {
+    if (document.pictureInPictureElement) {
+      await document.exitPictureInPicture();
+    } else if (document.pictureInPictureEnabled) {
+      await v.requestPictureInPicture();
+    }
+  } catch {
+    showToast("Picture-in-picture unavailable");
+  }
+};
+
+$("theater").onclick = () => {
+  player.classList.toggle("theater");
+  showToast(
+    player.classList.contains("theater")
+      ? "Theater mode on"
+      : "Theater mode off"
+  );
+  $("settingsMenu").hidden = true;
+};
+
+$("fullscreen").onclick = async () => {
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    } else {
+      await player.requestFullscreen();
+    }
+  } catch {
+    showToast("Fullscreen unavailable");
+  }
+};
+
+$("watched").onclick = async () => {
+  if (!window.MH_USER) {
+    window.mhOpenAuth?.();
+    return;
+  }
+
+  try {
+    await window.MH_CLOUD.markWatched(
+      `s${ep.season}e${ep.episode}`,
+      ep
+    );
+
+    window.mhSaveProgress({
+      season: ep.season,
+      episode: ep.episode,
+      title: ep.title,
+      progress: 100,
+      position: v.duration || 0,
+      duration: v.duration || 0
+    });
+
+    $("watched").textContent = "✓ Watched";
+    showToast("Saved to your account");
+  } catch {
+    showToast("Could not save watched status");
+  }
+};
+
+$("favourite").onclick = async () => {
+  if (!window.MH_USER) {
+    window.mhOpenAuth?.();
+    return;
+  }
+
+  try {
+    const active =
+      await window.mhToggleFavourite(ep);
+
+    $("favourite").textContent =
+      active ? "♥ Favourited" : "♡ Favourite";
+
+    showToast(
+      active
+        ? "Added to favourites"
+        : "Removed from favourites"
+    );
+  } catch {
+    showToast("Could not update favourite");
+  }
+};
+
+$("share").onclick = async () => {
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title:
+          `${ep.title} — MiraculousHub`,
+        url: location.href
+      });
+    } else {
+      await navigator.clipboard.writeText(
+        location.href
+      );
+      $("share").textContent = "Copied!";
+    }
+  } catch {}
+};
+
+$("download").onclick = () => {
+  if (!media?.download) {
+    showToast("Download unavailable");
+    return;
+  }
+
+  let frame =
+    document.getElementById("mhDownloadFrame");
+
+  if (!frame) {
+    frame = document.createElement("iframe");
+    frame.id = "mhDownloadFrame";
+    frame.setAttribute("aria-hidden", "true");
+    frame.style.position = "fixed";
+    frame.style.width = "1px";
+    frame.style.height = "1px";
+    frame.style.left = "-10000px";
+    frame.style.top = "-10000px";
+    frame.style.border = "0";
+    frame.style.opacity = "0";
     document.body.appendChild(frame);
   }
-  frame.src=media.download;
+
+  frame.src = media.download;
   showToast("Download started");
 };
-function activity(){player.classList.add("show-ui");clearTimeout(hideTimer);if(!v.paused)hideTimer=setTimeout(()=>player.classList.remove("show-ui"),2200)}
-player.addEventListener("pointermove",activity);player.addEventListener("pointerdown",activity);v.addEventListener("play",activity);v.addEventListener("pause",()=>player.classList.add("show-ui"));
-stage.addEventListener("dblclick",()=>$("fullscreen").click());
-document.addEventListener("keydown",e=>{if(["INPUT","TEXTAREA","BUTTON"].includes(document.activeElement.tagName)&&e.code!=="Space")return;if(e.code==="Space"){e.preventDefault();toggle()}else if(e.key==="ArrowLeft")v.currentTime=Math.max(0,v.currentTime-10);else if(e.key==="ArrowRight")v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);else if(e.key.toLowerCase()==="m")$("mute").click();else if(e.key.toLowerCase()==="f")$("fullscreen").click()});
+
+function activity() {
+  player.classList.add("show-ui");
+  clearTimeout(hideTimer);
+
+  if (!v.paused) {
+    hideTimer = setTimeout(
+      () => player.classList.remove("show-ui"),
+      2200
+    );
+  }
+}
+
+player.addEventListener("pointermove", activity);
+player.addEventListener("pointerdown", activity);
+v.addEventListener("play", activity);
+v.addEventListener(
+  "pause",
+  () => player.classList.add("show-ui")
+);
+
+stage.addEventListener(
+  "dblclick",
+  () => $("fullscreen").click()
+);
+
+document.addEventListener("keydown", e => {
+  if (
+    ["INPUT", "TEXTAREA", "BUTTON"]
+      .includes(document.activeElement.tagName) &&
+    e.code !== "Space"
+  ) return;
+
+  if (e.code === "Space") {
+    e.preventDefault();
+    toggle();
+  } else if (e.key === "ArrowLeft") {
+    v.currentTime =
+      Math.max(0, v.currentTime - 10);
+    saveCloudPosition(true);
+  } else if (e.key === "ArrowRight") {
+    v.currentTime =
+      Math.min(
+        v.duration || Infinity,
+        v.currentTime + 10
+      );
+    saveCloudPosition(true);
+  } else if (e.key.toLowerCase() === "m") {
+    $("mute").click();
+  } else if (e.key.toLowerCase() === "f") {
+    $("fullscreen").click();
+  }
+});
+
+// If Firebase restores an existing signed-in session
+// after the player has loaded, restore the account data.
+window.addEventListener(
+  "mh-account-ready",
+  async () => {
+    await updateAccountData();
+    await restoreCloudPosition();
+  }
+);
 </script>
 </body></html>
