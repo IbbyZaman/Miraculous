@@ -7,6 +7,11 @@
   gtag('js', new Date());
   gtag('config', 'G-6K9W3X96EY');
 </script>
+<style>
+/* Twitch-backed homepage live player */
+.twitch-live-player{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden}
+.twitch-live-player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+</style>
 </head><body>
 <header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a><nav class="nav"><a class="active" href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="#">Music</a><a href="#">The Show</a></nav><div class="actions"><button class="icon-btn" id="searchOpen">⌕</button><button class="theme-btn" id="themeToggle">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button></div></header>
 <section class="hero"><div class="hero-copy"><p class="kicker">MIRACULOUS LADYBUG</p><h1>Your Miraculous<br><span>watch hub.</span></h1><p class="hero-sub">Episodes, specials and your personal Continue Watching list — all in one clean, ad-free place.</p><div class="hero-actions"><a class="primary" href="episodes.html">Browse Episodes</a><a class="secondary" href="#latest">Latest Episodes</a></div></div><div class="hero-art"><div class="orb a"></div><div class="orb b"></div><div class="hero-tile"><small>SEASON 6</small><strong>NEMESIS</strong><span>EPISODE 26</span><div class="play-circle">▶</div></div></div></section>
@@ -21,19 +26,19 @@
   </div>
 
   <div class="live-player-card">
-    <div class="live-player">
-      <video id="homeLiveVideo" controls playsinline preload="metadata"
-             poster="" aria-label="MiraculousHub live stream"></video>
-      <div class="live-player-overlay" id="livePlayerMessage">
-        <div class="live-player-icon">▶</div>
-        <strong>Live stream</strong>
-        <span>The stream will appear here when it is online.</span>
-      </div>
+    <div class="live-player twitch-live-player">
+      <iframe
+        src="https://player.twitch.tv/?channel=ibbyanimation&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk"
+        title="MiraculousHub Live on Twitch"
+        allow="autoplay; fullscreen"
+        allowfullscreen
+        scrolling="no"
+        frameborder="0"></iframe>
     </div>
     <div class="live-player-info">
       <div>
         <strong>MiraculousHub Live</strong>
-        <span id="liveStatus">Offline</span>
+        <span id="liveStatus">Twitch Live</span>
       </div>
       <button type="button" id="liveFullscreenBtn" class="live-action">Fullscreen</button>
     </div>
