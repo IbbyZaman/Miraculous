@@ -1,27 +1,65 @@
 const VIDEOS = {
-  "/video": {
-    id: "13kJTw_ybytXBuMlYmpwG1kGZLqu3Kd5y",
-    filename: "S01E01 - Stormy Weather.mp4"
-  },
-  "/video/bubbler": {
-    id: "1mHkQXdh5JowLNUKGHRDgWM1PyOk9xcO9",
-    filename: "S01E02 - The Bubbler.mp4"
-  },
-  "/video/pharaoh": {
-    id: "1hq5gCYHleseBv_Qm3_8rRXCPluBIPy7C",
-    filename: "S01E03 - The Pharaoh.mp4"
-  },
-  "/video/secret-protocol": {
-    id: "1WNfkFBPZZuS4n2NpspIRQuhbBSAOQc9m",
-    filename: "S06E25 - Secret Protocol.mp4"
-  }
+  "/video": { id: "13kJTw_ybytXBuMlYmpwG1kGZLqu3Kd5y", filename: "S01E01 - Stormy Weather.mp4" },
+  "/video/bubbler": { id: "1mHkQXdh5JowLNUKGHRDgWM1PyOk9xcO9", filename: "S01E02 - The Bubbler.mp4" },
+  "/video/pharaoh": { id: "1hq5gCYHleseBv_Qm3_8rRXCPluBIPy7C", filename: "S01E03 - The Pharaoh.mp4" },
+  "/video/climatiqueen": { id: "REPLACE_WITH_S06E01_DRIVE_FILE_ID", filename: "S06E01 - Climatiqueen.mp4" },
+  "/video/the-illustrhater": { id: "REPLACE_WITH_S06E02_DRIVE_FILE_ID", filename: "S06E02 - The Illustrhater.mp4" },
+  "/video/sublimation": { id: "REPLACE_WITH_S06E03_DRIVE_FILE_ID", filename: "S06E03 - Sublimation.mp4" },
+  "/video/daddycop": { id: "REPLACE_WITH_S06E04_DRIVE_FILE_ID", filename: "S06E04 - Daddycop.mp4" },
+  "/video/werepapas": { id: "REPLACE_WITH_S06E05_DRIVE_FILE_ID", filename: "S06E05 - Werepapas.mp4" },
+  "/video/sleeping-syren": { id: "REPLACE_WITH_S06E06_DRIVE_FILE_ID", filename: "S06E06 - Sleeping Syren.mp4" },
+  "/video/el-toro-de-piedra": { id: "REPLACE_WITH_S06E07_DRIVE_FILE_ID", filename: "S06E07 - El Toro De Piedra.mp4" },
+  "/video/vampigami": { id: "REPLACE_WITH_S06E08_DRIVE_FILE_ID", filename: "S06E08 - Vampigami.mp4" },
+  "/video/mr-agreste": { id: "REPLACE_WITH_S06E09_DRIVE_FILE_ID", filename: "S06E09 - Mr. Agreste.mp4" },
+  "/video/the-dark-castle": { id: "REPLACE_WITH_S06E10_DRIVE_FILE_ID", filename: "S06E10 - The Dark Castle.mp4" },
+  "/video/revelator": { id: "REPLACE_WITH_S06E11_DRIVE_FILE_ID", filename: "S06E11 - Revelator.mp4" },
+  "/video/wreckless-driver": { id: "REPLACE_WITH_S06E12_DRIVE_FILE_ID", filename: "S06E12 - Wreckless Driver.mp4" },
+  "/video/yaksi-gozen": { id: "REPLACE_WITH_S06E13_DRIVE_FILE_ID", filename: "S06E13 - Yaksi Gozen.mp4" },
+  "/video/grandiaper": { id: "REPLACE_WITH_S06E14_DRIVE_FILE_ID", filename: "S06E14 - Grandiaper.mp4" },
+  "/video/the-ruler": { id: "REPLACE_WITH_S06E15_DRIVE_FILE_ID", filename: "S06E15 - The Ruler.mp4" },
+  "/video/noe": { id: "REPLACE_WITH_S06E16_DRIVE_FILE_ID", filename: "S06E16 - Noe.mp4" },
+  "/video/a-fairy-good-night": { id: "REPLACE_WITH_S06E17_DRIVE_FILE_ID", filename: "S06E17 - A Fairy Good Night.mp4" },
+  "/video/the-dirtifiers": { id: "REPLACE_WITH_S06E18_DRIVE_FILE_ID", filename: "S06E18 - The Dirtifiers.mp4" },
+  "/video/riginarazione": { id: "REPLACE_WITH_S06E19_DRIVE_FILE_ID", filename: "S06E19 - Riginarazione.mp4" },
+  "/video/heartfixer": { id: "REPLACE_WITH_S06E20_DRIVE_FILE_ID", filename: "S06E20 - Heartfixer.mp4" },
+  "/video/the-chained-titans": { id: "REPLACE_WITH_S06E21_DRIVE_FILE_ID", filename: "S06E21 - The Chained Titans.mp4" },
+  "/video/lady-chaos": { id: "REPLACE_WITH_S06E22_DRIVE_FILE_ID", filename: "S06E22 - Lady Chaos.mp4" },
+  "/video/sadnansi": { id: "REPLACE_WITH_S06E23_DRIVE_FILE_ID", filename: "S06E23 - Sadnansi.mp4" },
+  "/video/queen-of-the-dreadzone": { id: "16kddGMxsSDEwT6-4_949oxl5A-cjNhwZ", filename: "S06E24 - Queen Of The Dreadzone.mp4" },
+  "/video/secret-protocol": { id: "1WNfkFBPZZuS4n2NpspIRQuhbBSAOQc9m", filename: "S06E25 - Secret Protocol.mp4" },
+  "/video/nemesis": { id: "1Cxtaq0hHq7wnrl9SZMSgFyCSNTYCtx2r", filename: "S06E26 - Nemesis.mp4" }
 };
 
 const DOWNLOADS = {
   "/download/stormy-weather": VIDEOS["/video"],
   "/download/bubbler": VIDEOS["/video/bubbler"],
   "/download/pharaoh": VIDEOS["/video/pharaoh"],
-  "/download/secret-protocol": VIDEOS["/video/secret-protocol"]
+  "/download/climatiqueen": VIDEOS["/video/climatiqueen"],
+  "/download/the-illustrhater": VIDEOS["/video/the-illustrhater"],
+  "/download/sublimation": VIDEOS["/video/sublimation"],
+  "/download/daddycop": VIDEOS["/video/daddycop"],
+  "/download/werepapas": VIDEOS["/video/werepapas"],
+  "/download/sleeping-syren": VIDEOS["/video/sleeping-syren"],
+  "/download/el-toro-de-piedra": VIDEOS["/video/el-toro-de-piedra"],
+  "/download/vampigami": VIDEOS["/video/vampigami"],
+  "/download/mr-agreste": VIDEOS["/video/mr-agreste"],
+  "/download/the-dark-castle": VIDEOS["/video/the-dark-castle"],
+  "/download/revelator": VIDEOS["/video/revelator"],
+  "/download/wreckless-driver": VIDEOS["/video/wreckless-driver"],
+  "/download/yaksi-gozen": VIDEOS["/video/yaksi-gozen"],
+  "/download/grandiaper": VIDEOS["/video/grandiaper"],
+  "/download/the-ruler": VIDEOS["/video/the-ruler"],
+  "/download/noe": VIDEOS["/video/noe"],
+  "/download/a-fairy-good-night": VIDEOS["/video/a-fairy-good-night"],
+  "/download/the-dirtifiers": VIDEOS["/video/the-dirtifiers"],
+  "/download/riginarazione": VIDEOS["/video/riginarazione"],
+  "/download/heartfixer": VIDEOS["/video/heartfixer"],
+  "/download/the-chained-titans": VIDEOS["/video/the-chained-titans"],
+  "/download/lady-chaos": VIDEOS["/video/lady-chaos"],
+  "/download/sadnansi": VIDEOS["/video/sadnansi"],
+  "/download/queen-of-the-dreadzone": VIDEOS["/video/queen-of-the-dreadzone"],
+  "/download/secret-protocol": VIDEOS["/video/secret-protocol"],
+  "/download/nemesis": VIDEOS["/video/nemesis"]
 };
 
 function base64url(data) {
@@ -154,13 +192,63 @@ Video routes:
 /video
 /video/bubbler
 /video/pharaoh
+/video/climatiqueen
+/video/the-illustrhater
+/video/sublimation
+/video/daddycop
+/video/werepapas
+/video/sleeping-syren
+/video/el-toro-de-piedra
+/video/vampigami
+/video/mr-agreste
+/video/the-dark-castle
+/video/revelator
+/video/wreckless-driver
+/video/yaksi-gozen
+/video/grandiaper
+/video/the-ruler
+/video/noe
+/video/a-fairy-good-night
+/video/the-dirtifiers
+/video/riginarazione
+/video/heartfixer
+/video/the-chained-titans
+/video/lady-chaos
+/video/sadnansi
+/video/queen-of-the-dreadzone
 /video/secret-protocol
+/video/nemesis
 
 Download routes:
 /download/stormy-weather
 /download/bubbler
 /download/pharaoh
+/download/climatiqueen
+/download/the-illustrhater
+/download/sublimation
+/download/daddycop
+/download/werepapas
+/download/sleeping-syren
+/download/el-toro-de-piedra
+/download/vampigami
+/download/mr-agreste
+/download/the-dark-castle
+/download/revelator
+/download/wreckless-driver
+/download/yaksi-gozen
+/download/grandiaper
+/download/the-ruler
+/download/noe
+/download/a-fairy-good-night
+/download/the-dirtifiers
+/download/riginarazione
+/download/heartfixer
+/download/the-chained-titans
+/download/lady-chaos
+/download/sadnansi
+/download/queen-of-the-dreadzone
 /download/secret-protocol
+/download/nemesis
 `,
         { headers: { ...corsHeaders(), "Content-Type": "text/plain; charset=utf-8" } }
       );

@@ -1,0 +1,14 @@
+S6 UNLOCKED / CLOUDFLARE READY
+
+All Season 6 episodes are now marked available in the website and have automatic Cloudflare route URLs.
+
+E01-E23:
+- Website points to /video/<slug> and /download/<slug>
+- Worker contains placeholder Drive IDs: REPLACE_WITH_S06EXX_DRIVE_FILE_ID
+- Replace each placeholder with the corresponding Google Drive file ID when you upload/share the episode.
+
+E24 Queen of the Dreadzone, E25 Secret Protocol, and E26 Nemesis already contain their real Drive IDs.
+
+After editing worker.js, deploy it to the existing Worker.
+The existing GOOGLE_SERVICE_ACCOUNT secret is unchanged.
+Each Drive file must be shared with the same service account.
