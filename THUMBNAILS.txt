@@ -1,0 +1,8 @@
+MiraculousHub thumbnail pack
+-----------------------------
+This build includes an original, non-show-still thumbnail for every listed episode and special.
+Files are SVG and are loaded automatically by the episode cards, homepage latest episodes,
+Continue Watching cards, and the watch player poster.
+
+To replace a thumbnail with an image you have permission to use, keep the same filename
+(e.g. S06E25.svg) or update the corresponding thumbnail path in the HTML.

@@ -133,7 +133,7 @@ const $=id=>document.getElementById(id), key=`${ep.season}-${ep.episode}`, media
 document.title=`MiraculousHub — ${ep.title}`;
 $("episodeCode").textContent=`SEASON ${ep.season} · EPISODE ${ep.episode}`;
 $("title").textContent=ep.title;$("seasonLabel").textContent=`Miraculous Ladybug · Season ${ep.season}`;
-$("playerTitle").textContent=ep.title;$("playerCode").textContent=ep.code;
+$("playerTitle").textContent=ep.title;$("playerCode").textContent=ep.code;const poster=`thumbnails/${ep.code}.svg`;v.poster=poster;
 const idx=MH_EPISODES.findIndex(x=>x.season===ep.season&&x.episode===ep.episode), prev=MH_EPISODES[idx-1], next=MH_EPISODES[idx+1];
 if(prev)$("prev").href=`watch.html?season=${prev.season}&episode=${prev.episode}`;else $("prev").style.visibility="hidden";
 if(next)$("next").href=`watch.html?season=${next.season}&episode=${next.episode}`;else $("next").style.visibility="hidden";

@@ -28,7 +28,7 @@ function render(){
  grid.innerHTML=arr.length?arr.map(e=>{
  const available=!e.special && !!(window.MH_MEDIA||{})[`${e.season}-${e.episode}`];
  const href=e.special?"#":`watch.html?season=${e.season}&episode=${e.episode}`;
- return `<a class="card ${available?"":"card-unavailable"}" href="${href}"><div class="art">${e.new?'<span class="new">NEW</span>':""}<span class="epno">${e.special?e.code:`SEASON ${e.season} · EPISODE ${e.episode}`}</span><span class="availability">${e.special?"SPECIAL":available?"WATCH NOW":"COMING SOON"}</span></div><div class="card-info"><h3>${e.title}</h3><p>${e.code}</p></div></a>`;
+ const thumb=e.special?`thumbnails/SPECIAL-${e.episode}.svg`:`thumbnails/${e.code}.svg`; return `<a class="card ${available?"":"card-unavailable"}" href="${href}"><div class="art" style="background-image:url("${thumb}")">${e.new?'<span class="new">NEW</span>':""}<span class="epno">${e.special?e.code:`SEASON ${e.season} · EPISODE ${e.episode}`}</span><span class="availability">${e.special?"SPECIAL":available?"WATCH NOW":"COMING SOON"}</span></div><div class="card-info"><h3>${e.title}</h3><p>${e.code}</p></div></a>`;
 }).join(""):'<div class="empty" style="grid-column:1/-1">No episodes match your search.</div>';
 }
 render();
