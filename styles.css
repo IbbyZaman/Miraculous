@@ -195,16 +195,50 @@ body { overflow-x: hidden; }
   }
 }
 
-/* Catalogue + mobile polish */
-.art{position:relative}.availability{position:absolute;right:12px;bottom:12px;padding:5px 7px;border-radius:7px;background:rgba(0,0,0,.68);color:#fff;font-size:8px;font-weight:900;letter-spacing:.08em}.card-unavailable{opacity:.82}.card-unavailable:hover{opacity:1}
-@media(max-width:760px){
- .topbar{height:60px;padding:0 4vw;gap:12px}.brand-text{font-size:11px}.brand-mark{width:31px;height:31px}.nav{gap:12px;overflow:hidden}.nav a{font-size:11px}.actions{margin-left:auto}.signin,.lang-btn{display:none}.icon-btn,.theme-btn{width:31px}
- .container{width:92vw}.hero{min-height:auto;padding:48px 6vw 30px}.hero-art{display:none}.hero h1{font-size:clamp(42px,14vw,64px)}.hero-sub{font-size:13px}.hero-actions{flex-wrap:wrap}
- .page-head{padding:38px 0 20px}.page-head h1{font-size:36px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card-info{padding:10px}.card-info h3{font-size:12px}.art{height:130px}
- .season-tabs{overflow-x:auto;white-space:nowrap;padding-bottom:5px}.season-tab{flex:0 0 auto}
- .live-section{padding-top:25px}.live-player-card{border-radius:14px;overflow:hidden}.live-player video{width:100%;height:auto;aspect-ratio:16/9}
+
+/* ===== Live Twitch embed ===== */
+.twitch-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  overflow: hidden;
 }
-@media(max-width:420px){.nav a:nth-child(n+3){display:none}.grid{gap:8px}.art{height:115px}.card-info h3{font-size:11px}.epno{font-size:7px}}
-@media(max-width:900px) and (orientation:landscape){
- .topbar{height:52px}.hero{padding:25px 5vw}.hero-art{display:none}.container{width:94vw}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.twitch-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  border: 0;
+}
+.twitch-card .live-player-info {
+  min-height: 62px;
+}
+.live-twitch-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--text);
+  background: var(--surface2);
+  border: 1px solid var(--line);
+}
+.live-twitch-link:hover {
+  border-color: rgba(227,29,63,.4);
+}
+
+@media (max-width: 700px) {
+  .twitch-frame {
+    aspect-ratio: 16 / 9;
+  }
+  .twitch-frame iframe {
+    min-height: 300px;
+  }
+  .twitch-card .live-player-info {
+    min-height: 58px;
+  }
+  .live-twitch-link {
+    min-height: 42px;
+    padding-inline: 12px;
+  }
 }

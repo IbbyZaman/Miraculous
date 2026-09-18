@@ -1,13 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="favicon.png">
-<title>MiraculousHub — Episodes</title><link rel="stylesheet" href="styles.css"><!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-6K9W3X96EY');
-</script>
-</head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MiraculousHub — Episodes</title><link rel="stylesheet" href="styles.css"></head><body>
 <header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a><nav class="nav"><a href="index.html">Home</a><a class="active" href="episodes.html">Episodes</a><a href="#">Music</a><a href="#">The Show</a></nav><div class="actions"><button class="icon-btn" id="searchOpen">⌕</button><button class="theme-btn" id="themeToggle">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button></div></header>
 <main class="container"><div class="page-head"><p class="kicker">MIRACULOUS LIBRARY</p><h1>Episodes</h1><p>Browse every season and special, search by title or episode code, and jump straight into watching.</p></div>
 <div class="filters"><button class="filter active" data-filter="all">All</button><button class="filter" data-filter="sub">Subtitled</button><button class="filter" data-filter="new">NEW</button></div>
@@ -15,7 +6,7 @@
 <div class="season-tabs" id="seasonTabs"></div><div class="grid" id="episodeGrid"></div></main>
 <footer class="footer"><div><div class="brand"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></div></div><div class="footer-links"><div><b>Explore</b><a href="index.html">Home</a><a href="episodes.html">Episodes</a></div><div><b>Support</b><a href="#">Help</a></div></div><p class="copyright">© 2026 MiraculousHub. Fan project.</p></footer>
 <div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div><div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
-<script src="data.js"></script><script type="module" src="firebase.js"></script><script src="common.js"></script><script>
+<script src="data.js"></script><script src="common.js"></script><script>
 let season=0, mode="all", q="";
 const tabs=document.querySelector("#seasonTabs"), grid=document.querySelector("#episodeGrid");
 tabs.innerHTML='<button class="season-tab active" data-season="0">All</button>'+[1,2,3,4,5,6].map(s=>`<button class="season-tab" data-season="${s}">Season ${s}</button>`).join("")+'<button class="season-tab" data-season="specials">Specials</button>';
@@ -25,13 +16,7 @@ document.querySelector("#episodeSearch").oninput=e=>{q=e.target.value.toLowerCas
 function render(){
  let arr=season==="specials"?MH_SPECIALS.map((t,i)=>({season:"Special",episode:i+1,title:t,code:`SPECIAL ${i+1}`,special:true})):MH_EPISODES.filter(e=>!season||season==="0"||e.season==season);
  if(mode==="new")arr=arr.filter(e=>e.new); if(q)arr=arr.filter(e=>`${e.title} ${e.code}`.toLowerCase().includes(q));
- grid.innerHTML=arr.length?arr.map(e=>{
- const available=!e.special && !!(window.MH_MEDIA||{})[`${e.season}-${e.episode}`];
- const unlocked=e.season===6 && !e.special;
- const href=e.special?"#":`watch.html?season=${e.season}&episode=${e.episode}`;
- const state=e.special?"SPECIAL":available?"WATCH NOW":(unlocked?"SOURCE NEEDED":"COMING SOON");
- return `<a class="card ${(available||unlocked)?"":"card-unavailable"}" href="${href}"><div class="art">${e.new?'<span class="new">NEW</span>':""}<span class="epno">${e.special?e.code:`SEASON ${e.season} · EPISODE ${e.episode}`}</span><span class="availability">${state}</span></div><div class="card-info"><h3>${e.title}</h3><p>${e.code}</p></div></a>`;
-}).join(""):'<div class="empty" style="grid-column:1/-1">No episodes match your search.</div>';
+ grid.innerHTML=arr.length?arr.map(e=>`<a class="card" href="${e.special?'#':'watch.html?season='+e.season+'&episode='+e.episode}"><div class="art">${e.new?'<span class="new">NEW</span>':''}<span class="epno">${e.special?e.code:`SEASON ${e.season} · EPISODE ${e.episode}`}</span></div><div class="card-info"><h3>${e.title}</h3><p>${e.code}</p></div></a>`).join(""):'<div class="empty" style="grid-column:1/-1">No episodes match your search.</div>';
 }
 render();
 </script></body></html>

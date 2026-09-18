@@ -1,0 +1,28 @@
+Cloudflare wiring correction
+
+The website uses the existing Cloudflare Worker routes as the source of truth.
+Worker base:
+https://miraculous-video.ibbyzaman4.workers.dev
+
+Known routes already in the supplied Worker:
+S01E01 /video
+S01E02 /video/bubbler
+S01E03 /video/pharaoh
+S06E20 /video/heartfixer
+S06E21 /video/the-chained-titans
+S06E22 /video/lady-chaos
+S06E23 /video/sadnansi
+S06E24 /video/queen-of-the-dreadzone
+S06E25 /video/secret-protocol
+S06E26 /video/nemesis
+
+The website now reads each episode's videoPath from data.js and builds:
+Worker base + videoPath
+
+For Season 6 episodes 1-19, the website has the matching /video/<slug> path ready,
+but the supplied Worker code does not yet contain those routes because their Google Drive
+file IDs were not supplied in the Worker code. Add each real Drive ID to the Worker VIDEOS
+mapping using the prepared path, then the website will use it without watch.html changes.
+
+The supplied current Worker code is copied to cloudflare-worker-current.js for reference.
+Do not put GOOGLE_SERVICE_ACCOUNT JSON into the website.

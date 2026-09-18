@@ -1,0 +1,36 @@
+Season 6 is unlocked in the website catalogue.
+
+The watch page uses the Cloudflare Worker as the video source.
+For S6 it requests:
+https://miraculous-video.ibbyzaman4.workers.dev/video/<episode-slug>
+
+Therefore the Cloudflare Worker must have a matching route for each S6 episode.
+No Google Drive credentials are stored in the website.
+
+S6 slugs:
+01 climatiqueen
+02 the-illustrhater
+03 sublimation
+04 daddycop
+05 werepapas
+06 sleeping-syren
+07 el-toro-de-piedra
+08 vampigami
+09 mr-agreste
+10 the-dark-castle
+11 revelator
+12 wreckless-driver
+13 yaksi-gozen
+14 grandiaper
+15 the-ruler
+16 noe
+17 a-fairy-good-night
+18 the-dirtifiers
+19 riginarazione
+20 heartfixer
+21 the-chained-titans
+22 lady-chaos
+23 sadnansi
+24 queen-of-the-dreadzone
+25 secret-protocol
+26 nemesis

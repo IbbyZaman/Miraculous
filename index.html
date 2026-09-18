@@ -1,18 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="favicon.png">
-<title>MiraculousHub — Home</title><link rel="stylesheet" href="styles.css"><!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-6K9W3X96EY');
-</script>
-<style>
-/* Twitch-backed homepage live player */
-.twitch-live-player{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden}
-.twitch-live-player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-</style>
-</head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MiraculousHub — Home</title><link rel="stylesheet" href="styles.css"></head><body>
 <header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a><nav class="nav"><a class="active" href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="#">Music</a><a href="#">The Show</a></nav><div class="actions"><button class="icon-btn" id="searchOpen">⌕</button><button class="theme-btn" id="themeToggle">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button></div></header>
 <section class="hero"><div class="hero-copy"><p class="kicker">MIRACULOUS LADYBUG</p><h1>Your Miraculous<br><span>watch hub.</span></h1><p class="hero-sub">Episodes, specials and your personal Continue Watching list — all in one clean, ad-free place.</p><div class="hero-actions"><a class="primary" href="episodes.html">Browse Episodes</a><a class="secondary" href="#latest">Latest Episodes</a></div></div><div class="hero-art"><div class="orb a"></div><div class="orb b"></div><div class="hero-tile"><small>SEASON 6</small><strong>NEMESIS</strong><span>EPISODE 26</span><div class="play-circle">▶</div></div></div></section>
 <main class="container">
@@ -21,26 +7,27 @@
     <div>
       <span class="live-badge">● LIVE</span>
       <h2>Live Stream</h2>
-      <p>Watch the MiraculousHub live stream.</p>
+      <p>Watch MiraculousHubTV live on Twitch.</p>
     </div>
   </div>
 
-  <div class="live-player-card">
-    <div class="live-player twitch-live-player">
+  <div class="live-player-card twitch-card">
+    <div class="twitch-frame">
       <iframe
-        src="https://player.twitch.tv/?channel=ibbyanimation&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk"
-        title="MiraculousHub Live on Twitch"
-        allow="autoplay; fullscreen"
-        allowfullscreen
-        scrolling="no"
-        frameborder="0"></iframe>
+        src="https://player.twitch.tv/?channel=miraculoushubtv&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false"
+        title="MiraculousHubTV live stream"
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowfullscreen>
+      </iframe>
     </div>
     <div class="live-player-info">
       <div>
         <strong>MiraculousHub Live</strong>
-        <span id="liveStatus">Twitch Live</span>
+        <span>Live on Twitch · @miraculoushubtv</span>
       </div>
-      <button type="button" id="liveFullscreenBtn" class="live-action">Fullscreen</button>
+      <a class="live-action live-twitch-link"
+         href="https://www.twitch.tv/miraculoushubtv"
+         target="_blank" rel="noopener">Open Twitch</a>
     </div>
   </div>
 </section>
@@ -52,62 +39,9 @@
 <footer class="footer"><div><div class="brand"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></div><p style="color:var(--muted);font-size:10px">Ad-free fan-made watch hub.</p></div><div class="footer-links"><div><b>Explore</b><a href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="#">Music</a><a href="#">The Show</a></div><div><b>Support</b><a href="#">Contact</a><a href="#">Help</a></div></div><p class="copyright">© 2026 MiraculousHub. Fan project. Not affiliated with the official Miraculous brand.</p></footer>
 <div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
 <div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
-<script src="data.js"></script><script type="module" src="firebase.js"></script><script src="common.js"></script><script>
+<script src="data.js"></script><script src="common.js"></script><script>
 const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
-document.querySelector("#latestGrid").innerHTML=latest.map(e=>{const available=!!(window.MH_MEDIA||{})[`${e.season}-${e.episode}`];return `<a class="card ${available?"":"card-unavailable"}" href="watch.html?season=${e.season}&episode=${e.episode}"><div class="art">${e.new?'<span class="new">NEW</span>':""}<span class="epno">SEASON ${e.season} · EPISODE ${e.episode}</span><span class="availability">${available?"WATCH NOW":"COMING SOON"}</span></div><div class="card-info"><h3>${e.title}</h3><p>${e.code}</p></div></a>`}).join("");
-function renderCW(){const box=document.querySelector("#continueSection"),row=document.querySelector("#continueRow"),items=mhGetProgress();if(!items.length){box.hidden=true;return;}box.hidden=false;row.innerHTML=items.map(x=>`<a class="continue-card" href="watch.html?season=${x.season}&episode=${x.episode}"><div class="thumb"><span class="thumb-label">S${x.season} · E${x.episode}</span><div class="watch-progress" style="width:${Math.round(x.progress||0)}%"></div></div><div class="continue-info"><strong>${x.title||"Episode"}</strong><p>${Math.round(x.progress||0)}% watched</p></div></a>`).join("");}
-renderCW();
-window.addEventListener("mh-progress-synced", renderCW);
+document.querySelector("#latestGrid").innerHTML=latest.map(e=>`<a class="card" href="watch.html?season=${e.season}&episode=${e.episode}"><div class="art">${e.new?'<span class="new">NEW</span>':''}<span class="epno">SEASON ${e.season} · EPISODE ${e.episode}</span></div><div class="card-info"><h3>${e.title}</h3><p>${e.code}</p></div></a>`).join("");
+function renderCW(){const box=document.querySelector("#continueSection"),row=document.querySelector("#continueRow"),items=mhGetProgress();if(!items.length){box.hidden=true;return;}box.hidden=false;row.innerHTML=items.map(x=>`<a class="continue-card" href="watch.html?season=${x.season}&episode=${x.episode}"><div class="thumb"><span class="thumb-label">S${x.season} · E${x.episode}</span><div class="watch-progress" style="width:${Math.round(x.progress||0)}%"></div></div><div class="continue-info"><strong>${x.title||"Episode"}</strong><p>${Math.round(x.progress||0)}% watched</p></div></a>`).join("");}renderCW();
 </script>
-<script>
-(() => {
-  // Put your authorised live stream URL here when you have one.
-  // Examples: an MP4/WebM stream URL or an HLS .m3u8 URL.
-  const LIVE_STREAM_URL = "";
-
-  const video = document.getElementById("homeLiveVideo");
-  const message = document.getElementById("livePlayerMessage");
-  const status = document.getElementById("liveStatus");
-  const fullscreen = document.getElementById("liveFullscreenBtn");
-
-  if (!video) return;
-
-  function setStatus(text) {
-    if (status) status.textContent = text;
-  }
-
-  if (LIVE_STREAM_URL) {
-    video.src = LIVE_STREAM_URL;
-    message?.classList.add("hidden");
-    setStatus("Live");
-  } else {
-    setStatus("Offline");
-  }
-
-  video.addEventListener("playing", () => {
-    message?.classList.add("hidden");
-    setStatus("Live");
-  });
-
-  video.addEventListener("waiting", () => setStatus("Buffering…"));
-  video.addEventListener("pause", () => {
-    if (LIVE_STREAM_URL) setStatus("Paused");
-  });
-  video.addEventListener("error", () => {
-    message?.classList.remove("hidden");
-    setStatus("Offline");
-  });
-
-  fullscreen?.addEventListener("click", async () => {
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-      } else {
-        await (video.parentElement?.requestFullscreen?.() || video.requestFullscreen?.());
-      }
-    } catch {}
-  });
-})();
-</script>
-
 </body></html>
