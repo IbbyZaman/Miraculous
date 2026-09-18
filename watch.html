@@ -105,6 +105,14 @@
 @media (max-width:680px){
   .player:fullscreen .player-overlay,.player:-webkit-full-screen .player-overlay{padding-bottom:max(10px,env(safe-area-inset-bottom));}
 }
+
+/* Clip controls inside player */
+.clip-panel{position:absolute;right:12px;bottom:64px;width:min(360px,calc(100% - 24px));padding:12px;border:1px solid rgba(255,255,255,.14);border-radius:12px;background:rgba(12,12,16,.97);color:#fff;box-shadow:0 16px 45px rgba(0,0,0,.5);z-index:30;backdrop-filter:blur(12px)}
+.clip-panel[hidden]{display:none}
+.clip-panel-title{font-size:12px;font-weight:850;margin-bottom:9px;display:flex;justify-content:space-between}.clip-panel-title span{opacity:.55;font-size:10px}
+.clip-fields{display:flex;gap:8px}.clip-fields label{font-size:10px;color:#aaa;flex:1}.clip-fields input{display:block;width:100%;box-sizing:border-box;margin-top:4px;padding:7px;border:1px solid #555;border-radius:7px;background:#111;color:#fff}
+.clip-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}.clip-actions button{border:0;border-radius:7px;padding:8px 9px;background:#292930;color:#fff;font-size:10px;font-weight:750;cursor:pointer}.clip-actions button:hover{background:var(--accent)}.clip-status{font-size:9px;color:#aaa;margin-top:7px;min-height:12px}
+@media(max-width:680px){.clip-panel{right:8px;bottom:58px;width:min(330px,calc(100vw - 16px));}.clip-actions button{padding:9px 8px}.control-row .clip-button{display:inline-flex}}
 </style>
 </head>
 <body>
@@ -139,6 +147,7 @@
        <span class="player-time" id="time">0:00 / 0:00</span>
        <span class="player-spacer"></span>
        <button class="pbtn wide small" id="captions" aria-label="Subtitles">CC</button>
+       <button class="pbtn wide small" id="clipButton" type="button" aria-label="Create a 5 minute clip">✂ Clip</button>
        <div class="settings-wrap">
         <button class="pbtn" id="settings" aria-label="Settings">⚙</button>
         <div class="settings-menu" id="settingsMenu" hidden>
@@ -479,5 +488,32 @@ $("captions").onclick=()=>{
 };
 setupSubtitles();
 </script>
-<button id="clipButton" type="button">✂ Create 5-min Clip</button><div id="clipPanel" style="display:none;margin:12px 0;padding:14px;border-radius:10px;background:#18181c;color:#fff"><b>Create a clip (max 5 minutes)</b><br><label>Start <input id="clipStart" type="number" min="0" step="1"></label> <label>End <input id="clipEnd" type="number" min="1" step="1"></label><br><button id="clipCurrent" type="button">Use current as start</button> <button id="clipPreview" type="button">Preview</button> <button id="clipDownload" type="button">Download clip</button> <button id="clipShare" type="button">Create share link</button><div id="clipStatus"></div></div><script>(()=>{const v=document.querySelector("video"),b=document.getElementById("clipButton"),p=document.getElementById("clipPanel"),s=document.getElementById("clipStart"),e=document.getElementById("clipEnd"),st=document.getElementById("clipStatus");if(!v||!b)return;const T=()=>{let a=Math.max(0,+s.value||0),z=Math.max(a,+e.value||a);if(z-a>300)z=a+300;if(v.duration)z=Math.min(z,v.duration);s.value=Math.floor(a);e.value=Math.floor(z);return[a,z]};b.onclick=()=>{p.style.display=p.style.display==="none"?"block":"none";if(p.style.display==="block"){s.value=Math.floor(v.currentTime||0);e.value=Math.floor(Math.min(v.duration||300,(v.currentTime||0)+300))}};clipCurrent.onclick=()=>{s.value=Math.floor(v.currentTime||0);e.value=Math.floor(Math.min(v.duration||300,+s.value+300))};clipPreview.onclick=()=>{let[a,z]=T();v.currentTime=a;v.play();let f=()=>{if(v.currentTime>=z){v.pause();v.removeEventListener("timeupdate",f)}};v.addEventListener("timeupdate",f)};clipDownload.onclick=async()=>{let[a,z]=T();if(!v.captureStream||!window.MediaRecorder){st.textContent="Clip recording isn't supported in this browser.";return}try{st.textContent="Recording…";let r=v.captureStream(),m=["video/webm;codecs=vp9,opus","video/webm"].find(x=>MediaRecorder.isTypeSupported(x))||"",q=new MediaRecorder(r,m?{mimeType:m}:undefined),c=[];q.ondataavailable=x=>x.data.size&&c.push(x.data);v.currentTime=a;await v.play();await new Promise(ok=>{let f=()=>{if(v.currentTime>=z||v.ended){v.removeEventListener("timeupdate",f);v.pause();q.stop();ok()}};q.start(250);v.addEventListener("timeupdate",f)});let u=URL.createObjectURL(new Blob(c,{type:q.mimeType||"video/webm"})),x=document.createElement("a");x.href=u;x.download="miraculoushub-clip.webm";x.click();setTimeout(()=>URL.revokeObjectURL(u),1000);st.textContent="Download started."}catch(x){st.textContent="Could not create the clip; the video source may block capture."}};clipShare.onclick=()=>{let[a,z]=T(),u=new URL(location.href);u.searchParams.set("clipStart",Math.floor(a));u.searchParams.set("clipEnd",Math.floor(z));navigator.clipboard?.writeText(u.href);st.textContent="Share link copied."}})();</script></body>
+<div id="clipPanel" class="clip-panel" hidden>
+  <div class="clip-panel-title">✂ Create Clip <span>Max 5:00</span></div>
+  <div class="clip-fields">
+    <label>Start <input id="clipStart" type="number" min="0" step="1"></label>
+    <label>End <input id="clipEnd" type="number" min="1" step="1"></label>
+  </div>
+  <div class="clip-actions">
+    <button id="clipCurrent" type="button">Current → Start</button>
+    <button id="clipPreview" type="button">▶ Preview</button>
+    <button id="clipDownload" type="button">⬇ Download</button>
+    <button id="clipShare" type="button">🔗 Share</button>
+  </div>
+  <div id="clipStatus" class="clip-status"></div>
+</div>
+<script>
+(()=>{
+ const v=document.getElementById("video"), b=document.getElementById("clipButton"), p=document.getElementById("clipPanel"), s=document.getElementById("clipStart"), e=document.getElementById("clipEnd"), st=document.getElementById("clipStatus");
+ if(!v||!b||!p)return;
+ const T=()=>{let a=Math.max(0,Number(s.value)||0),z=Math.max(a,Number(e.value)||a);if(z-a>300)z=a+300;if(v.duration)z=Math.min(z,v.duration);if(v.duration&&a>v.duration)a=Math.max(0,v.duration-300);s.value=Math.floor(a);e.value=Math.floor(z);return[a,z]};
+ b.onclick=ev=>{ev.stopPropagation();p.hidden=!p.hidden;if(!p.hidden){s.value=Math.floor(v.currentTime||0);e.value=Math.floor(Math.min(v.duration||300,(v.currentTime||0)+300));st.textContent="Choose a range up to 5 minutes.";}};
+ p.addEventListener("click",ev=>ev.stopPropagation());
+ document.addEventListener("click",()=>{p.hidden=true});
+ document.getElementById("clipCurrent").onclick=()=>{s.value=Math.floor(v.currentTime||0);e.value=Math.floor(Math.min(v.duration||300,Number(s.value)+300));};
+ document.getElementById("clipPreview").onclick=()=>{let[a,z]=T();if(z<=a){st.textContent="End must be after start.";return}v.currentTime=a;v.play();const f=()=>{if(v.currentTime>=z){v.pause();v.removeEventListener("timeupdate",f)}};v.addEventListener("timeupdate",f);st.textContent="Previewing…"};
+ document.getElementById("clipDownload").onclick=async()=>{let[a,z]=T();if(z<=a){st.textContent="End must be after start.";return}if(!v.captureStream||!window.MediaRecorder){st.textContent="Clip recording isn't supported in this browser.";return}try{st.textContent="Recording… keep this tab open.";const r=v.captureStream(),m=["video/webm;codecs=vp9,opus","video/webm"].find(x=>MediaRecorder.isTypeSupported(x))||"",q=new MediaRecorder(r,m?{mimeType:m}:undefined),c=[];q.ondataavailable=x=>x.data.size&&c.push(x.data);v.currentTime=a;await v.play();await new Promise((ok,fail)=>{q.onerror=fail;q.start(250);const f=()=>{if(v.currentTime>=z||v.ended){v.removeEventListener("timeupdate",f);v.pause();q.stop();ok()}};v.addEventListener("timeupdate",f)});const u=URL.createObjectURL(new Blob(c,{type:q.mimeType||"video/webm"})),x=document.createElement("a");x.href=u;x.download=`miraculoushub-clip-${Math.floor(a)}-${Math.floor(z)}.webm`;x.click();setTimeout(()=>URL.revokeObjectURL(u),1000);st.textContent="Download started."}catch(x){console.error(x);st.textContent="Could not create the clip; the source may block capture."}};
+ document.getElementById("clipShare").onclick=async()=>{let[a,z]=T();if(z<=a){st.textContent="End must be after start.";return}const u=new URL(location.href);u.searchParams.set("clipStart",Math.floor(a));u.searchParams.set("clipEnd",Math.floor(z));try{if(navigator.share)await navigator.share({title:`${document.title} — Clip`,url:u.href});else{await navigator.clipboard.writeText(u.href);st.textContent="Share link copied."}}catch{} };
+})();
+</script></body>
 </html>
