@@ -253,21 +253,34 @@ async function saveCloudPosition(force=false){
 
 async function loadCloudPosition(){
   if(cloudLoaded || cloudLoadPromise) return;
-  if(window.MH_AUTH_READY) {
+
+  // Firebase may still be restoring the signed-in account when the video
+  // metadata arrives. Always wait for auth restoration before reading cloud data.
+  if(window.MH_FIREBASE_READY){
+    try { await window.MH_FIREBASE_READY; } catch {}
+  }
+  if(window.MH_AUTH_READY){
     try { await window.MH_AUTH_READY; } catch {}
   }
   if(!window.MH_USER || !window.MH_CLOUD) return;
+
   cloudLoadPromise=(async()=>{
     try{
       const data=await window.MH_CLOUD.getPlayback(cloudKey);
       if(data && v.duration){
         const pos=Number(data.position);
-        if(Number.isFinite(pos) && pos>0 && pos<v.duration-5){
-          v.currentTime=pos;
-          localStorage.setItem(posKey,String(pos));
+        if(Number.isFinite(pos) && pos >= 0){
+          // Cloud progress is the cross-device source of truth. Clamp it to
+          // the current video's duration and apply it even when it is near
+          // the end of the episode.
+          const safePos=Math.max(0,Math.min(pos,Math.max(0,v.duration-0.25)));
+          v.currentTime=safePos;
+          localStorage.setItem(posKey,String(safePos));
         }
       }
-    }catch{}
+    }catch(error){
+      console.error("MiraculousHub: failed to load cloud playback", error);
+    }
     cloudLoaded=true;
     update();
   })();
@@ -299,8 +312,25 @@ v.addEventListener("seeked",()=>{saveCloudPosition(true);});
 v.addEventListener("progress",update);
 v.addEventListener("ended",()=>{mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100,position:v.duration,duration:v.duration});saveCloudPosition(true);localStorage.removeItem(posKey);showToast("Episode finished");});
 
-window.addEventListener("mh-auth-changed",()=>{ if(window.MH_USER) loadCloudPosition(); });
-window.addEventListener("mh-account-ready",()=>{ loadCloudPosition(); });
+window.addEventListener("mh-auth-changed",()=>{
+  if(window.MH_USER){
+    cloudLoaded=false;
+    cloudLoadPromise=null;
+    loadCloudPosition();
+  }
+});
+window.addEventListener("mh-account-ready",()=>{
+  cloudLoaded=false;
+  cloudLoadPromise=null;
+  loadCloudPosition();
+});
+window.addEventListener("mh-firebase-ready",()=>{
+  if(window.MH_USER){
+    cloudLoaded=false;
+    cloudLoadPromise=null;
+    loadCloudPosition();
+  }
+});
 
 function setPlayingUI(){
  const playing=!v.paused;
