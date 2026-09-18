@@ -214,6 +214,7 @@ const posKey=`mh-pos-${ep.season}-${ep.episode}`;
 const cloudKey=`s${ep.season}e${ep.episode}`;
 let dragging=false, hideTimer, lastPointer=0;
 let lastCloudSave=0;
+let cloudSaveInFlight=false;
 let cloudLoaded=false;
 let cloudLoadPromise=null;
 
@@ -229,8 +230,10 @@ function cachePosition(){
 async function saveCloudPosition(force=false){
   if(!window.MH_USER || !window.MH_CLOUD || !v.duration || v.currentTime<=0) return;
   const now=Date.now();
-  if(!force && now-lastCloudSave<8000) return;
+  if(cloudSaveInFlight) return;
+  if(!force && now-lastCloudSave<1000) return;
   lastCloudSave=now;
+  cloudSaveInFlight=true;
   try {
     await window.MH_CLOUD.savePlayback(cloudKey,{
       season:ep.season, episode:ep.episode, title:ep.title,
@@ -248,6 +251,8 @@ async function saveCloudPosition(force=false){
     else if (code === "unauthenticated") message = "Cloud sync failed: sign in again";
     showToast(message);
     window.dispatchEvent(new CustomEvent("mh-cloud-save-error", { detail: error }));
+  } finally {
+    cloudSaveInFlight=false;
   }
 }
 
@@ -303,9 +308,12 @@ v.addEventListener("loadedmetadata",async()=>{
 });
 v.addEventListener("timeupdate",()=>{
  update();
- if(Math.floor(v.currentTime)%5===0) cachePosition();
+ cachePosition();
  saveCloudPosition(false);
 });
+// While playing, sync playback to Firestore approximately once per second.
+// The in-flight guard prevents overlapping writes on slower connections.
+const cloudSyncTimer=setInterval(()=>{ if(!v.paused) saveCloudPosition(false); },1000);
 v.addEventListener("pause",()=>{cachePosition();saveCloudPosition(true);});
 v.addEventListener("seeking",()=>{cachePosition();});
 v.addEventListener("seeked",()=>{saveCloudPosition(true);});
