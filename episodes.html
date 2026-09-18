@@ -14,7 +14,7 @@ tabs.onclick=e=>{if(!e.target.matches(".season-tab"))return;tabs.querySelectorAl
 document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");mode=b.dataset.filter;render()});
 document.querySelector("#episodeSearch").oninput=e=>{q=e.target.value.toLowerCase();render()};
 function render(){
- let arr=season==="specials"?MH_SPECIALS.map((t,i)=>({season:"Special",episode:i+1,title:t,code:`SPECIAL ${i+1}`,special:true,videoPath:t==="London: At the Edge of Time"?"/video/london":""})):MH_EPISODES.filter(e=>!season||season==="0"||e.season==season);
+ let arr=season==="specials"?MH_SPECIALS.map((t,i)=>({season:"Special",episode:i+1,title:t,code:`SPECIAL ${i+1}`,special:true,videoPath:t==="Miraculous World Paris: Tales of Shadybug and Claw Noir"?"/video/paris":(t==="London: At the Edge of Time"?"/video/london":"")})):MH_EPISODES.filter(e=>!season||season==="0"||e.season==season);
  if(mode==="new")arr=arr.filter(e=>e.new); if(q)arr=arr.filter(e=>`${e.title} ${e.code}`.toLowerCase().includes(q));
  grid.innerHTML=arr.length?arr.map(e=>{const href=e.special?(e.videoPath?`watch.html?special=${e.episode}`:"#"):`watch.html?season=${e.season}&episode=${e.episode}`;return `<a class="card" href="${href}"><div class="art">${e.new?'<span class="new">NEW</span>':''}<span class="epno">${e.special?e.code:`SEASON ${e.season} · EPISODE ${e.episode}`}</span></div><div class="card-info"><h3>${e.title}</h3><p>${e.code}</p></div></a>`}).join(""):'<div class="empty" style="grid-column:1/-1">No episodes match your search.</div>';
 }
