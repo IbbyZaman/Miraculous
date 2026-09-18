@@ -166,7 +166,7 @@
    <button class="watch-action" id="download" type="button">⬇ Download Episode</button>
    <button class="watch-action" id="share">Share</button>
   </div>
-  <div class="description">Watch this episode on MiraculousHub. Your viewing progress is saved locally in your browser so Continue Watching can pick up where you left off.</div>
+  <div class="description">Watch this episode on MiraculousHub. Your viewing progress is saved to your MiraculousHub account when you are signed in, with local browser caching as a fallback.</div>
   <div class="prevnext"><a id="prev" href="#">← Previous</a><a id="next" href="#">Next →</a></div>
  </section>
 </main>
@@ -226,20 +226,30 @@ function cachePosition(){
   if(v.duration && v.currentTime>0) localStorage.setItem(posKey,String(v.currentTime));
 }
 
-function saveCloudPosition(force=false){
+async function saveCloudPosition(force=false){
   if(!window.MH_USER || !window.MH_CLOUD || !v.duration || v.currentTime<=0) return;
   const now=Date.now();
-  if(!force && now-lastCloudSave<7000) return;
+  if(!force && now-lastCloudSave<8000) return;
   lastCloudSave=now;
-  window.MH_CLOUD.savePlayback(cloudKey,{
-    season:ep.season, episode:ep.episode, title:ep.title,
-    progress:Math.min(100,(v.currentTime/v.duration)*100),
-    position:v.currentTime, duration:v.duration
-  }).catch(()=>{});
+  try {
+    await window.MH_CLOUD.savePlayback(cloudKey,{
+      season:ep.season, episode:ep.episode, title:ep.title,
+      progress:Math.min(100,(v.currentTime/v.duration)*100),
+      position:v.currentTime, duration:v.duration
+    });
+    window.dispatchEvent(new CustomEvent("mh-cloud-save-ok",{detail:{season:ep.season,episode:ep.episode}}));
+  } catch(error) {
+    console.error("MiraculousHub cloud save failed:", error);
+    showToast("Cloud sync failed — check Firebase");
+  }
 }
 
 async function loadCloudPosition(){
-  if(cloudLoaded || cloudLoadPromise || !window.MH_USER || !window.MH_CLOUD) return;
+  if(cloudLoaded || cloudLoadPromise) return;
+  if(window.MH_AUTH_READY) {
+    try { await window.MH_AUTH_READY; } catch {}
+  }
+  if(!window.MH_USER || !window.MH_CLOUD) return;
   cloudLoadPromise=(async()=>{
     try{
       const data=await window.MH_CLOUD.getPlayback(cloudKey);

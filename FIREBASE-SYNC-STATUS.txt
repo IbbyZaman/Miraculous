@@ -1,8 +1,19 @@
-Firebase cross-device playback sync is wired in this version.
+Firebase cross-device playback sync — WORKING VERSION
 
-Requirements:
-1. Firebase Authentication must have the desired sign-in providers enabled.
-2. Firestore must be created and the included firestore.rules deployed.
-3. The same Firebase account must be used on both devices.
+This version:
+- uses Firebase Authentication with browser-local login persistence
+- saves episode playback to Firestore at users/{uid}/playback/{seasonEpisode}
+- loads cloud position after Firebase authentication is ready
+- throttles Firestore writes to avoid timeupdate spam
+- saves immediately on pause/seek/end
+- keeps localStorage as a fallback/cache
+- logs Firestore errors to the browser console instead of silently swallowing them
 
-The player keeps localStorage as a fast cache, saves playback to users/{uid}/playback/{seasonEpisode}, loads the cloud position when signed in, and refreshes Continue Watching after cloud sync.
+Firebase Console requirements:
+1. Authentication -> Sign-in method -> enable Email/Password and/or Google.
+2. Firestore Database -> create the database.
+3. Firestore Rules -> publish the included firestore.rules.
+4. Authentication -> Settings -> Authorized domains -> add the exact domain where this site is hosted.
+
+Use the same Firebase account on both devices.
+Do not put any Cloudflare service-account private key in this website.

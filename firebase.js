@@ -6,7 +6,9 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  setPersistence,
+  browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 import {
   getFirestore,
@@ -34,9 +36,17 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
+// Keep the same Firebase login on this browser so playback can be
+// associated with the same account after a refresh.
+const persistenceReady = setPersistence(auth, browserLocalPersistence)
+  .catch(err => {
+    console.warn("Firebase Auth persistence could not be enabled:", err);
+  });
+
 window.MH_FIREBASE = { app, auth, db, provider };
 
-window.MH_AUTH_READY = new Promise(resolve => {
+window.MH_FIREBASE_READY = persistenceReady.then(() => true);
+window.MH_AUTH_READY = persistenceReady.then(() => new Promise(resolve => {
   onAuthStateChanged(auth, user => {
     window.MH_USER = user || null;
     window.dispatchEvent(
@@ -80,26 +90,29 @@ window.MH_CLOUD = {
   async getPlayback(key) {
     const u = auth.currentUser;
     if (!u) return null;
-
-    const snap = await getDoc(
-      doc(db, "users", u.uid, "playback", key)
-    );
-
-    return snap.exists() ? snap.data() : null;
+    try {
+      const snap = await getDoc(doc(db, "users", u.uid, "playback", key));
+      return snap.exists() ? snap.data() : null;
+    } catch (error) {
+      console.error("Firestore getPlayback failed:", error);
+      throw error;
+    }
   },
 
   async savePlayback(key, data) {
     const u = auth.currentUser;
-    if (!u) return;
-
-    await setDoc(
-      doc(db, "users", u.uid, "playback", key),
-      {
-        ...data,
-        updatedAt: serverTimestamp()
-      },
-      { merge: true }
-    );
+    if (!u) throw new Error("Not signed in");
+    try {
+      await setDoc(
+        doc(db, "users", u.uid, "playback", key),
+        { ...data, updatedAt: serverTimestamp() },
+        { merge: true }
+      );
+      return true;
+    } catch (error) {
+      console.error("Firestore savePlayback failed:", error);
+      throw error;
+    }
   },
 
   async getFavourite(key) {

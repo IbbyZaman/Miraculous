@@ -116,7 +116,17 @@
 
     if (window.MH_CLOUD && window.MH_USER) {
       const key = `s${item.season}e${item.episode}`;
-      window.MH_CLOUD.savePlayback(key, item).catch(() => {});
+      const now = Date.now();
+      window.__MH_LAST_PROGRESS_WRITE = window.__MH_LAST_PROGRESS_WRITE || {};
+      const last = window.__MH_LAST_PROGRESS_WRITE[key] || 0;
+      // The player calls this from timeupdate, so never write to Firestore
+      // more than once every 8 seconds for the same episode.
+      if (now - last >= 8000) {
+        window.__MH_LAST_PROGRESS_WRITE[key] = now;
+        window.MH_CLOUD.savePlayback(key, item).catch(error => {
+          console.error("MiraculousHub: progress sync failed:", error);
+        });
+      }
     }
   };
 
