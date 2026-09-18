@@ -45,7 +45,35 @@ const persistenceReady = setPersistence(auth, browserLocalPersistence)
 
 window.MH_FIREBASE = { app, auth, db, provider };
 
-window.MH_FIREBASE_READY = persistenceReady.then(() => true);
+window.MH_AUTH = {
+  async signIn(email, password) {
+    await persistenceReady;
+    return signInWithEmailAndPassword(auth, email, password);
+  },
+
+  async signUp(email, password) {
+    await persistenceReady;
+    return createUserWithEmailAndPassword(auth, email, password);
+  },
+
+  async google() {
+    await persistenceReady;
+    return signInWithPopup(auth, provider);
+  },
+
+  async signOut() {
+    await persistenceReady;
+    return signOut(auth);
+  },
+
+  user() {
+    return auth.currentUser;
+  }
+};
+
+// Resolve only after Firebase Auth has finished restoring the existing
+// browser session. Keep the listener active so later sign-in/sign-out
+// changes are reflected in MH_USER.
 window.MH_AUTH_READY = persistenceReady.then(() => new Promise(resolve => {
   onAuthStateChanged(auth, user => {
     window.MH_USER = user || null;
@@ -56,29 +84,7 @@ window.MH_AUTH_READY = persistenceReady.then(() => new Promise(resolve => {
     );
     resolve(user || null);
   });
-});
-
-window.MH_AUTH = {
-  async signIn(email, password) {
-    return signInWithEmailAndPassword(auth, email, password);
-  },
-
-  async signUp(email, password) {
-    return createUserWithEmailAndPassword(auth, email, password);
-  },
-
-  async google() {
-    return signInWithPopup(auth, provider);
-  },
-
-  async signOut() {
-    return signOut(auth);
-  },
-
-  user() {
-    return auth.currentUser;
-  }
-};
+}));
 
 function userDoc(type, key) {
   const u = auth.currentUser;
@@ -221,3 +227,6 @@ window.MH_CLOUD = {
     }));
   }
 };
+
+// Let non-module scripts know that the Firebase API is ready.
+window.dispatchEvent(new Event("mh-firebase-ready"));

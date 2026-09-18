@@ -281,6 +281,29 @@
 
   let authMode = "signin";
 
+  function waitForFirebaseAuth(timeout = 10000){
+    if (window.MH_AUTH) return Promise.resolve(window.MH_AUTH);
+    return new Promise((resolve, reject) => {
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        if (window.MH_AUTH) {
+          done = true;
+          window.removeEventListener("mh-firebase-ready", finish);
+          resolve(window.MH_AUTH);
+        }
+      };
+      window.addEventListener("mh-firebase-ready", finish);
+      finish();
+      setTimeout(() => {
+        if (done) return;
+        done = true;
+        window.removeEventListener("mh-firebase-ready", finish);
+        reject(new Error("Firebase is still loading. Please try again."));
+      }, timeout);
+    });
+  }
+
   window.mhOpenAuth = function(mode = "signin"){
     authMode = mode;
     title.textContent =
@@ -316,13 +339,15 @@
     submit.disabled = true;
 
     try {
+      const authApi = await waitForFirebaseAuth();
+
       if (authMode === "signin") {
-        await window.MH_AUTH.signIn(
+        await authApi.signIn(
           document.querySelector("#authEmail").value.trim(),
           document.querySelector("#authPassword").value
         );
       } else {
-        await window.MH_AUTH.signUp(
+        await authApi.signUp(
           document.querySelector("#authEmail").value.trim(),
           document.querySelector("#authPassword").value
         );
@@ -349,7 +374,8 @@
     google.disabled = true;
 
     try {
-      await window.MH_AUTH.google();
+      const authApi = await waitForFirebaseAuth();
+      await authApi.google();
       closeAuth();
     } catch (e) {
       if (e.code !== "auth/popup-closed-by-user") {
@@ -384,7 +410,7 @@
         `Signed in as ${u.email || "Google account"}.\n\nPress OK to sign out.`
       )
     ) {
-      window.MH_AUTH.signOut();
+      waitForFirebaseAuth().then(api => api.signOut()).catch(console.error);
     }
   };
 
@@ -404,11 +430,18 @@
 
   updateAuthButton(window.MH_USER);
 
-  // The Firebase module may finish loading just after this script.
-  if (window.MH_AUTH_READY) {
+  // Firebase is a type="module", so it can finish after this classic
+  // script. Listen for its ready event and then restore the account UI.
+  function connectFirebaseAuth(){
+    if (!window.MH_AUTH_READY) return;
     window.MH_AUTH_READY.then(user => {
       updateAuthButton(user);
       if (user) window.mhSyncCloudProgress();
+    }).catch(error => {
+      console.error("MiraculousHub Firebase Auth initialization failed:", error);
     });
   }
+
+  window.addEventListener("mh-firebase-ready", connectFirebaseAuth, { once: true });
+  connectFirebaseAuth();
 })();
