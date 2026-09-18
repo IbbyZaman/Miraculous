@@ -1,0 +1,15 @@
+London special added to the website.
+
+Website:
+- Episodes -> Specials -> "London: At the Edge of Time" is now clickable.
+- It opens watch.html?special=5 and uses /video/london.
+- Watch progress uses a separate Firebase key: special-5.
+
+Cloudflare Worker:
+- The bundled cloudflare-worker-current.js includes /video/london and /download/london.
+- Make sure the Google Drive file is shared with the same service account used by the Worker.
+
+Drive file ID:
+1qRdyE5j3EHh2Z4s92CYCYIzPgXJbImCk
+
+Rights note: only stream/download content you have permission to host.

@@ -179,19 +179,22 @@
 <script src="data.js"></script><script src="firebase.js"></script><script src="common.js"></script>
 <script>
 const params=new URLSearchParams(location.search);
+const specialNumber=Number(params.get("special")||0);
+const specialTitles=["New York: United Heroez","Shanghai: The Legend of Lady Dragon","Awakening - The Movie","Miraculous World Paris: Tales of Shadybug and Claw Noir","London: At the Edge of Time","Miraculous World: Tokyo, Stellar Force"];
+const isSpecial=Number.isInteger(specialNumber)&&specialNumber>0&&specialNumber<=specialTitles.length;
 const season=Number(params.get("season")||6), number=Number(params.get("episode")||26);
-const ep=(window.MH_EPISODES||[]).find(x=>x.season===season&&x.episode===number)||(window.MH_EPISODES||[]).at(-1);
+const ep=isSpecial?{season:"Special",episode:specialNumber,title:specialTitles[specialNumber-1],code:`SPECIAL ${specialNumber}`,videoPath:specialNumber===5?"/video/london":""}:(window.MH_EPISODES||[]).find(x=>x.season===season&&x.episode===number)||(window.MH_EPISODES||[]).at(-1);
 const $=id=>document.getElementById(id);
 document.title=`MiraculousHub — ${ep.title}`;
-$("episodeCode").textContent=`SEASON ${ep.season} · EPISODE ${ep.episode}`;
+$("episodeCode").textContent=isSpecial?`SPECIAL · ${ep.title}`:`SEASON ${ep.season} · EPISODE ${ep.episode}`;
 $("title").textContent=ep.title;
 $("playerTitle").textContent=ep.title;
-$("playerCode").textContent=`S${String(ep.season).padStart(2,"0")} E${String(ep.episode).padStart(2,"0")}`;
+$("playerCode").textContent=isSpecial?`SPECIAL ${String(ep.episode).padStart(2,"0")}`:`S${String(ep.season).padStart(2,"0")} E${String(ep.episode).padStart(2,"0")}`;
 
 const idx=MH_EPISODES.findIndex(x=>x.season===ep.season&&x.episode===ep.episode);
 const prev=MH_EPISODES[idx-1], next=MH_EPISODES[idx+1];
-if(prev) $("prev").href=`watch.html?season=${prev.season}&episode=${prev.episode}`; else $("prev").style.visibility="hidden";
-if(next) $("next").href=`watch.html?season=${next.season}&episode=${next.episode}`; else $("next").style.visibility="hidden";
+if(isSpecial){ $("prev").style.visibility="hidden"; $("next").style.visibility="hidden"; }
+else { if(prev) $("prev").href=`watch.html?season=${prev.season}&episode=${prev.episode}`; else $("prev").style.visibility="hidden"; if(next) $("next").href=`watch.html?season=${next.season}&episode=${next.episode}`; else $("next").style.visibility="hidden"; }
 
 
 const v=$("video"), player=$("player"), stage=$("stage"), progressArea=$("progressArea");
@@ -210,8 +213,8 @@ v.addEventListener("error",()=>{
   showToast("This episode is not connected to Cloudflare yet");
 });
 
-const posKey=`mh-pos-${ep.season}-${ep.episode}`;
-const cloudKey=`s${ep.season}e${ep.episode}`;
+const posKey=isSpecial?`mh-pos-special-${ep.episode}`:`mh-pos-${ep.season}-${ep.episode}`;
+const cloudKey=isSpecial?`special-${ep.episode}`:`s${ep.season}e${ep.episode}`;
 let dragging=false, hideTimer, lastPointer=0;
 let lastCloudSave=0;
 let cloudSaveInFlight=false;
@@ -456,6 +459,7 @@ $("share").onclick=async()=>{try{if(navigator.share)await navigator.share({title
 
 let subtitleTrack=null;
 async function setupSubtitles(){
+ if(isSpecial){ $("captionNote").textContent="Subtitles are not configured for this special yet."; return; }
  const path=`subtitles/S${String(ep.season).padStart(2,"0")}E${String(ep.episode).padStart(2,"0")}.en.vtt`;
  try{
   const r=await fetch(path,{method:"HEAD"});
