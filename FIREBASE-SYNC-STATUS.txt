@@ -1,0 +1,8 @@
+Firebase cross-device playback sync is wired in this version.
+
+Requirements:
+1. Firebase Authentication must have the desired sign-in providers enabled.
+2. Firestore must be created and the included firestore.rules deployed.
+3. The same Firebase account must be used on both devices.
+
+The player keeps localStorage as a fast cache, saves playback to users/{uid}/playback/{seasonEpisode}, loads the cloud position when signed in, and refreshes Continue Watching after cloud sync.

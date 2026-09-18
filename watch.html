@@ -211,7 +211,51 @@ v.addEventListener("error",()=>{
 });
 
 const posKey=`mh-pos-${ep.season}-${ep.episode}`;
+const cloudKey=`s${ep.season}e${ep.episode}`;
 let dragging=false, hideTimer, lastPointer=0;
+let lastCloudSave=0;
+let cloudLoaded=false;
+let cloudLoadPromise=null;
+
+function localPosition(){
+  const n=Number(localStorage.getItem(posKey)||0);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function cachePosition(){
+  if(v.duration && v.currentTime>0) localStorage.setItem(posKey,String(v.currentTime));
+}
+
+function saveCloudPosition(force=false){
+  if(!window.MH_USER || !window.MH_CLOUD || !v.duration || v.currentTime<=0) return;
+  const now=Date.now();
+  if(!force && now-lastCloudSave<7000) return;
+  lastCloudSave=now;
+  window.MH_CLOUD.savePlayback(cloudKey,{
+    season:ep.season, episode:ep.episode, title:ep.title,
+    progress:Math.min(100,(v.currentTime/v.duration)*100),
+    position:v.currentTime, duration:v.duration
+  }).catch(()=>{});
+}
+
+async function loadCloudPosition(){
+  if(cloudLoaded || cloudLoadPromise || !window.MH_USER || !window.MH_CLOUD) return;
+  cloudLoadPromise=(async()=>{
+    try{
+      const data=await window.MH_CLOUD.getPlayback(cloudKey);
+      if(data && v.duration){
+        const pos=Number(data.position);
+        if(Number.isFinite(pos) && pos>0 && pos<v.duration-5){
+          v.currentTime=pos;
+          localStorage.setItem(posKey,String(pos));
+        }
+      }
+    }catch{}
+    cloudLoaded=true;
+    update();
+  })();
+  await cloudLoadPromise;
+}
 
 function fmt(sec){sec=Math.max(0,Math.floor(sec||0));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`;}
 function update(){
@@ -219,19 +263,27 @@ function update(){
  current.style.width=pct+"%"; knob.style.left=pct+"%";
  if(v.buffered.length){const end=v.buffered.end(v.buffered.length-1);buffer.style.width=(v.duration?Math.min(100,end/v.duration*100):0)+"%";}
  time.textContent=`${fmt(v.currentTime)} / ${fmt(v.duration)}`;
- if(v.duration && v.currentTime>0) mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:pct});
+ if(v.duration && v.currentTime>0) mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:pct,position:v.currentTime,duration:v.duration});
 }
-v.addEventListener("loadedmetadata",()=>{
- const saved=Number(localStorage.getItem(posKey)||0);
+v.addEventListener("loadedmetadata",async()=>{
+ const saved=localPosition();
  if(saved>0 && saved<v.duration-5) v.currentTime=saved;
  update();
+ await loadCloudPosition();
 });
 v.addEventListener("timeupdate",()=>{
  update();
- if(Math.floor(v.currentTime)%5===0) localStorage.setItem(posKey,String(v.currentTime));
+ if(Math.floor(v.currentTime)%5===0) cachePosition();
+ saveCloudPosition(false);
 });
+v.addEventListener("pause",()=>{cachePosition();saveCloudPosition(true);});
+v.addEventListener("seeking",()=>{cachePosition();});
+v.addEventListener("seeked",()=>{saveCloudPosition(true);});
 v.addEventListener("progress",update);
-v.addEventListener("ended",()=>{mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100});localStorage.removeItem(posKey);showToast("Episode finished");});
+v.addEventListener("ended",()=>{mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100,position:v.duration,duration:v.duration});saveCloudPosition(true);localStorage.removeItem(posKey);showToast("Episode finished");});
+
+window.addEventListener("mh-auth-changed",()=>{ if(window.MH_USER) loadCloudPosition(); });
+window.addEventListener("mh-account-ready",()=>{ loadCloudPosition(); });
 
 function setPlayingUI(){
  const playing=!v.paused;

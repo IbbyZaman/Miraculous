@@ -43,5 +43,7 @@
 const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
 document.querySelector("#latestGrid").innerHTML=latest.map(e=>`<a class="card" href="watch.html?season=${e.season}&episode=${e.episode}"><div class="art">${e.new?'<span class="new">NEW</span>':''}<span class="epno">SEASON ${e.season} · EPISODE ${e.episode}</span></div><div class="card-info"><h3>${e.title}</h3><p>${e.code}</p></div></a>`).join("");
 function renderCW(){const box=document.querySelector("#continueSection"),row=document.querySelector("#continueRow"),items=mhGetProgress();if(!items.length){box.hidden=true;return;}box.hidden=false;row.innerHTML=items.map(x=>`<a class="continue-card" href="watch.html?season=${x.season}&episode=${x.episode}"><div class="thumb"><span class="thumb-label">S${x.season} · E${x.episode}</span><div class="watch-progress" style="width:${Math.round(x.progress||0)}%"></div></div><div class="continue-info"><strong>${x.title||"Episode"}</strong><p>${Math.round(x.progress||0)}% watched</p></div></a>`).join("");}renderCW();
+window.addEventListener("mh-progress-synced", renderCW);
+window.addEventListener("mh-account-ready", renderCW);
 </script>
 </body></html>
