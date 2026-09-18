@@ -19,3 +19,10 @@ For production, add authentication/signed short-lived URLs, rate limiting, and o
 PLAYER UPDATE:
 - Modern custom player with draggable seek bar, buffer indicator, center play, auto-hiding controls, volume, playback speed, CC/WebVTT support, picture-in-picture, theater mode, fullscreen, keyboard shortcuts, and saved progress.
 - Subtitle files belong in subtitles/ as SxxExx.en.vtt.
+
+
+FIREBASE AUTH RESTORED:
+- Email/password sign-in and account creation are restored from the previous working Firebase version.
+- Google sign-in is also wired up.
+- Firebase config is in firebase.js; it contains the public web app config, not the Cloudflare service-account secret.
+- Enable Email/Password and Google in Firebase Authentication and add the production domain under Authorized domains.

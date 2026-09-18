@@ -61,6 +61,50 @@
  .watch-meta{padding:24px 6vw 0}
 }
 @media(min-width:681px){.watch-meta{width:min(900px,100%)}}
+
+/* Mobile player overhaul */
+@media (max-width: 680px){
+  .watch-shell{padding:0 0 42px;width:100%;}
+  .player{border-radius:0;box-shadow:none;background:#000;overflow:visible;}
+  .player-stage{aspect-ratio:16/9;min-height:0;overflow:hidden;}
+  .player video{width:100%;height:100%;object-fit:contain;}
+  .player-overlay{
+    padding:10px 10px 8px;
+    opacity:1;
+    pointer-events:auto;
+    background:linear-gradient(180deg,rgba(0,0,0,.62),transparent 24%,transparent 58%,rgba(0,0,0,.94));
+  }
+  .player-title{font-size:12px;max-width:68%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .player-bottom{width:100%;}
+  .progress-area{height:26px;margin:0 -2px;}
+  .progress-track{height:5px;}
+  .progress-knob{width:14px;height:14px;transform:translate(-50%,-50%) scale(1);}
+  .control-row{gap:3px;min-width:0;}
+  .pbtn{width:40px;height:40px;min-width:40px;border-radius:10px;background:rgba(20,20,24,.86);font-size:15px;-webkit-tap-highlight-color:transparent;}
+  .pbtn.wide{min-width:40px;padding:0 8px;}
+  .pbtn.small{font-size:10px;}
+  .player-time{font-size:10px;margin:0 2px;white-space:nowrap;}
+  .volume-wrap{display:none;}
+  .player-spacer{min-width:2px;}
+  .settings-wrap{position:static;}
+  .settings-menu{position:absolute;right:8px;bottom:58px;width:min(230px,calc(100vw - 24px));z-index:20;}
+  .settings-menu button{padding:13px 12px;min-height:42px;}
+  .center-play{width:58px;height:58px;font-size:20px;}
+  .player-caption-note{padding:0 6vw;margin-top:9px;line-height:1.45;}
+  .watch-meta{padding:22px 6vw 0;}
+}
+@media (max-width:390px){
+  .pbtn{width:36px;height:36px;min-width:36px;}
+  .player-time{font-size:9px;}
+  .center-play{width:52px;height:52px;}
+}
+/* When the player itself enters fullscreen, fill the viewport cleanly. */
+.player:fullscreen,.player:-webkit-full-screen{width:100vw;height:100vh;border-radius:0;background:#000;}
+.player:fullscreen .player-stage,.player:-webkit-full-screen .player-stage{width:100%;height:100%;aspect-ratio:auto;}
+.player:fullscreen video,.player:-webkit-full-screen video{width:100%;height:100%;}
+@media (max-width:680px){
+  .player:fullscreen .player-overlay,.player:-webkit-full-screen .player-overlay{padding-bottom:max(10px,env(safe-area-inset-bottom));}
+}
 </style>
 </head>
 <body>
@@ -132,7 +176,7 @@
 <div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
 <div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
 
-<script src="data.js"></script><script src="common.js"></script>
+<script src="data.js"></script><script type="module" src="firebase.js"></script><script src="common.js"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const season=Number(params.get("season")||6), number=Number(params.get("episode")||26);
@@ -220,17 +264,56 @@ document.addEventListener("click",e=>{if(!e.target.closest(".settings-wrap"))$("
 document.querySelectorAll("[data-speed]").forEach(b=>b.onclick=()=>{v.playbackRate=Number(b.dataset.speed);showToast(`Speed ${b.textContent}`);$("settingsMenu").hidden=true});
 $("pip").onclick=async()=>{try{if(document.pictureInPictureElement)await document.exitPictureInPicture();else if(document.pictureInPictureEnabled)await v.requestPictureInPicture();}catch{showToast("Picture-in-picture unavailable")}};
 $("theater").onclick=()=>{player.classList.toggle("theater");player.style.maxWidth=player.classList.contains("theater")?"none":"";showToast(player.classList.contains("theater")?"Theater mode on":"Theater mode off");$("settingsMenu").hidden=true};
-$("fullscreen").onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await player.requestFullscreen();}catch{}};
-document.addEventListener("fullscreenchange",()=>{$("fullscreen").textContent=document.fullscreenElement?"⛶":"⛶"});
+$("fullscreen").onclick=async()=>{
+  try{
+    if(document.fullscreenElement || document.webkitFullscreenElement){
+      if(document.exitFullscreen) await document.exitFullscreen();
+      else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+      return;
+    }
+    // iPhone/iPad Safari supports native video fullscreen rather than
+    // the generic Fullscreen API in many versions.
+    if(/iPhone|iPad|iPod/i.test(navigator.userAgent) && typeof v.webkitEnterFullscreen === "function"){
+      v.webkitEnterFullscreen();
+      return;
+    }
+    if(player.requestFullscreen) await player.requestFullscreen();
+    else if(player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+  }catch{showToast("Fullscreen unavailable");}
+};
+function syncFullscreenUI(){
+  const fs=!!(document.fullscreenElement || document.webkitFullscreenElement);
+  $("fullscreen").textContent=fs?"↙":"⛶";
+}
+document.addEventListener("fullscreenchange",syncFullscreenUI);
+document.addEventListener("webkitfullscreenchange",syncFullscreenUI);
+
 
 function showToast(msg){$("toast").textContent=msg;$("toast").classList.add("show");clearTimeout(showToast.t);showToast.t=setTimeout(()=>$("toast").classList.remove("show"),850)}
 function activity(){
- player.classList.add("show-ui");clearTimeout(hideTimer);
- if(!v.paused)hideTimer=setTimeout(()=>player.classList.remove("show-ui"),2200);
+ player.classList.add("show-ui");
+ clearTimeout(hideTimer);
+ if(!v.paused && window.matchMedia("(min-width:681px)").matches){
+   hideTimer=setTimeout(()=>player.classList.remove("show-ui"),2200);
+ }
 }
-player.addEventListener("pointermove",activity);player.addEventListener("pointerdown",activity);
-v.addEventListener("play",activity);v.addEventListener("pause",()=>player.classList.add("show-ui"));
-player.addEventListener("mouseleave",()=>{if(!v.paused)player.classList.remove("show-ui")});
+player.addEventListener("pointermove",activity);
+player.addEventListener("pointerdown",activity);
+v.addEventListener("play",activity);
+v.addEventListener("pause",()=>player.classList.add("show-ui"));
+player.addEventListener("mouseleave",()=>{if(!v.paused && window.matchMedia("(min-width:681px)").matches)player.classList.remove("show-ui")});
+// On phones a tap on the video toggles controls/playback without stealing taps
+// from the actual control buttons.
+let lastStageTap=0;
+stage.addEventListener("click",e=>{
+ if(e.target.closest("button,.progress-area,.settings-wrap")) return;
+ const now=Date.now();
+ if(now-lastStageTap<280){ $("fullscreen").click(); lastStageTap=0; return; }
+ lastStageTap=now;
+ if(window.matchMedia("(max-width:680px)").matches){
+   if(v.paused) togglePlay(); else activity();
+ }
+});
 stage.addEventListener("dblclick",()=>{$("fullscreen").click()});
 
 document.addEventListener("keydown",e=>{

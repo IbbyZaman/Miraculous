@@ -14,3 +14,7 @@ Data saved per signed-in user:
 The site keeps localStorage as a fallback/cache and syncs signed-in data with Firestore.
 
 Google sign-in may require Firebase Console -> Authentication -> Settings -> Authorized domains. Add your production domain there.
+
+
+ACCOUNT SYNC UPDATE:
+Firebase Auth + Firestore are wired into the site. Enable Email/Password and Google providers in Firebase Authentication, add your production domain under Authorized domains, and publish firestore.rules. Signed-in playback/watched/favourites data is stored under the signed-in user's Firestore document tree and synced across devices.

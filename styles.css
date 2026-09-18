@@ -242,3 +242,22 @@ body { overflow-x: hidden; }
     padding-inline: 12px;
   }
 }
+
+/* Firebase account / authentication UI */
+.auth-modal{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:20px}
+.auth-modal[hidden]{display:none}
+.auth-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px)}
+.auth-box{position:relative;width:min(430px,100%);padding:28px;border:1px solid var(--line,#2a2a32);border-radius:18px;background:var(--surface,#17171d);color:var(--text,#fff);box-shadow:0 24px 80px rgba(0,0,0,.45)}
+.auth-close{position:absolute;right:12px;top:10px;width:34px;height:34px;border:0;border-radius:9px;background:transparent;color:var(--muted,#aaa);font-size:26px;cursor:pointer}
+.auth-kicker{font-size:11px;font-weight:800;letter-spacing:.12em;opacity:.65;margin-bottom:8px}
+.auth-box h2{margin:0 0 7px;font-size:28px}
+.auth-box p{color:var(--muted,#aaa);line-height:1.5}
+.auth-box input{display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:13px 14px;border:1px solid var(--line,#2a2a32);border-radius:10px;background:var(--bg,#101014);color:var(--text,#fff);outline:none}
+.auth-box input:focus{border-color:#e53935}
+.google-auth,.auth-submit,.auth-switch{width:100%;padding:12px 14px;border:0;border-radius:10px;font-weight:750;cursor:pointer}
+.google-auth{background:#fff;color:#222}
+.auth-submit{margin-top:4px;background:#e53935;color:#fff}
+.auth-switch{margin-top:12px;background:transparent;color:var(--text,#fff);border:1px solid var(--line,#2a2a32)}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--muted,#999);font-size:12px}
+.auth-divider:before,.auth-divider:after{content:"";height:1px;flex:1;background:var(--line,#2a2a32)}
+.auth-error{min-height:20px;color:#ff7777!important;font-size:13px;margin:12px 0 0}
