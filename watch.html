@@ -240,7 +240,14 @@ async function saveCloudPosition(force=false){
     window.dispatchEvent(new CustomEvent("mh-cloud-save-ok",{detail:{season:ep.season,episode:ep.episode}}));
   } catch(error) {
     console.error("MiraculousHub cloud save failed:", error);
-    showToast("Cloud sync failed — check Firebase");
+    const code = error?.code || "unknown";
+    let message = "Cloud sync failed";
+    if (code === "permission-denied") message = "Cloud sync blocked: Firestore rules";
+    else if (code === "failed-precondition") message = "Cloud sync unavailable: create Firestore";
+    else if (code === "unavailable") message = "Cloud sync unavailable: check connection";
+    else if (code === "unauthenticated") message = "Cloud sync failed: sign in again";
+    showToast(message);
+    window.dispatchEvent(new CustomEvent("mh-cloud-save-error", { detail: error }));
   }
 }
 
@@ -391,6 +398,11 @@ document.addEventListener("keydown",e=>{
 });
 
 $("watched").onclick=()=>{localStorage.setItem(posKey,String(v.duration||0));mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100});$("watched").textContent="✓ Watched";showToast("Marked as watched")};
+
+window.addEventListener("mh-cloud-save-error", e => {
+  const err = e.detail || {};
+  console.error("MiraculousHub Firebase sync error code:", err.code, "message:", err.message);
+});
 
 const downloadBtn=$("download");
 if(downloadBtn){

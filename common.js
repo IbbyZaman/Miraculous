@@ -153,7 +153,12 @@
       window.MH_CLOUD.savePlayback(
         `s${item.season}e${item.episode}`,
         merged
-      ).catch(() => {});
+      ).then(() => {
+        window.dispatchEvent(new CustomEvent("mh-cloud-save-ok", { detail: { season: item.season, episode: item.episode } }));
+      }).catch(error => {
+        console.error("MiraculousHub cloud save failed:", error);
+        window.dispatchEvent(new CustomEvent("mh-cloud-save-error", { detail: error }));
+      });
     }
   };
 
