@@ -176,7 +176,7 @@
 <div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
 <div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
 
-<script src="data.js"></script><script type="module" src="firebase.js"></script><script src="common.js"></script>
+<script src="data.js"></script><script src="firebase.js"></script><script src="common.js"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const season=Number(params.get("season")||6), number=Number(params.get("episode")||26);

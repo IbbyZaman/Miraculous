@@ -281,27 +281,26 @@
 
   let authMode = "signin";
 
-  function waitForFirebaseAuth(timeout = 10000){
-    if (window.MH_AUTH) return Promise.resolve(window.MH_AUTH);
-    return new Promise((resolve, reject) => {
-      let done = false;
-      const finish = () => {
-        if (done) return;
-        if (window.MH_AUTH) {
-          done = true;
-          window.removeEventListener("mh-firebase-ready", finish);
-          resolve(window.MH_AUTH);
+  function waitForFirebaseAuth(timeout = 15000){
+    if (window.MH_AUTH && typeof window.MH_AUTH.signIn === "function") {
+      return Promise.resolve(window.MH_AUTH);
+    }
+
+    if (!window.MH_FIREBASE_READY) {
+      return Promise.reject(new Error("Firebase did not start loading. Refresh the page and try again."));
+    }
+
+    return Promise.race([
+      window.MH_FIREBASE_READY.then(() => {
+        if (!window.MH_AUTH || typeof window.MH_AUTH.signIn !== "function") {
+          throw new Error("Firebase loaded, but Authentication is unavailable.");
         }
-      };
-      window.addEventListener("mh-firebase-ready", finish);
-      finish();
-      setTimeout(() => {
-        if (done) return;
-        done = true;
-        window.removeEventListener("mh-firebase-ready", finish);
-        reject(new Error("Firebase is still loading. Please try again."));
-      }, timeout);
-    });
+        return window.MH_AUTH;
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Firebase is taking too long to load. Check your internet connection and try again.")), timeout)
+      )
+    ]);
   }
 
   window.mhOpenAuth = function(mode = "signin"){
@@ -356,14 +355,21 @@
       closeAuth();
     } catch (e) {
       const code = e.code || "";
-      err.textContent =
-        code.includes("invalid-credential")
-          ? "Email or password is incorrect."
-          : code.includes("email-already-in-use")
-            ? "That email already has an account."
-            : code.includes("weak-password")
-              ? "Use a password with at least 6 characters."
-              : e.message || "Sign-in failed.";
+      const messages = {
+        "auth/invalid-credential": "Email or password is incorrect.",
+        "auth/invalid-login-credentials": "Email or password is incorrect.",
+        "auth/user-not-found": "No account exists with that email.",
+        "auth/wrong-password": "Email or password is incorrect.",
+        "auth/email-already-in-use": "That email already has an account.",
+        "auth/weak-password": "Use a password with at least 6 characters.",
+        "auth/invalid-email": "Please enter a valid email address.",
+        "auth/operation-not-allowed": "Email/password sign-in is not enabled in this Firebase project.",
+        "auth/network-request-failed": "Firebase could not connect. Check your internet connection.",
+        "auth/too-many-requests": "Too many attempts. Please wait a little and try again.",
+        "auth/unauthorized-domain": "This website domain is not authorized in Firebase Authentication.",
+        "auth/api-key-not-valid": "The Firebase web API key is not valid for this project."
+      };
+      err.textContent = messages[code] || e.message || "Sign-in failed.";
     } finally {
       submit.disabled = false;
     }
@@ -379,8 +385,10 @@
       closeAuth();
     } catch (e) {
       if (e.code !== "auth/popup-closed-by-user") {
-        err.textContent =
-          e.message || "Google sign-in failed.";
+        const code = e.code || "";
+        err.textContent = code === "auth/unauthorized-domain"
+          ? "This website domain is not authorized in Firebase Authentication."
+          : e.message || "Google sign-in failed.";
       }
     } finally {
       google.disabled = false;
@@ -430,18 +438,19 @@
 
   updateAuthButton(window.MH_USER);
 
-  // Firebase is a type="module", so it can finish after this classic
-  // script. Listen for its ready event and then restore the account UI.
+  // Firebase exposes one explicit readiness promise, so authentication UI
+  // never races the Firebase module loading.
   function connectFirebaseAuth(){
-    if (!window.MH_AUTH_READY) return;
-    window.MH_AUTH_READY.then(user => {
-      updateAuthButton(user);
-      if (user) window.mhSyncCloudProgress();
-    }).catch(error => {
-      console.error("MiraculousHub Firebase Auth initialization failed:", error);
-    });
+    if (!window.MH_FIREBASE_READY) return;
+    window.MH_FIREBASE_READY.then(() => window.MH_AUTH_READY)
+      .then(user => {
+        updateAuthButton(user);
+        if (user) window.mhSyncCloudProgress();
+      })
+      .catch(error => {
+        console.error("MiraculousHub Firebase Auth initialization failed:", error);
+      });
   }
 
-  window.addEventListener("mh-firebase-ready", connectFirebaseAuth, { once: true });
   connectFirebaseAuth();
 })();
