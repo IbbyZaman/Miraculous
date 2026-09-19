@@ -130,30 +130,6 @@
           if (!u) return [];
           const snap = await fsMod.getDocs(fsMod.collection(db, "users", u.uid, "favourites"));
           return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        },
-        async addComment(episodeKey, text) {
-          const u = auth.currentUser;
-          if (!u) throw new Error("Sign in required");
-          const clean = String(text || "").trim().slice(0, 500);
-          if (!clean) throw new Error("Comment cannot be empty");
-          return fsMod.addDoc(fsMod.collection(db, "comments"), {
-            episodeKey, text: clean, authorUid: u.uid,
-            authorName: (u.displayName || u.email || "User").slice(0, 60),
-            createdAt: fsMod.serverTimestamp()
-          });
-        },
-        async deleteComment(commentId) {
-          const u = auth.currentUser;
-          if (!u) throw new Error("Sign in required");
-          await fsMod.deleteDoc(fsMod.doc(db, "comments", commentId));
-        },
-        subscribeComments(episodeKey, callback) {
-          const q = fsMod.query(fsMod.collection(db, "comments"), fsMod.where("episodeKey", "==", episodeKey));
-          return fsMod.onSnapshot(q, snap => {
-            const items = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-            items.sort((a,b) => (a.createdAt?.toMillis?.()||0) - (b.createdAt?.toMillis?.()||0));
-            callback(items);
-          }, err => callback(null, err));
         }
       };
 

@@ -105,14 +105,6 @@
 @media (max-width:680px){
   .player:fullscreen .player-overlay,.player:-webkit-full-screen .player-overlay{padding-bottom:max(10px,env(safe-area-inset-bottom));}
 }
-
-/* Clip controls inside player */
-.clip-panel{position:absolute;right:12px;bottom:64px;width:min(360px,calc(100% - 24px));padding:12px;border:1px solid rgba(255,255,255,.14);border-radius:12px;background:rgba(12,12,16,.97);color:#fff;box-shadow:0 16px 45px rgba(0,0,0,.5);z-index:30;backdrop-filter:blur(12px)}
-.clip-panel[hidden]{display:none}
-.clip-panel-title{font-size:12px;font-weight:850;margin-bottom:9px;display:flex;justify-content:space-between}.clip-panel-title span{opacity:.55;font-size:10px}
-.clip-fields{display:flex;gap:8px}.clip-fields label{font-size:10px;color:#aaa;flex:1}.clip-fields input{display:block;width:100%;box-sizing:border-box;margin-top:4px;padding:7px;border:1px solid #555;border-radius:7px;background:#111;color:#fff}
-.clip-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}.clip-actions button{border:0;border-radius:7px;padding:8px 9px;background:#292930;color:#fff;font-size:10px;font-weight:750;cursor:pointer}.clip-actions button:hover{background:var(--accent)}.clip-status{font-size:9px;color:#aaa;margin-top:7px;min-height:12px}
-@media(max-width:680px){.clip-panel{right:8px;bottom:58px;width:min(330px,calc(100vw - 16px));}.clip-actions button{padding:9px 8px}.control-row .clip-button{display:inline-flex}}
 </style>
 </head>
 <body>
@@ -147,7 +139,6 @@
        <span class="player-time" id="time">0:00 / 0:00</span>
        <span class="player-spacer"></span>
        <button class="pbtn wide small" id="captions" aria-label="Subtitles">CC</button>
-       <button class="pbtn wide small" id="clipButton" type="button" aria-label="Create a 5 minute clip">✂ Clip</button>
        <div class="settings-wrap">
         <button class="pbtn" id="settings" aria-label="Settings">⚙</button>
         <div class="settings-menu" id="settingsMenu" hidden>
@@ -165,18 +156,6 @@
   </div>
  </div>
  <div class="player-caption-note" id="captionNote">Subtitles are available when a matching WebVTT file is placed in the <code>subtitles/</code> folder.</div>
-
-
-<style>
-.live-comments{margin:24px auto 0;max-width:900px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(17,17,22,.96);overflow:hidden}.live-comments-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08)}.live-comments-title{font-weight:800;font-size:14px}.live-comments-status{font-size:10px;color:#999;display:flex;gap:6px;align-items:center}.live-dot{width:7px;height:7px;border-radius:50%;background:#35d477}.live-comments-list{max-height:360px;overflow:auto;padding:8px 14px}.live-comment{padding:10px 2px;border-bottom:1px solid rgba(255,255,255,.06)}.live-comment:last-child{border:0}.live-comment-top{display:flex;gap:8px;align-items:center;margin-bottom:4px}.live-comment-name{font-size:11px;font-weight:800}.live-comment-time{font-size:9px;color:#777}.live-comment-text{font-size:12px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;color:#ddd}.live-comment-delete{margin-left:auto;background:none;border:0;color:#888;font-size:10px;cursor:pointer}.live-comments-empty{text-align:center;color:#888;font-size:11px;padding:28px 8px}.live-comments-form,.live-comments-login{display:flex;gap:8px;padding:12px;border-top:1px solid rgba(255,255,255,.08)}.live-comments-input{flex:1;min-width:0;background:#0c0c10;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;padding:10px;font:inherit;font-size:12px}.live-comments-send,.live-comments-login button{border:0;border-radius:10px;background:var(--accent);color:#fff;padding:0 14px;font-weight:800;font-size:11px;cursor:pointer}.live-comments-login{align-items:center;justify-content:space-between;color:#999;font-size:11px}.live-comments-login button{padding:9px 12px}@media(max-width:680px){.live-comments{border-radius:12px}.live-comments-list{max-height:300px}}
-</style>
-
- <section class="live-comments" id="liveComments">
-  <div class="live-comments-head"><div class="live-comments-title">💬 Live comments</div><div class="live-comments-status"><span class="live-dot"></span><span id="commentsStatus">Connecting…</span></div></div>
-  <div class="live-comments-list" id="commentsList"><div class="live-comments-empty">Loading comments…</div></div>
-  <div class="live-comments-form" id="commentsForm" hidden><input class="live-comments-input" id="commentInput" maxlength="500" placeholder="Write a comment…"><button class="live-comments-send" id="commentSend">Send</button></div>
-  <div class="live-comments-login" id="commentsLogin" hidden><span>Sign in to join the conversation.</span><button id="commentsSignIn">Sign in</button></div>
- </section>
 
  <section class="watch-meta">
   <p class="kicker" id="episodeCode">SEASON 6 · EPISODE 26</p>
@@ -204,7 +183,7 @@ const specialNumber=Number(params.get("special")||0);
 const specialTitles=["New York: United Heroez","Shanghai: The Legend of Lady Dragon","Awakening - The Movie","Miraculous World Paris: Tales of Shadybug and Claw Noir","London: At the Edge of Time","Miraculous World: Tokyo, Stellar Force"];
 const isSpecial=Number.isInteger(specialNumber)&&specialNumber>0&&specialNumber<=specialTitles.length;
 const season=Number(params.get("season")||6), number=Number(params.get("episode")||26);
-const ep=isSpecial?{season:"Special",episode:specialNumber,title:specialTitles[specialNumber-1],code:`SPECIAL ${specialNumber}`,videoPath:specialNumber===4?"/video/paris":(specialNumber===5?"/video/london":"")}:(window.MH_EPISODES||[]).find(x=>x.season===season&&x.episode===number)||(window.MH_EPISODES||[]).at(-1);
+const ep=isSpecial?{season:"Special",episode:specialNumber,title:specialTitles[specialNumber-1],code:`SPECIAL ${specialNumber}`,videoPath:specialNumber===5?"/video/london":""}:(window.MH_EPISODES||[]).find(x=>x.season===season&&x.episode===number)||(window.MH_EPISODES||[]).at(-1);
 const $=id=>document.getElementById(id);
 document.title=`MiraculousHub — ${ep.title}`;
 $("episodeCode").textContent=isSpecial?`SPECIAL · ${ep.title}`:`SEASON ${ep.season} · EPISODE ${ep.episode}`;
@@ -235,7 +214,7 @@ v.addEventListener("error",()=>{
 });
 
 const posKey=isSpecial?`mh-pos-special-${ep.episode}`:`mh-pos-${ep.season}-${ep.episode}`;
-const cloudKey=isSpecial?`special-${ep.episode}`:`s${ep.season}e${ep.episode}`;\n// Live Firestore comments\n(()=>{\n const list=$("commentsList"), form=$("commentsForm"), login=$("commentsLogin"), input=$("commentInput"), send=$("commentSend"), status=$("commentsStatus"), signIn=$("commentsSignIn");\n let unsub=null,lastSend=0;\n const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));\n const time=x=>{const d=x?.toDate?x.toDate():null;return d?d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):"just now"};\n function authUI(){const yes=!!window.MH_USER;form.hidden=!yes;login.hidden=yes}\n function render(items){if(!items||!items.length){list.innerHTML='<div class="live-comments-empty">No comments yet. Be the first to say something!</div>';return} list.innerHTML=items.slice(-100).map(c=>`<div class="live-comment"><div class="live-comment-top"><span class="live-comment-name">${esc(c.authorName||"User")}</span><span class="live-comment-time">${esc(time(c.createdAt))}</span>${window.MH_USER&&c.authorUid===window.MH_USER.uid?`<button class="live-comment-delete" data-del="${esc(c.id)}">Delete</button>`:""}</div><div class="live-comment-text">${esc(c.text)}</div></div>`).join(""); list.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{try{await window.MH_CLOUD.deleteComment(b.dataset.del)}catch(e){console.error(e);showToast("Couldn't delete comment")}}); list.scrollTop=list.scrollHeight}\n function start(){if(!window.MH_CLOUD)return;if(unsub)unsub();status.textContent="Live";unsub=window.MH_CLOUD.subscribeComments(cloudKey,(items,err)=>{if(err){status.textContent="Unavailable";list.innerHTML='<div class="live-comments-empty">Comments could not be loaded.</div>';return}render(items)})}\n send.onclick=async()=>{const t=input.value.trim();if(!t)return;if(!window.MH_USER){window.mhOpenAuth?.();return}if(Date.now()-lastSend<2000){showToast("Please wait a moment");return}send.disabled=true;lastSend=Date.now();try{await window.MH_CLOUD.addComment(cloudKey,t);input.value=""}catch(e){console.error(e);showToast("Couldn't send comment")}finally{setTimeout(()=>send.disabled=false,700)}};\n input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();send.click()}}); signIn.onclick=()=>window.mhOpenAuth?.();\n window.addEventListener("mh-auth-changed",()=>{authUI();start()}); window.addEventListener("mh-firebase-ready",()=>{authUI();start()}); authUI(); if(window.MH_FIREBASE_READY)window.MH_FIREBASE_READY.then(start).catch(()=>status.textContent="Unavailable");\n})();\n
+const cloudKey=isSpecial?`special-${ep.episode}`:`s${ep.season}e${ep.episode}`;
 let dragging=false, hideTimer, lastPointer=0;
 let lastCloudSave=0;
 let cloudSaveInFlight=false;
@@ -500,32 +479,5 @@ $("captions").onclick=()=>{
 };
 setupSubtitles();
 </script>
-<div id="clipPanel" class="clip-panel" hidden>
-  <div class="clip-panel-title">✂ Create Clip <span>Max 5:00</span></div>
-  <div class="clip-fields">
-    <label>Start <input id="clipStart" type="number" min="0" step="1"></label>
-    <label>End <input id="clipEnd" type="number" min="1" step="1"></label>
-  </div>
-  <div class="clip-actions">
-    <button id="clipCurrent" type="button">Current → Start</button>
-    <button id="clipPreview" type="button">▶ Preview</button>
-    <button id="clipDownload" type="button">⬇ Download</button>
-    <button id="clipShare" type="button">🔗 Share</button>
-  </div>
-  <div id="clipStatus" class="clip-status"></div>
-</div>
-<script>
-(()=>{
- const v=document.getElementById("video"), b=document.getElementById("clipButton"), p=document.getElementById("clipPanel"), s=document.getElementById("clipStart"), e=document.getElementById("clipEnd"), st=document.getElementById("clipStatus");
- if(!v||!b||!p)return;
- const T=()=>{let a=Math.max(0,Number(s.value)||0),z=Math.max(a,Number(e.value)||a);if(z-a>300)z=a+300;if(v.duration)z=Math.min(z,v.duration);if(v.duration&&a>v.duration)a=Math.max(0,v.duration-300);s.value=Math.floor(a);e.value=Math.floor(z);return[a,z]};
- b.onclick=ev=>{ev.stopPropagation();p.hidden=!p.hidden;if(!p.hidden){s.value=Math.floor(v.currentTime||0);e.value=Math.floor(Math.min(v.duration||300,(v.currentTime||0)+300));st.textContent="Choose a range up to 5 minutes.";}};
- p.addEventListener("click",ev=>ev.stopPropagation());
- document.addEventListener("click",()=>{p.hidden=true});
- document.getElementById("clipCurrent").onclick=()=>{s.value=Math.floor(v.currentTime||0);e.value=Math.floor(Math.min(v.duration||300,Number(s.value)+300));};
- document.getElementById("clipPreview").onclick=()=>{let[a,z]=T();if(z<=a){st.textContent="End must be after start.";return}v.currentTime=a;v.play();const f=()=>{if(v.currentTime>=z){v.pause();v.removeEventListener("timeupdate",f)}};v.addEventListener("timeupdate",f);st.textContent="Previewing…"};
- document.getElementById("clipDownload").onclick=async()=>{let[a,z]=T();if(z<=a){st.textContent="End must be after start.";return}if(!v.captureStream||!window.MediaRecorder){st.textContent="Clip recording isn't supported in this browser.";return}try{st.textContent="Recording… keep this tab open.";const r=v.captureStream(),m=["video/webm;codecs=vp9,opus","video/webm"].find(x=>MediaRecorder.isTypeSupported(x))||"",q=new MediaRecorder(r,m?{mimeType:m}:undefined),c=[];q.ondataavailable=x=>x.data.size&&c.push(x.data);v.currentTime=a;await v.play();await new Promise((ok,fail)=>{q.onerror=fail;q.start(250);const f=()=>{if(v.currentTime>=z||v.ended){v.removeEventListener("timeupdate",f);v.pause();q.stop();ok()}};v.addEventListener("timeupdate",f)});const u=URL.createObjectURL(new Blob(c,{type:q.mimeType||"video/webm"})),x=document.createElement("a");x.href=u;x.download=`miraculoushub-clip-${Math.floor(a)}-${Math.floor(z)}.webm`;x.click();setTimeout(()=>URL.revokeObjectURL(u),1000);st.textContent="Download started."}catch(x){console.error(x);st.textContent="Could not create the clip; the source may block capture."}};
- document.getElementById("clipShare").onclick=async()=>{let[a,z]=T();if(z<=a){st.textContent="End must be after start.";return}const u=new URL(location.href);u.searchParams.set("clipStart",Math.floor(a));u.searchParams.set("clipEnd",Math.floor(z));try{if(navigator.share)await navigator.share({title:`${document.title} — Clip`,url:u.href});else{await navigator.clipboard.writeText(u.href);st.textContent="Share link copied."}}catch{} };
-})();
-</script></body>
+<button id="clipButton" type="button">✂ Create 5-min Clip</button><div id="clipPanel" style="display:none;margin:12px 0;padding:14px;border-radius:10px;background:#18181c;color:#fff"><b>Create a clip (max 5 minutes)</b><br><label>Start <input id="clipStart" type="number" min="0" step="1"></label> <label>End <input id="clipEnd" type="number" min="1" step="1"></label><br><button id="clipCurrent" type="button">Use current as start</button> <button id="clipPreview" type="button">Preview</button> <button id="clipDownload" type="button">Download clip</button> <button id="clipShare" type="button">Create share link</button><div id="clipStatus"></div></div><script>(()=>{const v=document.querySelector("video"),b=document.getElementById("clipButton"),p=document.getElementById("clipPanel"),s=document.getElementById("clipStart"),e=document.getElementById("clipEnd"),st=document.getElementById("clipStatus");if(!v||!b)return;const T=()=>{let a=Math.max(0,+s.value||0),z=Math.max(a,+e.value||a);if(z-a>300)z=a+300;if(v.duration)z=Math.min(z,v.duration);s.value=Math.floor(a);e.value=Math.floor(z);return[a,z]};b.onclick=()=>{p.style.display=p.style.display==="none"?"block":"none";if(p.style.display==="block"){s.value=Math.floor(v.currentTime||0);e.value=Math.floor(Math.min(v.duration||300,(v.currentTime||0)+300))}};clipCurrent.onclick=()=>{s.value=Math.floor(v.currentTime||0);e.value=Math.floor(Math.min(v.duration||300,+s.value+300))};clipPreview.onclick=()=>{let[a,z]=T();v.currentTime=a;v.play();let f=()=>{if(v.currentTime>=z){v.pause();v.removeEventListener("timeupdate",f)}};v.addEventListener("timeupdate",f)};clipDownload.onclick=async()=>{let[a,z]=T();if(!v.captureStream||!window.MediaRecorder){st.textContent="Clip recording isn't supported in this browser.";return}try{st.textContent="Recording…";let r=v.captureStream(),m=["video/webm;codecs=vp9,opus","video/webm"].find(x=>MediaRecorder.isTypeSupported(x))||"",q=new MediaRecorder(r,m?{mimeType:m}:undefined),c=[];q.ondataavailable=x=>x.data.size&&c.push(x.data);v.currentTime=a;await v.play();await new Promise(ok=>{let f=()=>{if(v.currentTime>=z||v.ended){v.removeEventListener("timeupdate",f);v.pause();q.stop();ok()}};q.start(250);v.addEventListener("timeupdate",f)});let u=URL.createObjectURL(new Blob(c,{type:q.mimeType||"video/webm"})),x=document.createElement("a");x.href=u;x.download="miraculoushub-clip.webm";x.click();setTimeout(()=>URL.revokeObjectURL(u),1000);st.textContent="Download started."}catch(x){st.textContent="Could not create the clip; the video source may block capture."}};clipShare.onclick=()=>{let[a,z]=T(),u=new URL(location.href);u.searchParams.set("clipStart",Math.floor(a));u.searchParams.set("clipEnd",Math.floor(z));navigator.clipboard?.writeText(u.href);st.textContent="Share link copied."}})();</script></body>
 </html>
