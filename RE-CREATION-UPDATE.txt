@@ -1,0 +1,4 @@
+Added Cloudflare route: /video/recreation
+Download route: /download/recreation
+Google Drive file ID: 1kEKfCh8p30ISC0wZO-TWz2pg9pBFvJuG
+If the site's episode data is generated in a file not matched automatically, the Worker route itself is ready and the episode can be linked to /video/recreation.
