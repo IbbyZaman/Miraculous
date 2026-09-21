@@ -203,10 +203,13 @@ const current=$("current"), buffer=$("buffer"), knob=$("knob"), time=$("time");
 const VIDEO_WORKER="https://miraculous-video.ibbyzaman4.workers.dev";
 const sourceUrl=ep.videoPath ? `${VIDEO_WORKER}${ep.videoPath}` : "";
 if(sourceUrl){
+  // Set the video element directly so every episode uses the exact Worker URL.
   $("source").src=sourceUrl;
+  v.src=sourceUrl;
   v.load();
 }else{
   $("source").removeAttribute("src");
+  v.removeAttribute("src");
   v.load();
 }
 v.addEventListener("error",()=>{
@@ -449,7 +452,7 @@ const downloadBtn=$("download");
 if(downloadBtn){
   if(ep.videoPath){
     const downloadPath=ep.videoPath.replace(/^\/video\//,"/download/");
-    downloadBtn.onclick=()=>{ window.open(VIDEO_WORKER+downloadPath,"_blank","noopener"); };
+    downloadBtn.onclick=()=>{ window.location.href=VIDEO_WORKER+downloadPath; };
   }else{
     downloadBtn.onclick=()=>showToast("Download is not configured for this episode yet");
   }
