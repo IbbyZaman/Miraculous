@@ -14,8 +14,13 @@ const VIDEOS = {
     filename: "S01E03 - The Pharaoh.mp4"
   },
 
-  // Season 6
+  // Season 5
+  "/video/recreation": {
+    id: "1kEKfCh8p30ISC0wZO-TWz2pg9pBFvJuG",
+    filename: "S05E26 - Re-Creation - The Final Day Part 2.mp4"
+  },
 
+  // Season 6
   "/video/heartfixer": {
     id: "1QUGQ4fddnAaKmXMxMhEQ1EjAvq6BcAiZ",
     filename: "S06E20 - Heartfixer.mp4"
@@ -49,6 +54,22 @@ const VIDEOS = {
   "/video/nemesis": {
     id: "1Cxtaq0hHq7wnrl9SZMSgFyCSNTYCtx2r",
     filename: "S06E26 - Nemesis.mp4"
+  },
+
+  // Season 5
+  "/download/recreation":
+    VIDEOS["/video/recreation"],
+
+  // Miraculous World: London
+  "/video/london": {
+    id: "1qRdyE5j3EHh2Z4s92CYCYIzPgXJbImCk",
+    filename: "Miraculous World - London - At the Edge of Time.mp4"
+  },
+
+  // Miraculous World: Paris
+  "/video/paris": {
+    id: "1UpkgVrt5DWLgY07clSylRNAXJwVo9KNS",
+    filename: "Miraculous World - Paris - Tales of Shadybug and Claw Noir.mp4"
   }
 };
 
@@ -64,7 +85,6 @@ const DOWNLOADS = {
     VIDEOS["/video/pharaoh"],
 
   // Season 6
-
   "/download/heartfixer":
     VIDEOS["/video/heartfixer"],
 
@@ -84,7 +104,15 @@ const DOWNLOADS = {
     VIDEOS["/video/secret-protocol"],
 
   "/download/nemesis":
-    VIDEOS["/video/nemesis"]
+    VIDEOS["/video/nemesis"],
+
+  // Miraculous World: London
+  "/download/london":
+    VIDEOS["/video/london"],
+
+  // Miraculous World: Paris
+  "/download/paris":
+    VIDEOS["/video/paris"]
 };
 
 
@@ -231,6 +259,7 @@ async function streamFile({
   file,
   download = false
 }) {
+
   if (!env.GOOGLE_SERVICE_ACCOUNT) {
     return new Response(
       "GOOGLE_SERVICE_ACCOUNT secret is missing.",
@@ -254,7 +283,9 @@ async function streamFile({
       JSON.parse(
         env.GOOGLE_SERVICE_ACCOUNT
       );
+
   } catch (error) {
+
     console.error(
       "Invalid GOOGLE_SERVICE_ACCOUNT JSON:",
       error
@@ -275,21 +306,26 @@ async function streamFile({
     );
   }
 
+
   const accessToken =
     await getAccessToken(
       serviceAccount
     );
 
+
   const googleHeaders =
     new Headers();
+
 
   googleHeaders.set(
     "Authorization",
     `Bearer ${accessToken}`
   );
 
+
   const range =
     request.headers.get("Range");
+
 
   if (range) {
     googleHeaders.set(
@@ -297,6 +333,7 @@ async function streamFile({
       range
     );
   }
+
 
   const googleResponse =
     await fetch(
@@ -307,7 +344,9 @@ async function streamFile({
       }
     );
 
+
   if (!googleResponse.ok) {
+
     const errorText =
       await googleResponse.text();
 
@@ -333,10 +372,12 @@ async function streamFile({
     );
   }
 
+
   const outputHeaders =
     new Headers(
       corsHeaders()
     );
+
 
   outputHeaders.set(
     "Content-Type",
@@ -345,20 +386,24 @@ async function streamFile({
     ) || "video/mp4"
   );
 
+
   outputHeaders.set(
     "Accept-Ranges",
     "bytes"
   );
+
 
   const contentLength =
     googleResponse.headers.get(
       "Content-Length"
     );
 
+
   const contentRange =
     googleResponse.headers.get(
       "Content-Range"
     );
+
 
   if (contentLength) {
     outputHeaders.set(
@@ -367,6 +412,7 @@ async function streamFile({
     );
   }
 
+
   if (contentRange) {
     outputHeaders.set(
       "Content-Range",
@@ -374,12 +420,14 @@ async function streamFile({
     );
   }
 
+
   if (download) {
     outputHeaders.set(
       "Content-Disposition",
       `attachment; filename="${file.filename}"`
     );
   }
+
 
   return new Response(
     request.method === "HEAD"
@@ -398,6 +446,7 @@ async function streamFile({
 
 export default {
   async fetch(request, env) {
+
     const url =
       new URL(request.url);
 
@@ -407,6 +456,7 @@ export default {
     if (
       request.method === "OPTIONS"
     ) {
+
       return new Response(
         null,
         {
@@ -425,6 +475,7 @@ export default {
       request.method !== "GET" &&
       request.method !== "HEAD"
     ) {
+
       return new Response(
         "Method Not Allowed",
         {
@@ -442,15 +493,20 @@ export default {
     const video =
       VIDEOS[url.pathname];
 
+
     if (video) {
+
       try {
+
         return await streamFile({
           request,
           env,
           file: video,
           download: false
         });
+
       } catch (error) {
+
         console.error(
           "Video streaming error:",
           error
@@ -478,15 +534,20 @@ export default {
     const download =
       DOWNLOADS[url.pathname];
 
+
     if (download) {
+
       try {
+
         return await streamFile({
           request,
           env,
           file: download,
           download: true
         });
+
       } catch (error) {
+
         console.error(
           "Download preparation error:",
           error
@@ -512,6 +573,7 @@ export default {
     // STATUS PAGE
 
     if (url.pathname === "/") {
+
       return new Response(
 `Miraculous Video Server
 
@@ -528,6 +590,10 @@ VIDEO ROUTES
 /video/queen-of-the-dreadzone
 /video/secret-protocol
 /video/nemesis
+/video/recreation
+
+/video/london
+/video/paris
 
 
 DOWNLOAD ROUTES
@@ -543,6 +609,10 @@ DOWNLOAD ROUTES
 /download/queen-of-the-dreadzone
 /download/secret-protocol
 /download/nemesis
+/download/recreation
+
+/download/london
+/download/paris
 `,
         {
           status: 200,
