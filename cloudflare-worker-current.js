@@ -20,6 +20,11 @@ const VIDEOS = {
     filename: "S05E26 - Re-Creation - The Final Day Part 2.mp4"
   },
 
+  "/video/conformation": {
+    id: "1FOfhegcW_m9GpB3sBO0HNIFEfPHAtR9O",
+    filename: "S05E25 - Conformation - The Final Day Part 1.mp4"
+  },
+
   // Season 6
   "/video/heartfixer": {
     id: "1QUGQ4fddnAaKmXMxMhEQ1EjAvq6BcAiZ",
@@ -56,10 +61,6 @@ const VIDEOS = {
     filename: "S06E26 - Nemesis.mp4"
   },
 
-  // Season 5
-  "/download/recreation":
-    VIDEOS["/video/recreation"],
-
   // Miraculous World: London
   "/video/london": {
     id: "1qRdyE5j3EHh2Z4s92CYCYIzPgXJbImCk",
@@ -83,6 +84,13 @@ const DOWNLOADS = {
 
   "/download/pharaoh":
     VIDEOS["/video/pharaoh"],
+
+  // Season 5
+  "/download/recreation":
+    VIDEOS["/video/recreation"],
+
+  "/download/conformation":
+    VIDEOS["/video/conformation"],
 
   // Season 6
   "/download/heartfixer":
@@ -583,6 +591,8 @@ VIDEO ROUTES
 /video/bubbler
 /video/pharaoh
 
+/video/recreation
+
 /video/heartfixer
 /video/the-chained-titans
 /video/lady-chaos
@@ -590,7 +600,6 @@ VIDEO ROUTES
 /video/queen-of-the-dreadzone
 /video/secret-protocol
 /video/nemesis
-/video/recreation
 
 /video/london
 /video/paris
@@ -602,6 +611,8 @@ DOWNLOAD ROUTES
 /download/bubbler
 /download/pharaoh
 
+/download/recreation
+
 /download/heartfixer
 /download/the-chained-titans
 /download/lady-chaos
@@ -609,7 +620,6 @@ DOWNLOAD ROUTES
 /download/queen-of-the-dreadzone
 /download/secret-protocol
 /download/nemesis
-/download/recreation
 
 /download/london
 /download/paris

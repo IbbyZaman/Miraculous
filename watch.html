@@ -347,6 +347,13 @@ v.addEventListener("loadedmetadata",async()=>{
   await ensureResumeReady();
   update();
 });
+// Never let playback begin before the signed-in user's Firebase position has been loaded.
+v.addEventListener("play",async()=>{
+  if(resumeReady) return;
+  v.pause();
+  try{ await ensureResumeReady(); update(); await v.play(); }
+  catch(error){ console.error("MiraculousHub: resume before play failed",error); }
+});
 v.addEventListener("timeupdate",()=>{
   update();
   cachePosition();
@@ -361,17 +368,22 @@ v.addEventListener("seeked",()=>{saveCloudPosition(true);});
 v.addEventListener("progress",update);
 v.addEventListener("ended",()=>{mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100,position:v.duration,duration:v.duration});saveCloudPosition(true);localStorage.removeItem(posKey);showToast("Episode finished");});
 
-window.addEventListener("mh-auth-changed",()=>{
-  if(window.MH_USER){
-    resetResumeState();
-    loadCloudPosition();
-  }
+window.addEventListener("mh-auth-changed",async()=>{
+  const wasPlaying=!v.paused;
+  if(wasPlaying) v.pause();
+  resetResumeState();
+  if(window.MH_USER) await loadCloudPosition();
+  else await ensureResumeReady();
+  update();
+  if(wasPlaying){ try{ await v.play(); }catch(error){} }
 });
-window.addEventListener("mh-account-ready",()=>{
-  if(window.MH_USER){
-    resetResumeState();
-    loadCloudPosition();
-  }
+window.addEventListener("mh-account-ready",async()=>{
+  const wasPlaying=!v.paused;
+  if(wasPlaying) v.pause();
+  resetResumeState();
+  if(window.MH_USER) await loadCloudPosition();
+  update();
+  if(wasPlaying){ try{ await v.play(); }catch(error){} }
 });
 window.addEventListener("mh-firebase-ready",()=>{
   if(window.MH_USER){
