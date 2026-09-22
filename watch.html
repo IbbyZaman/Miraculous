@@ -107,11 +107,13 @@
 .quick-btn{width:76px;height:76px;border:0;border-radius:50%;background:rgba(10,10,14,.82);color:#fff;display:grid;place-items:center;font-size:28px;font-weight:900;box-shadow:0 8px 30px rgba(0,0,0,.4);backdrop-filter:blur(5px)}
 .quick-btn span{font-size:12px;font-weight:900}
 .speed-hint{position:absolute;left:50%;top:14%;transform:translateX(-50%);padding:9px 15px;border-radius:999px;background:rgba(0,0,0,.75);color:#fff;font-weight:900;font-size:13px;opacity:0;pointer-events:none;transition:opacity .15s;z-index:7}
-.player.speeding .speed-hint{opacity:1}
+.player.speeding .speed-hint{opacity:1} .speed-hint{font-size:14px;font-weight:900;letter-spacing:.4px}
 @media(max-width:680px){
  .quick-btn{width:70px;height:70px;font-size:25px}
- .mobile-speed-zone{position:absolute;top:0;bottom:0;width:25%;z-index:5;touch-action:none}
+ .mobile-speed-zone{position:absolute;top:0;bottom:0;width:25%;z-index:5;touch-action:none;display:none}
  .mobile-speed-zone.left{left:0}.mobile-speed-zone.right{right:0}
+ .player:fullscreen .mobile-speed-zone,.player:-webkit-full-screen .mobile-speed-zone{display:block}
+ @media (orientation: portrait){.player:fullscreen .mobile-speed-zone,.player:-webkit-full-screen .mobile-speed-zone{display:none}}
 }
 @media(min-width:681px){.quick-overlay,.speed-hint,.mobile-speed-zone{display:none}}
 
@@ -429,48 +431,53 @@ document.addEventListener("webkitfullscreenchange",syncFullscreenUI);
 
 function showToast(msg){$("toast").textContent=msg;$("toast").classList.add("show");clearTimeout(showToast.t);showToast.t=setTimeout(()=>$("toast").classList.remove("show"),850)}
 function isMobile(){return window.matchMedia("(max-width:680px)").matches}
+function isFullscreen(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function isLandscapeMobileFullscreen(){ return isMobile() && isFullscreen() && window.matchMedia("(orientation: landscape)").matches; }
 function activity(){
  player.classList.add("show-ui");
  clearTimeout(hideTimer);
- if(!v.paused){ hideTimer=setTimeout(()=>{player.classList.remove("show-ui");player.classList.remove("mobile-quick")},2200); }
+ hideTimer=setTimeout(()=>{ player.classList.remove("show-ui","mobile-quick"); },2200);
 }
 function showMobileQuick(){
- if(!isMobile()) return;
+ if(!isLandscapeMobileFullscreen()) return;
  player.classList.add("show-ui","mobile-quick");
  clearTimeout(hideTimer);
- hideTimer=setTimeout(()=>player.classList.remove("mobile-quick"),2200);
+ hideTimer=setTimeout(()=>player.classList.remove("show-ui","mobile-quick"),2200);
 }
 player.addEventListener("pointermove",e=>{ if(e.pointerType!=="touch") activity(); });
-player.addEventListener("pointerdown",e=>{ if(e.target.closest("button,.progress-area,.settings-wrap,.mobile-speed-zone")) return; activity(); });
-player.addEventListener("mouseenter",()=>activity());
-player.addEventListener("mouseleave",()=>{if(!v.paused&&!isMobile()) player.classList.remove("show-ui")});
-v.addEventListener("play",activity);
-v.addEventListener("pause",()=>player.classList.add("show-ui"));
-
-// Mobile: tap the video for large pause/skip controls. Double tap still fullscreen.
-let lastStageTap=0;
-stage.addEventListener("click",e=>{
- if(e.target.closest("button,.progress-area,.settings-wrap,.mobile-speed-zone")) return;
- if(!isMobile()) return;
- const now=Date.now();
- if(now-lastStageTap<280){ $("fullscreen").click(); lastStageTap=0; return; }
- lastStageTap=now;
- showMobileQuick();
+player.addEventListener("pointerdown",e=>{
+ if(e.target.closest("button,.progress-area,.settings-wrap,.mobile-speed-zone,.quick-overlay")) return;
+ activity();
 });
-stage.addEventListener("dblclick",()=>$("fullscreen").click());
+player.addEventListener("mouseenter",()=>activity());
+player.addEventListener("mouseleave",()=>{ if(!isMobile()) player.classList.remove("show-ui","mobile-quick"); });
+v.addEventListener("play",activity);
+v.addEventListener("pause",activity);
 
-// PC: hold Space for 2× playback. Releasing Space restores the previous speed.
-let spaceHeld=false, speedBeforeHold=1;
+// One tap/click on the video toggles play/pause. In mobile fullscreen landscape,
+// tapping also reveals the large quick controls.
+stage.addEventListener("click",e=>{
+ if(e.target.closest("button,.progress-area,.settings-wrap,.mobile-speed-zone,.quick-overlay")) return;
+ if(isLandscapeMobileFullscreen()) showMobileQuick();
+ togglePlay();
+});
+
+// PC: a quick Space tap toggles play/pause; holding Space temporarily switches to 2×.
+let spaceHeld=false, spaceTimer=null, spaceDidSpeed=false, speedBeforeHold=1;
 document.addEventListener("keydown",e=>{
  if(e.code==="Space"){
    if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName)) return;
    e.preventDefault();
-   if(!spaceHeld){
-     spaceHeld=true;
-     speedBeforeHold=v.playbackRate||1;
+   if(e.repeat || spaceHeld) return;
+   spaceHeld=true; spaceDidSpeed=false;
+   speedBeforeHold=v.playbackRate||1;
+   spaceTimer=setTimeout(()=>{
+     if(!spaceHeld) return;
+     spaceDidSpeed=true;
      v.playbackRate=2;
      player.classList.add("speeding","show-ui");
-   }
+     showToast("2× speed");
+   },180);
    return;
  }
  if(["INPUT","TEXTAREA","SELECT","BUTTON"].includes(document.activeElement.tagName)) return;
@@ -485,29 +492,43 @@ document.addEventListener("keydown",e=>{
 document.addEventListener("keyup",e=>{
  if(e.code!=="Space"||!spaceHeld) return;
  e.preventDefault();
+ clearTimeout(spaceTimer);
+ const wasSpeed=spaceDidSpeed;
  spaceHeld=false;
- v.playbackRate=speedBeforeHold;
- player.classList.remove("speeding");
+ if(wasSpeed){
+   v.playbackRate=speedBeforeHold;
+   player.classList.remove("speeding");
+ }else{
+   togglePlay();
+ }
 });
 window.addEventListener("blur",()=>{
- if(spaceHeld){spaceHeld=false;v.playbackRate=speedBeforeHold;player.classList.remove("speeding")}
+ if(spaceHeld){
+   clearTimeout(spaceTimer);
+   const wasSpeed=spaceDidSpeed;
+   spaceHeld=false;
+   if(wasSpeed){ v.playbackRate=speedBeforeHold; player.classList.remove("speeding"); }
+   else togglePlay();
+ }
 });
 
-// Mobile: hold either side of the video for 2×, release to restore normal speed.
+// Mobile: hold either side of the video for 2×, but only in fullscreen landscape.
 let mobileSpeedHeld=false, mobileSpeedBefore=1;
 function startMobileSpeed(e){
- if(!isMobile()||e.pointerType!=="touch") return;
+ if(!isLandscapeMobileFullscreen()||e.pointerType!=="touch") return;
  e.preventDefault();
  mobileSpeedHeld=true;
  mobileSpeedBefore=v.playbackRate||1;
  v.playbackRate=2;
  player.classList.add("speeding","show-ui");
+ activity();
 }
 function stopMobileSpeed(){
  if(!mobileSpeedHeld) return;
  mobileSpeedHeld=false;
  v.playbackRate=mobileSpeedBefore;
  player.classList.remove("speeding");
+ activity();
 }
 $("speedLeft").addEventListener("pointerdown",startMobileSpeed);
 $("speedRight").addEventListener("pointerdown",startMobileSpeed);
@@ -515,7 +536,16 @@ $("speedRight").addEventListener("pointerdown",startMobileSpeed);
  $(id).addEventListener("pointerup",stopMobileSpeed);
  $(id).addEventListener("pointercancel",stopMobileSpeed);
  $(id).addEventListener("pointerleave",stopMobileSpeed);
+ $(id).addEventListener("pointerout",stopMobileSpeed);
 });
+
+// The large mobile quick buttons only exist in fullscreen landscape.
+$("quickBack").onclick=e=>{e.stopPropagation();v.currentTime=Math.max(0,v.currentTime-10);activity();showToast("−10 seconds")};
+$("quickForward").onclick=e=>{e.stopPropagation();v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);activity();showToast("+10 seconds")};
+$("quickPlay").onclick=e=>{e.stopPropagation();togglePlay();activity()};
+document.addEventListener("fullscreenchange",()=>{ if(!isLandscapeMobileFullscreen()) player.classList.remove("mobile-quick"); activity(); });
+document.addEventListener("webkitfullscreenchange",()=>{ if(!isLandscapeMobileFullscreen()) player.classList.remove("mobile-quick"); activity(); });
+window.addEventListener("orientationchange",()=>{ if(!isLandscapeMobileFullscreen()) player.classList.remove("mobile-quick"); });
 
 $("watched").onclick=()=>{localStorage.setItem(posKey,String(v.duration||0));mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100});$("watched").textContent="✓ Watched";showToast("Marked as watched")};
 
