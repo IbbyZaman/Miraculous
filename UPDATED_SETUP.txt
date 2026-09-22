@@ -15,3 +15,8 @@ The Worker must support /video/<google-drive-file-id> before S01E02 can play.
 The existing /video route remains unchanged for S06E26.
 
 The Google service-account secret is NOT included in this website package.
+
+
+Added website connections:
+- S05E25 Conformation -> /video/conformation and /download/conformation
+- Paris special -> /video/paris and /download/paris
