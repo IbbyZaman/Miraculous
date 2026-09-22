@@ -223,6 +223,8 @@ let lastCloudSave=0;
 let cloudSaveInFlight=false;
 let cloudLoaded=false;
 let cloudLoadPromise=null;
+let resumeReady=false;
+let resumePromise=null;
 
 function localPosition(){
   const n=Number(localStorage.getItem(posKey)||0);
@@ -234,7 +236,10 @@ function cachePosition(){
 }
 
 async function saveCloudPosition(force=false){
-  if(!window.MH_USER || !window.MH_CLOUD || !v.duration || v.currentTime<=0) return;
+  // Never overwrite the Firebase position until the saved position has been
+  // loaded/applied on this device. This prevents a new device at 0:00 from
+  // immediately replacing the real cloud position.
+  if(!resumeReady || !window.MH_USER || !window.MH_CLOUD || !v.duration || v.currentTime<=0) return;
   const now=Date.now();
   if(cloudSaveInFlight) return;
   if(!force && now-lastCloudSave<1000) return;
@@ -265,37 +270,67 @@ async function saveCloudPosition(force=false){
 async function loadCloudPosition(){
   if(cloudLoaded || cloudLoadPromise) return;
 
-  // Firebase may still be restoring the signed-in account when the video
-  // metadata arrives. Always wait for auth restoration before reading cloud data.
+  // Wait for Firebase/Auth restoration before deciding whether localStorage
+  // or Firebase is the source of truth.
   if(window.MH_FIREBASE_READY){
     try { await window.MH_FIREBASE_READY; } catch {}
   }
   if(window.MH_AUTH_READY){
     try { await window.MH_AUTH_READY; } catch {}
   }
-  if(!window.MH_USER || !window.MH_CLOUD) return;
 
   cloudLoadPromise=(async()=>{
     try{
-      const data=await window.MH_CLOUD.getPlayback(cloudKey);
-      if(data && v.duration){
-        const pos=Number(data.position);
-        if(Number.isFinite(pos) && pos >= 0){
-          // Cloud progress is the cross-device source of truth. Clamp it to
-          // the current video's duration and apply it even when it is near
-          // the end of the episode.
-          const safePos=Math.max(0,Math.min(pos,Math.max(0,v.duration-0.25)));
-          v.currentTime=safePos;
-          localStorage.setItem(posKey,String(safePos));
+      if(window.MH_USER && window.MH_CLOUD){
+        const data=await window.MH_CLOUD.getPlayback(cloudKey);
+        if(data){
+          const pos=Number(data.position);
+          if(Number.isFinite(pos) && pos >= 0 && v.duration){
+            const safePos=Math.max(0,Math.min(pos,Math.max(0,v.duration-0.25)));
+            v.currentTime=safePos;
+            localStorage.setItem(posKey,String(safePos));
+          }
+        } else {
+          // No cloud record yet: keep the local position as the fallback.
+          const saved=localPosition();
+          if(saved>0 && v.duration){
+            v.currentTime=Math.min(saved,Math.max(0,v.duration-0.25));
+          }
+        }
+      } else {
+        const saved=localPosition();
+        if(saved>0 && v.duration){
+          v.currentTime=Math.min(saved,Math.max(0,v.duration-0.25));
         }
       }
     }catch(error){
       console.error("MiraculousHub: failed to load cloud playback", error);
+      const saved=localPosition();
+      if(saved>0 && v.duration){
+        v.currentTime=Math.min(saved,Math.max(0,v.duration-0.25));
+      }
     }
     cloudLoaded=true;
+    resumeReady=true;
     update();
   })();
+
   await cloudLoadPromise;
+}
+
+function ensureResumeReady(){
+  if(resumeReady) return Promise.resolve();
+  if(!resumePromise){
+    resumePromise=loadCloudPosition().finally(()=>{ resumeReady=true; });
+  }
+  return resumePromise;
+}
+
+function resetResumeState(){
+  cloudLoaded=false;
+  cloudLoadPromise=null;
+  resumeReady=false;
+  resumePromise=null;
 }
 
 function fmt(sec){sec=Math.max(0,Math.floor(sec||0));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`;}
@@ -307,15 +342,15 @@ function update(){
  if(v.duration && v.currentTime>0) mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:pct,position:v.currentTime,duration:v.duration});
 }
 v.addEventListener("loadedmetadata",async()=>{
- const saved=localPosition();
- if(saved>0 && saved<v.duration-5) v.currentTime=saved;
- update();
- await loadCloudPosition();
+  // Do not start from 0:00 and then overwrite Firebase. Wait for the saved
+  // cloud position first, then render the controls.
+  await ensureResumeReady();
+  update();
 });
 v.addEventListener("timeupdate",()=>{
- update();
- cachePosition();
- saveCloudPosition(false);
+  update();
+  cachePosition();
+  saveCloudPosition(false);
 });
 // While playing, sync playback to Firestore approximately once per second.
 // The in-flight guard prevents overlapping writes on slower connections.
@@ -328,20 +363,19 @@ v.addEventListener("ended",()=>{mhSaveProgress({season:ep.season,episode:ep.epis
 
 window.addEventListener("mh-auth-changed",()=>{
   if(window.MH_USER){
-    cloudLoaded=false;
-    cloudLoadPromise=null;
+    resetResumeState();
     loadCloudPosition();
   }
 });
 window.addEventListener("mh-account-ready",()=>{
-  cloudLoaded=false;
-  cloudLoadPromise=null;
-  loadCloudPosition();
+  if(window.MH_USER){
+    resetResumeState();
+    loadCloudPosition();
+  }
 });
 window.addEventListener("mh-firebase-ready",()=>{
   if(window.MH_USER){
-    cloudLoaded=false;
-    cloudLoadPromise=null;
+    resetResumeState();
     loadCloudPosition();
   }
 });
@@ -352,7 +386,17 @@ function setPlayingUI(){
  $("play").textContent=playing?"❚❚":"▶";
  $("centerPlay").textContent=playing?"❚❚":"▶";
 }
-async function togglePlay(){try{if(v.paused) await v.play();else v.pause();}catch{}setPlayingUI();}
+async function togglePlay(){
+  try{
+    if(v.paused){
+      await ensureResumeReady();
+      await v.play();
+    }else{
+      v.pause();
+    }
+  }catch{}
+  setPlayingUI();
+}
 $("play").onclick=togglePlay;$("centerPlay").onclick=togglePlay;
 v.addEventListener("play",setPlayingUI);v.addEventListener("pause",setPlayingUI);
 
