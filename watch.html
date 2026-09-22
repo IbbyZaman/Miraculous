@@ -13,7 +13,7 @@
 .player-stage{position:relative;background:#000;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
 .player video{width:100%;height:100%;object-fit:contain;display:block;aspect-ratio:auto}
 .player-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px 14px;background:linear-gradient(180deg,rgba(0,0,0,.72),transparent 25%,transparent 58%,rgba(0,0,0,.9));opacity:0;transition:opacity .22s ease;pointer-events:none}
-.player:hover .player-overlay,.player.show-ui .player-overlay,.player:focus-within .player-overlay{opacity:1}
+.player.show-ui .player-overlay,.player:focus-within .player-overlay{opacity:1}
 .player.show-ui .player-overlay{pointer-events:auto}
 .player-top{display:flex;align-items:center;gap:12px;color:#fff}
 .player-title{font-size:13px;font-weight:850;text-shadow:0 1px 5px #000}
@@ -98,6 +98,23 @@
   .player-time{font-size:9px;}
   .center-play{width:52px;height:52px;}
 }
+
+/* Player interaction upgrade */
+.player:not(.show-ui) .player-overlay{opacity:0;pointer-events:none}
+.player.show-ui .player-overlay{opacity:1;pointer-events:auto}
+.quick-overlay{position:absolute;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;gap:18px;opacity:0;pointer-events:none;transition:opacity .18s ease}
+.player.mobile-quick .quick-overlay{opacity:1;pointer-events:auto}
+.quick-btn{width:76px;height:76px;border:0;border-radius:50%;background:rgba(10,10,14,.82);color:#fff;display:grid;place-items:center;font-size:28px;font-weight:900;box-shadow:0 8px 30px rgba(0,0,0,.4);backdrop-filter:blur(5px)}
+.quick-btn span{font-size:12px;font-weight:900}
+.speed-hint{position:absolute;left:50%;top:14%;transform:translateX(-50%);padding:9px 15px;border-radius:999px;background:rgba(0,0,0,.75);color:#fff;font-weight:900;font-size:13px;opacity:0;pointer-events:none;transition:opacity .15s;z-index:7}
+.player.speeding .speed-hint{opacity:1}
+@media(max-width:680px){
+ .quick-btn{width:70px;height:70px;font-size:25px}
+ .mobile-speed-zone{position:absolute;top:0;bottom:0;width:25%;z-index:5;touch-action:none}
+ .mobile-speed-zone.left{left:0}.mobile-speed-zone.right{right:0}
+}
+@media(min-width:681px){.quick-overlay,.speed-hint,.mobile-speed-zone{display:none}}
+
 /* When the player itself enters fullscreen, fill the viewport cleanly. */
 .player:fullscreen,.player:-webkit-full-screen{width:100vw;height:100vh;border-radius:0;background:#000;}
 .player:fullscreen .player-stage,.player:-webkit-full-screen .player-stage{width:100%;height:100%;aspect-ratio:auto;}
@@ -120,6 +137,14 @@
    <video id="video" playsinline preload="metadata" crossorigin="anonymous">
     <source id="source" src="" type="video/mp4">
    </video>
+   <div class="quick-overlay" id="quickOverlay" aria-hidden="true">
+    <button class="quick-btn" id="quickBack" aria-label="Back 10 seconds">↶<span>10</span></button>
+    <button class="quick-btn" id="quickPlay" aria-label="Pause">❚❚</button>
+    <button class="quick-btn" id="quickForward" aria-label="Forward 10 seconds"><span>10</span>↷</button>
+   </div>
+   <div class="mobile-speed-zone left" id="speedLeft" aria-hidden="true"></div>
+   <div class="mobile-speed-zone right" id="speedRight" aria-hidden="true"></div>
+   <div class="speed-hint" id="speedHint">2× SPEED</div>
    <button class="center-play" id="centerPlay" aria-label="Play">▶</button>
    <div class="toast" id="toast"></div>
    <div class="player-overlay" id="overlay">
@@ -183,7 +208,7 @@ const specialNumber=Number(params.get("special")||0);
 const specialTitles=["New York: United Heroez","Shanghai: The Legend of Lady Dragon","Awakening - The Movie","Miraculous World Paris: Tales of Shadybug and Claw Noir","London: At the Edge of Time","Miraculous World: Tokyo, Stellar Force"];
 const isSpecial=Number.isInteger(specialNumber)&&specialNumber>0&&specialNumber<=specialTitles.length;
 const season=Number(params.get("season")||6), number=Number(params.get("episode")||26);
-const ep=isSpecial?{season:"Special",episode:specialNumber,title:specialTitles[specialNumber-1],code:`SPECIAL ${specialNumber}`,videoPath:specialNumber===4?"/video/paris":specialNumber===5?"/video/london":""}:(window.MH_EPISODES||[]).find(x=>x.season===season&&x.episode===number)||(window.MH_EPISODES||[]).at(-1);
+const ep=isSpecial?{season:"Special",episode:specialNumber,title:specialTitles[specialNumber-1],code:`SPECIAL ${specialNumber}`,videoPath:specialNumber===5?"/video/london":""}:(window.MH_EPISODES||[]).find(x=>x.season===season&&x.episode===number)||(window.MH_EPISODES||[]).at(-1);
 const $=id=>document.getElementById(id);
 document.title=`MiraculousHub — ${ep.title}`;
 $("episodeCode").textContent=isSpecial?`SPECIAL · ${ep.title}`:`SEASON ${ep.season} · EPISODE ${ep.episode}`;
@@ -223,8 +248,6 @@ let lastCloudSave=0;
 let cloudSaveInFlight=false;
 let cloudLoaded=false;
 let cloudLoadPromise=null;
-let resumeReady=false;
-let resumePromise=null;
 
 function localPosition(){
   const n=Number(localStorage.getItem(posKey)||0);
@@ -236,10 +259,7 @@ function cachePosition(){
 }
 
 async function saveCloudPosition(force=false){
-  // Never overwrite the Firebase position until the saved position has been
-  // loaded/applied on this device. This prevents a new device at 0:00 from
-  // immediately replacing the real cloud position.
-  if(!resumeReady || !window.MH_USER || !window.MH_CLOUD || !v.duration || v.currentTime<=0) return;
+  if(!window.MH_USER || !window.MH_CLOUD || !v.duration || v.currentTime<=0) return;
   const now=Date.now();
   if(cloudSaveInFlight) return;
   if(!force && now-lastCloudSave<1000) return;
@@ -270,67 +290,37 @@ async function saveCloudPosition(force=false){
 async function loadCloudPosition(){
   if(cloudLoaded || cloudLoadPromise) return;
 
-  // Wait for Firebase/Auth restoration before deciding whether localStorage
-  // or Firebase is the source of truth.
+  // Firebase may still be restoring the signed-in account when the video
+  // metadata arrives. Always wait for auth restoration before reading cloud data.
   if(window.MH_FIREBASE_READY){
     try { await window.MH_FIREBASE_READY; } catch {}
   }
   if(window.MH_AUTH_READY){
     try { await window.MH_AUTH_READY; } catch {}
   }
+  if(!window.MH_USER || !window.MH_CLOUD) return;
 
   cloudLoadPromise=(async()=>{
     try{
-      if(window.MH_USER && window.MH_CLOUD){
-        const data=await window.MH_CLOUD.getPlayback(cloudKey);
-        if(data){
-          const pos=Number(data.position);
-          if(Number.isFinite(pos) && pos >= 0 && v.duration){
-            const safePos=Math.max(0,Math.min(pos,Math.max(0,v.duration-0.25)));
-            v.currentTime=safePos;
-            localStorage.setItem(posKey,String(safePos));
-          }
-        } else {
-          // No cloud record yet: keep the local position as the fallback.
-          const saved=localPosition();
-          if(saved>0 && v.duration){
-            v.currentTime=Math.min(saved,Math.max(0,v.duration-0.25));
-          }
-        }
-      } else {
-        const saved=localPosition();
-        if(saved>0 && v.duration){
-          v.currentTime=Math.min(saved,Math.max(0,v.duration-0.25));
+      const data=await window.MH_CLOUD.getPlayback(cloudKey);
+      if(data && v.duration){
+        const pos=Number(data.position);
+        if(Number.isFinite(pos) && pos >= 0){
+          // Cloud progress is the cross-device source of truth. Clamp it to
+          // the current video's duration and apply it even when it is near
+          // the end of the episode.
+          const safePos=Math.max(0,Math.min(pos,Math.max(0,v.duration-0.25)));
+          v.currentTime=safePos;
+          localStorage.setItem(posKey,String(safePos));
         }
       }
     }catch(error){
       console.error("MiraculousHub: failed to load cloud playback", error);
-      const saved=localPosition();
-      if(saved>0 && v.duration){
-        v.currentTime=Math.min(saved,Math.max(0,v.duration-0.25));
-      }
     }
     cloudLoaded=true;
-    resumeReady=true;
     update();
   })();
-
   await cloudLoadPromise;
-}
-
-function ensureResumeReady(){
-  if(resumeReady) return Promise.resolve();
-  if(!resumePromise){
-    resumePromise=loadCloudPosition().finally(()=>{ resumeReady=true; });
-  }
-  return resumePromise;
-}
-
-function resetResumeState(){
-  cloudLoaded=false;
-  cloudLoadPromise=null;
-  resumeReady=false;
-  resumePromise=null;
 }
 
 function fmt(sec){sec=Math.max(0,Math.floor(sec||0));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`;}
@@ -342,22 +332,15 @@ function update(){
  if(v.duration && v.currentTime>0) mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:pct,position:v.currentTime,duration:v.duration});
 }
 v.addEventListener("loadedmetadata",async()=>{
-  // Do not start from 0:00 and then overwrite Firebase. Wait for the saved
-  // cloud position first, then render the controls.
-  await ensureResumeReady();
-  update();
-});
-// Never let playback begin before the signed-in user's Firebase position has been loaded.
-v.addEventListener("play",async()=>{
-  if(resumeReady) return;
-  v.pause();
-  try{ await ensureResumeReady(); update(); await v.play(); }
-  catch(error){ console.error("MiraculousHub: resume before play failed",error); }
+ const saved=localPosition();
+ if(saved>0 && saved<v.duration-5) v.currentTime=saved;
+ update();
+ await loadCloudPosition();
 });
 v.addEventListener("timeupdate",()=>{
-  update();
-  cachePosition();
-  saveCloudPosition(false);
+ update();
+ cachePosition();
+ saveCloudPosition(false);
 });
 // While playing, sync playback to Firestore approximately once per second.
 // The in-flight guard prevents overlapping writes on slower connections.
@@ -368,26 +351,22 @@ v.addEventListener("seeked",()=>{saveCloudPosition(true);});
 v.addEventListener("progress",update);
 v.addEventListener("ended",()=>{mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100,position:v.duration,duration:v.duration});saveCloudPosition(true);localStorage.removeItem(posKey);showToast("Episode finished");});
 
-window.addEventListener("mh-auth-changed",async()=>{
-  const wasPlaying=!v.paused;
-  if(wasPlaying) v.pause();
-  resetResumeState();
-  if(window.MH_USER) await loadCloudPosition();
-  else await ensureResumeReady();
-  update();
-  if(wasPlaying){ try{ await v.play(); }catch(error){} }
+window.addEventListener("mh-auth-changed",()=>{
+  if(window.MH_USER){
+    cloudLoaded=false;
+    cloudLoadPromise=null;
+    loadCloudPosition();
+  }
 });
-window.addEventListener("mh-account-ready",async()=>{
-  const wasPlaying=!v.paused;
-  if(wasPlaying) v.pause();
-  resetResumeState();
-  if(window.MH_USER) await loadCloudPosition();
-  update();
-  if(wasPlaying){ try{ await v.play(); }catch(error){} }
+window.addEventListener("mh-account-ready",()=>{
+  cloudLoaded=false;
+  cloudLoadPromise=null;
+  loadCloudPosition();
 });
 window.addEventListener("mh-firebase-ready",()=>{
   if(window.MH_USER){
-    resetResumeState();
+    cloudLoaded=false;
+    cloudLoadPromise=null;
     loadCloudPosition();
   }
 });
@@ -398,17 +377,7 @@ function setPlayingUI(){
  $("play").textContent=playing?"❚❚":"▶";
  $("centerPlay").textContent=playing?"❚❚":"▶";
 }
-async function togglePlay(){
-  try{
-    if(v.paused){
-      await ensureResumeReady();
-      await v.play();
-    }else{
-      v.pause();
-    }
-  }catch{}
-  setPlayingUI();
-}
+async function togglePlay(){try{if(v.paused) await v.play();else v.pause();}catch{}setPlayingUI();}
 $("play").onclick=togglePlay;$("centerPlay").onclick=togglePlay;
 v.addEventListener("play",setPlayingUI);v.addEventListener("pause",setPlayingUI);
 
@@ -459,42 +428,93 @@ document.addEventListener("webkitfullscreenchange",syncFullscreenUI);
 
 
 function showToast(msg){$("toast").textContent=msg;$("toast").classList.add("show");clearTimeout(showToast.t);showToast.t=setTimeout(()=>$("toast").classList.remove("show"),850)}
+function isMobile(){return window.matchMedia("(max-width:680px)").matches}
 function activity(){
  player.classList.add("show-ui");
  clearTimeout(hideTimer);
- if(!v.paused && window.matchMedia("(min-width:681px)").matches){
-   hideTimer=setTimeout(()=>player.classList.remove("show-ui"),2200);
- }
+ if(!v.paused){ hideTimer=setTimeout(()=>{player.classList.remove("show-ui");player.classList.remove("mobile-quick")},2200); }
 }
-player.addEventListener("pointermove",activity);
-player.addEventListener("pointerdown",activity);
+function showMobileQuick(){
+ if(!isMobile()) return;
+ player.classList.add("show-ui","mobile-quick");
+ clearTimeout(hideTimer);
+ hideTimer=setTimeout(()=>player.classList.remove("mobile-quick"),2200);
+}
+player.addEventListener("pointermove",e=>{ if(e.pointerType!=="touch") activity(); });
+player.addEventListener("pointerdown",e=>{ if(e.target.closest("button,.progress-area,.settings-wrap,.mobile-speed-zone")) return; activity(); });
+player.addEventListener("mouseenter",()=>activity());
+player.addEventListener("mouseleave",()=>{if(!v.paused&&!isMobile()) player.classList.remove("show-ui")});
 v.addEventListener("play",activity);
 v.addEventListener("pause",()=>player.classList.add("show-ui"));
-player.addEventListener("mouseleave",()=>{if(!v.paused && window.matchMedia("(min-width:681px)").matches)player.classList.remove("show-ui")});
-// On phones a tap on the video toggles controls/playback without stealing taps
-// from the actual control buttons.
+
+// Mobile: tap the video for large pause/skip controls. Double tap still fullscreen.
 let lastStageTap=0;
 stage.addEventListener("click",e=>{
- if(e.target.closest("button,.progress-area,.settings-wrap")) return;
+ if(e.target.closest("button,.progress-area,.settings-wrap,.mobile-speed-zone")) return;
+ if(!isMobile()) return;
  const now=Date.now();
  if(now-lastStageTap<280){ $("fullscreen").click(); lastStageTap=0; return; }
  lastStageTap=now;
- if(window.matchMedia("(max-width:680px)").matches){
-   if(v.paused) togglePlay(); else activity();
- }
+ showMobileQuick();
 });
-stage.addEventListener("dblclick",()=>{$("fullscreen").click()});
+stage.addEventListener("dblclick",()=>$("fullscreen").click());
 
+// PC: hold Space for 2× playback. Releasing Space restores the previous speed.
+let spaceHeld=false, speedBeforeHold=1;
 document.addEventListener("keydown",e=>{
- if(["INPUT","TEXTAREA","BUTTON"].includes(document.activeElement.tagName) && e.code!=="Space") return;
- if(e.code==="Space"){e.preventDefault();togglePlay()}
- else if(e.key==="ArrowLeft"){v.currentTime=Math.max(0,v.currentTime-10);showToast("−10 seconds")}
+ if(e.code==="Space"){
+   if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName)) return;
+   e.preventDefault();
+   if(!spaceHeld){
+     spaceHeld=true;
+     speedBeforeHold=v.playbackRate||1;
+     v.playbackRate=2;
+     player.classList.add("speeding","show-ui");
+   }
+   return;
+ }
+ if(["INPUT","TEXTAREA","SELECT","BUTTON"].includes(document.activeElement.tagName)) return;
+ if(e.key==="ArrowLeft"){v.currentTime=Math.max(0,v.currentTime-10);showToast("−10 seconds")}
  else if(e.key==="ArrowRight"){v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);showToast("+10 seconds")}
  else if(e.key==="ArrowUp"){v.volume=Math.min(1,v.volume+.1);$("volume").value=v.volume}
  else if(e.key==="ArrowDown"){v.volume=Math.max(0,v.volume-.1);$("volume").value=v.volume}
  else if(e.key.toLowerCase()==="m") $("mute").click();
  else if(e.key.toLowerCase()==="f") $("fullscreen").click();
  else if(e.key.toLowerCase()==="c") $("captions").click();
+});
+document.addEventListener("keyup",e=>{
+ if(e.code!=="Space"||!spaceHeld) return;
+ e.preventDefault();
+ spaceHeld=false;
+ v.playbackRate=speedBeforeHold;
+ player.classList.remove("speeding");
+});
+window.addEventListener("blur",()=>{
+ if(spaceHeld){spaceHeld=false;v.playbackRate=speedBeforeHold;player.classList.remove("speeding")}
+});
+
+// Mobile: hold either side of the video for 2×, release to restore normal speed.
+let mobileSpeedHeld=false, mobileSpeedBefore=1;
+function startMobileSpeed(e){
+ if(!isMobile()||e.pointerType!=="touch") return;
+ e.preventDefault();
+ mobileSpeedHeld=true;
+ mobileSpeedBefore=v.playbackRate||1;
+ v.playbackRate=2;
+ player.classList.add("speeding","show-ui");
+}
+function stopMobileSpeed(){
+ if(!mobileSpeedHeld) return;
+ mobileSpeedHeld=false;
+ v.playbackRate=mobileSpeedBefore;
+ player.classList.remove("speeding");
+}
+$("speedLeft").addEventListener("pointerdown",startMobileSpeed);
+$("speedRight").addEventListener("pointerdown",startMobileSpeed);
+["speedLeft","speedRight"].forEach(id=>{
+ $(id).addEventListener("pointerup",stopMobileSpeed);
+ $(id).addEventListener("pointercancel",stopMobileSpeed);
+ $(id).addEventListener("pointerleave",stopMobileSpeed);
 });
 
 $("watched").onclick=()=>{localStorage.setItem(posKey,String(v.duration||0));mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100});$("watched").textContent="✓ Watched";showToast("Marked as watched")};
