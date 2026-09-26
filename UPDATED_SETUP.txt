@@ -1,0 +1,17 @@
+MiraculousHub updated build
+
+LIVE:
+- Homepage uses the official Twitch embed for channel miraculoushubtv.
+- Twitch requires the parent domain(s), so the embed includes miraculoushub.co.uk and www.miraculoushub.co.uk.
+
+EPISODE VIDEO ROUTES:
+- S06E26 uses the existing Worker endpoint:
+  https://miraculous-video.ibbyzaman4.workers.dev/video
+- S01E02 (The Bubbler) is configured for:
+  https://miraculous-video.ibbyzaman4.workers.dev/video/1mHkQXdh5JowLNUKGHRDgWM1PyOk9xcO9
+
+IMPORTANT:
+The Worker must support /video/<google-drive-file-id> before S01E02 can play.
+The existing /video route remains unchanged for S06E26.
+
+The Google service-account secret is NOT included in this website package.

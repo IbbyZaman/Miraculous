@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05070c">
+<link rel="icon" type="image/png" href="favicon.png"><title>MiraculousHub — Watch</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* Modern video player */
+.watch-shell{width:min(1240px,94vw);padding:24px 0 70px}
+.player{border-radius:18px;background:#000;box-shadow:0 28px 90px rgba(0,0,0,.48);overflow:hidden;isolation:isolate}
+.player-stage{position:relative;background:#000;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
+.player video{width:100%;height:100%;object-fit:contain;display:block;aspect-ratio:auto}
+.player-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:18px 20px 14px;background:linear-gradient(180deg,rgba(0,0,0,.72),transparent 25%,transparent 58%,rgba(0,0,0,.9));opacity:0;transition:opacity .22s ease;pointer-events:none}
+.player.show-ui .player-overlay,.player:focus-within .player-overlay{opacity:1}
+.player.show-ui .player-overlay{pointer-events:auto}
+.player-top{display:flex;align-items:center;gap:12px;color:#fff}
+.player-title{font-size:13px;font-weight:850;text-shadow:0 1px 5px #000}
+.player-subtitle{font-size:10px;color:rgba(255,255,255,.65);margin-left:auto}
+.player-bottom{margin-top:auto}
+.progress-area{height:18px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+.progress-track{height:4px;width:100%;border-radius:99px;background:rgba(255,255,255,.26);position:relative}
+.progress-buffer,.progress-current{position:absolute;left:0;top:0;height:100%;border-radius:99px;pointer-events:none}
+.progress-buffer{width:0;background:rgba(255,255,255,.45)}
+.progress-current{width:0;background:var(--accent)}
+.progress-knob{position:absolute;top:50%;left:0;width:11px;height:11px;border-radius:50%;background:#fff;transform:translate(-50%,-50%) scale(0);transition:transform .12s}
+.progress-area:hover .progress-knob,.progress-area.dragging .progress-knob{transform:translate(-50%,-50%) scale(1)}
+.control-row{display:flex;align-items:center;gap:5px}
+.pbtn{width:38px;height:38px;border:0;border-radius:9px;background:rgba(17,17,22,.76);color:#fff;display:grid;place-items:center;font-size:15px;transition:background .15s,transform .15s}
+.pbtn:hover{background:rgba(255,255,255,.16)}
+.pbtn:active{transform:scale(.94)}
+.pbtn.small{font-size:11px;font-weight:850}
+.pbtn.wide{width:auto;padding:0 10px}
+.player-time{font-variant-numeric:tabular-nums;color:#fff;font-size:11px;margin:0 8px;white-space:nowrap}
+.player-spacer{flex:1}
+.volume-wrap{display:flex;align-items:center;gap:3px}
+.volume-slider{width:76px;accent-color:var(--accent)}
+.settings-wrap{position:relative}
+.settings-menu{position:absolute;right:0;bottom:46px;width:205px;padding:7px;background:rgba(17,17,22,.97);border:1px solid rgba(255,255,255,.12);border-radius:12px;box-shadow:0 18px 45px rgba(0,0,0,.45);backdrop-filter:blur(12px)}
+.settings-menu button{width:100%;border:0;background:transparent;color:#fff;text-align:left;padding:10px;border-radius:8px;font-size:11px;display:flex;justify-content:space-between}
+.settings-menu button:hover{background:rgba(255,255,255,.08)}
+.settings-label{padding:7px 10px 5px;color:#8f8f9b;font-size:9px;text-transform:uppercase;letter-spacing:.12em;font-weight:900}
+.center-play{position:absolute;left:50%;top:50%;width:64px;height:64px;transform:translate(-50%,-50%) scale(1);border:1px solid rgba(255,255,255,.2);border-radius:50%;background:rgba(10,10,13,.72);color:#fff;display:grid;place-items:center;font-size:22px;opacity:1;transition:.2s;z-index:2}
+.player.playing .center-play{opacity:0;transform:translate(-50%,-50%) scale(.9);pointer-events:none}
+.toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;border-radius:10px;padding:9px 12px;font-size:11px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .2s;z-index:4}
+.toast.show{opacity:1}
+.player-caption-note{font-size:10px;color:#aaa;margin-top:8px}
+.watch-meta{padding-top:28px}
+@media(max-width:680px){
+ .watch-shell{width:100%;padding:0 0 45px}
+ .player{border-radius:0}
+ .player-stage{aspect-ratio:16/9}
+ .player-overlay{padding:12px 10px 8px}
+ .player-subtitle{display:none}
+ .pbtn{width:34px;height:34px}
+ .volume-wrap{display:none}
+ .player-time{font-size:10px;margin:0 3px}
+ .center-play{width:54px;height:54px}
+ .settings-menu{bottom:42px;right:0}
+ .watch-meta{padding:24px 6vw 0}
+}
+@media(min-width:681px){.watch-meta{width:min(900px,100%)}}
+
+/* Mobile player overhaul */
+@media (max-width: 680px){
+  .watch-shell{padding:0 0 42px;width:100%;}
+  .player{border-radius:0;box-shadow:none;background:#000;overflow:visible;}
+  .player-stage{aspect-ratio:16/9;min-height:0;overflow:hidden;}
+  .player video{width:100%;height:100%;object-fit:contain;}
+  .player-overlay{
+    padding:10px 10px 8px;
+    opacity:1;
+    pointer-events:auto;
+    background:linear-gradient(180deg,rgba(0,0,0,.62),transparent 24%,transparent 58%,rgba(0,0,0,.94));
+  }
+  .player-title{font-size:12px;max-width:68%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .player-bottom{width:100%;}
+  .progress-area{height:26px;margin:0 -2px;}
+  .progress-track{height:5px;}
+  .progress-knob{width:14px;height:14px;transform:translate(-50%,-50%) scale(1);}
+  .control-row{gap:3px;min-width:0;}
+  .pbtn{width:40px;height:40px;min-width:40px;border-radius:10px;background:rgba(20,20,24,.86);font-size:15px;-webkit-tap-highlight-color:transparent;}
+  .pbtn.wide{min-width:40px;padding:0 8px;}
+  .pbtn.small{font-size:10px;}
+  .player-time{font-size:10px;margin:0 2px;white-space:nowrap;}
+  .volume-wrap{display:none;}
+  .player-spacer{min-width:2px;}
+  .settings-wrap{position:static;}
+  .settings-menu{position:absolute;right:8px;bottom:58px;width:min(230px,calc(100vw - 24px));z-index:20;}
+  .settings-menu button{padding:13px 12px;min-height:42px;}
+  .center-play{width:58px;height:58px;font-size:20px;}
+  .player-caption-note{padding:0 6vw;margin-top:9px;line-height:1.45;}
+  .watch-meta{padding:22px 6vw 0;}
+}
+@media (max-width:390px){
+  .pbtn{width:36px;height:36px;min-width:36px;}
+  .player-time{font-size:9px;}
+  .center-play{width:52px;height:52px;}
+}
+
+/* Player interaction upgrade */
+.player:not(.show-ui) .player-overlay{opacity:0;pointer-events:none}
+.player.show-ui .player-overlay{opacity:1;pointer-events:auto}
+.quick-overlay{position:absolute;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;gap:18px;opacity:0;pointer-events:none;transition:opacity .18s ease}
+.player.mobile-quick .quick-overlay{opacity:1;pointer-events:auto}
+.quick-btn{width:76px;height:76px;border:0;border-radius:50%;background:rgba(10,10,14,.82);color:#fff;display:grid;place-items:center;font-size:28px;font-weight:900;box-shadow:0 8px 30px rgba(0,0,0,.4);backdrop-filter:blur(5px)}
+.quick-btn span{font-size:12px;font-weight:900}
+.speed-hint{position:absolute;left:50%;top:14%;transform:translateX(-50%);padding:9px 15px;border-radius:999px;background:rgba(0,0,0,.75);color:#fff;font-weight:900;font-size:13px;opacity:0;pointer-events:none;transition:opacity .15s;z-index:7}
+.player.speeding .speed-hint{opacity:1} .speed-hint{font-size:14px;font-weight:900;letter-spacing:.4px}
+@media(max-width:680px){
+ .quick-btn{width:70px;height:70px;font-size:25px}
+ .mobile-speed-zone{position:absolute;top:0;bottom:0;width:25%;z-index:5;touch-action:none;display:none}
+ .mobile-speed-zone.left{left:0}.mobile-speed-zone.right{right:0}
+ .player:fullscreen .mobile-speed-zone,.player:-webkit-full-screen .mobile-speed-zone{display:block}
+ @media (orientation: portrait){.player:fullscreen .mobile-speed-zone,.player:-webkit-full-screen .mobile-speed-zone{display:none}}
+}
+@media(min-width:681px){.quick-overlay,.speed-hint,.mobile-speed-zone{display:none}}
+
+/* When the player itself enters fullscreen, fill the viewport cleanly. */
+.player:fullscreen,.player:-webkit-full-screen{width:100vw;height:100vh;border-radius:0;background:#000;}
+.player:fullscreen .player-stage,.player:-webkit-full-screen .player-stage{width:100%;height:100%;aspect-ratio:auto;}
+.player:fullscreen video,.player:-webkit-full-screen video{width:100%;height:100%;}
+@media (max-width:680px){
+  .player:fullscreen .player-overlay,.player:-webkit-full-screen .player-overlay{padding-bottom:max(10px,env(safe-area-inset-bottom));}
+}
+</style>
+<style id="liquid-player-theme">
+/* Liquid Prism player skin — playback logic remains untouched. */
+body .watch-shell{width:min(1340px,94vw);padding-top:34px}
+body .player{
+  position:relative;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:30px;
+  background:#000;
+  box-shadow:
+    0 46px 130px rgba(0,0,0,.52),
+    0 0 0 1px rgba(255,47,104,.03),
+    inset 0 1px 0 rgba(255,255,255,.12);
+  overflow:hidden;
+}
+body .player::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  z-index:20;
+  border-radius:inherit;
+  pointer-events:none;
+  background:
+    linear-gradient(125deg,rgba(255,255,255,.15),transparent 20%,transparent 72%,rgba(255,117,152,.09)),
+    radial-gradient(360px 120px at 78% 0%,rgba(157,92,255,.1),transparent 72%);
+  mix-blend-mode:screen;
+}
+body .player::after{
+  content:"";
+  position:absolute;
+  width:220px;height:620px;
+  left:-300px;top:-140px;
+  z-index:21;
+  pointer-events:none;
+  transform:rotate(28deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+  animation:playerSheen 9s ease-in-out infinite;
+}
+@keyframes playerSheen{0%,55%{left:-300px}77%,100%{left:140%}}
+body .player-stage{background:radial-gradient(circle at 50% 48%,#12141d,#000 72%)}
+body .player-overlay{
+  padding:22px 24px 17px;
+  background:
+    linear-gradient(180deg,rgba(2,3,8,.78),transparent 27%,transparent 53%,rgba(2,3,8,.95)),
+    radial-gradient(520px 200px at 50% 100%,rgba(255,47,104,.08),transparent 75%);
+}
+body .player-top{
+  width:max-content;max-width:100%;
+  padding:8px 11px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;
+  background:rgba(13,15,24,.38);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 10px 30px rgba(0,0,0,.15);
+  backdrop-filter:blur(20px) saturate(145%);
+}
+body .player-title{font-size:11px;font-weight:900;letter-spacing:.01em}
+body .player-subtitle{color:rgba(255,255,255,.58);font-size:8px;letter-spacing:.08em}
+body .progress-area{height:24px}
+body .progress-track{
+  height:5px;
+  background:rgba(255,255,255,.18);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.35);
+}
+body .progress-buffer{background:rgba(255,255,255,.31)}
+body .progress-current{
+  background:linear-gradient(90deg,#ff2f68,#ff7a9b 57%,#a55cff 88%,#65dcff);
+  box-shadow:0 0 16px rgba(255,47,104,.64);
+}
+body .progress-knob{
+  width:14px;height:14px;
+  background:#fff;
+  box-shadow:0 0 0 5px rgba(255,47,104,.14),0 3px 12px rgba(0,0,0,.3);
+}
+body .control-row{gap:6px}
+body .pbtn{
+  width:41px;height:41px;
+  border:1px solid rgba(255,255,255,.105);
+  border-radius:13px;
+  background:rgba(18,20,30,.58);
+  color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+  backdrop-filter:blur(18px) saturate(140%);
+}
+body .pbtn:hover{
+  background:rgba(255,255,255,.13);
+  border-color:rgba(255,255,255,.17);
+  transform:translateY(-2px);
+}
+body .pbtn.wide{padding-inline:11px}
+body .player-time{color:rgba(255,255,255,.77);font-size:9px;letter-spacing:.02em}
+body .volume-slider{accent-color:#ff2f68}
+body .settings-menu{
+  width:220px;padding:8px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:17px;
+  background:rgba(12,14,22,.82);
+  box-shadow:0 28px 80px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.075);
+  backdrop-filter:blur(28px) saturate(145%);
+}
+body .settings-menu button{border-radius:11px;padding:11px}
+body .settings-menu button:hover{background:rgba(255,255,255,.08)}
+body .center-play{
+  width:74px;height:74px;
+  border:1px solid rgba(255,255,255,.2);
+  background:
+    radial-gradient(circle at 30% 20%,rgba(255,255,255,.16),transparent 26%),
+    linear-gradient(145deg,rgba(28,31,43,.68),rgba(8,9,14,.7));
+  box-shadow:
+    0 20px 58px rgba(0,0,0,.42),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 0 0 9px rgba(255,255,255,.025),
+    0 0 46px rgba(255,47,104,.09);
+  backdrop-filter:blur(20px);
+}
+body .toast{
+  padding:10px 14px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:13px;
+  background:rgba(9,11,18,.78);
+  box-shadow:0 16px 42px rgba(0,0,0,.36);
+  backdrop-filter:blur(20px);
+}
+body .quick-btn{
+  border:1px solid rgba(255,255,255,.15);
+  background:rgba(13,15,24,.72);
+  box-shadow:0 18px 52px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.09);
+  backdrop-filter:blur(22px);
+}
+body .speed-hint{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(13,15,24,.72);
+  box-shadow:0 14px 34px rgba(0,0,0,.3);
+  backdrop-filter:blur(18px);
+}
+body .player-caption-note{margin-top:10px}
+body .player.theater{width:min(1560px,98vw);margin-left:50%;transform:translateX(-50%)}
+
+@media(max-width:680px){
+  body .watch-shell{width:100%;padding-top:12px}
+  body .player{
+    border-left:0;border-right:0;
+    border-radius:0;
+    box-shadow:0 22px 64px rgba(0,0,0,.42);
+  }
+  body .player::before{border-radius:0}
+  body .player::after{display:none}
+  body .player-overlay{padding:11px 10px max(9px,env(safe-area-inset-bottom))}
+  body .player-top{padding:5px 7px;border-radius:10px;background:rgba(10,11,17,.3)}
+  body .progress-area{height:27px}
+  body .pbtn{width:39px;height:39px;min-width:39px;border-radius:11px}
+  body .player-time{font-size:8px;margin-inline:2px}
+  body .settings-menu{right:7px;bottom:58px;width:min(240px,calc(100vw - 20px))}
+  body .center-play{width:60px;height:60px}
+  body .player-caption-note{padding:0 5vw}
+}
+@media(max-width:390px){
+  body .pbtn{width:35px;height:35px;min-width:35px}
+  body .pbtn.wide{padding-inline:7px}
+  body .player-time{font-size:8px}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+ <a class="brand" href="index.html"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a>
+ <nav class="nav"><a href="index.html">Home</a><a class="active" href="episodes.html">Episodes</a><a href="#">Music</a><a href="#">The Show</a></nav>
+ <div class="actions"><button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button><button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button></div>
+</header>
+
+<main class="container watch-shell">
+ <div class="player" id="player" tabindex="0">
+  <div class="player-stage" id="stage">
+   <video id="video" playsinline preload="metadata" crossorigin="anonymous">
+    <source id="source" src="" type="video/mp4">
+   </video>
+   <div class="quick-overlay" id="quickOverlay" aria-hidden="true">
+    <button class="quick-btn" id="quickBack" aria-label="Back 10 seconds">↶<span>10</span></button>
+    <button class="quick-btn" id="quickPlay" aria-label="Pause">❚❚</button>
+    <button class="quick-btn" id="quickForward" aria-label="Forward 10 seconds"><span>10</span>↷</button>
+   </div>
+   <div class="mobile-speed-zone left" id="speedLeft" aria-hidden="true"></div>
+   <div class="mobile-speed-zone right" id="speedRight" aria-hidden="true"></div>
+   <div class="speed-hint" id="speedHint">2× SPEED</div>
+   <button class="center-play" id="centerPlay" aria-label="Play">▶</button>
+   <div class="toast" id="toast"></div>
+   <div class="player-overlay" id="overlay">
+    <div class="player-top">
+      <span class="player-title" id="playerTitle">Nemesis</span>
+      <span class="player-subtitle" id="playerCode">S06 E26</span>
+    </div>
+    <div class="player-bottom">
+      <div class="progress-area" id="progressArea" aria-label="Video progress">
+       <div class="progress-track" id="progressTrack"><div class="progress-buffer" id="buffer"></div><div class="progress-current" id="current"></div><div class="progress-knob" id="knob"></div></div>
+      </div>
+      <div class="control-row">
+       <button class="pbtn" id="play" aria-label="Play">▶</button>
+       <button class="pbtn" id="back" aria-label="Back 10 seconds">↶<small>10</small></button>
+       <button class="pbtn" id="forward" aria-label="Forward 10 seconds"><small>10</small>↷</button>
+       <div class="volume-wrap"><button class="pbtn" id="mute" aria-label="Mute">🔊</button><input class="volume-slider" id="volume" type="range" min="0" max="1" step=".01" value="1" aria-label="Volume"></div>
+       <span class="player-time" id="time">0:00 / 0:00</span>
+       <span class="player-spacer"></span>
+       <button class="pbtn wide small" id="captions" aria-label="Subtitles">CC</button>
+       <div class="settings-wrap">
+        <button class="pbtn" id="settings" aria-label="Settings">⚙</button>
+        <div class="settings-menu" id="settingsMenu" hidden>
+         <div class="settings-label">Playback speed</div>
+         <button data-speed="0.75">0.75×</button><button data-speed="1">Normal <span>✓</span></button><button data-speed="1.25">1.25×</button><button data-speed="1.5">1.5×</button><button data-speed="2">2×</button>
+         <div class="settings-label">Player</div>
+         <button id="pip">Picture-in-picture <span>↗</span></button>
+         <button id="theater">Theater mode <span>▣</span></button>
+        </div>
+       </div>
+       <button class="pbtn" id="fullscreen" aria-label="Fullscreen">⛶</button>
+      </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="player-caption-note" id="captionNote">Subtitles are available when a matching WebVTT file is placed in the <code>subtitles/</code> folder.</div>
+
+ <section class="watch-meta">
+  <p class="kicker" id="episodeCode">SEASON 6 · EPISODE 26</p>
+  <h1 id="title">Nemesis</h1>
+  <p class="sub">Miraculous Ladybug · Season 6</p>
+  <div class="watch-actions">
+   <button class="watch-action" id="watched">✓ Mark as watched</button>
+   <button class="watch-action" id="download" type="button">⬇ Download Episode</button>
+   <button class="watch-action" id="share">Share</button>
+  </div>
+  <div class="description">Watch this episode on MiraculousHub. Your viewing progress is saved to your MiraculousHub account when you are signed in, with local browser caching as a fallback.</div>
+  <div class="prevnext"><a id="prev" href="#">← Previous</a><a id="next" href="#">Next →</a></div>
+ </section>
+</main>
+
+<footer class="footer"><div><div class="brand"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></div></div><div class="footer-links"><div><b>Explore</b><a href="index.html">Home</a><a href="episodes.html">Episodes</a></div><div><b>Support</b><a href="#">Help</a></div></div><p class="copyright">© 2026 MiraculousHub. Fan project.</p></footer>
+
+<div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
+<div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
+
+<script src="data.js"></script><script src="firebase.js"></script><script src="common.js"></script><script src="motion.js"></script>
+<script>
+const params=new URLSearchParams(location.search);
+const specialNumber=Number(params.get("special")||0);
+const specialTitles=["New York: United Heroez","Shanghai: The Legend of Lady Dragon","Awakening - The Movie","Miraculous World Paris: Tales of Shadybug and Claw Noir","London: At the Edge of Time","Miraculous World: Tokyo, Stellar Force"];
+const isSpecial=Number.isInteger(specialNumber)&&specialNumber>0&&specialNumber<=specialTitles.length;
+const season=Number(params.get("season")||6), number=Number(params.get("episode")||26);
+const ep=isSpecial?{season:"Special",episode:specialNumber,title:specialTitles[specialNumber-1],code:`SPECIAL ${specialNumber}`,videoPath:specialNumber===5?"/video/london":""}:(window.MH_EPISODES||[]).find(x=>x.season===season&&x.episode===number)||(window.MH_EPISODES||[]).at(-1);
+const $=id=>document.getElementById(id);
+document.title=`MiraculousHub — ${ep.title}`;
+$("episodeCode").textContent=isSpecial?`SPECIAL · ${ep.title}`:`SEASON ${ep.season} · EPISODE ${ep.episode}`;
+$("title").textContent=ep.title;
+$("playerTitle").textContent=ep.title;
+$("playerCode").textContent=isSpecial?`SPECIAL ${String(ep.episode).padStart(2,"0")}`:`S${String(ep.season).padStart(2,"0")} E${String(ep.episode).padStart(2,"0")}`;
+
+const idx=MH_EPISODES.findIndex(x=>x.season===ep.season&&x.episode===ep.episode);
+const prev=MH_EPISODES[idx-1], next=MH_EPISODES[idx+1];
+if(isSpecial){ $("prev").style.visibility="hidden"; $("next").style.visibility="hidden"; }
+else { if(prev) $("prev").href=`watch.html?season=${prev.season}&episode=${prev.episode}`; else $("prev").style.visibility="hidden"; if(next) $("next").href=`watch.html?season=${next.season}&episode=${next.episode}`; else $("next").style.visibility="hidden"; }
+
+
+const v=$("video"), player=$("player"), stage=$("stage"), progressArea=$("progressArea");
+const current=$("current"), buffer=$("buffer"), knob=$("knob"), time=$("time");
+
+const VIDEO_WORKER="https://miraculous-video.ibbyzaman4.workers.dev";
+const sourceUrl=ep.videoPath ? `${VIDEO_WORKER}${ep.videoPath}` : "";
+if(sourceUrl){
+  // Set the video element directly so every episode uses the exact Worker URL.
+  $("source").src=sourceUrl;
+  v.src=sourceUrl;
+  v.load();
+}else{
+  $("source").removeAttribute("src");
+  v.removeAttribute("src");
+  v.load();
+}
+v.addEventListener("error",()=>{
+  showToast("This episode is not connected to Cloudflare yet");
+});
+
+const posKey=isSpecial?`mh-pos-special-${ep.episode}`:`mh-pos-${ep.season}-${ep.episode}`;
+const cloudKey=isSpecial?`special-${ep.episode}`:`s${ep.season}e${ep.episode}`;
+let dragging=false, hideTimer, lastPointer=0;
+let lastCloudSave=0;
+let cloudSaveInFlight=false;
+let cloudLoaded=false;
+let cloudLoadPromise=null;
+
+function localPosition(){
+  const n=Number(localStorage.getItem(posKey)||0);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function cachePosition(){
+  if(v.duration && v.currentTime>0) localStorage.setItem(posKey,String(v.currentTime));
+}
+
+async function saveCloudPosition(force=false){
+  if(!window.MH_USER || !window.MH_CLOUD || !v.duration || v.currentTime<=0) return;
+  const now=Date.now();
+  if(cloudSaveInFlight) return;
+  if(!force && now-lastCloudSave<1000) return;
+  lastCloudSave=now;
+  cloudSaveInFlight=true;
+  try {
+    await window.MH_CLOUD.savePlayback(cloudKey,{
+      season:ep.season, episode:ep.episode, title:ep.title,
+      progress:Math.min(100,(v.currentTime/v.duration)*100),
+      position:v.currentTime, duration:v.duration
+    });
+    window.dispatchEvent(new CustomEvent("mh-cloud-save-ok",{detail:{season:ep.season,episode:ep.episode}}));
+  } catch(error) {
+    console.error("MiraculousHub cloud save failed:", error);
+    const code = error?.code || "unknown";
+    let message = "Cloud sync failed";
+    if (code === "permission-denied") message = "Cloud sync blocked: Firestore rules";
+    else if (code === "failed-precondition") message = "Cloud sync unavailable: create Firestore";
+    else if (code === "unavailable") message = "Cloud sync unavailable: check connection";
+    else if (code === "unauthenticated") message = "Cloud sync failed: sign in again";
+    showToast(message);
+    window.dispatchEvent(new CustomEvent("mh-cloud-save-error", { detail: error }));
+  } finally {
+    cloudSaveInFlight=false;
+  }
+}
+
+async function loadCloudPosition(){
+  if(cloudLoaded || cloudLoadPromise) return;
+
+  // Firebase may still be restoring the signed-in account when the video
+  // metadata arrives. Always wait for auth restoration before reading cloud data.
+  if(window.MH_FIREBASE_READY){
+    try { await window.MH_FIREBASE_READY; } catch {}
+  }
+  if(window.MH_AUTH_READY){
+    try { await window.MH_AUTH_READY; } catch {}
+  }
+  if(!window.MH_USER || !window.MH_CLOUD) return;
+
+  cloudLoadPromise=(async()=>{
+    try{
+      const data=await window.MH_CLOUD.getPlayback(cloudKey);
+      if(data && v.duration){
+        const pos=Number(data.position);
+        if(Number.isFinite(pos) && pos >= 0){
+          // Cloud progress is the cross-device source of truth. Clamp it to
+          // the current video's duration and apply it even when it is near
+          // the end of the episode.
+          const safePos=Math.max(0,Math.min(pos,Math.max(0,v.duration-0.25)));
+          v.currentTime=safePos;
+          localStorage.setItem(posKey,String(safePos));
+        }
+      }
+    }catch(error){
+      console.error("MiraculousHub: failed to load cloud playback", error);
+    }
+    cloudLoaded=true;
+    update();
+  })();
+  await cloudLoadPromise;
+}
+
+function fmt(sec){sec=Math.max(0,Math.floor(sec||0));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`;}
+function update(){
+ const pct=v.duration?Math.min(100,(v.currentTime/v.duration)*100):0;
+ current.style.width=pct+"%"; knob.style.left=pct+"%";
+ if(v.buffered.length){const end=v.buffered.end(v.buffered.length-1);buffer.style.width=(v.duration?Math.min(100,end/v.duration*100):0)+"%";}
+ time.textContent=`${fmt(v.currentTime)} / ${fmt(v.duration)}`;
+ if(v.duration && v.currentTime>0) mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:pct,position:v.currentTime,duration:v.duration});
+}
+v.addEventListener("loadedmetadata",async()=>{
+ const saved=localPosition();
+ if(saved>0 && saved<v.duration-5) v.currentTime=saved;
+ update();
+ await loadCloudPosition();
+});
+v.addEventListener("timeupdate",()=>{
+ update();
+ cachePosition();
+ saveCloudPosition(false);
+});
+// While playing, sync playback to Firestore approximately once per second.
+// The in-flight guard prevents overlapping writes on slower connections.
+const cloudSyncTimer=setInterval(()=>{ if(!v.paused) saveCloudPosition(false); },1000);
+v.addEventListener("pause",()=>{cachePosition();saveCloudPosition(true);});
+v.addEventListener("seeking",()=>{cachePosition();});
+v.addEventListener("seeked",()=>{saveCloudPosition(true);});
+v.addEventListener("progress",update);
+v.addEventListener("ended",()=>{mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100,position:v.duration,duration:v.duration});saveCloudPosition(true);localStorage.removeItem(posKey);showToast("Episode finished");});
+
+window.addEventListener("mh-auth-changed",()=>{
+  if(window.MH_USER){
+    cloudLoaded=false;
+    cloudLoadPromise=null;
+    loadCloudPosition();
+  }
+});
+window.addEventListener("mh-account-ready",()=>{
+  cloudLoaded=false;
+  cloudLoadPromise=null;
+  loadCloudPosition();
+});
+window.addEventListener("mh-firebase-ready",()=>{
+  if(window.MH_USER){
+    cloudLoaded=false;
+    cloudLoadPromise=null;
+    loadCloudPosition();
+  }
+});
+
+function setPlayingUI(){
+ const playing=!v.paused;
+ player.classList.toggle("playing",playing);
+ $("play").textContent=playing?"❚❚":"▶";
+ $("centerPlay").textContent=playing?"❚❚":"▶";
+}
+async function togglePlay(){try{if(v.paused) await v.play();else v.pause();}catch{}setPlayingUI();}
+$("play").onclick=togglePlay;$("centerPlay").onclick=togglePlay;
+v.addEventListener("play",setPlayingUI);v.addEventListener("pause",setPlayingUI);
+
+function seek(clientX){
+ const r=progressArea.getBoundingClientRect();
+ const pct=Math.max(0,Math.min(1,(clientX-r.left)/r.width));
+ if(v.duration) v.currentTime=pct*v.duration;
+ update();
+}
+progressArea.addEventListener("pointerdown",e=>{dragging=true;progressArea.classList.add("dragging");progressArea.setPointerCapture(e.pointerId);seek(e.clientX)});
+progressArea.addEventListener("pointermove",e=>{if(dragging)seek(e.clientX)});
+progressArea.addEventListener("pointerup",e=>{if(dragging)seek(e.clientX);dragging=false;progressArea.classList.remove("dragging")});
+progressArea.addEventListener("pointercancel",()=>{dragging=false;progressArea.classList.remove("dragging")});
+
+$("back").onclick=()=>{v.currentTime=Math.max(0,v.currentTime-10);showToast("−10 seconds")};
+$("forward").onclick=()=>{v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);showToast("+10 seconds")};
+$("mute").onclick=()=>{v.muted=!v.muted;$("mute").textContent=v.muted?"🔇":"🔊"};
+$("volume").oninput=e=>{v.volume=Number(e.target.value);v.muted=v.volume===0;$("mute").textContent=v.muted?"🔇":"🔊"};
+
+$("settings").onclick=e=>{e.stopPropagation();$("settingsMenu").hidden=!$("settingsMenu").hidden};
+document.addEventListener("click",e=>{if(!e.target.closest(".settings-wrap"))$("settingsMenu").hidden=true});
+document.querySelectorAll("[data-speed]").forEach(b=>b.onclick=()=>{v.playbackRate=Number(b.dataset.speed);showToast(`Speed ${b.textContent}`);$("settingsMenu").hidden=true});
+$("pip").onclick=async()=>{try{if(document.pictureInPictureElement)await document.exitPictureInPicture();else if(document.pictureInPictureEnabled)await v.requestPictureInPicture();}catch{showToast("Picture-in-picture unavailable")}};
+$("theater").onclick=()=>{player.classList.toggle("theater");player.style.maxWidth=player.classList.contains("theater")?"none":"";showToast(player.classList.contains("theater")?"Theater mode on":"Theater mode off");$("settingsMenu").hidden=true};
+$("fullscreen").onclick=async()=>{
+  try{
+    if(document.fullscreenElement || document.webkitFullscreenElement){
+      if(document.exitFullscreen) await document.exitFullscreen();
+      else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+      return;
+    }
+    // iPhone/iPad Safari supports native video fullscreen rather than
+    // the generic Fullscreen API in many versions.
+    if(/iPhone|iPad|iPod/i.test(navigator.userAgent) && typeof v.webkitEnterFullscreen === "function"){
+      v.webkitEnterFullscreen();
+      return;
+    }
+    if(player.requestFullscreen) await player.requestFullscreen();
+    else if(player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+  }catch{showToast("Fullscreen unavailable");}
+};
+function syncFullscreenUI(){
+  const fs=!!(document.fullscreenElement || document.webkitFullscreenElement);
+  $("fullscreen").textContent=fs?"↙":"⛶";
+}
+document.addEventListener("fullscreenchange",syncFullscreenUI);
+document.addEventListener("webkitfullscreenchange",syncFullscreenUI);
+
+
+function showToast(msg){$("toast").textContent=msg;$("toast").classList.add("show");clearTimeout(showToast.t);showToast.t=setTimeout(()=>$("toast").classList.remove("show"),850)}
+function isMobile(){return window.matchMedia("(max-width:680px)").matches}
+function isFullscreen(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function isLandscapeMobileFullscreen(){ return isMobile() && isFullscreen() && window.matchMedia("(orientation: landscape)").matches; }
+function activity(){
+ player.classList.add("show-ui");
+ clearTimeout(hideTimer);
+ hideTimer=setTimeout(()=>{ player.classList.remove("show-ui","mobile-quick"); },2200);
+}
+function showMobileQuick(){
+ if(!isLandscapeMobileFullscreen()) return;
+ player.classList.add("show-ui","mobile-quick");
+ clearTimeout(hideTimer);
+ hideTimer=setTimeout(()=>player.classList.remove("show-ui","mobile-quick"),2200);
+}
+player.addEventListener("pointermove",e=>{ if(e.pointerType!=="touch") activity(); });
+player.addEventListener("pointerdown",e=>{
+ if(e.target.closest("button,.progress-area,.settings-wrap,.mobile-speed-zone,.quick-overlay")) return;
+ activity();
+});
+player.addEventListener("mouseenter",()=>activity());
+player.addEventListener("mouseleave",()=>{ if(!isMobile()) player.classList.remove("show-ui","mobile-quick"); });
+v.addEventListener("play",activity);
+v.addEventListener("pause",activity);
+
+// One tap/click on the video toggles play/pause. In mobile fullscreen landscape,
+// tapping also reveals the large quick controls.
+stage.addEventListener("click",e=>{
+ if(e.target.closest("button,.progress-area,.settings-wrap,.mobile-speed-zone,.quick-overlay")) return;
+ if(isLandscapeMobileFullscreen()) showMobileQuick();
+ togglePlay();
+});
+
+// PC: a quick Space tap toggles play/pause; holding Space temporarily switches to 2×.
+let spaceHeld=false, spaceTimer=null, spaceDidSpeed=false, speedBeforeHold=1;
+document.addEventListener("keydown",e=>{
+ if(e.code==="Space"){
+   if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName)) return;
+   e.preventDefault();
+   if(e.repeat || spaceHeld) return;
+   spaceHeld=true; spaceDidSpeed=false;
+   speedBeforeHold=v.playbackRate||1;
+   spaceTimer=setTimeout(()=>{
+     if(!spaceHeld) return;
+     spaceDidSpeed=true;
+     v.playbackRate=2;
+     player.classList.add("speeding","show-ui");
+     showToast("2× speed");
+   },180);
+   return;
+ }
+ if(["INPUT","TEXTAREA","SELECT","BUTTON"].includes(document.activeElement.tagName)) return;
+ if(e.key==="ArrowLeft"){v.currentTime=Math.max(0,v.currentTime-10);showToast("−10 seconds")}
+ else if(e.key==="ArrowRight"){v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);showToast("+10 seconds")}
+ else if(e.key==="ArrowUp"){v.volume=Math.min(1,v.volume+.1);$("volume").value=v.volume}
+ else if(e.key==="ArrowDown"){v.volume=Math.max(0,v.volume-.1);$("volume").value=v.volume}
+ else if(e.key.toLowerCase()==="m") $("mute").click();
+ else if(e.key.toLowerCase()==="f") $("fullscreen").click();
+ else if(e.key.toLowerCase()==="c") $("captions").click();
+});
+document.addEventListener("keyup",e=>{
+ if(e.code!=="Space"||!spaceHeld) return;
+ e.preventDefault();
+ clearTimeout(spaceTimer);
+ const wasSpeed=spaceDidSpeed;
+ spaceHeld=false;
+ if(wasSpeed){
+   v.playbackRate=speedBeforeHold;
+   player.classList.remove("speeding");
+ }else{
+   togglePlay();
+ }
+});
+window.addEventListener("blur",()=>{
+ if(spaceHeld){
+   clearTimeout(spaceTimer);
+   const wasSpeed=spaceDidSpeed;
+   spaceHeld=false;
+   if(wasSpeed){ v.playbackRate=speedBeforeHold; player.classList.remove("speeding"); }
+   else togglePlay();
+ }
+});
+
+// Mobile: hold either side of the video for 2×, but only in fullscreen landscape.
+let mobileSpeedHeld=false, mobileSpeedBefore=1;
+function startMobileSpeed(e){
+ if(!isLandscapeMobileFullscreen()||e.pointerType!=="touch") return;
+ e.preventDefault();
+ mobileSpeedHeld=true;
+ mobileSpeedBefore=v.playbackRate||1;
+ v.playbackRate=2;
+ player.classList.add("speeding","show-ui");
+ activity();
+}
+function stopMobileSpeed(){
+ if(!mobileSpeedHeld) return;
+ mobileSpeedHeld=false;
+ v.playbackRate=mobileSpeedBefore;
+ player.classList.remove("speeding");
+ activity();
+}
+$("speedLeft").addEventListener("pointerdown",startMobileSpeed);
+$("speedRight").addEventListener("pointerdown",startMobileSpeed);
+["speedLeft","speedRight"].forEach(id=>{
+ $(id).addEventListener("pointerup",stopMobileSpeed);
+ $(id).addEventListener("pointercancel",stopMobileSpeed);
+ $(id).addEventListener("pointerleave",stopMobileSpeed);
+ $(id).addEventListener("pointerout",stopMobileSpeed);
+});
+
+// The large mobile quick buttons only exist in fullscreen landscape.
+$("quickBack").onclick=e=>{e.stopPropagation();v.currentTime=Math.max(0,v.currentTime-10);activity();showToast("−10 seconds")};
+$("quickForward").onclick=e=>{e.stopPropagation();v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);activity();showToast("+10 seconds")};
+$("quickPlay").onclick=e=>{e.stopPropagation();togglePlay();activity()};
+document.addEventListener("fullscreenchange",()=>{ if(!isLandscapeMobileFullscreen()) player.classList.remove("mobile-quick"); activity(); });
+document.addEventListener("webkitfullscreenchange",()=>{ if(!isLandscapeMobileFullscreen()) player.classList.remove("mobile-quick"); activity(); });
+window.addEventListener("orientationchange",()=>{ if(!isLandscapeMobileFullscreen()) player.classList.remove("mobile-quick"); });
+
+$("watched").onclick=()=>{localStorage.setItem(posKey,String(v.duration||0));mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100});$("watched").textContent="✓ Watched";showToast("Marked as watched")};
+
+window.addEventListener("mh-cloud-save-error", e => {
+  const err = e.detail || {};
+  console.error("MiraculousHub Firebase sync error code:", err.code, "message:", err.message);
+});
+
+const downloadBtn=$("download");
+if(downloadBtn){
+  if(ep.videoPath){
+    const downloadPath=ep.videoPath.replace(/^\/video\//,"/download/");
+    downloadBtn.onclick=()=>{ window.location.href=VIDEO_WORKER+downloadPath; };
+  }else{
+    downloadBtn.onclick=()=>showToast("Download is not configured for this episode yet");
+  }
+}
+
+$("share").onclick=async()=>{try{if(navigator.share)await navigator.share({title:`${ep.title} — MiraculousHub`,url:location.href});else{await navigator.clipboard.writeText(location.href);$("share").textContent="Copied!"}}catch{}};
+
+let subtitleTrack=null;
+async function setupSubtitles(){
+ if(isSpecial){ $("captionNote").textContent="Subtitles are not configured for this special yet."; return; }
+ const path=`subtitles/S${String(ep.season).padStart(2,"0")}E${String(ep.episode).padStart(2,"0")}.en.vtt`;
+ try{
+  const r=await fetch(path,{method:"HEAD"});
+  if(!r.ok) throw new Error("missing");
+  const track=document.createElement("track");track.kind="subtitles";track.label="English";track.srclang="en";track.src=path;track.default=false;
+  v.appendChild(track);subtitleTrack=track.track;
+  $("captionNote").textContent="English subtitles are available. Use CC to turn them on or off.";
+ }catch{
+  $("captionNote").textContent="Subtitles are ready to use when a matching WebVTT file is placed in the subtitles/ folder.";
+ }
+}
+$("captions").onclick=()=>{
+ if(!subtitleTrack){showToast("No subtitle file found");return}
+ subtitleTrack.mode=subtitleTrack.mode==="showing"?"hidden":"showing";
+ $("captions").style.background=subtitleTrack.mode==="showing"?"var(--accent)":"rgba(17,17,22,.76)";
+ showToast(subtitleTrack.mode==="showing"?"Subtitles on":"Subtitles off");
+};
+setupSubtitles();
+</script>
+</body>
+</html>
