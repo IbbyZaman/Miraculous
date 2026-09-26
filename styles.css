@@ -1356,3 +1356,155 @@ html.mh-fallback-leave[data-glide="back"] body{
   .season7-upcoming::after{right:8px;font-size:88px}
   .season7-date strong{font-size:24px}
 }
+
+
+/* =========================================================
+   HYBRID FUTURISTIC PERFORMANCE MODE
+   Keep Liquid Glass where it matters; use lightweight
+   translucent surfaces for scrolling content.
+   ========================================================= */
+
+/* Large scrolling surfaces: same visual language, no live backdrop blur. */
+.card,
+.continue-card,
+.upcoming,
+.live-player-card,
+.library-shell,
+.episodes-toolbar,
+.watch-meta,
+.footer{
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.018) 58%,rgba(255,255,255,.028));
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  border-color:rgba(255,255,255,.125);
+  box-shadow:
+    0 14px 34px rgba(0,0,0,.16),
+    inset 0 1px 0 rgba(255,255,255,.085);
+}
+
+/* Keep subtle edge lighting without expensive moving/refraction layers. */
+.card::before,
+.continue-card::before,
+.upcoming::before,
+.live-player-card::before,
+.watch-meta::before,
+.footer::before,
+.library-shell::before,
+.episodes-toolbar::before{
+  opacity:.22;
+  background:linear-gradient(140deg,rgba(255,255,255,.08),transparent 24%,transparent 76%,rgba(255,255,255,.018));
+}
+
+/* Episode cards should feel responsive while scrolling. */
+.card{
+  contain:layout paint;
+  content-visibility:auto;
+  contain-intrinsic-size:260px 300px;
+}
+.card:hover{
+  transform:translate3d(0,-5px,0) scale(1.012);
+  box-shadow:0 20px 46px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.11);
+}
+
+/* Hero remains a glass showcase, but cheaper than the full-glass build. */
+.hero{
+  backdrop-filter:blur(14px) saturate(145%);
+  -webkit-backdrop-filter:blur(14px) saturate(145%);
+}
+.hero-tile{
+  backdrop-filter:blur(16px) saturate(155%);
+  -webkit-backdrop-filter:blur(16px) saturate(155%);
+}
+
+/* Navigation, compact controls and popovers keep true liquid glass. */
+.topbar,
+.nav,
+.modal-box,
+.auth-box,
+.settings-menu,
+.lang-pop,
+.signin,
+.glass-chip,
+.filter,
+.watch-action,
+.prevnext a{
+  will-change:auto;
+}
+.topbar{
+  backdrop-filter:blur(17px) saturate(160%) brightness(1.03);
+  -webkit-backdrop-filter:blur(17px) saturate(160%) brightness(1.03);
+}
+.signin,.glass-chip,.filter,.watch-action,.prevnext a{
+  backdrop-filter:blur(10px) saturate(150%);
+  -webkit-backdrop-filter:blur(10px) saturate(150%);
+}
+.modal-box,.auth-box,.settings-menu,.lang-pop{
+  backdrop-filter:blur(19px) saturate(165%) !important;
+  -webkit-backdrop-filter:blur(19px) saturate(165%) !important;
+}
+
+/* The Season 7 feature keeps its colour but no expensive panel blur. */
+.season7-upcoming,
+.season7-date{
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+.season7-upcoming .badge{
+  backdrop-filter:blur(8px) saturate(145%);
+  -webkit-backdrop-filter:blur(8px) saturate(145%);
+}
+
+/* Light mode equivalent: clean translucent surfaces instead of blur everywhere. */
+:root.light .card,
+:root.light .continue-card,
+:root.light .upcoming,
+:root.light .live-player-card,
+:root.light .library-shell,
+:root.light .episodes-toolbar,
+:root.light .watch-meta,
+:root.light .footer{
+  background:linear-gradient(145deg,rgba(255,255,255,.54),rgba(255,255,255,.30));
+  border-color:rgba(255,255,255,.72);
+  box-shadow:0 14px 34px rgba(45,50,70,.10),inset 0 1px 0 rgba(255,255,255,.72);
+}
+
+/* Mobile/tablet: reserve real blur for the floating navigation and popups. */
+@media(max-width:840px){
+  .hero{
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    background:
+      radial-gradient(520px 380px at 86% 42%,rgba(255,47,104,.10),transparent 68%),
+      radial-gradient(480px 360px at 76% 8%,rgba(157,92,255,.08),transparent 70%),
+      linear-gradient(120deg,rgba(255,255,255,.045),rgba(255,255,255,.012) 44%,rgba(255,255,255,.026));
+  }
+  .hero-tile{
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    background:linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.024));
+  }
+  .card,.continue-card,.upcoming,.live-player-card,.library-shell,.episodes-toolbar,.watch-meta,.footer{
+    background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.018));
+    box-shadow:0 10px 26px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.07);
+  }
+  .topbar,.nav{
+    backdrop-filter:blur(14px) saturate(150%);
+    -webkit-backdrop-filter:blur(14px) saturate(150%);
+  }
+  .card:hover{transform:none}
+}
+
+/* Very small / lower-power screens: avoid expensive decorative compositing. */
+@media(max-width:520px){
+  .orb{filter:none!important;opacity:.36}
+  .hero::before,
+  .card::before,
+  .continue-card::before,
+  .upcoming::before,
+  .live-player-card::before,
+  .watch-meta::before,
+  .footer::before,
+  .library-shell::before,
+  .episodes-toolbar::before{opacity:.12}
+}

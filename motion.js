@@ -16,9 +16,9 @@
     });
   }
 
-  // Pointer-reactive liquid highlight, throttled to a single update/frame.
-  // Same visual effect as before, much less work for the browser.
-  const glassSelector = ".hero,.card,.continue-card,.upcoming,.live-player-card,.watch-meta,.library-shell,.episodes-toolbar";
+  // Pointer-reactive highlight stays only on the showcase glass.
+  // Scrolling cards no longer update CSS variables every pointer frame.
+  const glassSelector = ".hero,.topbar";
   let pointerRaf = 0;
   let pointerEvent = null;
 
