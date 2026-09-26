@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png">
 <title>MiraculousHub — Episodes</title>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=glass-original-3">
 </head>
 <body>
 
@@ -115,7 +115,7 @@
 <script src="data.js"></script>
 <script src="firebase.js"></script>
 <script src="common.js"></script>
-<script src="motion.js"></script>
+<script src="motion.js?v=glass-original-3"></script>
 <script>
 let season="0", mode="all", q="";
 const tabs=document.querySelector("#seasonTabs");
@@ -141,7 +141,7 @@ tabs.insertAdjacentHTML("beforeend",seasonButtons.map(([value,label],i)=>
 function moveSeasonGlider(button, smooth=true){
   if(!button)return;
   if(!smooth) glider.style.transition="none";
-  glider.style.left=`${button.offsetLeft}px`;
+  glider.style.transform=`translate3d(${button.offsetLeft}px,0,0)`;
   glider.style.width=`${button.offsetWidth}px`;
   if(!smooth){
     glider.getBoundingClientRect();
@@ -225,7 +225,13 @@ function glideSeason(nextSeason){
 
     const button=currentSeasonButton();
     moveSeasonGlider(button,true);
-    button?.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
+    if(button){
+      const br=button.getBoundingClientRect();
+      const tr=tabs.getBoundingClientRect();
+      if(br.left<tr.left || br.right>tr.right){
+        button.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
+      }
+    }
 
     render();
 

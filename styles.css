@@ -112,36 +112,33 @@ button:focus-visible,a:focus-visible,input:focus-visible{
 .container{width:min(1280px,92vw);margin-inline:auto}
 
 /* ---------- Cross-page glide ---------- */
-@view-transition{navigation:auto}
-::view-transition-old(root){
-  animation:mh-page-old .26s var(--ease) both;
-}
-::view-transition-new(root){
-  animation:mh-page-new .48s var(--ease-spring) both;
-}
-@keyframes mh-page-old{
-  to{opacity:0;transform:translate3d(-28px,0,0) scale(.992);filter:blur(4px)}
-}
-@keyframes mh-page-new{
-  from{opacity:0;transform:translate3d(42px,0,0) scale(.99);filter:blur(7px)}
-}
+/* Keep the original glide look, but use one predictable animation path on
+   local previews, GitHub Pages and the custom domain. */
 html.mh-fallback-enter body{
   animation:mh-fallback-in .48s var(--ease-spring) both;
+  will-change:transform,opacity;
+}
+html.mh-fallback-enter[data-glide="back"] body{
+  animation-name:mh-fallback-in-back;
 }
 html.mh-fallback-leave body{
   animation:mh-fallback-out .24s var(--ease) both;
+  will-change:transform,opacity;
 }
 html.mh-fallback-leave[data-glide="back"] body{
   animation-name:mh-fallback-out-back;
 }
 @keyframes mh-fallback-in{
-  from{opacity:0;transform:translate3d(26px,0,0);filter:blur(4px)}
+  from{opacity:0;transform:translate3d(34px,0,0) scale(.992)}
+}
+@keyframes mh-fallback-in-back{
+  from{opacity:0;transform:translate3d(-34px,0,0) scale(.992)}
 }
 @keyframes mh-fallback-out{
-  to{opacity:0;transform:translate3d(-24px,0,0);filter:blur(3px)}
+  to{opacity:0;transform:translate3d(-26px,0,0) scale(.994)}
 }
 @keyframes mh-fallback-out-back{
-  to{opacity:0;transform:translate3d(24px,0,0);filter:blur(3px)}
+  to{opacity:0;transform:translate3d(26px,0,0) scale(.994)}
 }
 
 /* ---------- Glass primitives ---------- */
@@ -253,7 +250,8 @@ html.mh-fallback-leave[data-glide="back"] body{
     linear-gradient(135deg,rgba(255,47,104,.17),rgba(157,92,255,.12));
   border:1px solid rgba(255,255,255,.1);
   box-shadow:0 7px 22px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.12);
-  transition:left .42s var(--ease-spring),width .42s var(--ease-spring);
+  transition:transform .42s var(--ease-spring),width .42s var(--ease-spring);
+  will-change:transform,width;
 }
 .nav a{
   min-height:38px;
@@ -596,10 +594,10 @@ html.mh-fallback-leave[data-glide="back"] body{
 .grid.grid-leave-back{animation:gridLeaveBack .15s var(--ease) both}
 .grid.grid-enter-forward{animation:gridEnterForward .38s var(--ease-spring) both}
 .grid.grid-enter-back{animation:gridEnterBack .38s var(--ease-spring) both}
-@keyframes gridLeaveForward{to{opacity:0;transform:translateX(-22px) scale(.985);filter:blur(3px)}}
-@keyframes gridLeaveBack{to{opacity:0;transform:translateX(22px) scale(.985);filter:blur(3px)}}
-@keyframes gridEnterForward{from{opacity:0;transform:translateX(34px) scale(.985);filter:blur(4px)}}
-@keyframes gridEnterBack{from{opacity:0;transform:translateX(-34px) scale(.985);filter:blur(4px)}}
+@keyframes gridLeaveForward{to{opacity:0;transform:translate3d(-22px,0,0) scale(.985)}}
+@keyframes gridLeaveBack{to{opacity:0;transform:translate3d(22px,0,0) scale(.985)}}
+@keyframes gridEnterForward{from{opacity:0;transform:translate3d(34px,0,0) scale(.985)}}
+@keyframes gridEnterBack{from{opacity:0;transform:translate3d(-34px,0,0) scale(.985)}}
 
 .card,.continue-card,.upcoming{
   overflow:hidden;
@@ -845,7 +843,8 @@ html.mh-fallback-leave[data-glide="back"] body{
     linear-gradient(135deg,rgba(255,47,104,.16),rgba(157,92,255,.12));
   border:1px solid rgba(255,255,255,.1);
   box-shadow:0 8px 22px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.1);
-  transition:left .46s var(--ease-spring),width .46s var(--ease-spring);
+  transition:transform .46s var(--ease-spring),width .46s var(--ease-spring);
+  will-change:transform,width;
 }
 .season-tab{
   min-height:40px;
