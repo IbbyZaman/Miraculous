@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png"><title>MiraculousHub — Watch</title>
-<link rel="stylesheet" href="styles.css?v=ios-glass-1">
+<link rel="stylesheet" href="styles.css?v=player-v3-ios-1">
 <style>
 /* Modern video player */
 .watch-shell{width:min(1240px,94vw);padding:24px 0 70px}
@@ -280,6 +280,107 @@ body .player.theater{width:min(1560px,98vw);margin-left:50%;transform:translateX
   body .player-time{font-size:8px}
 }
 </style>
+
+<style id="player-v3-theme">
+/* Player V3 — clearer iOS-style glass, no moving shine. */
+body .player{
+  border-color:rgba(255,255,255,.26);
+  box-shadow:0 34px 110px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.18);
+}
+body .player::before{
+  background:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),inset 0 0 0 1px rgba(255,255,255,.035);
+}
+body .player-overlay{
+  padding:20px 22px 16px;
+  background:linear-gradient(180deg,rgba(0,0,0,.38),transparent 26%,transparent 51%,rgba(0,0,0,.62));
+}
+body .player-top{
+  padding:8px 12px;
+  border-color:rgba(255,255,255,.22);
+  border-radius:999px;
+  background:rgba(22,24,31,.28);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 10px 28px rgba(0,0,0,.16);
+  backdrop-filter:blur(18px) saturate(165%);
+  -webkit-backdrop-filter:blur(18px) saturate(165%);
+}
+body .player-bottom{
+  padding:9px 11px 10px;
+  border:1px solid rgba(255,255,255,.20);
+  border-radius:19px;
+  background:rgba(20,22,29,.27);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 16px 44px rgba(0,0,0,.22);
+  backdrop-filter:blur(20px) saturate(170%);
+  -webkit-backdrop-filter:blur(20px) saturate(170%);
+}
+body .progress-area{height:22px}
+body .progress-track{height:4px;background:rgba(255,255,255,.22)}
+body .progress-current{
+  background:linear-gradient(90deg,#ff375f,#ff6482 58%,#9a7cff 100%);
+  box-shadow:0 0 10px rgba(255,55,95,.42);
+}
+body .progress-knob{width:13px;height:13px;box-shadow:0 2px 8px rgba(0,0,0,.35),0 0 0 3px rgba(255,255,255,.10)}
+body .control-row{gap:5px}
+body .pbtn{
+  width:40px;height:40px;
+  border-color:rgba(255,255,255,.19);
+  border-radius:50%;
+  background:rgba(255,255,255,.075);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16);
+  backdrop-filter:blur(14px) saturate(160%);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
+  transition:background .14s ease,transform .14s ease,border-color .14s ease;
+}
+body .pbtn:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.28);transform:scale(1.035)}
+body .pbtn:active{transform:scale(.93)}
+body .pbtn.wide{border-radius:999px;min-width:46px}
+body .center-play{
+  width:76px;height:76px;
+  border-color:rgba(255,255,255,.28);
+  background:rgba(24,26,33,.34);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 18px 48px rgba(0,0,0,.36),0 0 0 7px rgba(255,255,255,.025);
+  backdrop-filter:blur(22px) saturate(165%);
+  -webkit-backdrop-filter:blur(22px) saturate(165%);
+}
+body .settings-menu{
+  border-color:rgba(255,255,255,.22);
+  background:rgba(20,22,29,.50);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 24px 70px rgba(0,0,0,.46);
+  backdrop-filter:blur(28px) saturate(170%);
+  -webkit-backdrop-filter:blur(28px) saturate(170%);
+}
+body .settings-menu button{font-size:11px}
+body .settings-menu button:hover{background:rgba(255,255,255,.10)}
+body .toast{background:rgba(20,22,29,.52);border-color:rgba(255,255,255,.20)}
+
+/* While Apple's native fullscreen player is active, don't layer our chrome on top. */
+body .player.apple-native-active .player-overlay,
+body .player.apple-native-active .center-play,
+body .player.apple-native-active .quick-overlay,
+body .player.apple-native-active .speed-hint,
+body .player.apple-native-active .mobile-speed-zone{display:none!important}
+
+@media(max-width:680px){
+  body .player-overlay{padding:10px 9px max(8px,env(safe-area-inset-bottom))}
+  body .player-top{padding:5px 8px;background:rgba(24,26,33,.24)}
+  body .player-bottom{
+    padding:7px 8px 8px;
+    border-radius:15px;
+    background:rgba(20,22,29,.25);
+    backdrop-filter:blur(14px) saturate(155%);
+    -webkit-backdrop-filter:blur(14px) saturate(155%);
+  }
+  body .pbtn{width:38px;height:38px;min-width:38px}
+  body .center-play{width:62px;height:62px}
+  body .settings-menu{backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%)}
+}
+@media(max-width:390px){
+  body .player-bottom{padding-inline:6px}
+  body .control-row{gap:2px}
+  body .pbtn{width:35px;height:35px;min-width:35px}
+}
+</style>
+
 </head>
 <body>
 <header class="topbar">
@@ -291,7 +392,7 @@ body .player.theater{width:min(1560px,98vw);margin-left:50%;transform:translateX
 <main class="container watch-shell">
  <div class="player" id="player" tabindex="0">
   <div class="player-stage" id="stage">
-   <video id="video" playsinline preload="metadata" crossorigin="anonymous">
+   <video id="video" playsinline webkit-playsinline preload="metadata" crossorigin="anonymous" x-webkit-airplay="allow">
     <source id="source" src="" type="video/mp4">
    </video>
    <div class="quick-overlay" id="quickOverlay" aria-hidden="true">
@@ -329,6 +430,8 @@ body .player.theater{width:min(1560px,98vw);margin-left:50%;transform:translateX
          <div class="settings-label">Player</div>
          <button id="pip">Picture-in-picture <span>↗</span></button>
          <button id="theater">Theater mode <span>▣</span></button>
+         <button id="applePlayer" hidden>Apple player <span></span></button>
+         <button id="airplay" hidden>AirPlay <span>◉</span></button>
         </div>
        </div>
        <button class="pbtn" id="fullscreen" aria-label="Fullscreen">⛶</button>
@@ -557,8 +660,75 @@ $("volume").oninput=e=>{v.volume=Number(e.target.value);v.muted=v.volume===0;$("
 $("settings").onclick=e=>{e.stopPropagation();$("settingsMenu").hidden=!$("settingsMenu").hidden};
 document.addEventListener("click",e=>{if(!e.target.closest(".settings-wrap"))$("settingsMenu").hidden=true});
 document.querySelectorAll("[data-speed]").forEach(b=>b.onclick=()=>{v.playbackRate=Number(b.dataset.speed);showToast(`Speed ${b.textContent}`);$("settingsMenu").hidden=true});
-$("pip").onclick=async()=>{try{if(document.pictureInPictureElement)await document.exitPictureInPicture();else if(document.pictureInPictureEnabled)await v.requestPictureInPicture();}catch{showToast("Picture-in-picture unavailable")}};
+$("pip").onclick=async()=>{
+ try{
+  if(typeof v.webkitSetPresentationMode==="function" && typeof v.webkitSupportsPresentationMode==="function" && v.webkitSupportsPresentationMode("picture-in-picture")){
+   v.webkitSetPresentationMode(v.webkitPresentationMode==="picture-in-picture"?"inline":"picture-in-picture");
+   return;
+  }
+  if(document.pictureInPictureElement) await document.exitPictureInPicture();
+  else if(document.pictureInPictureEnabled) await v.requestPictureInPicture();
+  else throw new Error("unsupported");
+ }catch{showToast("Picture-in-picture unavailable")}
+};
 $("theater").onclick=()=>{player.classList.toggle("theater");player.style.maxWidth=player.classList.contains("theater")?"none":"";showToast(player.classList.contains("theater")?"Theater mode on":"Theater mode off");$("settingsMenu").hidden=true};
+
+const isAppleTouchDevice=/iPad|iPhone|iPod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const applePlayerBtn=$("applePlayer");
+const airplayBtn=$("airplay");
+
+function leaveAppleNativeMode(){
+ player.classList.remove("apple-native-active");
+ v.controls=false;
+ activity();
+}
+
+async function openApplePlayer(){
+ try{
+  $("settingsMenu").hidden=true;
+  v.controls=true;
+  player.classList.add("apple-native-active");
+
+  // iPhone/iPad Safari's native AVKit-style fullscreen player.
+  if(typeof v.webkitEnterFullscreen==="function"){
+   v.webkitEnterFullscreen();
+   return true;
+  }
+
+  // Newer iPadOS/Safari fallback.
+  if(v.requestFullscreen){
+   await v.requestFullscreen();
+   return true;
+  }
+  if(v.webkitRequestFullscreen){
+   v.webkitRequestFullscreen();
+   return true;
+  }
+ }catch(error){
+  console.warn("Apple player unavailable:",error);
+ }
+ leaveAppleNativeMode();
+ showToast("Apple player unavailable");
+ return false;
+}
+
+if(isAppleTouchDevice){
+ if(applePlayerBtn){
+  applePlayerBtn.hidden=false;
+  applePlayerBtn.onclick=openApplePlayer;
+ }
+ if(airplayBtn && typeof v.webkitShowPlaybackTargetPicker==="function"){
+  airplayBtn.hidden=false;
+  airplayBtn.onclick=()=>{
+   $("settingsMenu").hidden=true;
+   try{v.webkitShowPlaybackTargetPicker()}catch{showToast("AirPlay unavailable")}
+  };
+ }
+}
+
+v.addEventListener("webkitbeginfullscreen",()=>player.classList.add("apple-native-active"));
+v.addEventListener("webkitendfullscreen",leaveAppleNativeMode);
+
 $("fullscreen").onclick=async()=>{
   try{
     if(document.fullscreenElement || document.webkitFullscreenElement){
@@ -566,10 +736,9 @@ $("fullscreen").onclick=async()=>{
       else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
       return;
     }
-    // iPhone/iPad Safari supports native video fullscreen rather than
-    // the generic Fullscreen API in many versions.
-    if(/iPhone|iPad|iPod/i.test(navigator.userAgent) && typeof v.webkitEnterFullscreen === "function"){
-      v.webkitEnterFullscreen();
+    // Apple touch devices use Safari's native system video player.
+    if(isAppleTouchDevice){
+      await openApplePlayer();
       return;
     }
     if(player.requestFullscreen) await player.requestFullscreen();
