@@ -1182,3 +1182,177 @@ html.mh-fallback-leave[data-glide="back"] body{
     background:var(--panel-strong);
   }
 }
+
+
+/* =========================================================
+   iOS-style Clear Liquid Glass refinement
+   Clearer glass, quieter reflections, lighter GPU load.
+   ========================================================= */
+:root{
+  --panel:rgba(18,21,32,.30);
+  --panel-strong:rgba(13,16,26,.42);
+  --panel-soft:rgba(255,255,255,.038);
+  --glass:rgba(255,255,255,.052);
+  --glass2:rgba(255,255,255,.082);
+  --line:rgba(255,255,255,.155);
+  --line-strong:rgba(255,255,255,.245);
+}
+:root.light{
+  --panel:rgba(255,255,255,.34);
+  --panel-strong:rgba(255,255,255,.48);
+  --panel-soft:rgba(255,255,255,.30);
+  --glass:rgba(255,255,255,.28);
+  --glass2:rgba(255,255,255,.42);
+  --line:rgba(255,255,255,.62);
+  --line-strong:rgba(255,255,255,.78);
+}
+
+/* Clear panes: less milky tint, stronger edge refraction. */
+.hero,.topbar,.card,.continue-card,.upcoming,.live-player-card,.watch-meta,
+.footer,.modal-box,.auth-box,.library-shell,.episodes-toolbar{
+  border-color:rgba(255,255,255,.16);
+  box-shadow:
+    0 18px 54px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.17),
+    inset 0 -1px 0 rgba(255,255,255,.025);
+}
+.hero::before,.topbar::before,.card::before,.continue-card::before,.upcoming::before,
+.live-player-card::before,.watch-meta::before,.footer::before,.modal-box::before,
+.auth-box::before,.library-shell::before,.episodes-toolbar::before{
+  background:
+    linear-gradient(138deg,rgba(255,255,255,.12),transparent 22%,transparent 72%,rgba(255,255,255,.025)),
+    radial-gradient(260px 170px at 18% 0%,rgba(255,255,255,.055),transparent 74%);
+  opacity:.58;
+}
+
+.topbar{
+  background:rgba(13,16,26,.36);
+  backdrop-filter:blur(20px) saturate(175%) brightness(1.04);
+  -webkit-backdrop-filter:blur(20px) saturate(175%) brightness(1.04);
+}
+.topbar.scrolled{background:rgba(13,16,26,.46)}
+.nav{
+  background:rgba(255,255,255,.028);
+  border-color:rgba(255,255,255,.09);
+}
+.nav-glider,.season-glider{
+  background:linear-gradient(145deg,rgba(255,255,255,.105),rgba(255,255,255,.035));
+  border-color:rgba(255,255,255,.17);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 7px 22px rgba(0,0,0,.13);
+}
+.signin,.glass-chip,.filter,.watch-action,.prevnext a{
+  background:rgba(255,255,255,.045);
+  border-color:rgba(255,255,255,.14);
+  backdrop-filter:blur(14px) saturate(170%);
+  -webkit-backdrop-filter:blur(14px) saturate(170%);
+}
+
+.hero{
+  background:
+    radial-gradient(620px 500px at 88% 48%,rgba(255,47,104,.105),transparent 68%),
+    radial-gradient(560px 440px at 78% 14%,rgba(157,92,255,.09),transparent 70%),
+    linear-gradient(120deg,rgba(255,255,255,.045),rgba(255,255,255,.012) 44%,rgba(255,255,255,.028));
+  backdrop-filter:blur(20px) saturate(165%);
+  -webkit-backdrop-filter:blur(20px) saturate(165%);
+}
+.hero-tile{
+  background:linear-gradient(145deg,rgba(255,255,255,.085),rgba(255,255,255,.018));
+  border-color:rgba(255,255,255,.20);
+  backdrop-filter:blur(22px) saturate(178%);
+  -webkit-backdrop-filter:blur(22px) saturate(178%);
+  box-shadow:0 34px 90px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.22);
+}
+/* Keep the prism card alive, but remove the sweeping white sheen. */
+.hero-tile::after{display:none}
+
+.card,.continue-card,.upcoming,.live-player-card,.library-shell,.episodes-toolbar,.watch-meta,.footer{
+  background:linear-gradient(145deg,rgba(255,255,255,.042),rgba(255,255,255,.010));
+  backdrop-filter:blur(17px) saturate(165%);
+  -webkit-backdrop-filter:blur(17px) saturate(165%);
+}
+.modal-box,.auth-box,.settings-menu,.lang-pop{
+  background:rgba(12,15,25,.48)!important;
+  backdrop-filter:blur(24px) saturate(180%)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(180%)!important;
+}
+
+:root.light .topbar,
+:root.light .modal-box,
+:root.light .auth-box,
+:root.light .settings-menu,
+:root.light .lang-pop{
+  background:rgba(255,255,255,.42)!important;
+}
+:root.light .hero,
+:root.light .card,
+:root.light .continue-card,
+:root.light .upcoming,
+:root.light .live-player-card,
+:root.light .library-shell,
+:root.light .episodes-toolbar,
+:root.light .watch-meta,
+:root.light .footer{
+  background:linear-gradient(145deg,rgba(255,255,255,.40),rgba(255,255,255,.18));
+  border-color:rgba(255,255,255,.72);
+}
+
+/* iOS-like mobile glass: clearer and cheaper to render. */
+@media(max-width:840px){
+  .topbar,.nav{
+    background:rgba(13,16,26,.46);
+    backdrop-filter:blur(18px) saturate(165%);
+    -webkit-backdrop-filter:blur(18px) saturate(165%);
+  }
+  .hero,.card,.continue-card,.upcoming,.live-player-card,.library-shell,.episodes-toolbar,.watch-meta,.footer{
+    backdrop-filter:blur(13px) saturate(155%);
+    -webkit-backdrop-filter:blur(13px) saturate(155%);
+  }
+  .hero::before,.topbar::before,.card::before,.continue-card::before,.upcoming::before,
+  .live-player-card::before,.watch-meta::before,.footer::before,.modal-box::before,
+  .auth-box::before,.library-shell::before,.episodes-toolbar::before{
+    opacity:.42;
+  }
+}
+
+
+/* Season 7 upcoming feature */
+.season7-upcoming{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  background:
+    radial-gradient(420px 200px at 88% 16%,rgba(255,58,117,.13),transparent 68%),
+    radial-gradient(360px 180px at 8% 100%,rgba(128,91,255,.11),transparent 72%),
+    linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.012));
+}
+.season7-upcoming::after{
+  content:"07";
+  position:absolute;
+  right:24px;
+  top:50%;
+  transform:translateY(-52%);
+  z-index:-1;
+  font-size:clamp(72px,10vw,138px);
+  line-height:1;
+  font-weight:900;
+  letter-spacing:-.08em;
+  color:rgba(255,255,255,.035);
+  pointer-events:none;
+}
+.season7-date{
+  background:linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.028));
+  border-color:rgba(255,255,255,.20);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 12px 28px rgba(0,0,0,.16);
+}
+.season7-date span{letter-spacing:.15em}
+.season7-date strong{font-size:26px;line-height:1}
+.season7-upcoming .badge{
+  background:rgba(255,255,255,.065);
+  border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(14px) saturate(170%);
+  -webkit-backdrop-filter:blur(14px) saturate(170%);
+}
+@media(max-width:620px){
+  .season7-upcoming::after{right:8px;font-size:88px}
+  .season7-date strong{font-size:24px}
+}
