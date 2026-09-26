@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#09090d">
+<meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png"><title>MiraculousHub — Watch</title>
 <link rel="stylesheet" href="styles.css">
 <style>
@@ -126,64 +126,155 @@
 }
 </style>
 <style id="liquid-player-theme">
-/* Liquid glass player skin — interaction code remains unchanged. */
-body .watch-shell{width:min(1320px,94vw);padding-top:34px}
+/* Liquid Prism player skin — playback logic remains untouched. */
+body .watch-shell{width:min(1340px,94vw);padding-top:34px}
 body .player{
-  border:1px solid rgba(255,255,255,.13);
-  border-radius:26px;
+  position:relative;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:30px;
   background:#000;
-  box-shadow:0 38px 110px rgba(0,0,0,.50),0 0 0 1px rgba(255,45,93,.025),inset 0 1px 0 rgba(255,255,255,.10);
+  box-shadow:
+    0 46px 130px rgba(0,0,0,.52),
+    0 0 0 1px rgba(255,47,104,.03),
+    inset 0 1px 0 rgba(255,255,255,.12);
   overflow:hidden;
 }
-body .player-stage{background:radial-gradient(circle at 50% 50%,#11131b,#000 72%)}
+body .player::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  z-index:20;
+  border-radius:inherit;
+  pointer-events:none;
+  background:
+    linear-gradient(125deg,rgba(255,255,255,.15),transparent 20%,transparent 72%,rgba(255,117,152,.09)),
+    radial-gradient(360px 120px at 78% 0%,rgba(157,92,255,.1),transparent 72%);
+  mix-blend-mode:screen;
+}
+body .player::after{
+  content:"";
+  position:absolute;
+  width:220px;height:620px;
+  left:-300px;top:-140px;
+  z-index:21;
+  pointer-events:none;
+  transform:rotate(28deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+  animation:playerSheen 9s ease-in-out infinite;
+}
+@keyframes playerSheen{0%,55%{left:-300px}77%,100%{left:140%}}
+body .player-stage{background:radial-gradient(circle at 50% 48%,#12141d,#000 72%)}
 body .player-overlay{
   padding:22px 24px 17px;
-  background:linear-gradient(180deg,rgba(2,3,8,.76),transparent 27%,transparent 54%,rgba(2,3,8,.94));
+  background:
+    linear-gradient(180deg,rgba(2,3,8,.78),transparent 27%,transparent 53%,rgba(2,3,8,.95)),
+    radial-gradient(520px 200px at 50% 100%,rgba(255,47,104,.08),transparent 75%);
 }
-body .player-top{padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(12,13,20,.30);backdrop-filter:blur(18px);width:max-content;max-width:100%}
-body .player-title{font-size:12px;letter-spacing:.01em}
-body .player-subtitle{color:rgba(255,255,255,.58);font-size:9px}
-body .progress-area{height:22px}
-body .progress-track{height:5px;background:rgba(255,255,255,.20);box-shadow:inset 0 1px 3px rgba(0,0,0,.3)}
-body .progress-buffer{background:rgba(255,255,255,.34)}
-body .progress-current{background:linear-gradient(90deg,#ff2859,#ff6488 60%,#b84cff);box-shadow:0 0 14px rgba(255,45,93,.62)}
-body .progress-knob{width:13px;height:13px;box-shadow:0 0 0 4px rgba(255,45,93,.16),0 3px 10px rgba(0,0,0,.30)}
+body .player-top{
+  width:max-content;max-width:100%;
+  padding:8px 11px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;
+  background:rgba(13,15,24,.38);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 10px 30px rgba(0,0,0,.15);
+  backdrop-filter:blur(20px) saturate(145%);
+}
+body .player-title{font-size:11px;font-weight:900;letter-spacing:.01em}
+body .player-subtitle{color:rgba(255,255,255,.58);font-size:8px;letter-spacing:.08em}
+body .progress-area{height:24px}
+body .progress-track{
+  height:5px;
+  background:rgba(255,255,255,.18);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.35);
+}
+body .progress-buffer{background:rgba(255,255,255,.31)}
+body .progress-current{
+  background:linear-gradient(90deg,#ff2f68,#ff7a9b 57%,#a55cff 88%,#65dcff);
+  box-shadow:0 0 16px rgba(255,47,104,.64);
+}
+body .progress-knob{
+  width:14px;height:14px;
+  background:#fff;
+  box-shadow:0 0 0 5px rgba(255,47,104,.14),0 3px 12px rgba(0,0,0,.3);
+}
 body .control-row{gap:6px}
 body .pbtn{
-  width:40px;height:40px;border:1px solid rgba(255,255,255,.10);border-radius:12px;
-  background:rgba(18,20,29,.64);color:#fff;backdrop-filter:blur(16px);
+  width:41px;height:41px;
+  border:1px solid rgba(255,255,255,.105);
+  border-radius:13px;
+  background:rgba(18,20,30,.58);
+  color:#fff;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+  backdrop-filter:blur(18px) saturate(140%);
 }
-body .pbtn:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.16);transform:translateY(-1px)}
+body .pbtn:hover{
+  background:rgba(255,255,255,.13);
+  border-color:rgba(255,255,255,.17);
+  transform:translateY(-2px);
+}
 body .pbtn.wide{padding-inline:11px}
-body .player-time{color:rgba(255,255,255,.78);font-size:10px}
-body .volume-slider{accent-color:#ff2d5d}
+body .player-time{color:rgba(255,255,255,.77);font-size:9px;letter-spacing:.02em}
+body .volume-slider{accent-color:#ff2f68}
 body .settings-menu{
-  width:218px;padding:8px;border:1px solid rgba(255,255,255,.13);border-radius:16px;
-  background:rgba(12,13,20,.83);box-shadow:0 24px 70px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.06);
-  backdrop-filter:blur(26px) saturate(130%);
+  width:220px;padding:8px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:17px;
+  background:rgba(12,14,22,.82);
+  box-shadow:0 28px 80px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.075);
+  backdrop-filter:blur(28px) saturate(145%);
 }
-body .settings-menu button{border-radius:10px;padding:11px}
+body .settings-menu button{border-radius:11px;padding:11px}
 body .settings-menu button:hover{background:rgba(255,255,255,.08)}
 body .center-play{
-  width:72px;height:72px;border:1px solid rgba(255,255,255,.20);
-  background:linear-gradient(145deg,rgba(25,27,38,.72),rgba(8,9,14,.72));
-  box-shadow:0 18px 55px rgba(0,0,0,.40),inset 0 1px 0 rgba(255,255,255,.10),0 0 0 8px rgba(255,255,255,.025);
+  width:74px;height:74px;
+  border:1px solid rgba(255,255,255,.2);
+  background:
+    radial-gradient(circle at 30% 20%,rgba(255,255,255,.16),transparent 26%),
+    linear-gradient(145deg,rgba(28,31,43,.68),rgba(8,9,14,.7));
+  box-shadow:
+    0 20px 58px rgba(0,0,0,.42),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 0 0 9px rgba(255,255,255,.025),
+    0 0 46px rgba(255,47,104,.09);
+  backdrop-filter:blur(20px);
+}
+body .toast{
+  padding:10px 14px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:13px;
+  background:rgba(9,11,18,.78);
+  box-shadow:0 16px 42px rgba(0,0,0,.36);
+  backdrop-filter:blur(20px);
+}
+body .quick-btn{
+  border:1px solid rgba(255,255,255,.15);
+  background:rgba(13,15,24,.72);
+  box-shadow:0 18px 52px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.09);
+  backdrop-filter:blur(22px);
+}
+body .speed-hint{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(13,15,24,.72);
+  box-shadow:0 14px 34px rgba(0,0,0,.3);
   backdrop-filter:blur(18px);
 }
-body .toast{padding:10px 14px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(9,10,16,.78);box-shadow:0 14px 38px rgba(0,0,0,.35);backdrop-filter:blur(18px)}
-body .quick-btn{border:1px solid rgba(255,255,255,.14);background:rgba(12,13,20,.74);box-shadow:0 16px 45px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(20px)}
-body .speed-hint{border:1px solid rgba(255,255,255,.12);background:rgba(12,13,20,.74);box-shadow:0 12px 30px rgba(0,0,0,.30);backdrop-filter:blur(16px)}
 body .player-caption-note{margin-top:10px}
-body .player.theater{width:min(1540px,98vw);margin-left:50%;transform:translateX(-50%)}
+body .player.theater{width:min(1560px,98vw);margin-left:50%;transform:translateX(-50%)}
+
 @media(max-width:680px){
   body .watch-shell{width:100%;padding-top:12px}
-  body .player{border-left:0;border-right:0;border-radius:0;box-shadow:0 20px 60px rgba(0,0,0,.40)}
+  body .player{
+    border-left:0;border-right:0;
+    border-radius:0;
+    box-shadow:0 22px 64px rgba(0,0,0,.42);
+  }
+  body .player::before{border-radius:0}
+  body .player::after{display:none}
   body .player-overlay{padding:11px 10px max(9px,env(safe-area-inset-bottom))}
-  body .player-top{padding:5px 7px;border-radius:10px;background:rgba(10,11,16,.26)}
+  body .player-top{padding:5px 7px;border-radius:10px;background:rgba(10,11,17,.3)}
   body .progress-area{height:27px}
   body .pbtn{width:39px;height:39px;min-width:39px;border-radius:11px}
-  body .player-time{font-size:9px;margin-inline:2px}
+  body .player-time{font-size:8px;margin-inline:2px}
   body .settings-menu{right:7px;bottom:58px;width:min(240px,calc(100vw - 20px))}
   body .center-play{width:60px;height:60px}
   body .player-caption-note{padding:0 5vw}
@@ -272,7 +363,7 @@ body .player.theater{width:min(1540px,98vw);margin-left:50%;transform:translateX
 <div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
 <div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
 
-<script src="data.js"></script><script src="firebase.js"></script><script src="common.js"></script>
+<script src="data.js"></script><script src="firebase.js"></script><script src="common.js"></script><script src="motion.js"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
