@@ -15,9 +15,36 @@ const VIDEOS = {
   },
 
   // Season 5
+  "/video/conformation": {
+    id: "1FOfhegcW_m9GpB3sBO0HNIFEfPHAtR9O",
+    filename: "S05E25 - Conformation - The Final Day Part 1.mp4"
+  },
+
   "/video/recreation": {
     id: "1kEKfCh8p30ISC0wZO-TWz2pg9pBFvJuG",
     filename: "S05E26 - Re-Creation - The Final Day Part 2.mp4"
+  },
+
+
+  // Season 6 - Episodes 16-19
+  "/video/noe": {
+    id: "1p551qmCjlGoRIGaDKcphVkgufvp89PyP",
+    filename: "S06E16 - Noe.mp4"
+  },
+
+  "/video/a-fairy-good-night": {
+    id: "175bpDpw9GnlFkRAo_XFd9cnZDrY4mgId",
+    filename: "S06E17 - A Fairy Good Night.mp4"
+  },
+
+  "/video/the-dirtifiers": {
+    id: "1gCMeje3wvoU90Ayr9s69q_L_Hfs9eroQ",
+    filename: "S06E18 - The Dirtifiers.mp4"
+  },
+
+  "/video/riginarazione": {
+    id: "13pDjpoVOdAxBuZubYHfrlqKBNZFj_-tL",
+    filename: "S06E19 - Riginarazione.mp4"
   },
 
   // Season 6
@@ -56,10 +83,6 @@ const VIDEOS = {
     filename: "S06E26 - Nemesis.mp4"
   },
 
-  // Season 5
-  "/download/recreation":
-    VIDEOS["/video/recreation"],
-
   // Miraculous World: London
   "/video/london": {
     id: "1qRdyE5j3EHh2Z4s92CYCYIzPgXJbImCk",
@@ -83,6 +106,27 @@ const DOWNLOADS = {
 
   "/download/pharaoh":
     VIDEOS["/video/pharaoh"],
+
+  // Season 5
+  "/download/conformation":
+    VIDEOS["/video/conformation"],
+
+  "/download/recreation":
+    VIDEOS["/video/recreation"],
+
+
+  // Season 6 - Episodes 16-19
+  "/download/noe":
+    VIDEOS["/video/noe"],
+
+  "/download/a-fairy-good-night":
+    VIDEOS["/video/a-fairy-good-night"],
+
+  "/download/the-dirtifiers":
+    VIDEOS["/video/the-dirtifiers"],
+
+  "/download/riginarazione":
+    VIDEOS["/video/riginarazione"],
 
   // Season 6
   "/download/heartfixer":
@@ -583,6 +627,13 @@ VIDEO ROUTES
 /video/bubbler
 /video/pharaoh
 
+/video/conformation
+/video/recreation
+/video/noe
+/video/a-fairy-good-night
+/video/the-dirtifiers
+/video/riginarazione
+
 /video/heartfixer
 /video/the-chained-titans
 /video/lady-chaos
@@ -590,7 +641,6 @@ VIDEO ROUTES
 /video/queen-of-the-dreadzone
 /video/secret-protocol
 /video/nemesis
-/video/recreation
 
 /video/london
 /video/paris
@@ -602,6 +652,13 @@ DOWNLOAD ROUTES
 /download/bubbler
 /download/pharaoh
 
+/download/conformation
+/download/recreation
+/download/noe
+/download/a-fairy-good-night
+/download/the-dirtifiers
+/download/riginarazione
+
 /download/heartfixer
 /download/the-chained-titans
 /download/lady-chaos
@@ -609,7 +666,6 @@ DOWNLOAD ROUTES
 /download/queen-of-the-dreadzone
 /download/secret-protocol
 /download/nemesis
-/download/recreation
 
 /download/london
 /download/paris

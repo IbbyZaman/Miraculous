@@ -34,3 +34,11 @@ S6 slugs:
 24 queen-of-the-dreadzone
 25 secret-protocol
 26 nemesis
+
+S6 E16-E19 added:
+- S06E16 Noe -> /video/noe
+- S06E17 A Fairy Good Night -> /video/a-fairy-good-night
+- S06E18 The Dirtifiers -> /video/the-dirtifiers
+- S06E19 Riginarazione -> /video/riginarazione
+
+The Cloudflare Worker contains matching streaming and download routes.
