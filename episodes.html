@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png">
 <title>MiraculousHub — Episodes</title>
-<link rel="stylesheet" href="styles.css?v=hybrid-glass-1">
+<link rel="stylesheet" href="styles.css?v=mobile-drawer-1">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
 <script>
@@ -37,8 +37,32 @@
     <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button>
     <button class="lang-btn" id="languageButton">EN⌄</button>
     <button class="signin">Sign in</button>
+    <button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
+<div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
+<aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation">
+  <div class="mobile-drawer-head">
+    <div>
+      <span class="mobile-drawer-kicker">MIRACULOUSHUB</span>
+      <strong>Navigation</strong>
+    </div>
+    <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close navigation">×</button>
+  </div>
+  <nav class="mobile-nav-links" aria-label="Mobile navigation links">
+    <a href="index.html"><span>01</span><b>Home</b><i>→</i></a>
+    <a class="active" href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a>
+    <a href="#"><span>03</span><b>Music</b><i>→</i></a>
+    <a href="#"><span>04</span><b>The Show</b><i>→</i></a>
+  </nav>
+  <div class="mobile-drawer-foot">
+    <p>Your Miraculous watch space.</p>
+    <button class="signin mobile-drawer-signin">Sign in</button>
+  </div>
+</aside>
+
 
 <main class="container">
   <div class="page-head">
@@ -124,7 +148,7 @@
 <script src="data.js"></script>
 <script src="firebase.js"></script>
 <script src="common.js"></script>
-<script src="motion.js?v=hybrid-glass-1"></script>
+<script src="motion.js?v=mobile-drawer-1"></script>
 <script>
 let season="0", mode="all", q="";
 const tabs=document.querySelector("#seasonTabs");

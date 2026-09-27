@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png"><title>MiraculousHub — Watch</title>
-<link rel="stylesheet" href="styles.css?v=hybrid-glass-1">
+<link rel="stylesheet" href="styles.css?v=mobile-drawer-1">
 <style>
 /* Modern video player */
 .watch-shell{width:min(1240px,94vw);padding:24px 0 70px}
@@ -395,8 +395,29 @@ body .player.apple-native-active .mobile-speed-zone{display:none!important}
 <header class="topbar">
  <a class="brand" href="index.html"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a>
  <nav class="nav"><a href="index.html">Home</a><a class="active" href="episodes.html">Episodes</a><a href="#">Music</a><a href="#">The Show</a></nav>
- <div class="actions"><button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button><button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button></div>
+ <div class="actions"><button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button><button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button><button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false"><span></span><span></span><span></span></button></div>
 </header>
+<div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
+<aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation">
+  <div class="mobile-drawer-head">
+    <div>
+      <span class="mobile-drawer-kicker">MIRACULOUSHUB</span>
+      <strong>Navigation</strong>
+    </div>
+    <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close navigation">×</button>
+  </div>
+  <nav class="mobile-nav-links" aria-label="Mobile navigation links">
+    <a href="index.html"><span>01</span><b>Home</b><i>→</i></a>
+    <a class="active" href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a>
+    <a href="#"><span>03</span><b>Music</b><i>→</i></a>
+    <a href="#"><span>04</span><b>The Show</b><i>→</i></a>
+  </nav>
+  <div class="mobile-drawer-foot">
+    <p>Your Miraculous watch space.</p>
+    <button class="signin mobile-drawer-signin">Sign in</button>
+  </div>
+</aside>
+
 
 <main class="container watch-shell">
  <div class="player" id="player" tabindex="0">
@@ -404,6 +425,16 @@ body .player.apple-native-active .mobile-speed-zone{display:none!important}
    <video id="video" playsinline webkit-playsinline preload="metadata" crossorigin="anonymous" x-webkit-airplay="allow">
     <source id="source" src="" type="video/mp4">
    </video>
+
+   <div class="mh-video-ident" id="videoIdent" aria-hidden="true">
+    <div class="mh-ident-orbit mh-ident-orbit-a"></div>
+    <div class="mh-ident-orbit mh-ident-orbit-b"></div>
+    <div class="mh-ident-glow"></div>
+    <div class="mh-ident-wordmark">
+      <span class="mh-ident-mark">M</span>
+      <span class="mh-ident-domain">miraculoushub.co.uk</span>
+    </div>
+   </div>
    <div class="quick-overlay" id="quickOverlay" aria-hidden="true">
     <button class="quick-btn" id="quickBack" aria-label="Back 10 seconds">↶<span>10</span></button>
     <button class="quick-btn" id="quickPlay" aria-label="Pause">❚❚</button>
@@ -470,7 +501,7 @@ body .player.apple-native-active .mobile-speed-zone{display:none!important}
 <div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
 <div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
 
-<script src="data.js"></script><script src="firebase.js"></script><script src="common.js"></script><script src="motion.js?v=hybrid-glass-1"></script>
+<script src="data.js"></script><script src="firebase.js"></script><script src="common.js"></script><script src="motion.js?v=mobile-drawer-1"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
@@ -646,7 +677,61 @@ function setPlayingUI(){
  $("play").textContent=playing?"❚❚":"▶";
  $("centerPlay").textContent=playing?"❚❚":"▶";
 }
-async function togglePlay(){try{if(v.paused) await v.play();else v.pause();}catch{}setPlayingUI();}
+let mhIdentPlayed = false;
+let mhIdentRunning = false;
+
+function runMiraculousIdent(){
+  const ident = $("videoIdent");
+  if(!ident) return Promise.resolve();
+
+  ident.classList.remove("hide","active");
+  void ident.offsetWidth;
+  ident.classList.add("active");
+  ident.setAttribute("aria-hidden","false");
+
+  return new Promise(resolve=>{
+    setTimeout(()=>ident.classList.add("hide"),1250);
+    setTimeout(()=>{
+      ident.classList.remove("active","hide");
+      ident.setAttribute("aria-hidden","true");
+      resolve();
+    },1580);
+  });
+}
+
+async function playWithMiraculousIdent(){
+  if(mhIdentPlayed || mhIdentRunning){
+    try{ await v.play(); }catch{}
+    return;
+  }
+
+  mhIdentPlayed = true;
+  mhIdentRunning = true;
+
+  const resumeAt = Number.isFinite(v.currentTime) ? v.currentTime : 0;
+  const wasMuted = v.muted;
+
+  // Start playback immediately while the user gesture is still active.
+  // This keeps iPhone/iPad/Safari happy, while the ident covers the video.
+  v.muted = true;
+  try{ await v.play(); }catch{}
+
+  await runMiraculousIdent();
+
+  try{
+    if(Math.abs(v.currentTime-resumeAt) > .08) v.currentTime = resumeAt;
+  }catch{}
+  v.muted = wasMuted;
+  mhIdentRunning = false;
+}
+
+async function togglePlay(){
+  try{
+    if(v.paused) await playWithMiraculousIdent();
+    else v.pause();
+  }catch{}
+  setPlayingUI();
+}
 $("play").onclick=togglePlay;$("centerPlay").onclick=togglePlay;
 v.addEventListener("play",setPlayingUI);v.addEventListener("pause",setPlayingUI);
 
