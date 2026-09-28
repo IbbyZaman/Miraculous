@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png">
 <title>MiraculousHub — Home</title>
-<link rel="stylesheet" href="styles.css?v=comments-nickname-3">
+<link rel="stylesheet" href="styles.css?v=s6-thumbnails-1">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
 <script>
@@ -226,7 +226,7 @@
   <button>PORTUGUÊS</button>
 </div>
 
-<script src="data.js"></script>
+<script src="data.js?v=s6-thumbnails-1"></script>
 <script src="firebase.js?v=continue-fix-1"></script>
 <script src="common.js?v=continue-fix-1"></script>
 <script src="motion.js?v=mobile-drawer-1"></script>
@@ -234,7 +234,8 @@
 const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
 document.querySelector("#latestGrid").innerHTML=latest.map(e=>`
   <a class="card" href="watch.html?season=${e.season}&episode=${e.episode}">
-    <div class="art">
+    <div class="art ${e.thumbnail?'has-thumb':''}">
+      ${e.thumbnail?`<img class="episode-thumb" src="${e.thumbnail}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:""}
       ${e.new?'<span class="new">NEW</span>':''}
       <span class="epno">SEASON ${e.season} · EPISODE ${e.episode}</span>
     </div>
@@ -258,17 +259,22 @@ function renderCW(){
   }
 
   box.hidden=false;
-  row.innerHTML=items.map(x=>`
+  row.innerHTML=items.map(x=>{
+    const meta=(window.MH_EPISODES||[]).find(e=>Number(e.season)===Number(x.season)&&Number(e.episode)===Number(x.episode));
+    const thumbnail=meta?.thumbnail||"";
+    return `
     <a class="continue-card" href="watch.html?season=${x.season}&episode=${x.episode}">
-      <div class="thumb">
+      <div class="thumb ${thumbnail?"has-thumb":""}">
+        ${thumbnail?`<img class="continue-thumb-img" src="${thumbnail}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:""}
         <span class="thumb-label">S${x.season} · E${x.episode}</span>
         <div class="watch-progress" style="width:${Math.max(1,Math.min(100,Math.round(x.progress||0)))}%"></div>
       </div>
       <div class="continue-info">
-        <strong>${x.title||"Episode"}</strong>
+        <strong>${x.title||meta?.title||"Episode"}</strong>
         <p>${Math.round(x.progress||0)}% watched · resume ${formatResumeTime(x.position)}</p>
       </div>
-    </a>`).join("");
+    </a>`;
+  }).join("");
 }
 
 function formatResumeTime(seconds){

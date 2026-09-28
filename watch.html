@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png"><title>MiraculousHub — Watch</title>
-<link rel="stylesheet" href="styles.css?v=comments-nickname-3">
+<link rel="stylesheet" href="styles.css?v=s6-thumbnails-1">
 <style>
 /* Modern video player */
 .watch-shell{width:min(1240px,94vw);padding:24px 0 70px}
@@ -540,7 +540,7 @@ body .player.apple-native-active .mobile-speed-zone{display:none!important}
  </div>
 </div>
 
-<script src="data.js"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=continue-fix-1"></script><script src="motion.js?v=mobile-drawer-1"></script>
+<script src="data.js?v=s6-thumbnails-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=continue-fix-1"></script><script src="motion.js?v=mobile-drawer-1"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
@@ -563,6 +563,7 @@ else { if(prev) $("prev").href=`watch.html?season=${prev.season}&episode=${prev.
 
 const v=$("video"), player=$("player"), stage=$("stage"), progressArea=$("progressArea");
 const current=$("current"), buffer=$("buffer"), knob=$("knob"), time=$("time");
+if(ep.thumbnail) v.poster=ep.thumbnail;
 
 const VIDEO_WORKER="https://miraculous-video.ibbyzaman4.workers.dev";
 const sourceUrl=ep.videoPath ? `${VIDEO_WORKER}${ep.videoPath}` : "";

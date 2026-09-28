@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png">
 <title>MiraculousHub — Episodes</title>
-<link rel="stylesheet" href="styles.css?v=comments-nickname-3">
+<link rel="stylesheet" href="styles.css?v=s6-thumbnails-1">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
 <script>
@@ -145,7 +145,7 @@
   <button>PORTUGUÊS</button>
 </div>
 
-<script src="data.js"></script>
+<script src="data.js?v=s6-thumbnails-1"></script>
 <script src="firebase.js?v=continue-fix-1"></script>
 <script src="common.js?v=continue-fix-1"></script>
 <script src="motion.js?v=mobile-drawer-1"></script>
@@ -224,7 +224,8 @@ function render(){
 
         return `
           <a class="card" href="${href}">
-            <div class="art">
+            <div class="art ${e.thumbnail?'has-thumb':''}">
+              ${e.thumbnail?`<img class="episode-thumb" src="${e.thumbnail}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:""}
               ${e.new?'<span class="new">NEW</span>':''}
               <span class="epno">${e.special?e.code:`SEASON ${e.season} · EPISODE ${e.episode}`}</span>
             </div>
