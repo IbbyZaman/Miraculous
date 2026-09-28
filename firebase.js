@@ -117,7 +117,35 @@
           const u = auth.currentUser;
           if (!u) return [];
           const snap = await fsMod.getDocs(fsMod.collection(db, "users", u.uid, "playback"));
-          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+          // Older playback documents may only contain position/progress and
+          // rely on the document id (for example "s6e11") for the episode.
+          // Normalise them here so Continue Watching works for old accounts too.
+          return snap.docs.map(d => {
+            const data = d.data() || {};
+            const match = /^s(\d+)e(\d+)$/i.exec(d.id);
+            const season = data.season ?? (match ? Number(match[1]) : null);
+            const episode = data.episode ?? (match ? Number(match[2]) : null);
+            const known = (window.MH_EPISODES || []).find(
+              e => Number(e.season) === Number(season) && Number(e.episode) === Number(episode)
+            );
+            const position = Number(data.position ?? data.currentTime ?? data.time ?? 0) || 0;
+            const duration = Number(data.duration ?? 0) || 0;
+            const progress = Number.isFinite(Number(data.progress))
+              ? Number(data.progress)
+              : (duration > 0 ? Math.min(100, (position / duration) * 100) : 0);
+
+            return {
+              id: d.id,
+              ...data,
+              season,
+              episode,
+              title: data.title || known?.title || "Episode",
+              position,
+              duration,
+              progress
+            };
+          });
         },
         async getAllWatched() {
           const u = auth.currentUser;

@@ -540,7 +540,7 @@ body .player.apple-native-active .mobile-speed-zone{display:none!important}
  </div>
 </div>
 
-<script src="data.js"></script><script src="firebase.js?v=comments-nickname-3"></script><script src="common.js?v=comments-nickname-3"></script><script src="motion.js?v=mobile-drawer-1"></script>
+<script src="data.js"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=continue-fix-1"></script><script src="motion.js?v=mobile-drawer-1"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
@@ -727,25 +727,42 @@ document.addEventListener("keydown",event=>{ if(event.key==="Escape" && !$("repo
 let dragging=false, hideTimer, lastPointer=0;
 let lastCloudSave=0;
 let cloudSaveInFlight=false;
+let queuedCloudSnapshot=null;
 let cloudLoaded=false;
 let cloudLoadPromise=null;
 
-async function saveCloudPosition(force=false){
-  if(!window.MH_USER || !window.MH_CLOUD || !v.duration || v.currentTime<=0) return;
+function capturePlaybackSnapshot(){
+  if(!v.duration || !Number.isFinite(v.duration) || !Number.isFinite(v.currentTime) || v.currentTime<0) return null;
+  const position=Number(v.currentTime); // keep sub-second precision
+  const duration=Number(v.duration);
+  return {
+    season:ep.season, episode:ep.episode, title:ep.title,
+    progress:Math.min(100,Math.max(0,(position/duration)*100)),
+    position, duration
+  };
+}
+
+async function saveCloudPosition(force=false, snapshot=null){
+  if(!window.MH_USER || !window.MH_CLOUD) return;
+  const payload=snapshot || capturePlaybackSnapshot();
+  if(!payload) return;
+
   const now=Date.now();
-  if(cloudSaveInFlight) return;
   if(!force && now-lastCloudSave<1000) return;
+
+  // If a normal save is still in flight, never throw away a forced save
+  // from pause/seek/tab-close. Queue the newest exact position instead.
+  if(cloudSaveInFlight){
+    if(force) queuedCloudSnapshot=payload;
+    return;
+  }
+
   lastCloudSave=now;
   cloudSaveInFlight=true;
   try {
-    const payload={
-      season:ep.season, episode:ep.episode, title:ep.title,
-      progress:Math.min(100,(v.currentTime/v.duration)*100),
-      position:v.currentTime, duration:v.duration
-    };
     await window.MH_CLOUD.savePlayback(cloudKey,payload);
     window.mhSaveProgress?.(payload);
-    window.dispatchEvent(new CustomEvent("mh-cloud-save-ok",{detail:{season:ep.season,episode:ep.episode}}));
+    window.dispatchEvent(new CustomEvent("mh-cloud-save-ok",{detail:{season:ep.season,episode:ep.episode,position:payload.position}}));
     return true;
   } catch(error) {
     console.error("MiraculousHub cloud save failed:", error);
@@ -759,14 +776,18 @@ async function saveCloudPosition(force=false){
     window.dispatchEvent(new CustomEvent("mh-cloud-save-error", { detail: error }));
   } finally {
     cloudSaveInFlight=false;
+    if(queuedCloudSnapshot){
+      const queued=queuedCloudSnapshot;
+      queuedCloudSnapshot=null;
+      // Immediately flush the newest forced position after the previous write.
+      void saveCloudPosition(true,queued);
+    }
   }
 }
 
 async function loadCloudPosition(){
-  if(cloudLoaded || cloudLoadPromise) return;
+  if(cloudLoaded || cloudLoadPromise) return cloudLoadPromise;
 
-  // Firebase may still be restoring the signed-in account when the video
-  // metadata arrives. Always wait for auth restoration before reading cloud data.
   if(window.MH_FIREBASE_READY){
     try { await window.MH_FIREBASE_READY; } catch {}
   }
@@ -778,27 +799,70 @@ async function loadCloudPosition(){
   cloudLoadPromise=(async()=>{
     try{
       const data=await window.MH_CLOUD.getPlayback(cloudKey);
-      if(data && v.duration){
-        const pos=Number(data.position);
-        if(Number.isFinite(pos) && pos >= 0){
-          // Cloud progress is the cross-device source of truth. Clamp it to
-          // the current video's duration and apply it even when it is near
-          // the end of the episode.
-          const safePos=Math.max(0,Math.min(pos,Math.max(0,v.duration-0.25)));
-          v.currentTime=safePos;
-          window.mhSaveProgress?.({
-            season:ep.season, episode:ep.episode, title:ep.title,
-            progress:Number(data.progress)||0, position:safePos, duration:v.duration
+      if(!data){
+        cloudLoaded=true;
+        return;
+      }
+
+      // Support both current and older playback document field names.
+      let pos=Number(data.position ?? data.currentTime ?? data.time);
+      const savedProgress=Number(data.progress);
+      const savedDuration=Number(data.duration);
+
+      if(!Number.isFinite(pos) && Number.isFinite(savedProgress) && savedDuration>0){
+        pos=(savedProgress/100)*savedDuration;
+      }
+
+      // Wait until the browser knows the media duration before seeking.
+      if(Number.isFinite(pos) && pos>=0){
+        if(!Number.isFinite(v.duration) || v.duration<=0){
+          await new Promise(resolve=>{
+            let finished=false;
+            const done=()=>{
+              if(finished) return;
+              finished=true;
+              v.removeEventListener("durationchange",done);
+              v.removeEventListener("loadedmetadata",done);
+              resolve();
+            };
+            v.addEventListener("durationchange",done);
+            v.addEventListener("loadedmetadata",done);
+            setTimeout(done,2500);
           });
         }
+
+        if(Number.isFinite(v.duration) && v.duration>0){
+          // Resume at the stored timestamp with sub-second precision. Only
+          // keep a tiny margin from the exact media end so browsers accept the seek.
+          const safePos=Math.max(0,Math.min(pos,Math.max(0,v.duration-0.01)));
+          try{ v.currentTime=safePos; }catch(error){ console.warn("Resume seek failed:",error); }
+          window.mhSaveProgress?.({
+            season:ep.season,
+            episode:ep.episode,
+            title:ep.title,
+            progress:Number.isFinite(savedProgress)?savedProgress:Math.min(100,(safePos/v.duration)*100),
+            position:safePos,
+            duration:v.duration
+          });
+          cloudLoaded=true;
+          showToast(safePos>2?`Resumed at ${fmt(safePos)}`:"Playback synced");
+        } else {
+          // Keep cloudLoaded false so durationchange can retry the seek.
+          cloudLoaded=false;
+        }
+      } else {
+        cloudLoaded=true;
       }
     }catch(error){
       console.error("MiraculousHub: failed to load cloud playback", error);
+      cloudLoaded=false;
+    }finally{
+      cloudLoadPromise=null;
+      update();
     }
-    cloudLoaded=true;
-    update();
   })();
-  await cloudLoadPromise;
+
+  return cloudLoadPromise;
 }
 
 function fmt(sec){sec=Math.max(0,Math.floor(sec||0));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`;}
@@ -813,6 +877,9 @@ v.addEventListener("loadedmetadata",async()=>{
   update();
   await loadCloudPosition();
 });
+v.addEventListener("durationchange",()=>{
+  if(!cloudLoaded && window.MH_USER) loadCloudPosition();
+});
 v.addEventListener("timeupdate",()=>{
   update();
   saveCloudPosition(false);
@@ -820,8 +887,18 @@ v.addEventListener("timeupdate",()=>{
 // While playing, sync playback to Firestore approximately once per second.
 // The in-flight guard prevents overlapping writes on slower connections.
 const cloudSyncTimer=setInterval(()=>{ if(!v.paused) saveCloudPosition(false); },1000);
-v.addEventListener("pause",()=>{saveCloudPosition(true);});
-v.addEventListener("seeked",()=>{saveCloudPosition(true);});
+v.addEventListener("pause",()=>{void saveCloudPosition(true);});
+v.addEventListener("seeked",()=>{void saveCloudPosition(true);});
+
+// Save the exact current timestamp whenever the page/app is being hidden.
+// This matters most on phones, where closing/switching apps may not fire
+// beforeunload reliably. Firestore remains the only persistent resume source.
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="hidden") void saveCloudPosition(true);
+});
+window.addEventListener("pagehide",()=>{ void saveCloudPosition(true); });
+window.addEventListener("beforeunload",()=>{ void saveCloudPosition(true); });
+
 v.addEventListener("progress",update);
 v.addEventListener("ended",async()=>{
   await saveCloudPosition(true);

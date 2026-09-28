@@ -227,8 +227,8 @@
 </div>
 
 <script src="data.js"></script>
-<script src="firebase.js?v=comments-nickname-3"></script>
-<script src="common.js?v=comments-nickname-3"></script>
+<script src="firebase.js?v=continue-fix-1"></script>
+<script src="common.js?v=continue-fix-1"></script>
 <script src="motion.js?v=mobile-drawer-1"></script>
 <script>
 const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
@@ -247,10 +247,13 @@ document.querySelector("#latestGrid").innerHTML=latest.map(e=>`
 function renderCW(){
   const box=document.querySelector("#continueSection");
   const row=document.querySelector("#continueRow");
-  const items=mhGetProgress();
+  const items=(window.mhGetProgress?.()||[])
+    .filter(x=>Number(x.progress||0)>0 && Number(x.progress||0)<99.5)
+    .slice(0,12);
 
   if(!items.length){
     box.hidden=true;
+    row.innerHTML="";
     return;
   }
 
@@ -259,17 +262,54 @@ function renderCW(){
     <a class="continue-card" href="watch.html?season=${x.season}&episode=${x.episode}">
       <div class="thumb">
         <span class="thumb-label">S${x.season} · E${x.episode}</span>
-        <div class="watch-progress" style="width:${Math.round(x.progress||0)}%"></div>
+        <div class="watch-progress" style="width:${Math.max(1,Math.min(100,Math.round(x.progress||0)))}%"></div>
       </div>
       <div class="continue-info">
         <strong>${x.title||"Episode"}</strong>
-        <p>${Math.round(x.progress||0)}% watched</p>
+        <p>${Math.round(x.progress||0)}% watched · resume ${formatResumeTime(x.position)}</p>
       </div>
     </a>`).join("");
 }
+
+function formatResumeTime(seconds){
+  seconds=Math.max(0,Math.floor(Number(seconds)||0));
+  const m=Math.floor(seconds/60), s=seconds%60;
+  return `${m}:${String(s).padStart(2,"0")}`;
+}
+
+let cwSyncRunning=false;
+async function syncContinueWatching(){
+  if(cwSyncRunning) return;
+  cwSyncRunning=true;
+  try{
+    if(window.MH_FIREBASE_READY){
+      try{ await window.MH_FIREBASE_READY; }catch{}
+    }
+    if(window.MH_AUTH_READY){
+      try{ await window.MH_AUTH_READY; }catch{}
+    }
+    if(window.MH_USER && window.mhSyncCloudProgress){
+      await window.mhSyncCloudProgress();
+    }
+  }finally{
+    cwSyncRunning=false;
+    renderCW();
+  }
+}
+
+// Render immediately, then explicitly pull Firestore once Firebase/Auth has
+// restored. This avoids the old event-order race where the sync could finish
+// before the homepage registered its listener.
 renderCW();
+syncContinueWatching();
 window.addEventListener("mh-progress-synced",renderCW);
 window.addEventListener("mh-account-ready",renderCW);
+window.addEventListener("mh-cloud-save-ok",()=>syncContinueWatching());
+window.addEventListener("mh-auth-changed",()=>syncContinueWatching());
+window.addEventListener("pageshow",()=>syncContinueWatching());
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible") syncContinueWatching();
+});
 </script>
 </body>
 </html>

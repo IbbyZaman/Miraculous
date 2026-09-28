@@ -149,19 +149,42 @@
 
     try {
       const cloud = await window.MH_CLOUD.getAllPlayback();
-      writeCache(
-        cloud
-          .filter(x => x.season != null && x.episode != null)
-          .sort((a,b) => {
-            const at = a.updatedAt?.seconds
-              ? a.updatedAt.seconds
-              : Number(a.updatedAt || 0);
-            const bt = b.updatedAt?.seconds
-              ? b.updatedAt.seconds
-              : Number(b.updatedAt || 0);
-            return bt - at;
-          })
-      );
+      const normalised = cloud
+        .map(x => {
+          const match = /^s(\d+)e(\d+)$/i.exec(String(x.id || ""));
+          const season = x.season ?? (match ? Number(match[1]) : null);
+          const episode = x.episode ?? (match ? Number(match[2]) : null);
+          const known = (window.MH_EPISODES || []).find(
+            e => Number(e.season) === Number(season) && Number(e.episode) === Number(episode)
+          );
+          const position = Number(x.position ?? x.currentTime ?? x.time ?? 0) || 0;
+          const duration = Number(x.duration ?? 0) || 0;
+          const progress = Number.isFinite(Number(x.progress))
+            ? Number(x.progress)
+            : (duration > 0 ? Math.min(100, (position / duration) * 100) : 0);
+
+          return {
+            ...x,
+            season,
+            episode,
+            title: x.title || known?.title || "Episode",
+            position,
+            duration,
+            progress
+          };
+        })
+        .filter(x => x.season != null && x.episode != null)
+        .sort((a,b) => {
+          const at = a.updatedAt?.seconds
+            ? a.updatedAt.seconds
+            : Number(a.updatedAt || 0);
+          const bt = b.updatedAt?.seconds
+            ? b.updatedAt.seconds
+            : Number(b.updatedAt || 0);
+          return bt - at;
+        });
+
+      writeCache(normalised);
 
       window.dispatchEvent(new Event("mh-progress-synced"));
       return readCache();
@@ -491,9 +514,15 @@
   function connectFirebaseAuth(){
     if (!window.MH_FIREBASE_READY) return;
     window.MH_FIREBASE_READY.then(() => window.MH_AUTH_READY)
-      .then(user => {
+      .then(async user => {
         updateAuthButton(user);
-        if (user) window.mhSyncCloudProgress();
+        if (user) {
+          await window.mhSyncCloudProgress();
+          window.dispatchEvent(new Event("mh-account-ready"));
+        } else {
+          writeCache([]);
+          window.dispatchEvent(new Event("mh-progress-synced"));
+        }
       })
       .catch(error => {
         console.error("MiraculousHub Firebase Auth initialization failed:", error);
