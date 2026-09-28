@@ -379,6 +379,82 @@ body .player.apple-native-active .mobile-speed-zone{display:none!important}
   body .control-row{gap:2px}
   body .pbtn{width:35px;height:35px;min-width:35px}
 }
+
+
+/* Player loading + desktop cursor auto-hide */
+body .player-loading{
+  position:absolute;
+  left:50%;top:50%;
+  z-index:9;
+  transform:translate(-50%,-50%) scale(.96);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  min-width:82px;
+  min-height:82px;
+  padding:14px 16px;
+  border:1px solid rgba(255,255,255,.17);
+  border-radius:22px;
+  background:rgba(16,18,26,.34);
+  box-shadow:0 18px 48px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.12);
+  backdrop-filter:blur(16px) saturate(150%);
+  -webkit-backdrop-filter:blur(16px) saturate(150%);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .16s ease,transform .16s ease,visibility .16s;
+}
+body .player.is-loading .player-loading{
+  opacity:1;
+  visibility:visible;
+  transform:translate(-50%,-50%) scale(1);
+}
+body .player.is-loading .center-play{opacity:0!important;pointer-events:none!important}
+body .player-loading-ring{
+  width:29px;height:29px;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,.17);
+  border-top-color:#fff;
+  border-right-color:#ff4a77;
+  animation:mh-player-spin .72s linear infinite;
+}
+body .player-loading-text{
+  color:rgba(255,255,255,.82);
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+@keyframes mh-player-spin{to{transform:rotate(360deg)}}
+@media (pointer:fine){
+  body .player.cursor-hidden,
+  body .player.cursor-hidden *{cursor:none!important}
+
+  /* Fullscreen controls avoid expensive live backdrop blur while the mouse moves.
+     The translucent styling stays, but playback remains much smoother. */
+  body .player:fullscreen .player-top,
+  body .player:fullscreen .player-bottom,
+  body .player:fullscreen .pbtn,
+  body .player:fullscreen .settings-menu,
+  body .player:fullscreen .toast,
+  body .player:-webkit-full-screen .player-top,
+  body .player:-webkit-full-screen .player-bottom,
+  body .player:-webkit-full-screen .pbtn,
+  body .player:-webkit-full-screen .settings-menu,
+  body .player:-webkit-full-screen .toast{
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+}
+@media(max-width:680px){
+  body .player-loading{min-width:70px;min-height:70px;padding:11px 13px;border-radius:19px}
+  body .player-loading-ring{width:26px;height:26px}
+  body .player-loading-text{font-size:8px}
+}
+@media (prefers-reduced-motion:reduce){body .player-loading-ring{animation-duration:1.35s}}
+
 </style>
 
 <!-- Google tag (gtag.js) -->
@@ -443,6 +519,7 @@ body .player.apple-native-active .mobile-speed-zone{display:none!important}
    <div class="mobile-speed-zone left" id="speedLeft" aria-hidden="true"></div>
    <div class="mobile-speed-zone right" id="speedRight" aria-hidden="true"></div>
    <div class="speed-hint" id="speedHint">2× SPEED</div>
+   <div class="player-loading" id="playerLoading" aria-hidden="true"><span class="player-loading-ring"></span><span class="player-loading-text">Loading</span></div>
    <button class="center-play" id="centerPlay" aria-label="Play">▶</button>
    <div class="toast" id="toast"></div>
    <div class="player-overlay" id="overlay">
@@ -540,7 +617,7 @@ body .player.apple-native-active .mobile-speed-zone{display:none!important}
  </div>
 </div>
 
-<script src="data.js?v=s6-thumbnails-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=continue-fix-1"></script><script src="motion.js?v=mobile-drawer-1"></script>
+<script src="data.js?v=s6-thumbnails-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=continue-fix-1"></script><script src="motion.js?v=player-perf-1"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
@@ -569,6 +646,7 @@ const VIDEO_WORKER="https://miraculous-video.ibbyzaman4.workers.dev";
 const sourceUrl=ep.videoPath ? `${VIDEO_WORKER}${ep.videoPath}` : "";
 if(sourceUrl){
   // Set the video element directly so every episode uses the exact Worker URL.
+  setPlayerLoading(true);
   $("source").src=sourceUrl;
   v.src=sourceUrl;
   v.load();
@@ -578,8 +656,25 @@ if(sourceUrl){
   v.load();
 }
 v.addEventListener("error",()=>{
+  setPlayerLoading(false);
   showToast("This episode is not connected to Cloudflare yet");
 });
+
+function setPlayerLoading(loading){
+  player.classList.toggle("is-loading",!!loading);
+  const loader=$("playerLoading");
+  if(loader) loader.setAttribute("aria-hidden",loading?"false":"true");
+}
+
+// Show a lightweight spinner whenever the browser is actually waiting on media.
+// This is event-driven, so it adds no animation work while the video is playing normally.
+v.addEventListener("loadstart",()=>setPlayerLoading(true));
+v.addEventListener("waiting",()=>setPlayerLoading(true));
+v.addEventListener("stalled",()=>setPlayerLoading(true));
+v.addEventListener("seeking",()=>setPlayerLoading(true));
+["loadeddata","canplay","playing","seeked"].forEach(type=>
+  v.addEventListener(type,()=>setPlayerLoading(false))
+);
 
 const cloudKey=isSpecial?`special-${ep.episode}`:`s${ep.season}e${ep.episode}`;
 
@@ -1109,26 +1204,41 @@ function showToast(msg){$("toast").textContent=msg;$("toast").classList.add("sho
 function isMobile(){return window.matchMedia("(max-width:680px)").matches}
 function isFullscreen(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
 function isLandscapeMobileFullscreen(){ return isMobile() && isFullscreen() && window.matchMedia("(orientation: landscape)").matches; }
+let lastDesktopPointerActivity=0;
 function activity(){
- player.classList.add("show-ui");
+ if(!player.classList.contains("show-ui")) player.classList.add("show-ui");
+ player.classList.remove("cursor-hidden");
  clearTimeout(hideTimer);
- hideTimer=setTimeout(()=>{ player.classList.remove("show-ui","mobile-quick"); },2200);
+ hideTimer=setTimeout(()=>{
+   player.classList.remove("show-ui","mobile-quick");
+   if(!isMobile() && !v.paused) player.classList.add("cursor-hidden");
+ },1800);
 }
 function showMobileQuick(){
  if(!isLandscapeMobileFullscreen()) return;
  player.classList.add("show-ui","mobile-quick");
  clearTimeout(hideTimer);
- hideTimer=setTimeout(()=>player.classList.remove("show-ui","mobile-quick"),2200);
+ hideTimer=setTimeout(()=>player.classList.remove("show-ui","mobile-quick"),1800);
 }
-player.addEventListener("pointermove",e=>{ if(e.pointerType!=="touch") activity(); });
+player.addEventListener("pointermove",e=>{
+ if(e.pointerType==="touch") return;
+ // Pointer events can fire hundreds of times per second in fullscreen.
+ // Only refresh the UI timer a few times per second to avoid jank.
+ const now=performance.now();
+ if(now-lastDesktopPointerActivity<140) return;
+ lastDesktopPointerActivity=now;
+ activity();
+},{passive:true});
 player.addEventListener("pointerdown",e=>{
  if(e.target.closest("button,.progress-area,.settings-wrap,.mobile-speed-zone,.quick-overlay")) return;
  activity();
 });
 player.addEventListener("mouseenter",()=>activity());
-player.addEventListener("mouseleave",()=>{ if(!isMobile()) player.classList.remove("show-ui","mobile-quick"); });
+player.addEventListener("mouseleave",()=>{
+ if(!isMobile()) player.classList.remove("show-ui","mobile-quick","cursor-hidden");
+});
 v.addEventListener("play",activity);
-v.addEventListener("pause",activity);
+v.addEventListener("pause",()=>{ player.classList.remove("cursor-hidden"); activity(); });
 
 // One tap/click on the video toggles play/pause. In mobile fullscreen landscape,
 // tapping also reveals the large quick controls.

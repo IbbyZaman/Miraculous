@@ -24,6 +24,12 @@
 
   addEventListener("pointermove", e => {
     if (e.pointerType === "touch") return;
+
+    // Never run the decorative page-wide pointer lighting over the video
+    // player or while anything is fullscreen. Those CSS-variable updates
+    // force unnecessary page repaints and can make fullscreen playback jank.
+    if (document.fullscreenElement || document.webkitFullscreenElement || e.target?.closest?.(".player")) return;
+
     pointerEvent = e;
     if (pointerRaf) return;
 
