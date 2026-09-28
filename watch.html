@@ -491,8 +491,39 @@ body .player.apple-native-active .mobile-speed-zone{display:none!important}
    <button class="watch-action" id="download" type="button">⬇ Download Episode</button>
    <button class="watch-action" id="share">Share</button>
   </div>
-  <div class="description">Watch this episode on MiraculousHub. Your viewing progress is saved to your MiraculousHub account when you are signed in, with local browser caching as a fallback.</div>
+  <div class="description">Watch this episode on MiraculousHub. Your viewing progress is saved securely to your MiraculousHub account when you are signed in.</div>
   <div class="prevnext"><a id="prev" href="#">← Previous</a><a id="next" href="#">Next →</a></div>
+ </section>
+
+ <section class="next-episode-banner" id="nextEpisodeBanner">
+  <div class="next-episode-copy">
+   <p class="kicker">UP NEXT</p>
+   <h2 id="nextEpisodeTitle">Next episode</h2>
+   <p id="nextEpisodeCode">Continue the season when you're ready.</p>
+  </div>
+  <div class="next-episode-actions">
+   <a class="next-episode-play" id="nextEpisodePlay" href="#">Play next</a>
+   <button class="next-episode-report" id="episodeReportBtn" type="button">⚑ Report</button>
+  </div>
+ </section>
+
+ <section class="episode-comments" id="episodeComments">
+  <div class="comments-head">
+   <div>
+    <p class="kicker">COMMUNITY</p>
+    <h2>Comments</h2>
+   </div>
+   <div class="comments-live"><span></span><span id="commentsStatus">Connecting…</span></div>
+  </div>
+  <div class="comments-form" id="commentsForm" hidden>
+   <input id="commentInput" maxlength="500" placeholder="Add a comment…" autocomplete="off">
+   <button id="commentSend" type="button">Post</button>
+  </div>
+  <div class="comments-login" id="commentsLogin" hidden>
+   <span>Sign in to add a comment.</span>
+   <button id="commentsSignIn" type="button">Sign in</button>
+  </div>
+  <div class="comments-list" id="commentsList"><div class="comments-empty">Loading comments…</div></div>
  </section>
 </main>
 
@@ -500,6 +531,24 @@ body .player.apple-native-active .mobile-speed-zone{display:none!important}
 
 <div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
 <div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
+
+<div class="report-modal" id="reportModal" hidden>
+ <div class="report-backdrop" id="reportBackdrop"></div>
+ <div class="report-card" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+  <div class="report-head"><div><p class="kicker">REPORT</p><h2 id="reportTitle">Tell us what went wrong</h2></div><button id="reportClose" type="button" aria-label="Close">×</button></div>
+  <p class="report-sub" id="reportTargetText">Report an issue.</p>
+  <div class="report-reasons" id="reportReasons">
+   <button type="button" data-report-reason="Player issue">Player issue</button>
+   <button type="button" data-report-reason="Wrong episode">Wrong episode</button>
+   <button type="button" data-report-reason="Audio or subtitles">Audio / subtitles</button>
+   <button type="button" data-report-reason="Inappropriate comment">Inappropriate comment</button>
+   <button type="button" data-report-reason="Spam">Spam</button>
+   <button type="button" data-report-reason="Other">Other</button>
+  </div>
+  <textarea id="reportDetails" maxlength="500" placeholder="Extra details (optional)"></textarea>
+  <div class="report-actions"><button type="button" id="reportCancel">Cancel</button><button type="button" id="reportSubmit">Send report</button></div>
+ </div>
+</div>
 
 <script src="data.js"></script><script src="firebase.js"></script><script src="common.js"></script><script src="motion.js?v=mobile-drawer-1"></script>
 <script>
@@ -521,6 +570,17 @@ const prev=MH_EPISODES[idx-1], next=MH_EPISODES[idx+1];
 if(isSpecial){ $("prev").style.visibility="hidden"; $("next").style.visibility="hidden"; }
 else { if(prev) $("prev").href=`watch.html?season=${prev.season}&episode=${prev.episode}`; else $("prev").style.visibility="hidden"; if(next) $("next").href=`watch.html?season=${next.season}&episode=${next.episode}`; else $("next").style.visibility="hidden"; }
 
+const nextBanner=$("nextEpisodeBanner");
+if(!isSpecial && next){
+  $("nextEpisodeTitle").textContent=next.title;
+  $("nextEpisodeCode").textContent=`S${String(next.season).padStart(2,"0")}E${String(next.episode).padStart(2,"0")} · Next episode`;
+  $("nextEpisodePlay").href=`watch.html?season=${next.season}&episode=${next.episode}`;
+}else{
+  $("nextEpisodeTitle").textContent="You're caught up";
+  $("nextEpisodeCode").textContent=isSpecial?"Special episode":"No next episode is listed yet.";
+  $("nextEpisodePlay").hidden=true;
+}
+
 
 const v=$("video"), player=$("player"), stage=$("stage"), progressArea=$("progressArea");
 const current=$("current"), buffer=$("buffer"), knob=$("knob"), time=$("time");
@@ -541,22 +601,149 @@ v.addEventListener("error",()=>{
   showToast("This episode is not connected to Cloudflare yet");
 });
 
-const posKey=isSpecial?`mh-pos-special-${ep.episode}`:`mh-pos-${ep.season}-${ep.episode}`;
 const cloudKey=isSpecial?`special-${ep.episode}`:`s${ep.season}e${ep.episode}`;
+
+// Episode/comment reporting. Reports are write-only for site users and stored in Firestore.
+let activeReportTarget=null;
+let selectedReportReason="";
+function openReport(target){
+  if(!window.MH_USER){ window.mhOpenAuth?.(); showToast("Sign in to send a report"); return; }
+  activeReportTarget=target; selectedReportReason="";
+  $("reportTargetText").textContent=target?.label||"Report an issue.";
+  $("reportDetails").value="";
+  document.querySelectorAll("[data-report-reason]").forEach(b=>b.classList.remove("active"));
+  $("reportModal").hidden=false; document.body.classList.add("report-open");
+}
+function closeReport(){ $("reportModal").hidden=true; document.body.classList.remove("report-open"); activeReportTarget=null; selectedReportReason=""; }
+$("reportClose").onclick=closeReport; $("reportCancel").onclick=closeReport; $("reportBackdrop").onclick=closeReport;
+document.querySelectorAll("[data-report-reason]").forEach(button=>button.onclick=()=>{
+  selectedReportReason=button.dataset.reportReason||"Other";
+  document.querySelectorAll("[data-report-reason]").forEach(b=>b.classList.toggle("active",b===button));
+});
+$("episodeReportBtn").onclick=()=>openReport({type:"episode",id:cloudKey,label:`${ep.code||"Episode"} · ${ep.title}`});
+$("reportSubmit").onclick=async()=>{
+  if(!activeReportTarget) return;
+  if(!selectedReportReason){ showToast("Choose a report reason"); return; }
+  const btn=$("reportSubmit"); btn.disabled=true;
+  try{
+    await window.MH_CLOUD.addReport({
+      episodeKey:cloudKey,
+      targetType:activeReportTarget.type,
+      targetId:String(activeReportTarget.id||""),
+      reason:selectedReportReason,
+      details:$("reportDetails").value.trim(),
+      episodeTitle:ep.title
+    });
+    closeReport(); showToast("Report sent — thank you");
+  }catch(error){ console.error(error); showToast("Could not send report"); }
+  finally{ btn.disabled=false; }
+};
+document.addEventListener("keydown",event=>{ if(event.key==="Escape" && !$("reportModal").hidden) closeReport(); });
+
+// Live Firestore comments for this episode.
+(()=>{
+  const list=$("commentsList"), form=$("commentsForm"), login=$("commentsLogin");
+  const input=$("commentInput"), send=$("commentSend"), status=$("commentsStatus"), signIn=$("commentsSignIn");
+  let unsubscribe=null;
+  let lastSend=0;
+
+  const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,ch=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+  }[ch]));
+
+  function formatCommentTime(value){
+    const date=value?.toDate?.();
+    if(!date) return "just now";
+    return date.toLocaleString([], {month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+  }
+
+  function updateCommentAuthUI(){
+    const signedIn=!!window.MH_USER;
+    form.hidden=!signedIn;
+    login.hidden=signedIn;
+  }
+
+  function renderComments(items){
+    if(!items?.length){
+      list.innerHTML='<div class="comments-empty">No comments yet. Be the first to comment.</div>';
+      return;
+    }
+    list.innerHTML=items.slice(-100).map(comment=>`
+      <article class="comment-item">
+       <div class="comment-top">
+        <strong>${escapeHtml(comment.authorName||"User")}</strong>
+        <span>${escapeHtml(formatCommentTime(comment.createdAt))}</span>
+        <span class="comment-actions">
+         ${window.MH_USER&&comment.authorUid===window.MH_USER.uid?`<button class="comment-delete" data-comment-delete="${escapeHtml(comment.id)}">Delete</button>`:""}
+         <button class="comment-report" data-comment-report="${escapeHtml(comment.id)}" data-comment-author="${escapeHtml(comment.authorName||"User")}">Report</button>
+        </span>
+       </div>
+       <p>${escapeHtml(comment.text)}</p>
+      </article>`).join("");
+    list.querySelectorAll("[data-comment-delete]").forEach(button=>{
+      button.onclick=async()=>{
+        try{ await window.MH_CLOUD.deleteComment(button.dataset.commentDelete); }
+        catch(error){ console.error(error); showToast("Could not delete comment"); }
+      };
+    });
+    list.querySelectorAll("[data-comment-report]").forEach(button=>{
+      button.onclick=()=>openReport({type:"comment",id:button.dataset.commentReport,label:`Comment by ${button.dataset.commentAuthor||"User"}`});
+    });
+  }
+
+  function startComments(){
+    if(!window.MH_CLOUD?.subscribeComments) return;
+    if(unsubscribe) unsubscribe();
+    status.textContent="Live";
+    unsubscribe=window.MH_CLOUD.subscribeComments(cloudKey,(items,error)=>{
+      if(error){
+        console.error("Comments unavailable:",error);
+        status.textContent="Unavailable";
+        list.innerHTML='<div class="comments-empty">Comments could not be loaded.</div>';
+        return;
+      }
+      renderComments(items);
+    });
+  }
+
+  send.onclick=async()=>{
+    const text=input.value.trim();
+    if(!text) return;
+    if(!window.MH_USER){ window.mhOpenAuth?.(); return; }
+    if(Date.now()-lastSend<2000){ showToast("Please wait a moment"); return; }
+    send.disabled=true;
+    lastSend=Date.now();
+    try{
+      await window.MH_CLOUD.addComment(cloudKey,text);
+      input.value="";
+    }catch(error){
+      console.error(error);
+      showToast("Could not send comment");
+    }finally{
+      setTimeout(()=>send.disabled=false,700);
+    }
+  };
+
+  input.addEventListener("keydown",event=>{
+    if(event.key==="Enter" && !event.shiftKey){
+      event.preventDefault();
+      send.click();
+    }
+  });
+  signIn.onclick=()=>window.mhOpenAuth?.();
+
+  window.addEventListener("mh-auth-changed",()=>{updateCommentAuthUI();startComments();});
+  window.addEventListener("mh-firebase-ready",()=>{updateCommentAuthUI();startComments();});
+  updateCommentAuthUI();
+  if(window.MH_FIREBASE_READY){
+    window.MH_FIREBASE_READY.then(()=>{updateCommentAuthUI();startComments();}).catch(()=>status.textContent="Unavailable");
+  }
+})();
 let dragging=false, hideTimer, lastPointer=0;
 let lastCloudSave=0;
 let cloudSaveInFlight=false;
 let cloudLoaded=false;
 let cloudLoadPromise=null;
-
-function localPosition(){
-  const n=Number(localStorage.getItem(posKey)||0);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function cachePosition(){
-  if(v.duration && v.currentTime>0) localStorage.setItem(posKey,String(v.currentTime));
-}
 
 async function saveCloudPosition(force=false){
   if(!window.MH_USER || !window.MH_CLOUD || !v.duration || v.currentTime<=0) return;
@@ -566,12 +753,15 @@ async function saveCloudPosition(force=false){
   lastCloudSave=now;
   cloudSaveInFlight=true;
   try {
-    await window.MH_CLOUD.savePlayback(cloudKey,{
+    const payload={
       season:ep.season, episode:ep.episode, title:ep.title,
       progress:Math.min(100,(v.currentTime/v.duration)*100),
       position:v.currentTime, duration:v.duration
-    });
+    };
+    await window.MH_CLOUD.savePlayback(cloudKey,payload);
+    window.mhSaveProgress?.(payload);
     window.dispatchEvent(new CustomEvent("mh-cloud-save-ok",{detail:{season:ep.season,episode:ep.episode}}));
+    return true;
   } catch(error) {
     console.error("MiraculousHub cloud save failed:", error);
     const code = error?.code || "unknown";
@@ -611,7 +801,10 @@ async function loadCloudPosition(){
           // the end of the episode.
           const safePos=Math.max(0,Math.min(pos,Math.max(0,v.duration-0.25)));
           v.currentTime=safePos;
-          localStorage.setItem(posKey,String(safePos));
+          window.mhSaveProgress?.({
+            season:ep.season, episode:ep.episode, title:ep.title,
+            progress:Number(data.progress)||0, position:safePos, duration:v.duration
+          });
         }
       }
     }catch(error){
@@ -629,27 +822,29 @@ function update(){
  current.style.width=pct+"%"; knob.style.left=pct+"%";
  if(v.buffered.length){const end=v.buffered.end(v.buffered.length-1);buffer.style.width=(v.duration?Math.min(100,end/v.duration*100):0)+"%";}
  time.textContent=`${fmt(v.currentTime)} / ${fmt(v.duration)}`;
- if(v.duration && v.currentTime>0) mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:pct,position:v.currentTime,duration:v.duration});
 }
 v.addEventListener("loadedmetadata",async()=>{
- const saved=localPosition();
- if(saved>0 && saved<v.duration-5) v.currentTime=saved;
- update();
- await loadCloudPosition();
+  // Firestore is the single persistent resume source.
+  update();
+  await loadCloudPosition();
 });
 v.addEventListener("timeupdate",()=>{
- update();
- cachePosition();
- saveCloudPosition(false);
+  update();
+  saveCloudPosition(false);
 });
 // While playing, sync playback to Firestore approximately once per second.
 // The in-flight guard prevents overlapping writes on slower connections.
 const cloudSyncTimer=setInterval(()=>{ if(!v.paused) saveCloudPosition(false); },1000);
-v.addEventListener("pause",()=>{cachePosition();saveCloudPosition(true);});
-v.addEventListener("seeking",()=>{cachePosition();});
+v.addEventListener("pause",()=>{saveCloudPosition(true);});
 v.addEventListener("seeked",()=>{saveCloudPosition(true);});
 v.addEventListener("progress",update);
-v.addEventListener("ended",()=>{mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100,position:v.duration,duration:v.duration});saveCloudPosition(true);localStorage.removeItem(posKey);showToast("Episode finished");});
+v.addEventListener("ended",async()=>{
+  await saveCloudPosition(true);
+  if(window.MH_USER && window.MH_CLOUD){
+    try{ await window.MH_CLOUD.markWatched(cloudKey,{season:ep.season,episode:ep.episode,title:ep.title}); }catch{}
+  }
+  showToast("Episode finished");
+});
 
 window.addEventListener("mh-auth-changed",()=>{
   if(window.MH_USER){
@@ -965,7 +1160,21 @@ document.addEventListener("fullscreenchange",()=>{ if(!isLandscapeMobileFullscre
 document.addEventListener("webkitfullscreenchange",()=>{ if(!isLandscapeMobileFullscreen()) player.classList.remove("mobile-quick"); activity(); });
 window.addEventListener("orientationchange",()=>{ if(!isLandscapeMobileFullscreen()) player.classList.remove("mobile-quick"); });
 
-$("watched").onclick=()=>{localStorage.setItem(posKey,String(v.duration||0));mhSaveProgress({season:ep.season,episode:ep.episode,title:ep.title,progress:100});$("watched").textContent="✓ Watched";showToast("Marked as watched")};
+$("watched").onclick=async()=>{
+  if(!window.MH_USER || !window.MH_CLOUD){ window.mhOpenAuth?.(); return; }
+  try{
+    await window.MH_CLOUD.savePlayback(cloudKey,{
+      season:ep.season, episode:ep.episode, title:ep.title,
+      progress:100, position:v.duration||v.currentTime||0, duration:v.duration||0
+    });
+    await window.MH_CLOUD.markWatched(cloudKey,{season:ep.season,episode:ep.episode,title:ep.title});
+    $("watched").textContent="✓ Watched";
+    showToast("Marked as watched");
+  }catch(error){
+    console.error(error);
+    showToast("Could not save watched status");
+  }
+};
 
 window.addEventListener("mh-cloud-save-error", e => {
   const err = e.detail || {};

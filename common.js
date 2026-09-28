@@ -1,6 +1,8 @@
 (function(){
   const THEME = "mh-theme";
-  const PROGRESS = "miraculoushub-progress-cache";
+  // Playback progress is intentionally NOT stored in localStorage.
+  // Signed-in users use Firestore as the single source of truth.
+  let progressCache = [];
 
   function setTheme(t){
     document.documentElement.classList.toggle("light", t === "light");
@@ -87,21 +89,19 @@
   });
 
   function readCache(){
-    try {
-      return JSON.parse(localStorage.getItem(PROGRESS) || "[]");
-    } catch {
-      return [];
-    }
+    return progressCache.slice();
   }
 
   function writeCache(items){
-    localStorage.setItem(PROGRESS, JSON.stringify(items.slice(0, 30)));
+    progressCache = (Array.isArray(items) ? items : []).slice(0, 30);
   }
 
   window.mhGetProgress = function(){
     return readCache();
   };
 
+  // Update the current page's in-memory progress list. Firestore remains
+  // authoritative for signed-in users; there is no persistent local fallback.
   window.mhSaveProgress = function(item){
     const all = readCache().filter(
       x => !(x.season === item.season && x.episode === item.episode)
@@ -113,53 +113,22 @@
     });
 
     writeCache(all);
-
-    if (window.MH_CLOUD && window.MH_USER) {
-      const key = `s${item.season}e${item.episode}`;
-      const now = Date.now();
-      window.__MH_LAST_PROGRESS_WRITE = window.__MH_LAST_PROGRESS_WRITE || {};
-      const last = window.__MH_LAST_PROGRESS_WRITE[key] || 0;
-      // The player calls this from timeupdate, so never write to Firestore
-      // more than once every 8 seconds for the same episode.
-      if (now - last >= 8000) {
-        window.__MH_LAST_PROGRESS_WRITE[key] = now;
-        window.MH_CLOUD.savePlayback(key, item).catch(error => {
-          console.error("MiraculousHub: progress sync failed:", error);
-        });
-      }
-    }
   };
 
-  // Save the exact playback position to Firestore when signed in.
-  window.mhSavePosition = function(item){
-    const cache = readCache();
-    const key = `${item.season}-${item.episode}`;
-    const old = cache.find(
-      x => `${x.season}-${x.episode}` === key
+  window.mhSavePosition = async function(item){
+    window.mhSaveProgress(item);
+    if (!window.MH_CLOUD || !window.MH_USER) return false;
+
+    await window.MH_CLOUD.savePlayback(
+      `s${item.season}e${item.episode}`,
+      item
     );
 
-    const merged = {
-      ...(old || {}),
-      ...item,
-      updatedAt: Date.now()
-    };
-
-    writeCache([
-      merged,
-      ...cache.filter(x => `${x.season}-${x.episode}` !== key)
-    ]);
-
-    if (window.MH_CLOUD && window.MH_USER) {
-      window.MH_CLOUD.savePlayback(
-        `s${item.season}e${item.episode}`,
-        merged
-      ).then(() => {
-        window.dispatchEvent(new CustomEvent("mh-cloud-save-ok", { detail: { season: item.season, episode: item.episode } }));
-      }).catch(error => {
-        console.error("MiraculousHub cloud save failed:", error);
-        window.dispatchEvent(new CustomEvent("mh-cloud-save-error", { detail: error }));
-      });
-    }
+    window.dispatchEvent(new CustomEvent(
+      "mh-cloud-save-ok",
+      { detail: { season: item.season, episode: item.episode } }
+    ));
+    return true;
   };
 
   window.mhClearProgress = function(season, episode){
@@ -170,46 +139,31 @@
     );
   };
 
-  // Cloud data is authoritative while signed in.
-  // On the first sign-in, existing local progress is migrated
-  // to the account if that account has no playback yet.
+  // Firestore is the only persistent playback source for signed-in accounts.
   window.mhSyncCloudProgress = async function(){
     if (!window.MH_CLOUD || !window.MH_USER) {
-      return readCache();
+      writeCache([]);
+      window.dispatchEvent(new Event("mh-progress-synced"));
+      return [];
     }
 
     try {
       const cloud = await window.MH_CLOUD.getAllPlayback();
-      const local = readCache();
-
-      if (!cloud.length && local.length) {
-        for (const item of local.slice(0, 30)) {
-          const key = `s${item.season}e${item.episode}`;
-          await window.MH_CLOUD.savePlayback(key, item);
-        }
-
-        const uploaded = await window.MH_CLOUD.getAllPlayback();
-        writeCache(uploaded);
-      } else {
-        writeCache(
-          cloud
-            .filter(x => x.season != null && x.episode != null)
-            .sort((a,b) => {
-              const at = a.updatedAt?.seconds
-                ? a.updatedAt.seconds
-                : Number(a.updatedAt || 0);
-              const bt = b.updatedAt?.seconds
-                ? b.updatedAt.seconds
-                : Number(b.updatedAt || 0);
-              return bt - at;
-            })
-        );
-      }
-
-      window.dispatchEvent(
-        new Event("mh-progress-synced")
+      writeCache(
+        cloud
+          .filter(x => x.season != null && x.episode != null)
+          .sort((a,b) => {
+            const at = a.updatedAt?.seconds
+              ? a.updatedAt.seconds
+              : Number(a.updatedAt || 0);
+            const bt = b.updatedAt?.seconds
+              ? b.updatedAt.seconds
+              : Number(b.updatedAt || 0);
+            return bt - at;
+          })
       );
 
+      window.dispatchEvent(new Event("mh-progress-synced"));
       return readCache();
     } catch (error) {
       console.warn("Cloud progress sync failed:", error);

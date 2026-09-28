@@ -130,6 +130,57 @@
           if (!u) return [];
           const snap = await fsMod.getDocs(fsMod.collection(db, "users", u.uid, "favourites"));
           return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        },
+        async addComment(episodeKey, text) {
+          const u = auth.currentUser;
+          if (!u) throw new Error("Sign in required");
+          const clean = String(text || "").trim().slice(0, 500);
+          if (!clean) throw new Error("Comment cannot be empty");
+          return fsMod.addDoc(fsMod.collection(db, "comments"), {
+            episodeKey,
+            text: clean,
+            authorUid: u.uid,
+            authorName: (u.displayName || u.email || "User").slice(0, 60),
+            createdAt: fsMod.serverTimestamp()
+          });
+        },
+        async deleteComment(commentId) {
+          const u = auth.currentUser;
+          if (!u) throw new Error("Sign in required");
+          await fsMod.deleteDoc(fsMod.doc(db, "comments", commentId));
+        },
+        async addReport(report) {
+          const u = auth.currentUser;
+          if (!u) throw new Error("Sign in required");
+          const clean = {
+            episodeKey: String(report?.episodeKey || "").slice(0, 80),
+            episodeTitle: String(report?.episodeTitle || "").slice(0, 120),
+            targetType: String(report?.targetType || "episode").slice(0, 20),
+            targetId: String(report?.targetId || "").slice(0, 160),
+            reason: String(report?.reason || "Other").slice(0, 80),
+            details: String(report?.details || "").trim().slice(0, 500)
+          };
+          if (!clean.episodeKey || !clean.targetType || !clean.reason) throw new Error("Invalid report");
+          return fsMod.addDoc(fsMod.collection(db, "reports"), {
+            ...clean,
+            reporterUid: u.uid,
+            reporterName: (u.displayName || u.email || "User").slice(0, 60),
+            status: "new",
+            createdAt: fsMod.serverTimestamp()
+          });
+        },
+        subscribeComments(episodeKey, callback) {
+          const q = fsMod.query(
+            fsMod.collection(db, "comments"),
+            fsMod.where("episodeKey", "==", episodeKey)
+          );
+          return fsMod.onSnapshot(q, snap => {
+            const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            items.sort((a, b) =>
+              (a.createdAt?.toMillis?.() || 0) - (b.createdAt?.toMillis?.() || 0)
+            );
+            callback(items);
+          }, err => callback(null, err));
         }
       };
 

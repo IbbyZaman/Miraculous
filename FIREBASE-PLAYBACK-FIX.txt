@@ -1,0 +1,9 @@
+MiraculousHub Firebase playback fix
+
+- Playback position no longer uses localStorage.
+- Signed-in playback uses Firestore users/{uid}/playback/{episodeKey} as the single source of truth.
+- Duplicate playback writers were removed from the player loop.
+- Continue Watching is hydrated from Firestore after authentication restores.
+- Episode comments were added using the top-level comments collection.
+
+Publish firestore.rules in Firebase Console > Firestore Database > Rules before using comments.

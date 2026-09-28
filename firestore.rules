@@ -1,8 +1,50 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Private account data: playback, favourites, watched, etc.
     match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // Episode comments are public to read, but only signed-in users can post.
+    match /comments/{commentId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.episodeKey is string
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 500
+        && request.resource.data.authorName is string
+        && request.resource.data.authorName.size() > 0
+        && request.resource.data.authorName.size() <= 60;
+
+      allow delete: if request.auth != null
+                    && resource.data.authorUid == request.auth.uid;
+
+      allow update: if false;
+    }
+
+
+    // Reports are private: signed-in users may submit them, but cannot read or edit them.
+    // Project owners can review reports from the Firebase console.
+    match /reports/{reportId} {
+      allow create: if request.auth != null
+        && request.resource.data.reporterUid == request.auth.uid
+        && request.resource.data.episodeKey is string
+        && request.resource.data.targetType is string
+        && (request.resource.data.targetType == "episode" || request.resource.data.targetType == "comment")
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() > 0
+        && request.resource.data.reason.size() <= 80
+        && request.resource.data.details is string
+        && request.resource.data.details.size() <= 500;
+
+      allow read, update, delete: if false;
     }
   }
 }
