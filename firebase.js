@@ -131,16 +131,49 @@
           const snap = await fsMod.getDocs(fsMod.collection(db, "users", u.uid, "favourites"));
           return snap.docs.map(d => ({ id: d.id, ...d.data() }));
         },
+        async getNickname() {
+          const u = auth.currentUser;
+          if (!u) return null;
+          const snap = await fsMod.getDoc(userRef("profile", "public"));
+          if (!snap.exists()) return null;
+          const value = String(snap.data()?.nickname || "").trim();
+          return value || null;
+        },
+        async setNickname(value) {
+          const u = auth.currentUser;
+          if (!u) throw new Error("Sign in required");
+          const nickname = String(value || "").trim().replace(/\s+/g, " ");
+          if (nickname.length < 2 || nickname.length > 24) {
+            throw new Error("Nickname must be 2–24 characters");
+          }
+          if (nickname.includes("@")) {
+            throw new Error("Please use a nickname, not an email address");
+          }
+          if (!/^[\p{L}\p{N} _.'-]+$/u.test(nickname)) {
+            throw new Error("Nickname contains unsupported characters");
+          }
+          await fsMod.setDoc(userRef("profile", "public"), {
+            nickname,
+            updatedAt: fsMod.serverTimestamp()
+          }, { merge: true });
+          return nickname;
+        },
         async addComment(episodeKey, text) {
           const u = auth.currentUser;
           if (!u) throw new Error("Sign in required");
           const clean = String(text || "").trim().slice(0, 500);
           if (!clean) throw new Error("Comment cannot be empty");
+          const authorNickname = await window.MH_CLOUD.getNickname();
+          if (!authorNickname) {
+            const error = new Error("Set a nickname before commenting");
+            error.code = "nickname-required";
+            throw error;
+          }
           return fsMod.addDoc(fsMod.collection(db, "comments"), {
             episodeKey,
             text: clean,
             authorUid: u.uid,
-            authorName: (u.displayName || u.email || "User").slice(0, 60),
+            authorNickname,
             createdAt: fsMod.serverTimestamp()
           });
         },
@@ -161,10 +194,11 @@
             details: String(report?.details || "").trim().slice(0, 500)
           };
           if (!clean.episodeKey || !clean.targetType || !clean.reason) throw new Error("Invalid report");
+          const reporterNickname = await window.MH_CLOUD.getNickname().catch(() => null);
           return fsMod.addDoc(fsMod.collection(db, "reports"), {
             ...clean,
             reporterUid: u.uid,
-            reporterName: (u.displayName || u.email || "User").slice(0, 60),
+            reporterNickname: reporterNickname || "Miraculous Fan",
             status: "new",
             createdAt: fsMod.serverTimestamp()
           });

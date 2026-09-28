@@ -19,9 +19,9 @@ service cloud.firestore {
         && request.resource.data.text is string
         && request.resource.data.text.size() > 0
         && request.resource.data.text.size() <= 500
-        && request.resource.data.authorName is string
-        && request.resource.data.authorName.size() > 0
-        && request.resource.data.authorName.size() <= 60;
+        && request.resource.data.authorNickname is string
+        && request.resource.data.authorNickname.size() >= 2
+        && request.resource.data.authorNickname.size() <= 24;
 
       allow delete: if request.auth != null
                     && resource.data.authorUid == request.auth.uid;

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png"><title>MiraculousHub — Watch</title>
-<link rel="stylesheet" href="styles.css?v=mobile-drawer-1">
+<link rel="stylesheet" href="styles.css?v=comments-nickname-3">
 <style>
 /* Modern video player */
 .watch-shell{width:min(1240px,94vw);padding:24px 0 70px}
@@ -490,22 +490,12 @@ body .player.apple-native-active .mobile-speed-zone{display:none!important}
    <button class="watch-action" id="watched">✓ Mark as watched</button>
    <button class="watch-action" id="download" type="button">⬇ Download Episode</button>
    <button class="watch-action" id="share">Share</button>
+   <button class="watch-action watch-action-report" id="episodeReportBtn" type="button">⚑ Report issue</button>
   </div>
   <div class="description">Watch this episode on MiraculousHub. Your viewing progress is saved securely to your MiraculousHub account when you are signed in.</div>
   <div class="prevnext"><a id="prev" href="#">← Previous</a><a id="next" href="#">Next →</a></div>
  </section>
 
- <section class="next-episode-banner" id="nextEpisodeBanner">
-  <div class="next-episode-copy">
-   <p class="kicker">UP NEXT</p>
-   <h2 id="nextEpisodeTitle">Next episode</h2>
-   <p id="nextEpisodeCode">Continue the season when you're ready.</p>
-  </div>
-  <div class="next-episode-actions">
-   <a class="next-episode-play" id="nextEpisodePlay" href="#">Play next</a>
-   <button class="next-episode-report" id="episodeReportBtn" type="button">⚑ Report</button>
-  </div>
- </section>
 
  <section class="episode-comments" id="episodeComments">
   <div class="comments-head">
@@ -550,7 +540,7 @@ body .player.apple-native-active .mobile-speed-zone{display:none!important}
  </div>
 </div>
 
-<script src="data.js"></script><script src="firebase.js"></script><script src="common.js"></script><script src="motion.js?v=mobile-drawer-1"></script>
+<script src="data.js"></script><script src="firebase.js?v=comments-nickname-3"></script><script src="common.js?v=comments-nickname-3"></script><script src="motion.js?v=mobile-drawer-1"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
@@ -569,17 +559,6 @@ const idx=MH_EPISODES.findIndex(x=>x.season===ep.season&&x.episode===ep.episode)
 const prev=MH_EPISODES[idx-1], next=MH_EPISODES[idx+1];
 if(isSpecial){ $("prev").style.visibility="hidden"; $("next").style.visibility="hidden"; }
 else { if(prev) $("prev").href=`watch.html?season=${prev.season}&episode=${prev.episode}`; else $("prev").style.visibility="hidden"; if(next) $("next").href=`watch.html?season=${next.season}&episode=${next.episode}`; else $("next").style.visibility="hidden"; }
-
-const nextBanner=$("nextEpisodeBanner");
-if(!isSpecial && next){
-  $("nextEpisodeTitle").textContent=next.title;
-  $("nextEpisodeCode").textContent=`S${String(next.season).padStart(2,"0")}E${String(next.episode).padStart(2,"0")} · Next episode`;
-  $("nextEpisodePlay").href=`watch.html?season=${next.season}&episode=${next.episode}`;
-}else{
-  $("nextEpisodeTitle").textContent="You're caught up";
-  $("nextEpisodeCode").textContent=isSpecial?"Special episode":"No next episode is listed yet.";
-  $("nextEpisodePlay").hidden=true;
-}
 
 
 const v=$("video"), player=$("player"), stage=$("stage"), progressArea=$("progressArea");
@@ -671,11 +650,11 @@ document.addEventListener("keydown",event=>{ if(event.key==="Escape" && !$("repo
     list.innerHTML=items.slice(-100).map(comment=>`
       <article class="comment-item">
        <div class="comment-top">
-        <strong>${escapeHtml(comment.authorName||"User")}</strong>
+        <strong>${escapeHtml(comment.authorNickname||"Miraculous Fan")}</strong>
         <span>${escapeHtml(formatCommentTime(comment.createdAt))}</span>
         <span class="comment-actions">
          ${window.MH_USER&&comment.authorUid===window.MH_USER.uid?`<button class="comment-delete" data-comment-delete="${escapeHtml(comment.id)}">Delete</button>`:""}
-         <button class="comment-report" data-comment-report="${escapeHtml(comment.id)}" data-comment-author="${escapeHtml(comment.authorName||"User")}">Report</button>
+         <button class="comment-report" data-comment-report="${escapeHtml(comment.id)}" data-comment-author="${escapeHtml(comment.authorNickname||"Miraculous Fan")}">Report</button>
         </span>
        </div>
        <p>${escapeHtml(comment.text)}</p>
@@ -710,6 +689,8 @@ document.addEventListener("keydown",event=>{ if(event.key==="Escape" && !$("repo
     const text=input.value.trim();
     if(!text) return;
     if(!window.MH_USER){ window.mhOpenAuth?.(); return; }
+    const nickname=await window.mhEnsureNickname?.();
+    if(!nickname) return;
     if(Date.now()-lastSend<2000){ showToast("Please wait a moment"); return; }
     send.disabled=true;
     lastSend=Date.now();
@@ -718,7 +699,11 @@ document.addEventListener("keydown",event=>{ if(event.key==="Escape" && !$("repo
       input.value="";
     }catch(error){
       console.error(error);
-      showToast("Could not send comment");
+      if(error?.code==="nickname-required"){
+        window.mhOpenAccount?.({message:"Choose a nickname before posting.",focusNickname:true});
+      }else{
+        showToast("Could not send comment");
+      }
     }finally{
       setTimeout(()=>send.disabled=false,700);
     }

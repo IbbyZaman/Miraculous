@@ -1863,3 +1863,261 @@ body.mobile-nav-open .menu-toggle span:nth-child(3){transform:translateY(-5.8px)
 .episode-comments{margin-top:14px}.comments-form{margin-top:0;margin-bottom:10px;padding-top:0;padding-bottom:14px;border-top:0;border-bottom:1px solid rgba(255,255,255,.08)}.comments-login{margin-top:0;margin-bottom:10px;padding-top:0;padding-bottom:14px;border-top:0;border-bottom:1px solid rgba(255,255,255,.08)}.comments-list{margin-top:2px}.comment-actions{margin-left:auto;display:flex;align-items:center;gap:8px}.comment-report,.comment-delete{border:0;background:transparent;color:#8e96a3;cursor:pointer;font-size:11px;padding:5px 3px}.comment-report:hover,.comment-delete:hover{color:#fff}
 .report-modal[hidden]{display:none}.report-modal{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:18px}.report-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.66)}.report-card{position:relative;width:min(560px,100%);max-height:min(760px,92vh);overflow:auto;padding:20px;border-radius:24px;border:1px solid rgba(255,255,255,.13);background:#15171f;box-shadow:0 28px 100px rgba(0,0,0,.56)}.report-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.report-head h2{margin:2px 0 0;font-size:24px}.report-head>button{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:24px;cursor:pointer}.report-sub{color:#9ca3af;font-size:13px}.report-reasons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:16px 0}.report-reasons button{min-height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:#0f1118;color:#dce1e8;cursor:pointer}.report-reasons button.active{border-color:rgba(239,49,93,.75);background:rgba(239,49,93,.12);color:#fff}.report-card textarea{width:100%;min-height:105px;resize:vertical;border-radius:15px;border:1px solid rgba(255,255,255,.12);background:#0c0e14;color:#fff;padding:13px;outline:none}.report-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:13px}.report-actions button{min-height:42px;border-radius:13px;padding:10px 15px;font-weight:800;cursor:pointer}.report-actions button:first-child{background:transparent;border:1px solid rgba(255,255,255,.12);color:#cbd1da}.report-actions button:last-child{border:0;background:var(--accent,#ef315d);color:white}.report-open{overflow:hidden}
 @media(max-width:680px){.next-episode-banner{margin:18px 12px 0;padding:16px;border-radius:20px;align-items:stretch;flex-direction:column}.next-episode-actions{display:grid;grid-template-columns:1fr auto}.next-episode-play,.next-episode-report{min-height:46px}.episode-comments{margin:12px 12px 0;padding:15px}.comments-head{gap:10px}.comments-head h2{font-size:23px}.comments-live{font-size:11px}.comments-form{display:grid;grid-template-columns:1fr auto;gap:8px}.comments-form input{width:100%;min-height:46px}.comments-form button{min-width:72px}.comments-list{max-height:none;overflow:visible}.comment-item{padding:14px 1px}.comment-top{display:grid;grid-template-columns:auto 1fr auto;gap:7px}.comment-top>span:not(.comment-actions){justify-self:start}.comment-actions{grid-column:3;grid-row:1;margin-left:0}.comment-item p{font-size:14px}.comments-login{align-items:center;gap:8px}.report-modal{padding:10px;align-items:end}.report-card{width:100%;max-height:88vh;border-radius:24px 24px 16px 16px;padding:17px}.report-reasons{grid-template-columns:1fr}.report-actions{display:grid;grid-template-columns:1fr 1fr}.report-actions button{min-height:46px}}
+
+
+/* === Comments + reporting UI polish === */
+.watch-actions{align-items:center}
+.watch-action-report{
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.14);
+  color:#e8ecf5;
+}
+.watch-action-report:hover{background:rgba(255,255,255,.10)}
+
+.next-episode-banner{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.14);
+  background:
+    radial-gradient(1200px 220px at 0% 0%, rgba(255,82,127,.10), transparent 50%),
+    radial-gradient(800px 180px at 100% 100%, rgba(106,92,255,.10), transparent 48%),
+    linear-gradient(135deg, rgba(28,31,42,.68), rgba(14,16,24,.82));
+  box-shadow:0 24px 60px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.10);
+  backdrop-filter:blur(18px) saturate(155%);
+  -webkit-backdrop-filter:blur(18px) saturate(155%);
+}
+.next-episode-banner::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(255,255,255,.08), transparent 18%, transparent 80%, rgba(255,255,255,.03));
+}
+.next-episode-actions{position:relative;z-index:1}
+.next-episode-play{
+  min-width:120px;
+  box-shadow:0 12px 28px rgba(239,49,93,.22), inset 0 1px 0 rgba(255,255,255,.18);
+}
+
+.episode-comments{
+  position:relative;
+  overflow:hidden;
+  max-width:980px;
+  margin:16px auto 0;
+  padding:22px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:28px;
+  background:
+    radial-gradient(800px 240px at 0% 0%, rgba(255,75,117,.08), transparent 44%),
+    radial-gradient(680px 240px at 100% 100%, rgba(110,115,255,.08), transparent 40%),
+    linear-gradient(180deg, rgba(24,27,38,.58), rgba(13,15,23,.78));
+  box-shadow:0 26px 70px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.11);
+  backdrop-filter:blur(20px) saturate(155%);
+  -webkit-backdrop-filter:blur(20px) saturate(155%);
+}
+.episode-comments::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(180deg, rgba(255,255,255,.10), transparent 12%, transparent 88%, rgba(255,255,255,.02));
+}
+.episode-comments > *{position:relative;z-index:1}
+.comments-head{
+  align-items:flex-start;
+  margin-bottom:14px;
+}
+.comments-head h2{
+  margin:4px 0 0;
+  font-size:clamp(24px,3vw,34px);
+  letter-spacing:-.03em;
+}
+.comments-live{
+  padding:9px 12px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  background:rgba(255,255,255,.04);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+}
+.comments-form,
+.comments-login{
+  margin:0 0 14px;
+  padding:14px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:20px;
+  background:rgba(255,255,255,.04);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(16px) saturate(145%);
+  -webkit-backdrop-filter:blur(16px) saturate(145%);
+  border-top:1px solid rgba(255,255,255,.12);
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+.comments-form input{
+  min-height:50px;
+  padding:14px 16px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;
+  background:rgba(8,10,17,.58);
+  color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+.comments-form input::placeholder{color:#9099a8}
+.comments-form input:focus,
+.report-card textarea:focus{
+  border-color:rgba(255,87,131,.72);
+  box-shadow:0 0 0 4px rgba(255,70,110,.12);
+}
+.comments-form button,
+.comments-login button{
+  min-height:50px;
+  padding:13px 18px;
+  border-radius:16px;
+  box-shadow:0 12px 28px rgba(239,49,93,.22), inset 0 1px 0 rgba(255,255,255,.18);
+}
+.comments-list{
+  display:grid;
+  gap:12px;
+  max-height:520px;
+  overflow:auto;
+  padding:2px 1px 2px 0;
+  scrollbar-width:thin;
+}
+.comment-item{
+  padding:16px 16px 14px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.025));
+  box-shadow:0 12px 30px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.comment-top{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:10px;
+  margin-bottom:9px;
+}
+.comment-top strong{
+  font-size:13px;
+  letter-spacing:.01em;
+  color:#f8f9fb;
+}
+.comment-top > span:not(.comment-actions){
+  font-size:11px;
+  color:#97a0ae;
+}
+.comment-actions{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-left:0;
+}
+.comment-report,
+.comment-delete{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:999px;
+  background:rgba(255,255,255,.04);
+  color:#c9d0db;
+  cursor:pointer;
+  font-size:11px;
+  font-weight:700;
+  padding:7px 10px;
+  transition:background .15s ease,border-color .15s ease,transform .15s ease;
+}
+.comment-report:hover,
+.comment-delete:hover{
+  color:#fff;
+  border-color:rgba(255,255,255,.18);
+  background:rgba(255,255,255,.09);
+  transform:translateY(-1px);
+}
+.comment-item p{
+  margin:0;
+  color:#e4e8ef;
+  font-size:14px;
+  line-height:1.62;
+}
+.comments-empty{
+  padding:34px 14px;
+  border:1px dashed rgba(255,255,255,.12);
+  border-radius:18px;
+  background:rgba(255,255,255,.025);
+  color:#98a0ad;
+  font-size:14px;
+}
+
+.report-card{
+  border:1px solid rgba(255,255,255,.14);
+  background:
+    radial-gradient(560px 180px at 0% 0%, rgba(255,75,117,.08), transparent 42%),
+    linear-gradient(180deg, rgba(24,27,38,.84), rgba(13,15,23,.94));
+  box-shadow:0 32px 100px rgba(0,0,0,.56), inset 0 1px 0 rgba(255,255,255,.10);
+  backdrop-filter:blur(22px) saturate(160%);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+}
+.report-head>button,
+.report-reasons button,
+.report-actions button:first-child{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+}
+.report-card textarea{
+  background:rgba(8,10,17,.60);
+}
+
+@media(max-width:680px){
+  .watch-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .watch-action{justify-content:center}
+  .episode-comments{
+    margin:12px 12px 0;
+    padding:16px;
+    border-radius:24px;
+  }
+  .comments-head{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .comments-live{padding:8px 11px}
+  .comments-form,
+  .comments-login{
+    padding:12px;
+    border-radius:18px;
+  }
+  .comments-form{display:grid;grid-template-columns:1fr;gap:10px}
+  .comments-form button,
+  .comments-login button{width:100%}
+  .comments-login{display:grid;grid-template-columns:1fr;gap:10px;text-align:left}
+  .comments-list{max-height:none;overflow:visible}
+  .comment-item{padding:14px}
+  .comment-top{grid-template-columns:1fr;align-items:flex-start;gap:6px}
+  .comment-actions{flex-wrap:wrap}
+  .next-episode-banner{margin:18px 12px 0;padding:16px}
+}
+
+/* Public nickname profile — comment identity stays separate from Firebase account identity */
+.account-box{position:relative}
+.account-email{
+  margin:0 0 17px!important;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:rgba(255,255,255,.035);
+  color:var(--muted)!important;
+  overflow-wrap:anywhere;
+}
+.account-label{
+  position:relative;
+  display:block;
+  margin:3px 0 5px;
+  color:var(--text);
+  font-size:11px;
+  font-weight:850;
+}
+.account-note{margin:8px 0 13px!important}
+.account-signout{margin-top:9px}
+.comment-top strong{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:680px){
+  .comment-top strong{max-width:100%}
+  .account-box{padding:24px 19px}
+}

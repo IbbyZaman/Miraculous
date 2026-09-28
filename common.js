@@ -229,6 +229,25 @@
 
   document.body.insertAdjacentHTML("beforeend", authMarkup);
 
+  const accountMarkup = `
+    <div class="auth-modal account-modal" id="accountModal" hidden>
+      <div class="auth-backdrop" data-account-close></div>
+      <div class="auth-box account-box">
+        <button class="auth-close" data-account-close>×</button>
+        <div class="auth-kicker">MIRACULOUSHUB ACCOUNT</div>
+        <h2>Your profile</h2>
+        <p class="account-email" id="accountEmail"></p>
+        <label class="account-label" for="accountNickname">Public nickname</label>
+        <input id="accountNickname" type="text" maxlength="24" autocomplete="nickname" placeholder="Choose a nickname">
+        <p class="account-note">Only this nickname appears beside your comments. Your email and Google account name stay private.</p>
+        <button class="auth-submit" id="saveNickname" type="button">Save nickname</button>
+        <p class="auth-error" id="nicknameError" aria-live="polite"></p>
+        <button class="auth-switch account-signout" id="accountSignOut" type="button">Sign out</button>
+      </div>
+    </div>`;
+
+  document.body.insertAdjacentHTML("beforeend", accountMarkup);
+
   const am = document.querySelector("#authModal");
   const form = document.querySelector("#authForm");
   const err = document.querySelector("#authError");
@@ -364,7 +383,21 @@
     });
   }
 
-  window.mhOpenAccount = function(){
+  const accountModal = document.querySelector("#accountModal");
+  const accountEmail = document.querySelector("#accountEmail");
+  const accountNickname = document.querySelector("#accountNickname");
+  const nicknameError = document.querySelector("#nicknameError");
+  const saveNickname = document.querySelector("#saveNickname");
+  const accountSignOut = document.querySelector("#accountSignOut");
+
+  function closeAccount(){
+    if (accountModal) accountModal.hidden = true;
+  }
+
+  accountModal?.querySelectorAll("[data-account-close]")
+    .forEach(x => x.onclick = closeAccount);
+
+  window.mhOpenAccount = async function(options = {}){
     const u = window.MH_USER;
 
     if (!u) {
@@ -372,12 +405,68 @@
       return;
     }
 
-    if (
-      confirm(
-        `Signed in as ${u.email || "Google account"}.\n\nPress OK to sign out.`
-      )
-    ) {
-      waitForFirebaseAuth().then(api => api.signOut()).catch(console.error);
+    if (accountEmail) accountEmail.textContent = u.email || "Signed-in account";
+    if (nicknameError) {
+      nicknameError.style.color = "";
+      nicknameError.textContent = options.message || "";
+    }
+    if (accountNickname) accountNickname.value = "";
+    if (accountModal) accountModal.hidden = false;
+
+    try {
+      if (window.MH_CLOUD?.getNickname) {
+        const nickname = await window.MH_CLOUD.getNickname();
+        if (accountNickname && nickname) accountNickname.value = nickname;
+      }
+    } catch (error) {
+      console.warn("Could not load nickname:", error);
+    }
+
+    if (options.focusNickname) setTimeout(() => accountNickname?.focus(), 0);
+  };
+
+  window.mhEnsureNickname = async function(){
+    if (!window.MH_USER) {
+      window.mhOpenAuth();
+      return null;
+    }
+
+    try {
+      const nickname = await window.MH_CLOUD?.getNickname?.();
+      if (nickname) return nickname;
+    } catch {}
+
+    window.mhOpenAccount({
+      message: "Choose a nickname before posting. Your account name will never be shown publicly.",
+      focusNickname: true
+    });
+    return null;
+  };
+
+  if (saveNickname) saveNickname.onclick = async () => {
+    nicknameError.textContent = "";
+    nicknameError.style.color = "";
+    saveNickname.disabled = true;
+    try {
+      const nickname = await window.MH_CLOUD.setNickname(accountNickname.value);
+      accountNickname.value = nickname;
+      nicknameError.style.color = "#71e7b8";
+      nicknameError.textContent = "Nickname saved.";
+      window.dispatchEvent(new CustomEvent("mh-nickname-changed", { detail: nickname }));
+    } catch (error) {
+      nicknameError.textContent = error?.message || "Could not save nickname.";
+    } finally {
+      saveNickname.disabled = false;
+    }
+  };
+
+  if (accountSignOut) accountSignOut.onclick = async () => {
+    try {
+      const api = await waitForFirebaseAuth();
+      await api.signOut();
+      closeAccount();
+    } catch (error) {
+      console.error(error);
     }
   };
 
