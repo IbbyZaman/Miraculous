@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta name="robots" content="noindex, nofollow">
+
+  <title>MiraculousHub • R2 Uploader</title>
+
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      color-scheme: dark;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      color: white;
+
+      background:
+        radial-gradient(
+          circle at 20% 20%,
+          rgba(255, 45, 120, 0.20),
+          transparent 35%
+        ),
+        radial-gradient(
+          circle at 80% 70%,
+          rgba(130, 70, 255, 0.20),
+          transparent 35%
+        ),
+        #090912;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      padding: 25px;
+    }
+
+    .uploader {
+      width: min(620px, 100%);
+
+      background:
+        rgba(22, 22, 35, 0.82);
+
+      border:
+        1px solid rgba(255,255,255,0.14);
+
+      border-radius: 32px;
+
+      padding: 32px;
+
+      box-shadow:
+        0 30px 80px rgba(0,0,0,0.45);
+    }
+
+    .logo {
+      width: 58px;
+      height: 58px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 18px;
+
+      font-size: 25px;
+      font-weight: 900;
+
+      background:
+        linear-gradient(
+          135deg,
+          #ff376f,
+          #b735ef
+        );
+
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 6vw, 42px);
+      letter-spacing: -1.5px;
+    }
+
+    .subtitle {
+      margin-top: 9px;
+      margin-bottom: 30px;
+
+      color: rgba(255,255,255,0.60);
+
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+
+      margin-top: 20px;
+      margin-bottom: 8px;
+
+      color: rgba(255,255,255,0.72);
+
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input {
+      width: 100%;
+
+      border:
+        1px solid rgba(255,255,255,0.13);
+
+      background:
+        rgba(255,255,255,0.055);
+
+      color: white;
+
+      border-radius: 16px;
+
+      padding: 16px;
+
+      font-size: 16px;
+
+      outline: none;
+
+      transition:
+        border-color 0.2s,
+        background 0.2s;
+    }
+
+    input:focus {
+      border-color:
+        rgba(255,70,150,0.8);
+
+      background:
+        rgba(255,255,255,0.075);
+    }
+
+    .drop-zone {
+      margin-top: 22px;
+
+      min-height: 170px;
+
+      border:
+        2px dashed rgba(255,255,255,0.16);
+
+      border-radius: 24px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      text-align: center;
+
+      padding: 25px;
+
+      cursor: pointer;
+
+      transition:
+        border-color 0.2s,
+        background 0.2s,
+        transform 0.2s;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragging {
+      border-color:
+        rgba(255,70,150,0.75);
+
+      background:
+        rgba(255,255,255,0.04);
+
+      transform:
+        translateY(-2px);
+    }
+
+    .drop-icon {
+      font-size: 35px;
+      margin-bottom: 12px;
+    }
+
+    .drop-title {
+      font-weight: 800;
+      font-size: 17px;
+    }
+
+    .drop-subtitle {
+      color: rgba(255,255,255,0.48);
+      margin-top: 7px;
+      font-size: 14px;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .file-card {
+      display: none;
+
+      margin-top: 18px;
+
+      padding: 16px;
+
+      border-radius: 18px;
+
+      background:
+        rgba(255,255,255,0.055);
+
+      border:
+        1px solid rgba(255,255,255,0.10);
+    }
+
+    .file-name {
+      font-weight: 800;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-size {
+      margin-top: 5px;
+
+      color:
+        rgba(255,255,255,0.52);
+
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+
+      border: 0;
+
+      margin-top: 22px;
+
+      padding: 17px 20px;
+
+      border-radius: 18px;
+
+      color: white;
+
+      font-size: 16px;
+      font-weight: 850;
+
+      cursor: pointer;
+
+      background:
+        linear-gradient(
+          100deg,
+          #ff376f,
+          #e72480,
+          #a535ef
+        );
+
+      transition:
+        transform 0.15s,
+        opacity 0.15s;
+    }
+
+    button:hover {
+      transform:
+        translateY(-2px);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .cancel {
+      display: none;
+
+      background:
+        rgba(255,255,255,0.08);
+
+      border:
+        1px solid rgba(255,255,255,0.10);
+    }
+
+    .progress-area {
+      display: none;
+      margin-top: 28px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+
+      gap: 15px;
+
+      font-size: 14px;
+
+      color:
+        rgba(255,255,255,0.65);
+
+      margin-bottom: 10px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 12px;
+
+      overflow: hidden;
+
+      border-radius: 999px;
+
+      background:
+        rgba(255,255,255,0.08);
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+
+      border-radius: inherit;
+
+      background:
+        linear-gradient(
+          90deg,
+          #ff376f,
+          #e72c9c,
+          #9d45ff
+        );
+
+      transition:
+        width 0.12s linear;
+    }
+
+    .stats {
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
+      gap: 10px;
+
+      margin-top: 16px;
+    }
+
+    .stat {
+      padding: 13px;
+
+      border-radius: 15px;
+
+      background:
+        rgba(255,255,255,0.045);
+
+      text-align: center;
+    }
+
+    .stat-value {
+      font-weight: 850;
+      font-size: 15px;
+    }
+
+    .stat-label {
+      margin-top: 4px;
+
+      color:
+        rgba(255,255,255,0.45);
+
+      font-size: 11px;
+    }
+
+    .status {
+      min-height: 24px;
+
+      margin-top: 18px;
+
+      text-align: center;
+
+      color:
+        rgba(255,255,255,0.68);
+
+      font-size: 14px;
+
+      line-height: 1.5;
+    }
+
+    .status.success {
+      color: #72f0c8;
+    }
+
+    .status.error {
+      color: #ff7a9b;
+    }
+
+    .warning {
+      margin-top: 25px;
+
+      padding: 14px 16px;
+
+      border-radius: 16px;
+
+      background:
+        rgba(255, 190, 70, 0.07);
+
+      border:
+        1px solid rgba(255, 190, 70, 0.12);
+
+      color:
+        rgba(255,255,255,0.55);
+
+      font-size: 12px;
+
+      line-height: 1.5;
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 15px;
+      }
+
+      .uploader {
+        padding: 23px;
+        border-radius: 25px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="uploader">
+
+    <div class="logo">M</div>
+
+    <h1>R2 Uploader</h1>
+
+    <div class="subtitle">
+      Upload MiraculousHub episodes directly to Cloudflare R2.
+    </div>
+
+
+    <label for="password">
+      Upload password
+    </label>
+
+    <input
+      id="password"
+      type="password"
+      placeholder="Enter your private upload password"
+      autocomplete="current-password"
+    >
+
+
+    <label for="episode">
+      Season 6 episode number
+    </label>
+
+    <input
+      id="episode"
+      type="number"
+      min="1"
+      max="99"
+      placeholder="26"
+    >
+
+
+    <div
+      class="drop-zone"
+      id="dropZone"
+    >
+
+      <div class="drop-icon">
+        ☁️
+      </div>
+
+      <div class="drop-title">
+        Choose your episode
+      </div>
+
+      <div class="drop-subtitle">
+        Tap here or drag an MP4 into this box
+      </div>
+
+    </div>
+
+
+    <input
+      id="fileInput"
+      type="file"
+      accept="video/mp4,.mp4"
+    >
+
+
+    <div
+      class="file-card"
+      id="fileCard"
+    >
+
+      <div
+        class="file-name"
+        id="fileName"
+      ></div>
+
+      <div
+        class="file-size"
+        id="fileSize"
+      ></div>
+
+    </div>
+
+
+    <button
+      id="uploadButton"
+      disabled
+    >
+      Upload to R2
+    </button>
+
+
+    <button
+      id="cancelButton"
+      class="cancel"
+    >
+      Cancel Upload
+    </button>
+
+
+    <section
+      class="progress-area"
+      id="progressArea"
+    >
+
+      <div class="progress-info">
+
+        <span id="progressText">
+          Preparing…
+        </span>
+
+        <span id="percentage">
+          0%
+        </span>
+
+      </div>
+
+
+      <div class="progress-track">
+
+        <div
+          class="progress-bar"
+          id="progressBar"
+        ></div>
+
+      </div>
+
+
+      <div class="stats">
+
+        <div class="stat">
+
+          <div
+            class="stat-value"
+            id="speed"
+          >
+            —
+          </div>
+
+          <div class="stat-label">
+            SPEED
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div
+            class="stat-value"
+            id="eta"
+          >
+            —
+          </div>
+
+          <div class="stat-label">
+            ETA
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div
+            class="stat-value"
+            id="part"
+          >
+            —
+          </div>
+
+          <div class="stat-label">
+            PART
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <div
+      class="status"
+      id="status"
+    ></div>
+
+
+    <div class="warning">
+      This page is for private MiraculousHub administration.
+      Keep your upload password private.
+    </div>
+
+  </main>
+
+
+<script>
+const WORKER =
+  "https://miraculoushub-uploader.ibbyzaman4.workers.dev";
+
+
+// 20 MiB per request.
+//
+// Nemesis at ~945 MB will therefore be uploaded
+// in roughly 48 individual pieces.
+const CHUNK_SIZE =
+  20 * 1024 * 1024;
+
+
+const passwordInput =
+  document.getElementById("password");
+
+const episodeInput =
+  document.getElementById("episode");
+
+const fileInput =
+  document.getElementById("fileInput");
+
+const dropZone =
+  document.getElementById("dropZone");
+
+const fileCard =
+  document.getElementById("fileCard");
+
+const fileName =
+  document.getElementById("fileName");
+
+const fileSize =
+  document.getElementById("fileSize");
+
+const uploadButton =
+  document.getElementById("uploadButton");
+
+const cancelButton =
+  document.getElementById("cancelButton");
+
+const progressArea =
+  document.getElementById("progressArea");
+
+const progressBar =
+  document.getElementById("progressBar");
+
+const progressText =
+  document.getElementById("progressText");
+
+const percentage =
+  document.getElementById("percentage");
+
+const speed =
+  document.getElementById("speed");
+
+const eta =
+  document.getElementById("eta");
+
+const part =
+  document.getElementById("part");
+
+const status =
+  document.getElementById("status");
+
+
+let selectedFile = null;
+
+let currentXHR = null;
+
+let cancelled = false;
+
+let activeUpload = null;
+
+
+
+// ==========================================
+// HELPERS
+// ==========================================
+
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes)) {
+    return "—";
+  }
+
+  const units = [
+    "B",
+    "KB",
+    "MB",
+    "GB",
+    "TB"
+  ];
+
+  let value = bytes;
+  let unit = 0;
+
+  while (
+    value >= 1024 &&
+    unit < units.length - 1
+  ) {
+    value /= 1024;
+    unit++;
+  }
+
+  return (
+    value.toFixed(
+      unit === 0 ? 0 : 1
+    ) +
+    " " +
+    units[unit]
+  );
+}
+
+
+function formatTime(seconds) {
+  if (
+    !Number.isFinite(seconds) ||
+    seconds < 0
+  ) {
+    return "—";
+  }
+
+  if (seconds < 60) {
+    return Math.ceil(seconds) + "s";
+  }
+
+  const minutes =
+    Math.floor(seconds / 60);
+
+  const remaining =
+    Math.ceil(seconds % 60);
+
+  return (
+    minutes +
+    "m " +
+    remaining +
+    "s"
+  );
+}
+
+
+function setStatus(message, type = "") {
+  status.textContent = message;
+
+  status.className =
+    "status " + type;
+}
+
+
+function makeObjectKey() {
+  const episode =
+    Number(episodeInput.value);
+
+  if (
+    !Number.isInteger(episode) ||
+    episode < 1 ||
+    episode > 99
+  ) {
+    throw new Error(
+      "Enter a valid Season 6 episode number."
+    );
+  }
+
+  return (
+    "season-6/s06e" +
+    String(episode).padStart(2, "0") +
+    ".mp4"
+  );
+}
+
+
+function checkReady() {
+  uploadButton.disabled =
+    !selectedFile ||
+    !episodeInput.value ||
+    !passwordInput.value;
+}
+
+
+
+// ==========================================
+// FILE SELECTION
+// ==========================================
+
+dropZone.addEventListener(
+  "click",
+  () => fileInput.click()
+);
+
+
+dropZone.addEventListener(
+  "dragover",
+  event => {
+    event.preventDefault();
+
+    dropZone.classList.add(
+      "dragging"
+    );
+  }
+);
+
+
+dropZone.addEventListener(
+  "dragleave",
+  () => {
+    dropZone.classList.remove(
+      "dragging"
+    );
+  }
+);
+
+
+dropZone.addEventListener(
+  "drop",
+  event => {
+    event.preventDefault();
+
+    dropZone.classList.remove(
+      "dragging"
+    );
+
+    const file =
+      event.dataTransfer.files[0];
+
+    if (file) {
+      chooseFile(file);
+    }
+  }
+);
+
+
+fileInput.addEventListener(
+  "change",
+  () => {
+    const file =
+      fileInput.files[0];
+
+    if (file) {
+      chooseFile(file);
+    }
+  }
+);
+
+
+function chooseFile(file) {
+  if (
+    file.type &&
+    file.type !== "video/mp4"
+  ) {
+    setStatus(
+      "Please choose an MP4 video.",
+      "error"
+    );
+
+    return;
+  }
+
+  selectedFile = file;
+
+  fileName.textContent =
+    file.name;
+
+  fileSize.textContent =
+    formatBytes(file.size);
+
+  fileCard.style.display =
+    "block";
+
+  setStatus("");
+
+  checkReady();
+}
+
+
+passwordInput.addEventListener(
+  "input",
+  checkReady
+);
+
+
+episodeInput.addEventListener(
+  "input",
+  checkReady
+);
+
+
+
+// ==========================================
+// WORKER REQUEST
+// ==========================================
+
+async function workerRequest(
+  action,
+  key,
+  options = {}
+) {
+  const params =
+    new URLSearchParams({
+      action,
+      key
+    });
+
+  if (options.uploadId) {
+    params.set(
+      "uploadId",
+      options.uploadId
+    );
+  }
+
+  if (options.partNumber) {
+    params.set(
+      "partNumber",
+      options.partNumber
+    );
+  }
+
+  const response =
+    await fetch(
+      WORKER +
+      "/upload?" +
+      params.toString(),
+      {
+        method:
+          options.method || "POST",
+
+        headers: {
+          "X-Upload-Password":
+            passwordInput.value,
+
+          ...(options.json
+            ? {
+                "Content-Type":
+                  "application/json"
+              }
+            : {})
+        },
+
+        body:
+          options.json
+            ? JSON.stringify(
+                options.json
+              )
+            : undefined
+      }
+    );
+
+  let result;
+
+  try {
+    result =
+      await response.json();
+  } catch {
+    throw new Error(
+      "Uploader returned an invalid response."
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      result.error ||
+      "Upload request failed."
+    );
+  }
+
+  return result;
+}
+
+
+
+// ==========================================
+// UPLOAD A SINGLE CHUNK
+// ==========================================
+
+function uploadPart({
+  blob,
+  key,
+  uploadId,
+  partNumber,
+  alreadyUploaded,
+  startTime
+}) {
+  return new Promise(
+    (resolve, reject) => {
+
+      const params =
+        new URLSearchParams({
+          action: "part",
+          key,
+          uploadId,
+          partNumber:
+            String(partNumber)
+        });
+
+
+      const xhr =
+        new XMLHttpRequest();
+
+
+      currentXHR = xhr;
+
+
+      xhr.open(
+        "PUT",
+        WORKER +
+        "/upload?" +
+        params.toString()
+      );
+
+
+      xhr.setRequestHeader(
+        "X-Upload-Password",
+        passwordInput.value
+      );
+
+
+      xhr.upload.onprogress =
+        event => {
+          if (!event.lengthComputable) {
+            return;
+          }
+
+
+          const currentBytes =
+            alreadyUploaded +
+            event.loaded;
+
+
+          const progress =
+            Math.min(
+              currentBytes /
+              selectedFile.size,
+              1
+            );
+
+
+          const percent =
+            progress * 100;
+
+
+          progressBar.style.width =
+            percent.toFixed(2) + "%";
+
+
+          percentage.textContent =
+            percent.toFixed(1) + "%";
+
+
+          const elapsed =
+            (Date.now() - startTime) /
+            1000;
+
+
+          const bytesPerSecond =
+            elapsed > 0
+              ? currentBytes / elapsed
+              : 0;
+
+
+          speed.textContent =
+            formatBytes(
+              bytesPerSecond
+            ) + "/s";
+
+
+          const remainingBytes =
+            selectedFile.size -
+            currentBytes;
+
+
+          eta.textContent =
+            bytesPerSecond > 0
+              ? formatTime(
+                  remainingBytes /
+                  bytesPerSecond
+                )
+              : "—";
+        };
+
+
+      xhr.onload = () => {
+        currentXHR = null;
+
+        let result;
+
+        try {
+          result =
+            JSON.parse(
+              xhr.responseText
+            );
+        } catch {
+          reject(
+            new Error(
+              "Invalid response while uploading."
+            )
+          );
+
+          return;
+        }
+
+
+        if (
+          xhr.status < 200 ||
+          xhr.status >= 300
+        ) {
+          reject(
+            new Error(
+              result.error ||
+              "Part upload failed."
+            )
+          );
+
+          return;
+        }
+
+
+        resolve(result);
+      };
+
+
+      xhr.onerror = () => {
+        currentXHR = null;
+
+        reject(
+          new Error(
+            "Network error while uploading."
+          )
+        );
+      };
+
+
+      xhr.onabort = () => {
+        currentXHR = null;
+
+        reject(
+          new Error(
+            "Upload cancelled."
+          )
+        );
+      };
+
+
+      xhr.send(blob);
+    }
+  );
+}
+
+
+
+// ==========================================
+// START UPLOAD
+// ==========================================
+
+uploadButton.addEventListener(
+  "click",
+  startUpload
+);
+
+
+async function startUpload() {
+  if (!selectedFile) {
+    return;
+  }
+
+
+  let key;
+
+  try {
+    key =
+      makeObjectKey();
+  } catch (error) {
+    setStatus(
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  cancelled = false;
+
+
+  uploadButton.disabled = true;
+
+  cancelButton.style.display =
+    "block";
+
+  progressArea.style.display =
+    "block";
+
+
+  progressBar.style.width =
+    "0%";
+
+  percentage.textContent =
+    "0%";
+
+  speed.textContent =
+    "—";
+
+  eta.textContent =
+    "—";
+
+
+  setStatus(
+    "Creating secure multipart upload…"
+  );
+
+
+  const startTime =
+    Date.now();
+
+
+  try {
+
+    // ------------------------------------------
+    // CREATE
+    // ------------------------------------------
+
+    const created =
+      await workerRequest(
+        "create",
+        key
+      );
+
+
+    activeUpload = {
+      key,
+      uploadId:
+        created.uploadId
+    };
+
+
+    const totalParts =
+      Math.ceil(
+        selectedFile.size /
+        CHUNK_SIZE
+      );
+
+
+    const uploadedParts = [];
+
+
+    // ------------------------------------------
+    // UPLOAD EACH CHUNK
+    // ------------------------------------------
+
+    for (
+      let index = 0;
+      index < totalParts;
+      index++
+    ) {
+
+      if (cancelled) {
+        throw new Error(
+          "Upload cancelled."
+        );
+      }
+
+
+      const partNumber =
+        index + 1;
+
+
+      const start =
+        index * CHUNK_SIZE;
+
+
+      const end =
+        Math.min(
+          start + CHUNK_SIZE,
+          selectedFile.size
+        );
+
+
+      const blob =
+        selectedFile.slice(
+          start,
+          end
+        );
+
+
+      part.textContent =
+        partNumber +
+        " / " +
+        totalParts;
+
+
+      progressText.textContent =
+        "Uploading part " +
+        partNumber +
+        " of " +
+        totalParts;
+
+
+      const result =
+        await uploadPart({
+          blob,
+          key,
+          uploadId:
+            created.uploadId,
+          partNumber,
+          alreadyUploaded:
+            start,
+          startTime
+        });
+
+
+      uploadedParts.push({
+        partNumber:
+          result.partNumber,
+
+        etag:
+          result.etag
+      });
+    }
+
+
+    // ------------------------------------------
+    // COMPLETE
+    // ------------------------------------------
+
+    progressText.textContent =
+      "Finishing upload…";
+
+
+    setStatus(
+      "All pieces uploaded. Finalising the MP4…"
+    );
+
+
+    await workerRequest(
+      "complete",
+      key,
+      {
+        uploadId:
+          created.uploadId,
+
+        json: {
+          parts:
+            uploadedParts
+        }
+      }
+    );
+
+
+    progressBar.style.width =
+      "100%";
+
+    percentage.textContent =
+      "100%";
+
+    progressText.textContent =
+      "Complete";
+
+
+    setStatus(
+      "✓ Uploaded successfully to R2 as " +
+      key,
+      "success"
+    );
+
+
+    activeUpload = null;
+
+    cancelButton.style.display =
+      "none";
+
+  } catch (error) {
+
+    if (
+      activeUpload &&
+      !cancelled
+    ) {
+      try {
+        await workerRequest(
+          "abort",
+          activeUpload.key,
+          {
+            uploadId:
+              activeUpload.uploadId
+          }
+        );
+      } catch {}
+    }
+
+
+    setStatus(
+      error.message ||
+      "Upload failed.",
+      "error"
+    );
+
+
+    activeUpload = null;
+
+    cancelButton.style.display =
+      "none";
+
+    uploadButton.disabled =
+      false;
+  }
+}
+
+
+
+// ==========================================
+// CANCEL
+// ==========================================
+
+cancelButton.addEventListener(
+  "click",
+  async () => {
+
+    cancelled = true;
+
+
+    if (currentXHR) {
+      currentXHR.abort();
+    }
+
+
+    cancelButton.disabled =
+      true;
+
+
+    setStatus(
+      "Cancelling upload…"
+    );
+
+
+    if (activeUpload) {
+      try {
+        await workerRequest(
+          "abort",
+          activeUpload.key,
+          {
+            uploadId:
+              activeUpload.uploadId
+          }
+        );
+      } catch {}
+    }
+
+
+    activeUpload = null;
+
+
+    setStatus(
+      "Upload cancelled."
+    );
+
+
+    cancelButton.style.display =
+      "none";
+
+    cancelButton.disabled =
+      false;
+
+    uploadButton.disabled =
+      false;
+  }
+);
+</script>
+
+</body>
+</html>
