@@ -1,0 +1,24 @@
+MiraculousHub universal R2 routing
+
+1. VIDEO WORKER
+Replace the code in miraculous-video with cloudflare-worker-current.js.
+Keep R2 binding name: R2_VIDEOS
+The Google secret can stay temporarily while you migrate. Once every old Drive file is in R2, it is optional.
+
+2. UPLOADER WORKER
+Replace miraculoushub-uploader code with cloudflare-uploader-worker.js.
+Keep R2 binding name: VIDEOS
+Keep secret: UPLOAD_PASSWORD
+
+3. WEBSITE
+This build already points EVERY episode to /video/sXXeXX.
+All six specials use /video/special/<slug>.
+No website edit is needed after an upload.
+
+Examples:
+Season 3 Episode 14 -> R2 season-3/s03e14.mp4 -> /video/s03e14
+Season 6 Episode 26 -> R2 season-6/s06e26.mp4 -> /video/s06e26
+London -> R2 specials/london.mp4 -> /video/special/london
+
+4. upload.html
+The website package now includes upload.html with Season 1-7, Episodes 1-27 and all six specials preconfigured.

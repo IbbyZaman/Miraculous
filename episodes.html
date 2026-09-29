@@ -197,7 +197,7 @@ function getEpisodes(){
         title:t,
         code:`SPECIAL ${i+1}`,
         special:true,
-        videoPath:t==="London: At the Edge of Time"?"/video/london":""
+        specialSlug:["new-york","shanghai","awakening","paris","london","tokyo"][i]
       }))
     : MH_EPISODES.filter(e=>season==="0"||e.season==season);
 
@@ -219,7 +219,7 @@ function render(){
   grid.innerHTML=arr.length
     ? arr.map(e=>{
         const href=e.special
-          ? (e.videoPath?`watch.html?special=${e.episode}`:"#")
+          ? `watch.html?special=${e.episode}`
           : `watch.html?season=${e.season}&episode=${e.episode}`;
 
         return `
