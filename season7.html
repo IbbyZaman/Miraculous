@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#05070c">
+<meta name="theme-color" content="#07070a">
 <link rel="icon" type="image/png" href="favicon.png">
 <title>MiraculousHub — Season 7</title>
-<link rel="stylesheet" href="styles.css?v=season7-news-1">
+<link rel="stylesheet" href="styles.css?v=nova-1">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
 <script>
@@ -16,108 +16,116 @@
   gtag('config', 'G-6K9W3X96EY');
 </script>
 </head>
-<body>
+<body class="nova-site">
+
 <header class="topbar">
   <a class="brand" href="index.html" aria-label="MiraculousHub home">
     <span class="brand-mark">M</span>
     <span class="brand-text">MIRACULOUS<span>HUB</span></span>
   </a>
   <nav class="nav" aria-label="Main navigation">
-    <a href="index.html">Home</a>
-    <a href="episodes.html">Episodes</a>
-    <a href="index.html#upcoming-releases">Upcoming Releases</a>
-    <a class="active" href="season7.html">Season 7</a>
+    <a  href="index.html">Home</a>
+<a  href="episodes.html?season=6">Episodes</a>
+<a  href="index.html#upcoming-releases">Upcoming</a>
+<a class="active" href="season7.html">Season 7</a>
   </nav>
   <div class="actions">
     <button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button>
     <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button>
-    <button class="lang-btn" id="languageButton">EN⌄</button>
     <button class="signin">Sign in</button>
-    <button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false"><span></span><span></span><span></span></button>
+    <button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
 <div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
 <aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation">
-  <div class="mobile-drawer-head"><div><span class="mobile-drawer-kicker">MIRACULOUSHUB</span><strong>Navigation</strong></div><button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close navigation">×</button></div>
+  <div class="mobile-drawer-head">
+    <div><span class="mobile-drawer-kicker">MIRACULOUSHUB</span><strong>Menu</strong></div>
+    <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close navigation">×</button>
+  </div>
   <nav class="mobile-nav-links" aria-label="Mobile navigation links">
-    <a href="index.html"><span>01</span><b>Home</b><i>→</i></a>
-    <a href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a>
-    <a href="index.html#upcoming-releases"><span>03</span><b>Upcoming Releases</b><i>→</i></a>
-    <a class="active" href="season7.html"><span>04</span><b>Season 7</b><i>→</i></a>
+    <a  href="index.html"><span>01</span><b>Home</b><i>→</i></a>
+<a  href="episodes.html?season=6"><span>02</span><b>Episodes</b><i>→</i></a>
+<a  href="index.html#upcoming-releases"><span>03</span><b>Upcoming</b><i>→</i></a>
+<a class="active" href="season7.html"><span>04</span><b>Season 7</b><i>→</i></a>
   </nav>
-  <div class="mobile-drawer-foot"><p>Season 7 release watch.</p><button class="signin mobile-drawer-signin">Sign in</button></div>
+  <div class="mobile-drawer-foot">
+    <p>Watch progress syncs to your account.</p>
+    <button class="signin mobile-drawer-signin">Sign in</button>
+  </div>
 </aside>
 
+
 <main class="container season7-page">
-  <section class="s7-hero">
-    <div class="s7-hero-copy">
-      <p class="kicker">MIRACULOUSHUB · RELEASE WATCH</p>
-      <h1>Season <span>7</span></h1>
-      <p class="s7-lead">A dedicated home for release dates, schedule changes and episode news. We separate confirmed information from reported listings so the page stays useful when schedules move.</p>
-      <div class="s7-status-row">
-        <span class="s7-status confirmed"><i></i> 26 episodes confirmed</span>
-        <span class="s7-status reported"><i></i> Nov 20 U.S. date reported</span>
-        <span class="s7-status"><i></i> Updated 2 Oct 2026</span>
-      </div>
-      <div class="hero-actions">
-        <a class="primary" href="#release-calendar">Release calendar <span>↓</span></a>
-        <a class="secondary" href="episodes.html">Current episodes</a>
-      </div>
+  <section class="nova-s7-hero">
+    <div class="nova-s7-copy">
+      <span class="eyebrow"><i></i> SEASON 7 RELEASE WATCH</span>
+      <h1>The next era<br><em>starts here.</em></h1>
+      <p>One page for the dates, reported episode titles and updates that matter — with reported information clearly separated from confirmed details.</p>
+      <div class="nova-s7-badges"><span class="confirmed">26 episodes confirmed</span><span class="reported">Nov 20 U.S. date reported</span></div>
+      <div class="nova-hero-actions"><a class="btn-primary" href="#release-calendar">Release calendar <b>↓</b></a><a class="btn-quiet" href="episodes.html?season=7">Season 7 library</a></div>
     </div>
-    <div class="s7-number" aria-hidden="true">07</div>
+    <div class="nova-s7-art"><span class="giant-seven">7</span><div class="s7-orbit one"></div><div class="s7-orbit two"></div><div class="s7-tag">NEXT CHAPTER</div></div>
   </section>
 
   <section class="section" id="release-calendar">
-    <div class="section-head"><div><p class="kicker">WHAT WE KNOW RIGHT NOW</p><h2>Release calendar</h2></div></div>
-    <div class="s7-timeline">
-      <article class="s7-event">
-        <div class="s7-event-date"><span>NOV</span><strong>14</strong><small>2026</small></div>
-        <div><span class="s7-pill reported">REPORTED</span><h3>Disney Channel EMEA</h3><p>Current programme trackers list an English-dub Season 7 launch in EMEA from November 14. This is a regional rollout and may differ by country.</p></div>
-      </article>
-      <article class="s7-event featured">
-        <div class="s7-event-date"><span>NOV</span><strong>20</strong><small>2026</small></div>
-        <div><span class="s7-pill reported">REPORTED</span><h3>Disney Channel U.S. premiere</h3><p>November 20 is the current reported U.S. premiere date. Miraculous' official site confirms Disney acquired Season 7, but its current news page has not yet published a dated Season 7 premiere announcement.</p></div>
-      </article>
-      <article class="s7-event">
-        <div class="s7-event-date soft"><span>26</span><strong>EPS</strong><small>CONFIRMED</small></div>
-        <div><span class="s7-pill confirmed">CONFIRMED</span><h3>Full season order</h3><p>Miraculous officially states that Season 7 consists of 26 episodes, each approximately 22 minutes long.</p></div>
-      </article>
+    <div class="section-head"><div><span class="eyebrow">CURRENT SCHEDULE WATCH</span><h2>Release calendar</h2></div></div>
+    <div class="nova-timeline">
+      <article class="timeline-card"><div class="timeline-date"><span>NOV</span><strong>14</strong><small>2026</small></div><div><span class="status-pill reported">REPORTED</span><h3>Disney Channel EMEA</h3><p>Current programme trackers list an English-dub Season 7 launch in EMEA from November 14. Regional timing may vary.</p></div></article>
+      <article class="timeline-card timeline-featured"><div class="timeline-date"><span>NOV</span><strong>20</strong><small>2026</small></div><div><span class="status-pill reported">REPORTED</span><h3>Disney Channel U.S.</h3><p>November 20 is the current reported U.S. premiere date. The official Miraculous site confirms the season order, while schedules can still move.</p></div></article>
+      <article class="timeline-card"><div class="timeline-date count"><span>26</span><strong>EPS</strong><small>ORDER</small></div><div><span class="status-pill confirmed">CONFIRMED</span><h3>Full season order</h3><p>Season 7 is confirmed as a 26-episode season, with episodes approximately 22 minutes long.</p></div></article>
     </div>
-    <p class="s7-note">TV schedules can change. Dates marked “reported” are intentionally not shown as official confirmations.</p>
   </section>
 
   <section class="section">
-    <div class="section-head"><div><p class="kicker">RECENT LISTINGS</p><h2>Episode-title watch</h2></div></div>
-    <div class="s7-title-grid">
-      <article><span>S07E01</span><strong>Replay Value</strong><small>Reported title · not yet treated as official</small></article>
-      <article><span>S07E02</span><strong>Chrysalis</strong><small>Reported title · not yet treated as official</small></article>
-      <article><span>S07E03</span><strong>Dislove</strong><small>Reported title · not yet treated as official</small></article>
-      <article><span>S07E04</span><strong>Management</strong><small>Reported title · not yet treated as official</small></article>
-      <article><span>S07E05</span><strong>Marinette Dupain-Cheng</strong><small>Reported title · not yet treated as official</small></article>
-      <article><span>S07E06?</span><strong>Glaciator</strong><small>Unclear listing · may be a repeat rather than S7</small></article>
+    <div class="section-head"><div><span class="eyebrow">TITLE WATCH</span><h2>Currently reported titles</h2></div></div>
+    <div class="nova-title-grid">
+      <article><span>01</span><div><small>S07E01 · REPORTED</small><strong>Replay Value</strong></div></article>
+      <article><span>02</span><div><small>S07E02 · REPORTED</small><strong>Chrysalis</strong></div></article>
+      <article><span>03</span><div><small>S07E03 · REPORTED</small><strong>Dislove</strong></div></article>
+      <article><span>04</span><div><small>S07E04 · REPORTED</small><strong>Management</strong></div></article>
+      <article><span>05</span><div><small>S07E05 · REPORTED</small><strong>Marinette Dupain-Cheng</strong></div></article>
+      <article class="uncertain"><span>06?</span><div><small>UNCLEAR LISTING</small><strong>Glaciator</strong></div></article>
     </div>
-    <p class="s7-note">These names are being circulated from recent listings. “Glaciator” is especially uncertain because an episode with that title already exists in Season 2, so MiraculousHub will wait for clearer confirmation before treating it as S07E06.</p>
+    <p class="s7-note">Reported listings can change. “Glaciator” is especially uncertain because that title already exists in an earlier season.</p>
   </section>
 
   <section class="section">
-    <div class="s7-ready-card">
-      <div><p class="kicker">READY FOR THE NEXT CHAPTER</p><h2>Season 7 on MiraculousHub</h2><p>The site is already prepared for Season 7 navigation. When episodes become available, they can be added to the episode library without redesigning this page.</p></div>
-      <a class="primary" href="episodes.html?season=6">Browse episodes <span>→</span></a>
+    <div class="nova-ready-card">
+      <div><span class="eyebrow">READY TO GO</span><h2>The Season 7 route is already waiting.</h2><p>When an episode is ready, the universal player route can serve it without redesigning the site again.</p></div>
+      <a class="btn-primary" href="episodes.html?season=7">Open Season 7 <b>→</b></a>
     </div>
   </section>
 </main>
 
+
 <footer class="footer">
-  <div><div class="brand"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></div><p style="color:var(--muted);font-size:9px;line-height:1.6;max-width:340px">Fan-made release tracker. Not affiliated with the official Miraculous brand.</p></div>
-  <div class="footer-links"><div><b>EXPLORE</b><a href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="index.html#upcoming-releases">Upcoming Releases</a><a href="season7.html">Season 7</a></div><div><b>OFFICIAL</b><a href="https://miraculous.com/" target="_blank" rel="noopener">Miraculous website</a></div></div>
-  <p class="copyright">© 2026 MiraculousHub. Fan project.</p>
+  <div class="footer-brand">
+    <div class="brand"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></div>
+    <p>A fan-made Miraculous watch hub built around fast browsing, synced playback and a clean player.</p>
+  </div>
+  <div class="footer-links">
+    <div><b>WATCH</b><a href="episodes.html?season=6">Episodes</a><a href="season7.html">Season 7</a></div>
+    <div><b>DISCOVER</b><a href="index.html#upcoming-releases">Upcoming</a><a href="index.html#live">Live</a></div>
+  </div>
+  <p class="copyright">© 2026 MiraculousHub · Fan project · Not affiliated with the official Miraculous brand.</p>
 </footer>
 
-<div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn" aria-label="Close search">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
-<div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
-<script src="data.js?v=season7-news-1"></script>
+
+<div class="modal" id="searchModal" hidden>
+  <div class="modal-box">
+    <div class="modal-top"><div><span class="eyebrow">SEARCH</span><h2>Find an episode</h2></div><button class="close" id="searchCloseBtn" aria-label="Close search">×</button></div>
+    <input id="searchInput" placeholder="Search title, season or episode code">
+    <div class="results" id="searchResults"></div>
+  </div>
+  <div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div>
+</div>
+<div class="lang-pop" id="languagePopover" hidden></div>
+
+<script src="data.js?v=nova-1"></script>
 <script src="firebase.js?v=continue-fix-1"></script>
 <script src="common.js?v=continue-fix-1"></script>
-<script src="motion.js?v=mobile-drawer-1"></script>
+<script src="motion.js?v=nova-1"></script>
 </body>
 </html>

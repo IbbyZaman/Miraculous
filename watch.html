@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png"><title>MiraculousHub — Watch</title>
-<link rel="stylesheet" href="styles.css?v=special-thumbs-s7-grid-1">
+<link rel="stylesheet" href="styles.css?v=nova-1">
 <style>
 /* Modern video player */
 .watch-shell{width:min(1240px,94vw);padding:24px 0 70px}
@@ -466,6 +466,63 @@ body .player-loading-text{
 
   gtag('config', 'G-6K9W3X96EY');
 </script>
+
+<style id="nova-player-theme">
+/* MiraculousHub NOVA player — visual overhaul only. Playback logic/IDs stay unchanged. */
+body .watch-shell{width:min(1440px,96vw);padding:28px 0 82px}
+body .player{position:relative;border-radius:28px!important;overflow:hidden;background:#000!important;border:1px solid rgba(255,255,255,.12)!important;box-shadow:0 38px 110px rgba(0,0,0,.52)!important}
+body .player::before,body .player::after{display:none!important}
+body .player-stage{background:#000!important}
+body .player-overlay{padding:18px 20px 16px!important;background:linear-gradient(180deg,rgba(4,4,7,.66),transparent 26%,transparent 52%,rgba(3,3,5,.9))!important}
+body .player-top{width:100%!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+body .player-title{font-size:13px!important;font-weight:800!important;letter-spacing:-.01em}
+body .player-subtitle{padding:6px 9px;border-radius:999px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.12);font-size:9px!important;color:#ddd!important}
+body .player-bottom{display:flex;flex-direction:column;gap:6px}
+body .progress-area{height:18px!important}
+body .progress-track{height:4px!important;background:rgba(255,255,255,.22)!important}
+body .progress-buffer{background:rgba(255,255,255,.34)!important}
+body .progress-current{background:linear-gradient(90deg,#ff245f,#ff4d88)!important;box-shadow:0 0 14px rgba(255,36,95,.48)}
+body .progress-knob{width:13px!important;height:13px!important;background:#fff!important;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+body .control-row{min-height:48px;padding:6px 7px;border-radius:17px;background:rgba(8,8,11,.82);border:1px solid rgba(255,255,255,.1);box-shadow:0 12px 34px rgba(0,0,0,.26)}
+body .pbtn{width:38px!important;height:38px!important;min-width:38px;border-radius:12px!important;background:transparent!important;border:0!important;color:white!important;font-size:14px!important}
+body .pbtn:hover{background:rgba(255,255,255,.1)!important}
+body .pbtn.wide{width:auto!important;min-width:42px!important;padding:0 10px!important}
+body .volume-slider{width:78px;accent-color:#ff2f68}
+body .player-time{font-size:10px!important;color:#d4d4db!important}
+body .settings-menu{bottom:58px!important;width:220px!important;padding:8px!important;border-radius:16px!important;background:#111117!important;border:1px solid rgba(255,255,255,.12)!important;box-shadow:0 24px 70px rgba(0,0,0,.5)!important;backdrop-filter:none!important}
+body .settings-menu button{padding:11px 12px!important;border-radius:10px!important}
+body .center-play{width:72px!important;height:72px!important;border-radius:50%!important;background:rgba(12,12,16,.84)!important;border:1px solid rgba(255,255,255,.16)!important;box-shadow:0 20px 55px rgba(0,0,0,.45)!important;font-size:24px!important}
+body .toast{border-radius:999px!important;background:rgba(8,8,10,.9)!important;padding:10px 15px!important}
+body .quick-btn{background:rgba(10,10,13,.88)!important;border:1px solid rgba(255,255,255,.1)!important;backdrop-filter:none!important}
+body .speed-hint{background:#111116!important;border:1px solid rgba(255,255,255,.1)!important}
+body .player-loading{background:rgba(10,10,14,.86)!important;border:1px solid rgba(255,255,255,.12)!important;backdrop-filter:none!important}
+body .mh-video-ident{background:#060609!important}
+body .mh-ident-domain{letter-spacing:.08em!important}
+body .player-caption-note{margin:10px 4px 0!important;color:#777!important}
+body .watch-meta{width:min(1080px,100%)!important;margin:24px auto 0!important;padding:26px 0 0!important;border-top:1px solid rgba(255,255,255,.09)}
+body .watch-meta .kicker{margin:0 0 7px!important}
+body .watch-meta h1{font-size:clamp(30px,5vw,54px)!important;letter-spacing:-.04em!important;margin:0 0 8px!important}
+body .watch-meta .sub{color:var(--nova-muted)!important}
+body .watch-actions{display:flex;flex-wrap:wrap;gap:9px!important;margin-top:20px!important}
+body .watch-action{min-height:42px!important;padding:0 15px!important;border-radius:12px!important;background:#141419!important;border:1px solid rgba(255,255,255,.09)!important;color:#f5f5f7!important}
+body .watch-action:hover{background:#1b1b22!important;border-color:rgba(255,255,255,.18)!important}
+body .description{margin-top:22px!important;padding:18px 0!important;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);color:var(--nova-muted)!important}
+body .prevnext{margin-top:16px!important}
+body .prevnext a{padding:11px 0!important;color:#eee!important}
+body .episode-comments{width:min(1080px,100%)!important;margin:28px auto 0!important;border-radius:22px!important;background:#101014!important;border:1px solid rgba(255,255,255,.08)!important;box-shadow:none!important;backdrop-filter:none!important}
+@media(max-width:680px){
+ body .watch-shell{width:100%!important;padding:0 0 52px!important}
+ body .player{border-radius:0!important;border-left:0!important;border-right:0!important;box-shadow:none!important}
+ body .player-overlay{padding:10px 8px 8px!important}
+ body .control-row{padding:4px!important;border-radius:14px!important;background:rgba(7,7,10,.9)!important}
+ body .pbtn{width:37px!important;height:37px!important;min-width:37px!important}
+ body .player-time{font-size:9px!important;margin:0 2px!important}
+ body .watch-meta{padding:22px 18px 0!important;margin-top:0!important;border-top:0}
+ body .episode-comments{width:calc(100% - 28px)!important;margin:24px 14px 0!important}
+ body .player-caption-note{padding:0 16px!important}
+}
+</style>
+
 </head>
 <body>
 <header class="topbar">
@@ -484,8 +541,8 @@ body .player-loading-text{
   </div>
   <nav class="mobile-nav-links" aria-label="Mobile navigation links">
     <a href="index.html"><span>01</span><b>Home</b><i>→</i></a>
-    <a class="active" href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a>
-    <a href="index.html#upcoming-releases"><span>03</span><b>Upcoming Releases</b><i>→</i></a>
+    <a class="active" href="episodes.html?season=6"><span>02</span><b>Episodes</b><i>→</i></a>
+    <a href="index.html#upcoming-releases"><span>03</span><b>Upcoming</b><i>→</i></a>
     <a href="season7.html"><span>04</span><b>Season 7</b><i>→</i></a>
   </nav>
   <div class="mobile-drawer-foot">
@@ -617,7 +674,7 @@ body .player-loading-text{
  </div>
 </div>
 
-<script src="data.js?v=special-thumbs-s7-grid-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=continue-fix-1"></script><script src="motion.js?v=player-perf-1"></script>
+<script src="data.js?v=nova-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=continue-fix-1"></script><script src="motion.js?v=player-perf-1"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
@@ -626,7 +683,7 @@ const specialSlugs=["new-york","shanghai","awakening","paris","london","tokyo"];
 const isSpecial=Number.isInteger(specialNumber)&&specialNumber>0&&specialNumber<=specialTitles.length;
 const season=Number(params.get("season")||6), number=Number(params.get("episode")||26);
 const ep=isSpecial
-  ? {season:"Special",episode:specialNumber,title:specialTitles[specialNumber-1],code:`SPECIAL ${specialNumber}`,specialSlug:specialSlugs[specialNumber-1]}
+  ? {season:"Special",episode:specialNumber,title:specialTitles[specialNumber-1],code:`SPECIAL ${specialNumber}`,specialSlug:specialSlugs[specialNumber-1],thumbnail:(window.MH_SPECIAL_THUMBNAILS||[])[specialNumber-1]||""}
   : (window.MH_EPISODES||[]).find(x=>x.season===season&&x.episode===number)||(window.MH_EPISODES||[]).at(-1);
 const $=id=>document.getElementById(id);
 document.title=`MiraculousHub — ${ep.title}`;
@@ -634,6 +691,7 @@ $("episodeCode").textContent=isSpecial?`SPECIAL · ${ep.title}`:`SEASON ${ep.sea
 $("title").textContent=ep.title;
 $("playerTitle").textContent=ep.title;
 $("playerCode").textContent=isSpecial?`SPECIAL ${String(ep.episode).padStart(2,"0")}`:`S${String(ep.season).padStart(2,"0")} E${String(ep.episode).padStart(2,"0")}`;
+const watchSub=document.querySelector(".watch-meta .sub"); if(watchSub) watchSub.textContent=isSpecial?"Miraculous World Special":`Miraculous Ladybug · Season ${ep.season}`;
 
 const idx=MH_EPISODES.findIndex(x=>x.season===ep.season&&x.episode===ep.episode);
 const prev=MH_EPISODES[idx-1], next=MH_EPISODES[idx+1];

@@ -3,39 +3,35 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#05070c">
+<meta name="theme-color" content="#07070a">
 <link rel="icon" type="image/png" href="favicon.png">
 <title>MiraculousHub — Home</title>
-<link rel="stylesheet" href="styles.css?v=special-thumbs-s7-grid-1">
+<link rel="stylesheet" href="styles.css?v=nova-1">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-6K9W3X96EY');
 </script>
 </head>
-<body>
+<body class="nova-site">
 
 <header class="topbar">
   <a class="brand" href="index.html" aria-label="MiraculousHub home">
     <span class="brand-mark">M</span>
     <span class="brand-text">MIRACULOUS<span>HUB</span></span>
   </a>
-
   <nav class="nav" aria-label="Main navigation">
     <a class="active" href="index.html">Home</a>
-    <a href="episodes.html">Episodes</a>
-    <a href="index.html#upcoming-releases">Upcoming Releases</a>
-    <a href="season7.html">Season 7</a>
+<a  href="episodes.html?season=6">Episodes</a>
+<a  href="index.html#upcoming-releases">Upcoming</a>
+<a  href="season7.html">Season 7</a>
   </nav>
-
   <div class="actions">
     <button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button>
     <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button>
-    <button class="lang-btn" id="languageButton">EN⌄</button>
     <button class="signin">Sign in</button>
     <button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -45,293 +41,207 @@
 <div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
 <aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation">
   <div class="mobile-drawer-head">
-    <div>
-      <span class="mobile-drawer-kicker">MIRACULOUSHUB</span>
-      <strong>Navigation</strong>
-    </div>
+    <div><span class="mobile-drawer-kicker">MIRACULOUSHUB</span><strong>Menu</strong></div>
     <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close navigation">×</button>
   </div>
   <nav class="mobile-nav-links" aria-label="Mobile navigation links">
     <a class="active" href="index.html"><span>01</span><b>Home</b><i>→</i></a>
-    <a href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a>
-    <a href="index.html#upcoming-releases"><span>03</span><b>Upcoming Releases</b><i>→</i></a>
-    <a href="season7.html"><span>04</span><b>Season 7</b><i>→</i></a>
+<a  href="episodes.html?season=6"><span>02</span><b>Episodes</b><i>→</i></a>
+<a  href="index.html#upcoming-releases"><span>03</span><b>Upcoming</b><i>→</i></a>
+<a  href="season7.html"><span>04</span><b>Season 7</b><i>→</i></a>
   </nav>
   <div class="mobile-drawer-foot">
-    <p>Your Miraculous watch space.</p>
+    <p>Watch progress syncs to your account.</p>
     <button class="signin mobile-drawer-signin">Sign in</button>
   </div>
 </aside>
 
 
-<section class="hero">
-  <div class="hero-copy">
-    <p class="kicker">THE MIRACULOUS UNIVERSE, REIMAGINED</p>
-    <h1>Watch it.<br><span>Feel the magic.</span></h1>
-    <p class="hero-sub">A glassy, futuristic home for episodes, specials and your personal watch progress — designed to feel fluid on desktop and mobile.</p>
-
-    <div class="hero-actions">
-      <a class="primary" href="episodes.html?season=6">Explore Episodes <span>→</span></a>
-      <a class="secondary" href="#latest">See What's New</a>
-    </div>
-
-    <div class="hero-metrics" aria-label="Site highlights">
-      <span class="hero-metric"><i></i> Watch progress sync</span>
-      <span class="hero-metric"><i></i> Mobile ready</span>
-      <span class="hero-metric"><i></i> No ads</span>
-    </div>
-  </div>
-
-  <div class="hero-art" aria-hidden="true">
-    <div class="orb a"></div>
-    <div class="orb b"></div>
-
-    <div class="hero-tile">
-      <small>SEASON 6 · FINAL CHAPTER</small>
-      <strong>NEMESIS</strong>
-      <span>EPISODE 26</span>
-      <div class="play-circle">▶</div>
-    </div>
-
-    <div class="hero-float-card">
-      <small>YOUR WATCH SPACE</small>
-      <strong>Progress follows you</strong>
-      <div class="mini-bar"></div>
-    </div>
-  </div>
-</section>
-
-<main class="container">
-  <section class="live-section" id="live">
-    <div class="section-heading">
-      <div>
-        <span class="live-badge">● LIVE</span>
-        <h2>MiraculousHub Live</h2>
-        <p>Watch MiraculousHubTV live on Twitch.</p>
+<main>
+  <section class="nova-hero">
+    <div class="nova-hero-copy">
+      <span class="eyebrow"><i></i> MIRACULOUSHUB · STREAM YOUR WAY</span>
+      <h1>Miraculous,<br><em>uninterrupted.</em></h1>
+      <p>Your episodes, specials and synced watch progress in one fast, cinematic home — built to feel just as good on your phone as it does on desktop.</p>
+      <div class="nova-hero-actions">
+        <a class="btn-primary" href="episodes.html?season=6"><span>Browse Season 6</span><b>→</b></a>
+        <a class="btn-quiet" href="season7.html"><span>Season 7 news</span></a>
+      </div>
+      <div class="nova-stats">
+        <div><strong>6</strong><span>Seasons ready</span></div>
+        <div><strong>R2</strong><span>Fast streaming</span></div>
+        <div><strong>SYNC</strong><span>Resume anywhere</span></div>
       </div>
     </div>
 
-    <div class="live-player-card twitch-card">
-      <div class="twitch-frame">
-        <iframe
-          src="https://player.twitch.tv/?channel=miraculoushubtv&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false"
-          title="MiraculousHubTV live stream"
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowfullscreen>
-        </iframe>
-      </div>
-
-      <div class="live-player-info">
-        <div>
-          <strong>MiraculousHub Live</strong>
-          <span>Live on Twitch · @miraculoushubtv</span>
+    <div class="nova-feature">
+      <a class="nova-feature-card" href="watch.html?season=6&episode=26">
+        <img src="https://miraculous.to/global_data/img/626_2026-08-08_04-39-43.webp" alt="" loading="eager" decoding="async" referrerpolicy="no-referrer">
+        <div class="nova-feature-shade"></div>
+        <div class="nova-feature-top"><span>SEASON 6</span><span>EP 26</span></div>
+        <div class="nova-feature-copy">
+          <small>NOW AVAILABLE</small>
+          <h2>Nemesis</h2>
+          <p>Jump straight into the latest chapter.</p>
+          <span class="round-play">▶</span>
         </div>
-        <a class="live-action live-twitch-link"
-           href="https://www.twitch.tv/miraculoushubtv"
-           target="_blank" rel="noopener">Open Twitch</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="continueSection" hidden>
-    <div class="section-head">
-      <div>
-        <p class="kicker">PICK UP WHERE YOU LEFT OFF</p>
-        <h2>Continue Watching</h2>
-      </div>
-      <a class="show-all" href="episodes.html">Show all →</a>
-    </div>
-    <div class="continue-row" id="continueRow"></div>
-  </section>
-
-  <section class="section" id="upcoming-releases">
-    <div class="section-head">
-      <div>
-        <p class="kicker">RELEASE WATCH · UPDATED 2 OCT 2026</p>
-        <h2>Upcoming Releases</h2>
-      </div>
-      <a class="show-all" href="season7.html">Season 7 news →</a>
-    </div>
-
-    <div class="release-stack">
-      <a class="upcoming season7-upcoming release-card" href="season7.html">
-        <div class="datebox season7-date">
-          <span>NOV</span>
-          <strong>20</strong>
-        </div>
-        <div class="upcoming-copy">
-          <small>REPORTED U.S. PREMIERE · DISNEY CHANNEL</small>
-          <h3>Season 7 is currently listed for November 20</h3>
-          <p>The date is appearing in current schedules, but the official Miraculous news page has not yet posted a dated Season 7 announcement. Schedules can change.</p>
-        </div>
-        <div class="badge">SEASON 7</div>
       </a>
-
-      <a class="upcoming release-card release-card-secondary" href="season7.html#release-calendar">
-        <div class="datebox season7-date">
-          <span>NOV</span>
-          <strong>14</strong>
-        </div>
-        <div class="upcoming-copy">
-          <small>REPORTED EMEA ENGLISH-DUB LAUNCH</small>
-          <h3>Earlier EMEA rollout is currently listed</h3>
-          <p>Current programme trackers list new Season 7 episodes from November 14 in EMEA. Check the Season 7 page for what is confirmed versus reported.</p>
-        </div>
-        <div class="badge">EMEA</div>
-      </a>
-    </div>
-  </section>
-
-  <section class="section" id="latest">
-    <div class="section-head">
-      <div>
-        <p class="kicker">FRESH FROM THE LIBRARY</p>
-        <h2>Latest Episodes</h2>
+      <div class="nova-mini-card nova-mini-a">
+        <span>CONTINUE</span>
+        <strong>Your progress follows you.</strong>
+        <div class="mini-progress"><i></i></div>
       </div>
-      <a class="show-all" href="episodes.html">Show all →</a>
+      <div class="nova-mini-card nova-mini-b">
+        <span>PLAYER</span>
+        <strong>Mobile + Apple ready.</strong>
+      </div>
     </div>
-    <div class="grid" id="latestGrid"></div>
   </section>
+
+  <div class="container nova-home">
+    <section class="section" id="continueSection" hidden>
+      <div class="section-head">
+        <div><span class="eyebrow">KEEP WATCHING</span><h2>Continue watching</h2></div>
+        <a class="show-all" href="episodes.html?season=6">Browse all <span>→</span></a>
+      </div>
+      <div class="continue-row" id="continueRow"></div>
+    </section>
+
+    <section class="section" id="latest">
+      <div class="section-head">
+        <div><span class="eyebrow">LATEST IN THE LIBRARY</span><h2>New & recent</h2></div>
+        <a class="show-all" href="episodes.html?season=6">Season 6 <span>→</span></a>
+      </div>
+      <div class="grid nova-episode-grid" id="latestGrid"></div>
+    </section>
+
+    <section class="section" id="upcoming-releases">
+      <div class="section-head">
+        <div><span class="eyebrow">RELEASE WATCH</span><h2>What’s next</h2></div>
+        <a class="show-all" href="season7.html">Full Season 7 page <span>→</span></a>
+      </div>
+      <div class="nova-release-grid">
+        <a class="nova-release-card featured-release" href="season7.html">
+          <div class="release-date"><span>NOV</span><strong>20</strong><small>2026</small></div>
+          <div class="release-copy"><small>REPORTED · DISNEY CHANNEL U.S.</small><h3>Season 7 premiere window</h3><p>Track the latest Season 7 schedule, reported titles and confirmed details.</p></div>
+          <b>07</b>
+        </a>
+        <a class="nova-release-card" href="season7.html#release-calendar">
+          <div class="release-date"><span>NOV</span><strong>14</strong><small>2026</small></div>
+          <div class="release-copy"><small>REPORTED · EMEA</small><h3>Earlier regional rollout</h3><p>Current programme listings point to an earlier English-dub rollout in EMEA.</p></div>
+          <b>EU</b>
+        </a>
+      </div>
+    </section>
+
+    <section class="section live-section" id="live">
+      <div class="section-head">
+        <div><span class="eyebrow live-eyebrow"><i></i> LIVE</span><h2>MiraculousHub TV</h2></div>
+        <a class="show-all" href="https://www.twitch.tv/miraculoushubtv" target="_blank" rel="noopener">Open Twitch <span>↗</span></a>
+      </div>
+      <div class="nova-live-card">
+        <div class="twitch-frame">
+          <iframe src="https://player.twitch.tv/?channel=miraculoushubtv&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false"
+            title="MiraculousHubTV live stream" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <div class="nova-live-meta"><div><strong>MiraculousHubTV</strong><span>Live Miraculous programming</span></div><span class="live-dot">LIVE</span></div>
+      </div>
+    </section>
+  </div>
 </main>
 
+
 <footer class="footer">
-  <div>
-    <div class="brand">
-      <span class="brand-mark">M</span>
-      <span class="brand-text">MIRACULOUS<span>HUB</span></span>
-    </div>
-    <p style="color:var(--muted);font-size:9px;line-height:1.6;max-width:340px">A fan-made watch hub with a liquid-glass interface.</p>
+  <div class="footer-brand">
+    <div class="brand"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></div>
+    <p>A fan-made Miraculous watch hub built around fast browsing, synced playback and a clean player.</p>
   </div>
-
   <div class="footer-links">
-    <div>
-      <b>EXPLORE</b>
-      <a href="index.html">Home</a>
-      <a href="episodes.html">Episodes</a>
-      <a href="index.html#upcoming-releases">Upcoming Releases</a>
-      <a href="season7.html">Season 7</a>
-    </div>
-    <div>
-      <b>SUPPORT</b>
-      <a href="#">Contact</a>
-      <a href="#">Help</a>
-    </div>
+    <div><b>WATCH</b><a href="episodes.html?season=6">Episodes</a><a href="season7.html">Season 7</a></div>
+    <div><b>DISCOVER</b><a href="index.html#upcoming-releases">Upcoming</a><a href="index.html#live">Live</a></div>
   </div>
-
-  <p class="copyright">© 2026 MiraculousHub. Fan project. Not affiliated with the official Miraculous brand.</p>
+  <p class="copyright">© 2026 MiraculousHub · Fan project · Not affiliated with the official Miraculous brand.</p>
 </footer>
+
 
 <div class="modal" id="searchModal" hidden>
   <div class="modal-box">
-    <div class="modal-top">
-      <h2>Search episodes</h2>
-      <button class="close" id="searchCloseBtn" aria-label="Close search">×</button>
-    </div>
-    <input id="searchInput" placeholder="Title, description, or episode code">
+    <div class="modal-top"><div><span class="eyebrow">SEARCH</span><h2>Find an episode</h2></div><button class="close" id="searchCloseBtn" aria-label="Close search">×</button></div>
+    <input id="searchInput" placeholder="Search title, season or episode code">
     <div class="results" id="searchResults"></div>
   </div>
   <div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div>
 </div>
+<div class="lang-pop" id="languagePopover" hidden></div>
 
-<div class="lang-pop" id="languagePopover" hidden>
-  <button>ENGLISH</button>
-  <button>FRANÇAIS</button>
-  <button>ESPAÑOL</button>
-  <button>DEUTSCH</button>
-  <button>ITALIANO</button>
-  <button>PORTUGUÊS</button>
-</div>
 
-<script src="data.js?v=special-thumbs-s7-grid-1"></script>
+<script src="data.js?v=nova-1"></script>
 <script src="firebase.js?v=continue-fix-1"></script>
 <script src="common.js?v=continue-fix-1"></script>
-<script src="motion.js?v=mobile-drawer-1"></script>
+<script src="motion.js?v=nova-1"></script>
 <script>
-const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
-document.querySelector("#latestGrid").innerHTML=latest.map(e=>`
-  <a class="card" href="watch.html?season=${e.season}&episode=${e.episode}">
-    <div class="art ${e.thumbnail?'has-thumb':''}">
-      ${e.thumbnail?`<img class="episode-thumb" src="${e.thumbnail}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:""}
-      ${e.new?'<span class="new">NEW</span>':''}
-      <span class="epno">SEASON ${e.season} · EPISODE ${e.episode}</span>
-    </div>
-    <div class="card-info">
-      <h3>${e.title}</h3>
-      <p>${e.code}</p>
-    </div>
-  </a>`).join("");
+function mhProgressFor(season,episode){
+  const item=(window.mhGetProgress?.()||[]).find(x=>Number(x.season)===Number(season)&&Number(x.episode)===Number(episode));
+  return Math.max(0,Math.min(100,Number(item?.progress||0)));
+}
 
-function renderCW(){
-  const box=document.querySelector("#continueSection");
-  const row=document.querySelector("#continueRow");
-  const items=(window.mhGetProgress?.()||[])
-    .filter(x=>Number(x.progress||0)>0 && Number(x.progress||0)<99.5)
-    .slice(0,12);
-
-  if(!items.length){
-    box.hidden=true;
-    row.innerHTML="";
-    return;
-  }
-
-  box.hidden=false;
-  row.innerHTML=items.map(x=>{
-    const meta=(window.MH_EPISODES||[]).find(e=>Number(e.season)===Number(x.season)&&Number(e.episode)===Number(x.episode));
-    const thumbnail=meta?.thumbnail||"";
+function renderLatest(){
+  const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
+  document.querySelector("#latestGrid").innerHTML=latest.map(e=>{
+    const p=mhProgressFor(e.season,e.episode);
     return `
-    <a class="continue-card" href="watch.html?season=${x.season}&episode=${x.episode}">
-      <div class="thumb ${thumbnail?"has-thumb":""}">
-        ${thumbnail?`<img class="continue-thumb-img" src="${thumbnail}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:""}
-        <span class="thumb-label">S${x.season} · E${x.episode}</span>
-        <div class="watch-progress" style="width:${Math.max(1,Math.min(100,Math.round(x.progress||0)))}%"></div>
+    <a class="card episode-card" href="watch.html?season=${e.season}&episode=${e.episode}">
+      <div class="art ${e.thumbnail?'has-thumb':''}">
+        ${e.thumbnail?`<img class="episode-thumb" src="${e.thumbnail}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:`<div class="fallback-art"><span>${String(e.season).padStart(2,"0")}</span><b>${String(e.episode).padStart(2,"0")}</b></div>`}
+        <span class="card-play">▶</span>
+        ${e.new?'<span class="new">NEW</span>':''}
+        ${p>0?`<span class="episode-progress"><i style="width:${p}%"></i></span>`:""}
       </div>
-      <div class="continue-info">
-        <strong>${x.title||meta?.title||"Episode"}</strong>
-        <p>${Math.round(x.progress||0)}% watched · resume ${formatResumeTime(x.position)}</p>
+      <div class="card-info">
+        <span class="card-kicker">SEASON ${e.season} · EPISODE ${e.episode}</span>
+        <h3>${e.title}</h3>
+        <p>${p>0?`${Math.round(p)}% watched`:e.code}</p>
       </div>
     </a>`;
   }).join("");
 }
 
-function formatResumeTime(seconds){
-  seconds=Math.max(0,Math.floor(Number(seconds)||0));
-  const m=Math.floor(seconds/60), s=seconds%60;
-  return `${m}:${String(s).padStart(2,"0")}`;
+function renderCW(){
+  const box=document.querySelector("#continueSection");
+  const row=document.querySelector("#continueRow");
+  const items=(window.mhGetProgress?.()||[]).filter(x=>Number(x.progress||0)>0&&Number(x.progress||0)<99.5).slice(0,12);
+  if(!items.length){box.hidden=true;row.innerHTML="";return;}
+  box.hidden=false;
+  row.innerHTML=items.map(x=>{
+    const meta=(window.MH_EPISODES||[]).find(e=>Number(e.season)===Number(x.season)&&Number(e.episode)===Number(x.episode));
+    const thumb=meta?.thumbnail||"";
+    const p=Math.max(1,Math.min(100,Number(x.progress||0)));
+    return `
+      <a class="continue-card" href="watch.html?season=${x.season}&episode=${x.episode}">
+        <div class="thumb ${thumb?"has-thumb":""}">
+          ${thumb?`<img class="continue-thumb-img" src="${thumb}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:`<div class="fallback-art compact"><span>S${x.season}</span><b>E${x.episode}</b></div>`}
+          <span class="continue-play">▶</span>
+          <span class="episode-progress"><i style="width:${p}%"></i></span>
+        </div>
+        <div class="continue-info"><span>S${x.season} · E${x.episode}</span><strong>${x.title||meta?.title||"Episode"}</strong><p>Resume · ${Math.round(p)}%</p></div>
+      </a>`;
+  }).join("");
 }
 
-let cwSyncRunning=false;
-async function syncContinueWatching(){
-  if(cwSyncRunning) return;
-  cwSyncRunning=true;
+let syncRunning=false;
+async function syncProgress(){
+  if(syncRunning)return;
+  syncRunning=true;
   try{
-    if(window.MH_FIREBASE_READY){
-      try{ await window.MH_FIREBASE_READY; }catch{}
-    }
-    if(window.MH_AUTH_READY){
-      try{ await window.MH_AUTH_READY; }catch{}
-    }
-    if(window.MH_USER && window.mhSyncCloudProgress){
-      await window.mhSyncCloudProgress();
-    }
-  }finally{
-    cwSyncRunning=false;
-    renderCW();
-  }
+    try{await window.MH_FIREBASE_READY}catch{}
+    try{await window.MH_AUTH_READY}catch{}
+    if(window.MH_USER&&window.mhSyncCloudProgress)await window.mhSyncCloudProgress();
+  }finally{syncRunning=false;renderCW();renderLatest();}
 }
-
-// Render immediately, then explicitly pull Firestore once Firebase/Auth has
-// restored. This avoids the old event-order race where the sync could finish
-// before the homepage registered its listener.
-renderCW();
-syncContinueWatching();
-window.addEventListener("mh-progress-synced",renderCW);
-window.addEventListener("mh-account-ready",renderCW);
-window.addEventListener("mh-cloud-save-ok",()=>syncContinueWatching());
-window.addEventListener("mh-auth-changed",()=>syncContinueWatching());
-window.addEventListener("pageshow",()=>syncContinueWatching());
-document.addEventListener("visibilitychange",()=>{
-  if(document.visibilityState==="visible") syncContinueWatching();
-});
+renderLatest();renderCW();syncProgress();
+["mh-progress-synced","mh-account-ready","mh-auth-changed","mh-cloud-save-ok"].forEach(ev=>window.addEventListener(ev,()=>{renderCW();renderLatest();}));
+window.addEventListener("pageshow",syncProgress);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncProgress();});
 </script>
 </body>
 </html>

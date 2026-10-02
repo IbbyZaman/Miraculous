@@ -1,8 +1,26 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>MiraculousHub · R2 Uploader</title>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,sans-serif;background:#090911;color:#fff;display:grid;place-items:center;padding:20px;background-image:radial-gradient(circle at 15% 10%,rgba(255,50,120,.18),transparent 34%),radial-gradient(circle at 85% 80%,rgba(120,70,255,.18),transparent 34%)}
-main{width:min(680px,100%);padding:28px;border:1px solid rgba(255,255,255,.13);border-radius:28px;background:rgba(24,24,36,.88);box-shadow:0 28px 80px rgba(0,0,0,.42)}h1{margin:0;font-size:clamp(28px,6vw,42px)}p{color:#aaa;line-height:1.5}label{display:block;margin:18px 0 7px;font-size:13px;font-weight:800;color:#c8c8d2}input,select,button{width:100%;font:inherit;border-radius:15px;padding:14px 15px}input,select{color:#fff;background:#15151f;border:1px solid rgba(255,255,255,.12);outline:none}select option{background:#15151f}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hidden{display:none}.dest,.file{margin-top:16px;padding:13px 15px;border-radius:15px;background:rgba(255,255,255,.05);color:#aaa;overflow-wrap:anywhere}.drop{margin-top:18px;border:2px dashed rgba(255,255,255,.16);border-radius:20px;padding:28px;text-align:center;cursor:pointer}.drop.drag{border-color:#ff4d91;background:rgba(255,255,255,.04)}#file{display:none}button{margin-top:18px;border:0;color:#fff;font-weight:850;cursor:pointer;background:linear-gradient(100deg,#ff376f,#e72480,#a535ef)}button:disabled{opacity:.45;cursor:not-allowed}.cancel{display:none;background:#242432}.progress{display:none;margin-top:20px}.bar{height:11px;background:#242432;border-radius:999px;overflow:hidden}.fill{height:100%;width:0;background:linear-gradient(90deg,#ff376f,#a535ef)}.progressTop{display:flex;justify-content:space-between;margin-bottom:8px;color:#bbb}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.stat{background:#15151f;padding:10px;border-radius:12px;text-align:center}.stat b{display:block}.stat span{font-size:11px;color:#888}.status{min-height:22px;margin-top:16px;text-align:center;color:#bbb}.ok{color:#72f0c8}.err{color:#ff7a9b}@media(max-width:520px){main{padding:21px}.row,.stats{grid-template-columns:1fr}}
+*{box-sizing:border-box}:root{color-scheme:dark;--pink:#ff2f68;--line:rgba(255,255,255,.1);--muted:#8e8e9a}
+body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#07070a;color:#f8f8fa;display:grid;place-items:center;padding:24px}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(700px 450px at 12% 0%,rgba(255,47,104,.15),transparent 60%),radial-gradient(700px 500px at 100% 100%,rgba(111,74,255,.12),transparent 62%)}
+main{position:relative;width:min(720px,100%);padding:30px;border:1px solid var(--line);border-radius:26px;background:#101014;box-shadow:0 36px 100px rgba(0,0,0,.45)}
+main:before{content:"UPLOAD CONSOLE";display:inline-flex;margin-bottom:14px;color:#ff5f8a;font-size:10px;font-weight:900;letter-spacing:.16em}
+h1{margin:0;font-size:clamp(32px,6vw,48px);letter-spacing:-.045em}p{color:var(--muted);line-height:1.6}
+label{display:block;margin:19px 0 7px;font-size:11px;font-weight:850;letter-spacing:.07em;text-transform:uppercase;color:#bbb}
+input,select,button{width:100%;font:inherit;border-radius:13px;padding:14px 15px}
+input,select{color:#fff;background:#17171d;border:1px solid var(--line);outline:none}input:focus,select:focus{border-color:rgba(255,47,104,.55)}
+select option{background:#17171d}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hidden{display:none}
+.dest,.file{margin-top:16px;padding:14px 15px;border-radius:14px;background:#15151a;border:1px solid rgba(255,255,255,.06);color:#aaa;overflow-wrap:anywhere}
+.drop{margin-top:18px;border:1px dashed rgba(255,255,255,.2);border-radius:18px;padding:34px;text-align:center;cursor:pointer;background:#0c0c10;transition:.2s}
+.drop:hover,.drop.drag{border-color:rgba(255,47,104,.65);background:#121217}
+#file{display:none}button{margin-top:18px;border:0;color:#fff;font-weight:850;cursor:pointer;background:linear-gradient(100deg,#ff255e,#ff4382)}
+button:disabled{opacity:.4;cursor:not-allowed}.cancel{display:none;background:#1a1a20;border:1px solid var(--line)}
+.progress{display:none;margin-top:20px}.bar{height:8px;background:#1d1d23;border-radius:999px;overflow:hidden}.fill{height:100%;width:0;background:linear-gradient(90deg,#ff245f,#8f55ff)}
+.progressTop{display:flex;justify-content:space-between;margin-bottom:9px;color:#bbb}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:#15151a;padding:12px;border-radius:12px;text-align:center;border:1px solid rgba(255,255,255,.05)}.stat b{display:block}.stat span{font-size:9px;color:#777;letter-spacing:.08em}
+.status{min-height:22px;margin-top:16px;text-align:center;color:#bbb}.ok{color:#72f0c8}.err{color:#ff7a9b}
+@media(max-width:520px){body{padding:12px}main{padding:21px;border-radius:20px}.row,.stats{grid-template-columns:1fr}.drop{padding:28px 18px}}
 </style></head><body><main>
 <h1>R2 Uploader</h1><p>Pick the exact episode or special. The filename does not matter — the uploader puts it at the R2 key the website already expects.</p>
 <label>Upload password</label><input id="password" type="password" autocomplete="current-password" placeholder="Private upload password">
