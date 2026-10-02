@@ -18,7 +18,7 @@
 
   // Pointer-reactive highlight stays only on the showcase glass.
   // Scrolling cards no longer update CSS variables every pointer frame.
-  const glassSelector = ".topbar";
+  const glassSelector = ".hero,.topbar";
   let pointerRaf = 0;
   let pointerEvent = null;
 
