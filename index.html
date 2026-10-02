@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png">
 <title>MiraculousHub — Home</title>
-<link rel="stylesheet" href="styles.css?v=s6-thumbnails-1">
+<link rel="stylesheet" href="styles.css?v=special-thumbs-s7-grid-1">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
 <script>
@@ -28,8 +28,8 @@
   <nav class="nav" aria-label="Main navigation">
     <a class="active" href="index.html">Home</a>
     <a href="episodes.html">Episodes</a>
-    <a href="#">Music</a>
-    <a href="#">The Show</a>
+    <a href="index.html#upcoming-releases">Upcoming Releases</a>
+    <a href="season7.html">Season 7</a>
   </nav>
 
   <div class="actions">
@@ -54,8 +54,8 @@
   <nav class="mobile-nav-links" aria-label="Mobile navigation links">
     <a class="active" href="index.html"><span>01</span><b>Home</b><i>→</i></a>
     <a href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a>
-    <a href="#"><span>03</span><b>Music</b><i>→</i></a>
-    <a href="#"><span>04</span><b>The Show</b><i>→</i></a>
+    <a href="index.html#upcoming-releases"><span>03</span><b>Upcoming Releases</b><i>→</i></a>
+    <a href="season7.html"><span>04</span><b>Season 7</b><i>→</i></a>
   </nav>
   <div class="mobile-drawer-foot">
     <p>Your Miraculous watch space.</p>
@@ -71,7 +71,7 @@
     <p class="hero-sub">A glassy, futuristic home for episodes, specials and your personal watch progress — designed to feel fluid on desktop and mobile.</p>
 
     <div class="hero-actions">
-      <a class="primary" href="episodes.html">Explore Episodes <span>→</span></a>
+      <a class="primary" href="episodes.html?season=6">Explore Episodes <span>→</span></a>
       <a class="secondary" href="#latest">See What's New</a>
     </div>
 
@@ -144,25 +144,41 @@
     <div class="continue-row" id="continueRow"></div>
   </section>
 
-  <section class="section">
+  <section class="section" id="upcoming-releases">
     <div class="section-head">
       <div>
-        <p class="kicker">ON THE HORIZON</p>
-        <h2>Upcoming</h2>
+        <p class="kicker">RELEASE WATCH · UPDATED 2 OCT 2026</p>
+        <h2>Upcoming Releases</h2>
       </div>
+      <a class="show-all" href="season7.html">Season 7 news →</a>
     </div>
 
-    <div class="upcoming season7-upcoming">
-      <div class="datebox season7-date">
-        <span>NOV</span>
-        <strong>20</strong>
-      </div>
-      <div class="upcoming-copy">
-        <small>UPCOMING · SEASON 7</small>
-        <h3>Season 7 arrives November 20th</h3>
-        <p>A new chapter is on the way. Get ready for Season 7 on MiraculousHub.</p>
-      </div>
-      <div class="badge">SEASON 7</div>
+    <div class="release-stack">
+      <a class="upcoming season7-upcoming release-card" href="season7.html">
+        <div class="datebox season7-date">
+          <span>NOV</span>
+          <strong>20</strong>
+        </div>
+        <div class="upcoming-copy">
+          <small>REPORTED U.S. PREMIERE · DISNEY CHANNEL</small>
+          <h3>Season 7 is currently listed for November 20</h3>
+          <p>The date is appearing in current schedules, but the official Miraculous news page has not yet posted a dated Season 7 announcement. Schedules can change.</p>
+        </div>
+        <div class="badge">SEASON 7</div>
+      </a>
+
+      <a class="upcoming release-card release-card-secondary" href="season7.html#release-calendar">
+        <div class="datebox season7-date">
+          <span>NOV</span>
+          <strong>14</strong>
+        </div>
+        <div class="upcoming-copy">
+          <small>REPORTED EMEA ENGLISH-DUB LAUNCH</small>
+          <h3>Earlier EMEA rollout is currently listed</h3>
+          <p>Current programme trackers list new Season 7 episodes from November 14 in EMEA. Check the Season 7 page for what is confirmed versus reported.</p>
+        </div>
+        <div class="badge">EMEA</div>
+      </a>
     </div>
   </section>
 
@@ -192,8 +208,8 @@
       <b>EXPLORE</b>
       <a href="index.html">Home</a>
       <a href="episodes.html">Episodes</a>
-      <a href="#">Music</a>
-      <a href="#">The Show</a>
+      <a href="index.html#upcoming-releases">Upcoming Releases</a>
+      <a href="season7.html">Season 7</a>
     </div>
     <div>
       <b>SUPPORT</b>
@@ -226,7 +242,7 @@
   <button>PORTUGUÊS</button>
 </div>
 
-<script src="data.js?v=s6-thumbnails-1"></script>
+<script src="data.js?v=special-thumbs-s7-grid-1"></script>
 <script src="firebase.js?v=continue-fix-1"></script>
 <script src="common.js?v=continue-fix-1"></script>
 <script src="motion.js?v=mobile-drawer-1"></script>

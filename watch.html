@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png"><title>MiraculousHub — Watch</title>
-<link rel="stylesheet" href="styles.css?v=s6-thumbnails-1">
+<link rel="stylesheet" href="styles.css?v=special-thumbs-s7-grid-1">
 <style>
 /* Modern video player */
 .watch-shell{width:min(1240px,94vw);padding:24px 0 70px}
@@ -470,7 +470,7 @@ body .player-loading-text{
 <body>
 <header class="topbar">
  <a class="brand" href="index.html"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a>
- <nav class="nav"><a href="index.html">Home</a><a class="active" href="episodes.html">Episodes</a><a href="#">Music</a><a href="#">The Show</a></nav>
+ <nav class="nav"><a href="index.html">Home</a><a class="active" href="episodes.html">Episodes</a><a href="index.html#upcoming-releases">Upcoming Releases</a><a href="season7.html">Season 7</a></nav>
  <div class="actions"><button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button><button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button><button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false"><span></span><span></span><span></span></button></div>
 </header>
 <div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
@@ -485,8 +485,8 @@ body .player-loading-text{
   <nav class="mobile-nav-links" aria-label="Mobile navigation links">
     <a href="index.html"><span>01</span><b>Home</b><i>→</i></a>
     <a class="active" href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a>
-    <a href="#"><span>03</span><b>Music</b><i>→</i></a>
-    <a href="#"><span>04</span><b>The Show</b><i>→</i></a>
+    <a href="index.html#upcoming-releases"><span>03</span><b>Upcoming Releases</b><i>→</i></a>
+    <a href="season7.html"><span>04</span><b>Season 7</b><i>→</i></a>
   </nav>
   <div class="mobile-drawer-foot">
     <p>Your Miraculous watch space.</p>
@@ -617,7 +617,7 @@ body .player-loading-text{
  </div>
 </div>
 
-<script src="data.js?v=s6-thumbnails-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=continue-fix-1"></script><script src="motion.js?v=player-perf-1"></script>
+<script src="data.js?v=special-thumbs-s7-grid-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=continue-fix-1"></script><script src="motion.js?v=player-perf-1"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);

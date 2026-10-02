@@ -1,0 +1,18 @@
+MIRACULOUSHUB — SEASON 7 SETUP
+
+The public site now has season7.html and updated navigation.
+
+CURRENT RELEASE INFO (checked 2 Oct 2026):
+- Official Miraculous material confirms Season 7 has 26 x ~22-minute episodes.
+- Current programme trackers report an EMEA English-dub rollout from 14 Nov 2026.
+- Current listings/reporting point to a U.S. Disney Channel premiere on 20 Nov 2026.
+- The official Miraculous news page has not yet posted a dated Season 7 premiere announcement, so the website labels those dates REPORTED rather than CONFIRMED.
+
+ADDING AN EPISODE LATER:
+1. Open upload.html.
+2. Choose Episode > Season 7 > the episode number.
+3. Pick the MP4 and upload. The R2 key is created automatically as season-7/s07eXX.mp4.
+4. The universal video Worker route is /video/s07eXX.
+5. To make the episode appear in the Episodes library, add its metadata entry to data.js once the title is confirmed.
+
+Do not publish guessed titles as confirmed.
