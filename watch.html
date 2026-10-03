@@ -466,6 +466,39 @@ body .player-loading-text{
 
   gtag('config', 'G-6K9W3X96EY');
 </script>
+
+<style id="death-note-simple-player">
+/* Compact Death Note chrome; no frosted panels over subtitle text. */
+body .player.simple-player{border:0;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+body .player.simple-player::before,body .player.simple-player::after{display:none}
+body .simple-player .player-stage{background:#000}
+body .simple-player .player-overlay{padding:10px 12px 5px;background:linear-gradient(180deg,rgba(0,0,0,.22),transparent 14%,transparent 87%,rgba(0,0,0,.4))}
+body .simple-player .player-top,body .simple-player .player-bottom{padding:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+body .simple-player .player-top{background:none}
+body .simple-player .player-title{font-size:11px;text-shadow:0 1px 4px #000}
+body .simple-player .player-subtitle{display:none}
+body .simple-player .control-row{gap:2px}
+body .simple-player .pbtn{width:34px;height:34px;min-width:34px;border:0;border-radius:4px;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;text-shadow:0 1px 4px #000}
+body .simple-player .pbtn:hover{background:rgba(255,255,255,.12);transform:none}
+body .simple-player .pbtn:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+body .simple-player .pbtn.wide{min-width:34px;padding-inline:5px}
+body .simple-player .player-time{font-size:10px;margin:0 4px;text-shadow:0 1px 4px #000}
+body .simple-player .progress-area{height:12px}
+body .simple-player .progress-track{height:2px;box-shadow:none}
+body .simple-player .progress-current{background:#ff5371;box-shadow:none}
+body .simple-player .progress-knob{width:8px;height:8px;box-shadow:none}
+body .simple-player .center-play{width:52px;height:52px;border:0;background:rgba(0,0,0,.35);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+body .simple-player .settings-menu{background:rgba(15,15,18,.96);backdrop-filter:none;-webkit-backdrop-filter:none;border:0;box-shadow:0 8px 24px rgba(0,0,0,.35);bottom:42px}
+body .simple-player .quick-overlay{display:none}
+@media(max-width:680px){
+ body .player.simple-player{border-radius:0}
+ body .simple-player .player-overlay{padding:6px 6px max(3px,env(safe-area-inset-bottom))}
+ body .simple-player .pbtn{width:32px;height:34px;min-width:32px}
+ body .simple-player .progress-area{height:14px}
+ body .simple-player .center-play{width:46px;height:46px}
+ body .simple-player .player-time{font-size:9px;margin:0 2px}
+}
+</style>
 </head>
 <body>
 <header class="topbar">
@@ -617,7 +650,7 @@ body .player-loading-text{
  </div>
 </div>
 
-<script src="data.js?v=monthly-animes-1"></script><script src="anime-data.js?v=monthly-animes-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=continue-fix-1"></script><script src="motion.js?v=player-perf-1"></script>
+<script src="data.js?v=monthly-animes-1"></script><script src="anime-data.js?v=monthly-animes-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=playback-sync-2"></script><script src="motion.js?v=player-perf-1"></script><script src="playback-sync.js?v=playback-sync-2"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
@@ -656,6 +689,8 @@ if(isAnime){
 
 
 const v=$("video"), player=$("player"), stage=$("stage"), progressArea=$("progressArea");
+const isDeathNote=isAnime && ep.animeSlug==="death-note";
+if(isDeathNote) player.classList.add("simple-player");
 const current=$("current"), buffer=$("buffer"), knob=$("knob"), time=$("time");
 if(ep.thumbnail) v.poster=ep.thumbnail;
 
@@ -695,7 +730,7 @@ v.addEventListener("seeking",()=>setPlayerLoading(true));
   v.addEventListener(type,()=>setPlayerLoading(false))
 );
 
-const cloudKey=isAnime?`anime-${ep.animeSlug}-e${ep.episode}`:isSpecial?`special-${ep.episode}`:`s${ep.season}e${ep.episode}`;
+const cloudKey=window.mhPlaybackKey(ep);
 
 // Episode/comment reporting. Reports are write-only for site users and stored in Firestore.
 let activeReportTarget=null;
@@ -840,149 +875,30 @@ document.addEventListener("keydown",event=>{ if(event.key==="Escape" && !$("repo
   }
 })();
 let dragging=false, hideTimer, lastPointer=0;
-let lastCloudSave=0;
-let cloudSaveInFlight=false;
-let queuedCloudSnapshot=null;
-let cloudLoaded=false;
-let cloudLoadPromise=null;
-
-function capturePlaybackSnapshot(){
-  if(!v.duration || !Number.isFinite(v.duration) || !Number.isFinite(v.currentTime) || v.currentTime<0) return null;
-  const position=Number(v.currentTime); // keep sub-second precision
-  const duration=Number(v.duration);
-  return {
-    season:ep.season, episode:ep.episode, title:ep.title,
+let lastSyncError=0;
+const playbackSync=window.MHPlayback.create({
+  video:v,item:{season:ep.season,episode:ep.episode,title:ep.title,
     ...(isAnime?{type:"anime",animeSlug:ep.animeSlug,animeTitle:ep.animeTitle}:{}),
-    progress:Math.min(100,Math.max(0,(position/duration)*100)),
-    position, duration
-  };
-}
-
-async function saveCloudPosition(force=false, snapshot=null){
-  if(!window.MH_USER || !window.MH_CLOUD) return;
-  const payload=snapshot || capturePlaybackSnapshot();
-  if(!payload) return;
-
-  const now=Date.now();
-  if(!force && now-lastCloudSave<1000) return;
-
-  // If a normal save is still in flight, never throw away a forced save
-  // from pause/seek/tab-close. Queue the newest exact position instead.
-  if(cloudSaveInFlight){
-    if(force) queuedCloudSnapshot=payload;
-    return;
+    ...(isSpecial?{type:"special",specialSlug:ep.specialSlug}:{})},
+  key:cloudKey,
+  onResume:pos=>{update();showToast(pos>2?`Resumed at ${fmt(pos)}`:"Playback synced");},
+  onSave:payload=>window.dispatchEvent(new CustomEvent("mh-cloud-save-ok",{detail:{...payload,key:cloudKey}})),
+  onError:error=>{
+    console.error("MiraculousHub cloud sync failed:",error);
+    window.dispatchEvent(new CustomEvent("mh-cloud-save-error",{detail:error}));
+    if(Date.now()-lastSyncError<10000) return;
+    lastSyncError=Date.now();
+    const messages={"permission-denied":"Cloud sync blocked: Firestore rules",
+      "failed-precondition":"Cloud sync unavailable: create Firestore",
+      "unavailable":"Cloud sync unavailable: check connection",
+      "unauthenticated":"Cloud sync failed: sign in again"};
+    showToast(messages[error?.code] || "Cloud sync failed");
   }
+});
+function loadCloudPosition(){return playbackSync.load();}
+function saveCloudPosition(force=false){return playbackSync.save(force);}
 
-  lastCloudSave=now;
-  cloudSaveInFlight=true;
-  try {
-    await window.MH_CLOUD.savePlayback(cloudKey,payload);
-    window.mhSaveProgress?.(payload);
-    window.dispatchEvent(new CustomEvent("mh-cloud-save-ok",{detail:{season:ep.season,episode:ep.episode,position:payload.position}}));
-    return true;
-  } catch(error) {
-    console.error("MiraculousHub cloud save failed:", error);
-    const code = error?.code || "unknown";
-    let message = "Cloud sync failed";
-    if (code === "permission-denied") message = "Cloud sync blocked: Firestore rules";
-    else if (code === "failed-precondition") message = "Cloud sync unavailable: create Firestore";
-    else if (code === "unavailable") message = "Cloud sync unavailable: check connection";
-    else if (code === "unauthenticated") message = "Cloud sync failed: sign in again";
-    showToast(message);
-    window.dispatchEvent(new CustomEvent("mh-cloud-save-error", { detail: error }));
-  } finally {
-    cloudSaveInFlight=false;
-    if(queuedCloudSnapshot){
-      const queued=queuedCloudSnapshot;
-      queuedCloudSnapshot=null;
-      // Immediately flush the newest forced position after the previous write.
-      void saveCloudPosition(true,queued);
-    }
-  }
-}
-
-async function loadCloudPosition(){
-  if(cloudLoaded || cloudLoadPromise) return cloudLoadPromise;
-
-  if(window.MH_FIREBASE_READY){
-    try { await window.MH_FIREBASE_READY; } catch {}
-  }
-  if(window.MH_AUTH_READY){
-    try { await window.MH_AUTH_READY; } catch {}
-  }
-  if(!window.MH_USER || !window.MH_CLOUD) return;
-
-  cloudLoadPromise=(async()=>{
-    try{
-      const data=await window.MH_CLOUD.getPlayback(cloudKey);
-      if(!data){
-        cloudLoaded=true;
-        return;
-      }
-
-      // Support both current and older playback document field names.
-      let pos=Number(data.position ?? data.currentTime ?? data.time);
-      const savedProgress=Number(data.progress);
-      const savedDuration=Number(data.duration);
-
-      if(!Number.isFinite(pos) && Number.isFinite(savedProgress) && savedDuration>0){
-        pos=(savedProgress/100)*savedDuration;
-      }
-
-      // Wait until the browser knows the media duration before seeking.
-      if(Number.isFinite(pos) && pos>=0){
-        if(!Number.isFinite(v.duration) || v.duration<=0){
-          await new Promise(resolve=>{
-            let finished=false;
-            const done=()=>{
-              if(finished) return;
-              finished=true;
-              v.removeEventListener("durationchange",done);
-              v.removeEventListener("loadedmetadata",done);
-              resolve();
-            };
-            v.addEventListener("durationchange",done);
-            v.addEventListener("loadedmetadata",done);
-            setTimeout(done,2500);
-          });
-        }
-
-        if(Number.isFinite(v.duration) && v.duration>0){
-          // Resume at the stored timestamp with sub-second precision. Only
-          // keep a tiny margin from the exact media end so browsers accept the seek.
-          const safePos=Math.max(0,Math.min(pos,Math.max(0,v.duration-0.01)));
-          try{ v.currentTime=safePos; }catch(error){ console.warn("Resume seek failed:",error); }
-          window.mhSaveProgress?.({
-            season:ep.season,
-            episode:ep.episode,
-            title:ep.title,
-            ...(isAnime?{type:"anime",animeSlug:ep.animeSlug,animeTitle:ep.animeTitle}:{}),
-            progress:Number.isFinite(savedProgress)?savedProgress:Math.min(100,(safePos/v.duration)*100),
-            position:safePos,
-            duration:v.duration
-          });
-          cloudLoaded=true;
-          showToast(safePos>2?`Resumed at ${fmt(safePos)}`:"Playback synced");
-        } else {
-          // Keep cloudLoaded false so durationchange can retry the seek.
-          cloudLoaded=false;
-        }
-      } else {
-        cloudLoaded=true;
-      }
-    }catch(error){
-      console.error("MiraculousHub: failed to load cloud playback", error);
-      cloudLoaded=false;
-    }finally{
-      cloudLoadPromise=null;
-      update();
-    }
-  })();
-
-  return cloudLoadPromise;
-}
-
-function fmt(sec){sec=Math.max(0,Math.floor(sec||0));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`;}
+function fmt(sec){if(!Number.isFinite(sec)) return "--:--";sec=Math.max(0,Math.floor(sec||0));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`;}
 function update(){
  const pct=v.duration?Math.min(100,(v.currentTime/v.duration)*100):0;
  current.style.width=pct+"%"; knob.style.left=pct+"%";
@@ -995,7 +911,7 @@ v.addEventListener("loadedmetadata",async()=>{
   await loadCloudPosition();
 });
 v.addEventListener("durationchange",()=>{
-  if(!cloudLoaded && window.MH_USER) loadCloudPosition();
+  void loadCloudPosition();
 });
 v.addEventListener("timeupdate",()=>{
   update();
@@ -1020,30 +936,16 @@ v.addEventListener("progress",update);
 v.addEventListener("ended",async()=>{
   await saveCloudPosition(true);
   if(window.MH_USER && window.MH_CLOUD){
-    try{ await window.MH_CLOUD.markWatched(cloudKey,{season:ep.season,episode:ep.episode,title:ep.title}); }catch{}
+    try{ await window.MH_CLOUD.markWatched(cloudKey,{...ep,...(isAnime?{type:"anime"}:isSpecial?{type:"special"}:{})}); }catch{}
   }
   showToast("Episode finished");
 });
 
-window.addEventListener("mh-auth-changed",()=>{
-  if(window.MH_USER){
-    cloudLoaded=false;
-    cloudLoadPromise=null;
-    loadCloudPosition();
-  }
-});
-window.addEventListener("mh-account-ready",()=>{
-  cloudLoaded=false;
-  cloudLoadPromise=null;
-  loadCloudPosition();
-});
-window.addEventListener("mh-firebase-ready",()=>{
-  if(window.MH_USER){
-    cloudLoaded=false;
-    cloudLoadPromise=null;
-    loadCloudPosition();
-  }
-});
+["mh-auth-changed","mh-account-ready","mh-firebase-ready"].forEach(type=>
+  window.addEventListener(type,()=>{void loadCloudPosition();})
+);
+["loadeddata","canplay"].forEach(type=>v.addEventListener(type,()=>{void loadCloudPosition();}));
+void loadCloudPosition();
 
 function setPlayingUI(){
  const playing=!v.paused;
@@ -1074,7 +976,7 @@ function runMiraculousIdent(){
 }
 
 async function playWithMiraculousIdent(){
-  if(mhIdentPlayed || mhIdentRunning){
+  if(isDeathNote || mhIdentPlayed || mhIdentRunning){
     try{ await v.play(); }catch{}
     return;
   }
@@ -1233,9 +1135,10 @@ function activity(){
  hideTimer=setTimeout(()=>{
    player.classList.remove("show-ui","mobile-quick");
    if(!isMobile() && !v.paused) player.classList.add("cursor-hidden");
- },1800);
+ },isDeathNote?1200:1800);
 }
 function showMobileQuick(){
+ if(isDeathNote){activity();return;}
  if(!isLandscapeMobileFullscreen()) return;
  player.classList.add("show-ui","mobile-quick");
  clearTimeout(hideTimer);
@@ -1361,7 +1264,7 @@ $("watched").onclick=async()=>{
       season:ep.season, episode:ep.episode, title:ep.title,
       progress:100, position:v.duration||v.currentTime||0, duration:v.duration||0
     });
-    await window.MH_CLOUD.markWatched(cloudKey,{season:ep.season,episode:ep.episode,title:ep.title});
+    await window.MH_CLOUD.markWatched(cloudKey,{...ep,...(isAnime?{type:"anime"}:isSpecial?{type:"special"}:{})});
     $("watched").textContent="✓ Watched";
     showToast("Marked as watched");
   }catch(error){

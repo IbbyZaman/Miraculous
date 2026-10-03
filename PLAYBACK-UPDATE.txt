@@ -1,0 +1,29 @@
+PLAYBACK AND DEATH NOTE PLAYER UPDATE
+
+Upload ALL files from this ZIP to your existing website, replacing the old files.
+Keep playback-sync.js alongside watch.html, common.js and firebase.js.
+Your existing Firebase project and Cloudflare Worker URLs are retained.
+No Firestore rules change or Worker redeployment is needed for this code update.
+
+Changes:
+- Read saved playback before writing the player's starting position.
+- Save valid playback timestamps even when duration is not yet known.
+- Resume older position/currentTime/time/progress records.
+- Use matching keys for Miraculous, specials and anime everywhere.
+- Recover matching Death Note records saved under the old shared s0e key.
+- Keep different anime separate in Continue Watching, including saves with no duration.
+- Prevent stale account reads and queued writes from affecting another account.
+- Preserve the original Miraculous player design and controls.
+- Death Note has compact transparent controls, no glass panels or large outlines,
+  a faster auto-hide, and no Miraculous intro overlay.
+
+Validation:
+15 targeted automated checks passed for playback and the shared progress helpers.
+All original Miraculous player CSS is unchanged.
+Live Firebase writes and browser visual rendering were not verified in this environment.
+
+Quick check after uploading:
+Sign in, play an episode, pause, then reload it. Check that it resumes at the paused
+position. Repeat for a Miraculous episode and a Death Note episode.
+If the player reports a Firestore rules/account/connection error, resolve that
+Firebase setting; site code cannot change your deployed Firebase settings.

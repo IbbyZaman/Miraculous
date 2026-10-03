@@ -113,6 +113,13 @@
     progressCache = (Array.isArray(items) ? items : []).slice(0, 30);
   }
 
+  // One identity for playback, watched state, favourites and the page cache.
+  window.mhPlaybackKey = function(item){
+    if(item.animeSlug) return `anime-${item.animeSlug}-e${item.episode}`;
+    if(item.type === "special" || item.specialSlug || item.season === "Special") return `special-${item.episode}`;
+    return `s${item.season}e${item.episode}`;
+  };
+
   window.mhGetProgress = function(){
     return readCache();
   };
@@ -121,7 +128,7 @@
   // authoritative for signed-in users; there is no persistent local fallback.
   window.mhSaveProgress = function(item){
     const all = readCache().filter(
-      x => !(x.season === item.season && x.episode === item.episode)
+      x => window.mhPlaybackKey(x) !== window.mhPlaybackKey(item)
     );
 
     all.unshift({
@@ -137,7 +144,7 @@
     if (!window.MH_CLOUD || !window.MH_USER) return false;
 
     await window.MH_CLOUD.savePlayback(
-      `s${item.season}e${item.episode}`,
+      window.mhPlaybackKey(item),
       item
     );
 
@@ -148,10 +155,10 @@
     return true;
   };
 
-  window.mhClearProgress = function(season, episode){
+  window.mhClearProgress = function(season, episode, animeSlug=null){
     writeCache(
       readCache().filter(
-        x => !(x.season === season && x.episode === episode)
+        x => window.mhPlaybackKey(x) !== window.mhPlaybackKey({season,episode,animeSlug})
       )
     );
   };
@@ -165,17 +172,20 @@
     }
 
     try {
+      const uid=window.MH_USER.uid;
       const cloud = await window.MH_CLOUD.getAllPlayback();
+      if(window.MH_USER?.uid!==uid) return readCache();
       const normalised = cloud
         .map(x => {
           const id = String(x.id || "");
           const match = /^s(\d+)e(\d+)$/i.exec(id);
           const animeMatch = /^anime-([a-z0-9-]+)-e(\d+)$/i.exec(id);
           const animeSlug = x.animeSlug || (animeMatch ? animeMatch[1] : null);
+          const specialMatch = /^special-(\d+)$/i.exec(id);
           const animeShow = animeSlug ? (window.MH_ANIME_SHOWS || []).find(a => a.slug === animeSlug) : null;
-          const season = animeMatch ? 0 : (x.season ?? (match ? Number(match[1]) : null));
-          const episode = x.episode ?? (animeMatch ? Number(animeMatch[2]) : (match ? Number(match[2]) : null));
-          const known = animeMatch
+          const season = animeSlug ? 0 : specialMatch ? "Special" : (x.season ?? (match ? Number(match[1]) : null));
+          const episode = x.episode ?? (animeMatch ? Number(animeMatch[2]) : specialMatch ? Number(specialMatch[1]) : (match ? Number(match[2]) : null));
+          const known = animeSlug
             ? animeShow?.episodes?.find(e => Number(e.episode) === Number(episode))
             : (window.MH_EPISODES || []).find(
                 e => Number(e.season) === Number(season) && Number(e.episode) === Number(episode)
@@ -192,7 +202,7 @@
             episode,
             animeSlug: animeSlug || x.animeSlug || null,
             animeTitle: animeShow?.title || x.animeTitle || null,
-            type: animeMatch ? "anime" : (x.type || "episode"),
+            type: animeSlug ? "anime" : specialMatch ? "special" : (x.type || "episode"),
             title: x.title || known?.title || "Episode",
             position,
             duration,
@@ -210,7 +220,12 @@
           return bt - at;
         });
 
-      writeCache(normalised);
+      const seen=new Set();
+      writeCache(normalised.filter(item=>{
+        const key=window.mhPlaybackKey(item);
+        if(seen.has(key)) return false;
+        seen.add(key);return true;
+      }));
 
       window.dispatchEvent(new Event("mh-progress-synced"));
       return readCache();
@@ -226,21 +241,21 @@
       return null;
     }
 
-    const key = `s${ep.season}e${ep.episode}`;
+    const key = window.mhPlaybackKey(ep);
     return window.MH_CLOUD.setFavourite(key, ep);
   };
 
   window.mhIsFavourite = async function(ep){
     if (!window.MH_CLOUD || !window.MH_USER) return false;
     return window.MH_CLOUD.getFavourite(
-      `s${ep.season}e${ep.episode}`
+      window.mhPlaybackKey(ep)
     );
   };
 
   window.mhMarkCloudWatched = async function(ep){
     if (!window.MH_CLOUD || !window.MH_USER) return;
     await window.MH_CLOUD.markWatched(
-      `s${ep.season}e${ep.episode}`,
+      window.mhPlaybackKey(ep),
       ep
     );
   };
@@ -524,6 +539,8 @@
     async e => {
       updateAuthButton(e.detail);
 
+      writeCache([]);
+      window.dispatchEvent(new Event("mh-progress-synced"));
       if (e.detail) {
         await window.mhSyncCloudProgress();
         window.dispatchEvent(

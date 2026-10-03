@@ -245,7 +245,7 @@
 <script src="anime-data.js?v=monthly-animes-1"></script>
 <script src="data.js?v=special-thumbs-s7-grid-1"></script>
 <script src="firebase.js?v=continue-fix-1"></script>
-<script src="common.js?v=continue-fix-1"></script>
+<script src="common.js?v=playback-sync-2"></script>
 <script src="motion.js?v=mobile-drawer-1"></script>
 <script>
 const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
@@ -266,7 +266,7 @@ function renderCW(){
   const box=document.querySelector("#continueSection");
   const row=document.querySelector("#continueRow");
   const items=(window.mhGetProgress?.()||[])
-    .filter(x=>Number(x.progress||0)>0 && Number(x.progress||0)<99.5)
+    .filter(x=>(Number(x.position||0)>0 || Number(x.progress||0)>0) && Number(x.progress||0)<99.5)
     .slice(0,12);
 
   if(!items.length){
@@ -282,8 +282,9 @@ function renderCW(){
       ? (window.MH_ANIME_SHOWS||[]).find(a=>a.slug===x.animeSlug)?.episodes?.find(e=>Number(e.episode)===Number(x.episode))
       : (window.MH_EPISODES||[]).find(e=>Number(e.season)===Number(x.season)&&Number(e.episode)===Number(x.episode));
     const thumbnail=!isAnime?(meta?.thumbnail||""):"";
-    const href=isAnime?`watch.html?anime=${x.animeSlug}&episode=${x.episode}`:`watch.html?season=${x.season}&episode=${x.episode}`;
-    const label=isAnime?`${x.animeTitle||"Anime"} · E${x.episode}`:`S${x.season} · E${x.episode}`;
+    const special=x.type==="special" || x.season==="Special";
+    const href=isAnime?`watch.html?anime=${x.animeSlug}&episode=${x.episode}`:special?`watch.html?special=${x.episode}`:`watch.html?season=${x.season}&episode=${x.episode}`;
+    const label=isAnime?`${x.animeTitle||"Anime"} · E${x.episode}`:special?`Special ${x.episode}`:`S${x.season} · E${x.episode}`;
     return `
     <a class="continue-card" href="${href}">
       <div class="thumb ${thumbnail?"has-thumb":""}">
@@ -293,7 +294,7 @@ function renderCW(){
       </div>
       <div class="continue-info">
         <strong>${x.title||meta?.title||"Episode"}</strong>
-        <p>${Math.round(x.progress||0)}% watched · resume ${formatResumeTime(x.position)}</p>
+        <p>${Number(x.duration)>0?`${Math.round(x.progress||0)}% watched · `:""}resume ${formatResumeTime(x.position)}</p>
       </div>
     </a>`;
   }).join("");
