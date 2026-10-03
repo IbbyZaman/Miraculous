@@ -29,7 +29,7 @@
     <a class="active" href="index.html">Home</a>
     <a href="episodes.html">Episodes</a>
     <a href="index.html#upcoming-releases">Upcoming Releases</a>
-    <a href="season7.html">Season 7</a>
+    <a href="monthly-animes.html">Monthly Animes</a>
   </nav>
 
   <div class="actions">
@@ -55,7 +55,7 @@
     <a class="active" href="index.html"><span>01</span><b>Home</b><i>→</i></a>
     <a href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a>
     <a href="index.html#upcoming-releases"><span>03</span><b>Upcoming Releases</b><i>→</i></a>
-    <a href="season7.html"><span>04</span><b>Season 7</b><i>→</i></a>
+    <a href="monthly-animes.html"><span>04</span><b>Monthly Animes</b><i>→</i></a>
   </nav>
   <div class="mobile-drawer-foot">
     <p>Your Miraculous watch space.</p>
@@ -209,7 +209,7 @@
       <a href="index.html">Home</a>
       <a href="episodes.html">Episodes</a>
       <a href="index.html#upcoming-releases">Upcoming Releases</a>
-      <a href="season7.html">Season 7</a>
+      <a href="monthly-animes.html">Monthly Animes</a>
     </div>
     <div>
       <b>SUPPORT</b>
@@ -242,6 +242,7 @@
   <button>PORTUGUÊS</button>
 </div>
 
+<script src="anime-data.js?v=monthly-animes-1"></script>
 <script src="data.js?v=special-thumbs-s7-grid-1"></script>
 <script src="firebase.js?v=continue-fix-1"></script>
 <script src="common.js?v=continue-fix-1"></script>
@@ -276,13 +277,18 @@ function renderCW(){
 
   box.hidden=false;
   row.innerHTML=items.map(x=>{
-    const meta=(window.MH_EPISODES||[]).find(e=>Number(e.season)===Number(x.season)&&Number(e.episode)===Number(x.episode));
-    const thumbnail=meta?.thumbnail||"";
+    const isAnime=x.type==="anime"||!!x.animeSlug;
+    const meta=isAnime
+      ? (window.MH_ANIME_SHOWS||[]).find(a=>a.slug===x.animeSlug)?.episodes?.find(e=>Number(e.episode)===Number(x.episode))
+      : (window.MH_EPISODES||[]).find(e=>Number(e.season)===Number(x.season)&&Number(e.episode)===Number(x.episode));
+    const thumbnail=!isAnime?(meta?.thumbnail||""):"";
+    const href=isAnime?`watch.html?anime=${x.animeSlug}&episode=${x.episode}`:`watch.html?season=${x.season}&episode=${x.episode}`;
+    const label=isAnime?`${x.animeTitle||"Anime"} · E${x.episode}`:`S${x.season} · E${x.episode}`;
     return `
-    <a class="continue-card" href="watch.html?season=${x.season}&episode=${x.episode}">
+    <a class="continue-card" href="${href}">
       <div class="thumb ${thumbnail?"has-thumb":""}">
         ${thumbnail?`<img class="continue-thumb-img" src="${thumbnail}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:""}
-        <span class="thumb-label">S${x.season} · E${x.episode}</span>
+        <span class="thumb-label">${label}</span>
         <div class="watch-progress" style="width:${Math.max(1,Math.min(100,Math.round(x.progress||0)))}%"></div>
       </div>
       <div class="continue-info">

@@ -9,6 +9,11 @@
      ...
      season-7/s07e01.mp4
 
+   Anime objects:
+     anime/death-note/e01.mp4
+     ...
+     anime/death-note/e37.mp4
+
    Special objects:
      specials/new-york.mp4
      specials/shanghai.mp4
@@ -20,6 +25,8 @@
    Website routes are automatic:
      /video/s01e01
      /download/s01e01
+     /video/anime/death-note/e01
+     /download/anime/death-note/e01
      /video/special/london
      /download/special/london
 
@@ -137,6 +144,13 @@ function parseMediaPath(pathname){
     if(season<1||season>99||episode<1||episode>99) return null;
     const ss=String(season).padStart(2,"0"), ee=String(episode).padStart(2,"0");
     return {key:`season-${season}/s${ss}e${ee}.mp4`,filename:`S${ss}E${ee}.mp4`,download:m[1].toLowerCase()==="download"};
+  }
+  m=pathname.match(/^\/(video|download)\/anime\/([a-z0-9-]+)\/e(\d{2})\/?$/i);
+  if(m){
+    const slug=m[2].toLowerCase(), episode=Number(m[3]);
+    if(episode<1||episode>99) return null;
+    const ee=String(episode).padStart(2,"0");
+    return {key:`anime/${slug}/e${ee}.mp4`,filename:`${slug}-e${ee}.mp4`,download:m[1].toLowerCase()==="download"};
   }
   m=pathname.match(/^\/(video|download)\/special\/([a-z0-9-]+)\/?$/i);
   if(m){

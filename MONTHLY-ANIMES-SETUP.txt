@@ -1,0 +1,30 @@
+MiraculousHub Monthly Animes
+
+Death Note is prepared with 37 episodes.
+
+Uploader:
+- Type: Anime
+- Anime: Death Note
+- Choose episode 1-37
+- Upload MP4
+
+R2 object keys:
+anime/death-note/e01.mp4
+...
+anime/death-note/e37.mp4
+
+Player routes:
+/video/anime/death-note/e01
+...
+/video/anime/death-note/e37
+
+Download routes:
+/download/anime/death-note/e01
+...
+/download/anime/death-note/e37
+
+Deploy cloudflare-worker-current.js to the main video Worker.
+Deploy cloudflare-uploader-worker.js to the uploader Worker.
+Both use the same R2 bucket.
+
+Google Analytics G-6K9W3X96EY is included on every HTML page.

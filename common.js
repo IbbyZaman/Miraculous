@@ -40,19 +40,36 @@
       return;
     }
 
-    const hits = (window.MH_EPISODES || [])
+    const miraculousHits = (window.MH_EPISODES || [])
       .filter(e =>
         `${e.title} ${e.code} season ${e.season} episode ${e.episode}`
           .toLowerCase()
           .includes(q)
       )
-      .slice(0, 12);
+      .map(e => ({
+        href:`watch.html?season=${e.season}&episode=${e.episode}`,
+        label:`S${e.season} E${e.episode} · ${e.title}`,
+        meta:e.code
+      }));
+
+    const animeHits = (window.MH_ANIME_SHOWS || [])
+      .flatMap(show => (show.episodes || []).map(e => ({show,e})))
+      .filter(({show,e}) =>
+        `${show.title} ${e.title} episode ${e.episode}`.toLowerCase().includes(q)
+      )
+      .map(({show,e}) => ({
+        href:`watch.html?anime=${show.slug}&episode=${e.episode}`,
+        label:`${show.title} E${e.episode} · ${e.title}`,
+        meta:"Monthly Anime"
+      }));
+
+    const hits=[...miraculousHits,...animeHits].slice(0,12);
 
     results.innerHTML = hits.length
       ? hits.map(e =>
-          `<a class="result" href="watch.html?season=${e.season}&episode=${e.episode}">
-             <strong>S${e.season} E${e.episode} · ${e.title}</strong>
-             <small>${e.code}</small>
+          `<a class="result" href="${e.href}">
+             <strong>${e.label}</strong>
+             <small>${e.meta}</small>
            </a>`
         ).join("")
       : '<div class="result"><small>No episodes found.</small></div>';
@@ -151,12 +168,18 @@
       const cloud = await window.MH_CLOUD.getAllPlayback();
       const normalised = cloud
         .map(x => {
-          const match = /^s(\d+)e(\d+)$/i.exec(String(x.id || ""));
-          const season = x.season ?? (match ? Number(match[1]) : null);
-          const episode = x.episode ?? (match ? Number(match[2]) : null);
-          const known = (window.MH_EPISODES || []).find(
-            e => Number(e.season) === Number(season) && Number(e.episode) === Number(episode)
-          );
+          const id = String(x.id || "");
+          const match = /^s(\d+)e(\d+)$/i.exec(id);
+          const animeMatch = /^anime-([a-z0-9-]+)-e(\d+)$/i.exec(id);
+          const animeSlug = x.animeSlug || (animeMatch ? animeMatch[1] : null);
+          const animeShow = animeSlug ? (window.MH_ANIME_SHOWS || []).find(a => a.slug === animeSlug) : null;
+          const season = animeMatch ? 0 : (x.season ?? (match ? Number(match[1]) : null));
+          const episode = x.episode ?? (animeMatch ? Number(animeMatch[2]) : (match ? Number(match[2]) : null));
+          const known = animeMatch
+            ? animeShow?.episodes?.find(e => Number(e.episode) === Number(episode))
+            : (window.MH_EPISODES || []).find(
+                e => Number(e.season) === Number(season) && Number(e.episode) === Number(episode)
+              );
           const position = Number(x.position ?? x.currentTime ?? x.time ?? 0) || 0;
           const duration = Number(x.duration ?? 0) || 0;
           const progress = Number.isFinite(Number(x.progress))
@@ -167,6 +190,9 @@
             ...x,
             season,
             episode,
+            animeSlug: animeSlug || x.animeSlug || null,
+            animeTitle: animeShow?.title || x.animeTitle || null,
+            type: animeMatch ? "anime" : (x.type || "episode"),
             title: x.title || known?.title || "Episode",
             position,
             duration,

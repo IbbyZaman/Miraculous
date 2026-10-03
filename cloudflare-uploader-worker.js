@@ -4,7 +4,7 @@ const ALLOWED_ORIGINS=new Set(["https://miraculoushub.co.uk","https://www.miracu
 function allowed(request){const o=request.headers.get("Origin");return !!o&&ALLOWED_ORIGINS.has(o)}
 function cors(request){const o=request.headers.get("Origin"),h={"Access-Control-Allow-Methods":"POST, PUT, OPTIONS","Access-Control-Allow-Headers":"Content-Type, X-Upload-Password","Access-Control-Expose-Headers":"ETag","Cache-Control":"no-store","Vary":"Origin"};if(o&&ALLOWED_ORIGINS.has(o))h["Access-Control-Allow-Origin"]=o;return h}
 function json(request,data,status=200){return new Response(JSON.stringify(data),{status,headers:{...cors(request),"Content-Type":"application/json; charset=utf-8"}})}
-function validKey(key){return !!key&&!key.includes("..")&&(/^season-\d{1,2}\/s\d{2}e\d{2}\.mp4$/i.test(key)||/^specials\/[a-z0-9-]+\.mp4$/i.test(key))}
+function validKey(key){return !!key&&!key.includes("..")&&(/^season-\d{1,2}\/s\d{2}e\d{2}\.mp4$/i.test(key)||/^specials\/[a-z0-9-]+\.mp4$/i.test(key)||/^anime\/[a-z0-9-]+\/e\d{2}\.mp4$/i.test(key))}
 export default{async fetch(request,env){
   if(request.method==="OPTIONS")return allowed(request)?new Response(null,{status:204,headers:cors(request)}):new Response("Forbidden",{status:403});
   if(!allowed(request))return new Response("Forbidden - MiraculousHub only.",{status:403,headers:cors(request)});

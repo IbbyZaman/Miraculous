@@ -470,7 +470,7 @@ body .player-loading-text{
 <body>
 <header class="topbar">
  <a class="brand" href="index.html"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a>
- <nav class="nav"><a href="index.html">Home</a><a class="active" href="episodes.html">Episodes</a><a href="index.html#upcoming-releases">Upcoming Releases</a><a href="season7.html">Season 7</a></nav>
+ <nav class="nav"><a href="index.html">Home</a><a class="active" href="episodes.html">Episodes</a><a href="index.html#upcoming-releases">Upcoming Releases</a><a href="monthly-animes.html">Monthly Animes</a></nav>
  <div class="actions"><button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button><button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button><button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false"><span></span><span></span><span></span></button></div>
 </header>
 <div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
@@ -486,7 +486,7 @@ body .player-loading-text{
     <a href="index.html"><span>01</span><b>Home</b><i>→</i></a>
     <a class="active" href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a>
     <a href="index.html#upcoming-releases"><span>03</span><b>Upcoming Releases</b><i>→</i></a>
-    <a href="season7.html"><span>04</span><b>Season 7</b><i>→</i></a>
+    <a href="monthly-animes.html"><span>04</span><b>Monthly Animes</b><i>→</i></a>
   </nav>
   <div class="mobile-drawer-foot">
     <p>Your Miraculous watch space.</p>
@@ -617,28 +617,42 @@ body .player-loading-text{
  </div>
 </div>
 
-<script src="data.js?v=special-thumbs-s7-grid-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=continue-fix-1"></script><script src="motion.js?v=player-perf-1"></script>
+<script src="data.js?v=monthly-animes-1"></script><script src="anime-data.js?v=monthly-animes-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=continue-fix-1"></script><script src="motion.js?v=player-perf-1"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
 const specialTitles=["New York: United Heroez","Shanghai: The Legend of Lady Dragon","Awakening - The Movie","Miraculous World Paris: Tales of Shadybug and Claw Noir","London: At the Edge of Time","Miraculous World: Tokyo, Stellar Force"];
 const specialSlugs=["new-york","shanghai","awakening","paris","london","tokyo"];
 const isSpecial=Number.isInteger(specialNumber)&&specialNumber>0&&specialNumber<=specialTitles.length;
+const animeSlug=(params.get("anime")||"").toLowerCase();
+const animeShow=(window.MH_ANIME_SHOWS||[]).find(x=>x.slug===animeSlug);
+const animeNumber=Number(params.get("episode")||0);
+const animeEpisode=animeShow?.episodes?.find(x=>Number(x.episode)===animeNumber);
+const isAnime=!!(animeShow&&animeEpisode);
 const season=Number(params.get("season")||6), number=Number(params.get("episode")||26);
-const ep=isSpecial
-  ? {season:"Special",episode:specialNumber,title:specialTitles[specialNumber-1],code:`SPECIAL ${specialNumber}`,specialSlug:specialSlugs[specialNumber-1]}
-  : (window.MH_EPISODES||[]).find(x=>x.season===season&&x.episode===number)||(window.MH_EPISODES||[]).at(-1);
+const ep=isAnime
+  ? {season:0,episode:animeNumber,title:animeEpisode.title,code:`${animeShow.title.toUpperCase()} E${String(animeNumber).padStart(2,"0")}`,animeSlug:animeShow.slug,animeTitle:animeShow.title}
+  : isSpecial
+    ? {season:"Special",episode:specialNumber,title:specialTitles[specialNumber-1],code:`SPECIAL ${specialNumber}`,specialSlug:specialSlugs[specialNumber-1]}
+    : (window.MH_EPISODES||[]).find(x=>x.season===season&&x.episode===number)||(window.MH_EPISODES||[]).at(-1);
 const $=id=>document.getElementById(id);
 document.title=`MiraculousHub — ${ep.title}`;
-$("episodeCode").textContent=isSpecial?`SPECIAL · ${ep.title}`:`SEASON ${ep.season} · EPISODE ${ep.episode}`;
+$("episodeCode").textContent=isAnime?`${ep.animeTitle.toUpperCase()} · EPISODE ${ep.episode}`:isSpecial?`SPECIAL · ${ep.title}`:`SEASON ${ep.season} · EPISODE ${ep.episode}`;
 $("title").textContent=ep.title;
 $("playerTitle").textContent=ep.title;
-$("playerCode").textContent=isSpecial?`SPECIAL ${String(ep.episode).padStart(2,"0")}`:`S${String(ep.season).padStart(2,"0")} E${String(ep.episode).padStart(2,"0")}`;
+$("playerCode").textContent=isAnime?`DN E${String(ep.episode).padStart(2,"0")}`:isSpecial?`SPECIAL ${String(ep.episode).padStart(2,"0")}`:`S${String(ep.season).padStart(2,"0")} E${String(ep.episode).padStart(2,"0")}`;
 
-const idx=MH_EPISODES.findIndex(x=>x.season===ep.season&&x.episode===ep.episode);
-const prev=MH_EPISODES[idx-1], next=MH_EPISODES[idx+1];
-if(isSpecial){ $("prev").style.visibility="hidden"; $("next").style.visibility="hidden"; }
-else { if(prev) $("prev").href=`watch.html?season=${prev.season}&episode=${prev.episode}`; else $("prev").style.visibility="hidden"; if(next) $("next").href=`watch.html?season=${next.season}&episode=${next.episode}`; else $("next").style.visibility="hidden"; }
+if(isAnime){
+  const ai=animeShow.episodes.findIndex(x=>Number(x.episode)===ep.episode);
+  const prevAnime=animeShow.episodes[ai-1], nextAnime=animeShow.episodes[ai+1];
+  if(prevAnime) $("prev").href=`watch.html?anime=${animeShow.slug}&episode=${prevAnime.episode}`; else $("prev").style.visibility="hidden";
+  if(nextAnime) $("next").href=`watch.html?anime=${animeShow.slug}&episode=${nextAnime.episode}`; else $("next").style.visibility="hidden";
+}else{
+  const idx=MH_EPISODES.findIndex(x=>x.season===ep.season&&x.episode===ep.episode);
+  const prev=MH_EPISODES[idx-1], next=MH_EPISODES[idx+1];
+  if(isSpecial){ $("prev").style.visibility="hidden"; $("next").style.visibility="hidden"; }
+  else { if(prev) $("prev").href=`watch.html?season=${prev.season}&episode=${prev.episode}`; else $("prev").style.visibility="hidden"; if(next) $("next").href=`watch.html?season=${next.season}&episode=${next.episode}`; else $("next").style.visibility="hidden"; }
+}
 
 
 const v=$("video"), player=$("player"), stage=$("stage"), progressArea=$("progressArea");
@@ -646,9 +660,11 @@ const current=$("current"), buffer=$("buffer"), knob=$("knob"), time=$("time");
 if(ep.thumbnail) v.poster=ep.thumbnail;
 
 const VIDEO_WORKER="https://miraculous-video.ibbyzaman4.workers.dev";
-const mediaPath=isSpecial
-  ? `/video/special/${ep.specialSlug}`
-  : `/video/s${String(ep.season).padStart(2,"0")}e${String(ep.episode).padStart(2,"0")}`;
+const mediaPath=isAnime
+  ? `/video/anime/${ep.animeSlug}/e${String(ep.episode).padStart(2,"0")}`
+  : isSpecial
+    ? `/video/special/${ep.specialSlug}`
+    : `/video/s${String(ep.season).padStart(2,"0")}e${String(ep.episode).padStart(2,"0")}`;
 const sourceUrl=`${VIDEO_WORKER}${mediaPath}`;
 
 // Every episode/special has a deterministic Worker URL before it is uploaded.
@@ -679,7 +695,7 @@ v.addEventListener("seeking",()=>setPlayerLoading(true));
   v.addEventListener(type,()=>setPlayerLoading(false))
 );
 
-const cloudKey=isSpecial?`special-${ep.episode}`:`s${ep.season}e${ep.episode}`;
+const cloudKey=isAnime?`anime-${ep.animeSlug}-e${ep.episode}`:isSpecial?`special-${ep.episode}`:`s${ep.season}e${ep.episode}`;
 
 // Episode/comment reporting. Reports are write-only for site users and stored in Firestore.
 let activeReportTarget=null;
@@ -836,6 +852,7 @@ function capturePlaybackSnapshot(){
   const duration=Number(v.duration);
   return {
     season:ep.season, episode:ep.episode, title:ep.title,
+    ...(isAnime?{type:"anime",animeSlug:ep.animeSlug,animeTitle:ep.animeTitle}:{}),
     progress:Math.min(100,Math.max(0,(position/duration)*100)),
     position, duration
   };
@@ -939,6 +956,7 @@ async function loadCloudPosition(){
             season:ep.season,
             episode:ep.episode,
             title:ep.title,
+            ...(isAnime?{type:"anime",animeSlug:ep.animeSlug,animeTitle:ep.animeTitle}:{}),
             progress:Number.isFinite(savedProgress)?savedProgress:Math.min(100,(safePos/v.duration)*100),
             position:safePos,
             duration:v.duration
@@ -1359,9 +1377,11 @@ window.addEventListener("mh-cloud-save-error", e => {
 
 const downloadBtn=$("download");
 if(downloadBtn){
-  const downloadPath=isSpecial
-    ? `/download/special/${ep.specialSlug}`
-    : `/download/s${String(ep.season).padStart(2,"0")}e${String(ep.episode).padStart(2,"0")}`;
+  const downloadPath=isAnime
+    ? `/download/anime/${ep.animeSlug}/e${String(ep.episode).padStart(2,"0")}`
+    : isSpecial
+      ? `/download/special/${ep.specialSlug}`
+      : `/download/s${String(ep.season).padStart(2,"0")}e${String(ep.episode).padStart(2,"0")}`;
   downloadBtn.onclick=()=>{ window.location.href=VIDEO_WORKER+downloadPath; };
 }
 
@@ -1369,6 +1389,7 @@ $("share").onclick=async()=>{try{if(navigator.share)await navigator.share({title
 
 let subtitleTrack=null;
 async function setupSubtitles(){
+ if(isAnime){ $("captionNote").textContent="Anime subtitle files can be added under subtitles/anime/death-note/."; return; }
  if(isSpecial){ $("captionNote").textContent="Subtitles are not configured for this special yet."; return; }
  const path=`subtitles/S${String(ep.season).padStart(2,"0")}E${String(ep.episode).padStart(2,"0")}.en.vtt`;
  try{

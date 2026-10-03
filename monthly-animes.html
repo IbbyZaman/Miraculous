@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05070c">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>MiraculousHub — Monthly Animes</title>
+<link rel="stylesheet" href="styles.css?v=monthly-animes-1">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-6K9W3X96EY');
+</script>
+<style>
+.anime-page{width:min(1180px,92vw);margin:0 auto;padding:54px 0 90px}
+.anime-hero{padding:44px 0 34px}
+.anime-hero .kicker{margin-bottom:10px}
+.anime-hero h1{font-size:clamp(42px,7vw,78px);letter-spacing:-.055em;line-height:.94;margin:0 0 16px}
+.anime-hero p{max-width:720px;color:var(--muted);line-height:1.7}
+.anime-library{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:24px}
+.anime-title-card{position:relative;min-height:350px;border-radius:28px;overflow:hidden;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.12);background:radial-gradient(circle at 70% 15%,rgba(255,255,255,.13),transparent 26%),linear-gradient(145deg,#13151f 0%,#0b0c12 45%,#1d0a10 100%);box-shadow:0 24px 70px rgba(0,0,0,.32);transition:transform .22s ease,border-color .22s ease}
+.anime-title-card:hover{transform:translateY(-5px);border-color:rgba(255,79,113,.55)}
+.anime-title-card:before{content:"DEATH NOTE";position:absolute;right:-18px;top:34px;font-weight:950;font-size:74px;line-height:.78;letter-spacing:-.08em;writing-mode:vertical-rl;opacity:.055}
+.anime-card-body{position:absolute;inset:auto 0 0;padding:26px;background:linear-gradient(180deg,transparent,rgba(3,4,7,.97) 42%)}
+.anime-card-badge{display:inline-flex;padding:7px 10px;border-radius:999px;background:rgba(255,62,99,.13);border:1px solid rgba(255,84,119,.23);color:#ff7896;font-size:11px;font-weight:900;letter-spacing:.08em}
+.anime-title-card h2{font-size:36px;margin:14px 0 8px;letter-spacing:-.04em}
+.anime-title-card p{margin:0;color:#aeb3bf;line-height:1.55}
+.anime-card-meta{margin-top:18px;display:flex;justify-content:space-between;gap:12px;color:#ddd;font-size:13px;font-weight:800}
+.anime-coming{min-height:350px;border-radius:28px;border:1px dashed rgba(255,255,255,.10);display:grid;place-items:center;color:#676d79;text-align:center;padding:30px}
+@media(max-width:900px){.anime-library{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.anime-page{padding-top:24px}.anime-library{grid-template-columns:1fr}.anime-title-card{min-height:310px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="index.html" aria-label="MiraculousHub home"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a>
+  <nav class="nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="index.html#upcoming-releases">Upcoming Releases</a><a class="active" href="monthly-animes.html">Monthly Animes</a></nav>
+  <div class="actions"><button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button><button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button><button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false"><span></span><span></span><span></span></button></div>
+</header>
+<div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
+<aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation">
+  <div class="mobile-drawer-head"><div><span class="mobile-drawer-kicker">MIRACULOUSHUB</span><strong>Navigation</strong></div><button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close navigation">×</button></div>
+  <nav class="mobile-nav-links" aria-label="Mobile navigation links"><a href="index.html"><span>01</span><b>Home</b><i>→</i></a><a href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a><a href="index.html#upcoming-releases"><span>03</span><b>Upcoming Releases</b><i>→</i></a><a class="active" href="monthly-animes.html"><span>04</span><b>Monthly Animes</b><i>→</i></a></nav>
+  <div class="mobile-drawer-foot"><p>One featured anime collection each month.</p><button class="signin mobile-drawer-signin">Sign in</button></div>
+</aside>
+<main class="anime-page">
+  <section class="anime-hero"><p class="kicker">MONTHLY COLLECTION</p><h1>Monthly Animes</h1><p>A rotating anime shelf alongside MiraculousHub. This month’s featured title is ready for R2 uploads and uses the same MiraculousHub player, progress saving, fullscreen, AirPlay and mobile controls.</p></section>
+  <section><div class="section-head"><div><p class="kicker">FEATURED THIS MONTH</p><h2>Choose a title</h2></div></div>
+    <div class="anime-library">
+      <a class="anime-title-card" href="death-note.html"><div class="anime-card-body"><span class="anime-card-badge">MONTHLY ANIME</span><h2>Death Note</h2><p>37 episodes prepared and ready to connect automatically as you upload them to R2.</p><div class="anime-card-meta"><span>37 Episodes</span><span>Open series →</span></div></div></a>
+      <div class="anime-coming"><div><strong>Next title</strong><br><span>More monthly collections can be added here later.</span></div></div>
+    </div>
+  </section>
+</main>
+<footer class="footer"><div><div class="brand"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></div><p style="color:var(--muted);font-size:9px;line-height:1.6;max-width:340px">Fan-made watch hub.</p></div><div class="footer-links"><div><b>EXPLORE</b><a href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="monthly-animes.html">Monthly Animes</a></div></div><p class="copyright">© 2026 MiraculousHub.</p></footer>
+<div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
+<div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button></div>
+<script src="data.js?v=monthly-animes-1"></script><script src="anime-data.js?v=monthly-animes-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=monthly-animes-1"></script><script src="motion.js?v=player-perf-1"></script>
+</body></html>
