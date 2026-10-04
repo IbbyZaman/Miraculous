@@ -2290,3 +2290,7 @@ html{scroll-behavior:smooth}
   .episode-grid-shell .episode-library-card .card-info h3{font-size:16px}
   .episode-grid-shell .episode-library-card .epno{font-size:9px}
 }
+
+/* Save status lives outside the video, keeping subtitles unobstructed. */
+.playback-sync-status{font-size:12px;color:#aeb3bf;line-height:1.5;margin:12px 0;padding:0 4px}
+@media(max-width:680px){.watch-shell>.playback-sync-status{padding:0 6vw}}

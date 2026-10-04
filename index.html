@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png">
 <title>MiraculousHub — Home</title>
-<link rel="stylesheet" href="styles.css?v=special-thumbs-s7-grid-1">
+<link rel="stylesheet" href="styles.css?v=every-second-4">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
 <script>
@@ -244,8 +244,8 @@
 
 <script src="anime-data.js?v=monthly-animes-1"></script>
 <script src="data.js?v=special-thumbs-s7-grid-1"></script>
-<script src="firebase.js?v=continue-fix-1"></script>
-<script src="common.js?v=playback-sync-2"></script>
+<script src="firebase.js?v=every-second-4"></script>
+<script src="common.js?v=every-second-4"></script>
 <script src="motion.js?v=mobile-drawer-1"></script>
 <script>
 const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
@@ -270,8 +270,8 @@ function renderCW(){
     .slice(0,12);
 
   if(!items.length){
-    box.hidden=true;
-    row.innerHTML="";
+    box.hidden=!window.MH_USER;
+    row.innerHTML=window.MH_USER?'<p class="playback-sync-status">No unfinished episodes found. New device checkpoints will appear here while cloud sync is unavailable.</p>':"";
     return;
   }
 
@@ -294,7 +294,7 @@ function renderCW(){
       </div>
       <div class="continue-info">
         <strong>${x.title||meta?.title||"Episode"}</strong>
-        <p>${Number(x.duration)>0?`${Math.round(x.progress||0)}% watched · `:""}resume ${formatResumeTime(x.position)}</p>
+        <p>${Number(x.duration)>0?`${Math.round(x.progress||0)}% watched · `:""}resume ${formatResumeTime(x.position)}${x.pendingCloud?" · saved on this device":""}</p>
       </div>
     </a>`;
   }).join("");
@@ -332,6 +332,8 @@ async function syncContinueWatching(){
 renderCW();
 syncContinueWatching();
 window.addEventListener("mh-progress-synced",renderCW);
+window.addEventListener("mh-cloud-playback-status",renderCW);
+window.addEventListener("mh-playback-local-saved",renderCW);
 window.addEventListener("mh-account-ready",renderCW);
 window.addEventListener("mh-cloud-save-ok",()=>syncContinueWatching());
 window.addEventListener("mh-auth-changed",()=>syncContinueWatching());

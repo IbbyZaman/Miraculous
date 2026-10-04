@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png"><title>MiraculousHub — Watch</title>
-<link rel="stylesheet" href="styles.css?v=special-thumbs-s7-grid-1">
+<link rel="stylesheet" href="styles.css?v=every-second-4">
 <style>
 /* Modern video player */
 .watch-shell{width:min(1240px,94vw);padding:24px 0 70px}
@@ -592,6 +592,8 @@ body .simple-player .quick-overlay{display:none}
  </div>
  <div class="player-caption-note" id="captionNote">Subtitles are available when a matching WebVTT file is placed in the <code>subtitles/</code> folder.</div>
 
+ <p class="playback-sync-status" id="playbackSyncStatus" role="status">Connecting playback sync…</p>
+
  <section class="watch-meta">
   <p class="kicker" id="episodeCode">SEASON 6 · EPISODE 26</p>
   <h1 id="title">Nemesis</h1>
@@ -650,7 +652,7 @@ body .simple-player .quick-overlay{display:none}
  </div>
 </div>
 
-<script src="data.js?v=monthly-animes-1"></script><script src="anime-data.js?v=monthly-animes-1"></script><script src="firebase.js?v=continue-fix-1"></script><script src="common.js?v=playback-sync-2"></script><script src="motion.js?v=player-perf-1"></script><script src="playback-sync.js?v=playback-sync-2"></script>
+<script src="data.js?v=monthly-animes-1"></script><script src="anime-data.js?v=monthly-animes-1"></script><script src="firebase.js?v=every-second-4"></script><script src="common.js?v=every-second-4"></script><script src="motion.js?v=player-perf-1"></script><script src="playback-sync.js?v=every-second-4"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
@@ -888,7 +890,8 @@ const playbackSync=window.MHPlayback.create({
     window.dispatchEvent(new CustomEvent("mh-cloud-save-error",{detail:error}));
     if(Date.now()-lastSyncError<10000) return;
     lastSyncError=Date.now();
-    const messages={"permission-denied":"Cloud sync blocked: Firestore rules",
+    const messages={"resource-exhausted":"Firebase quota exceeded · progress kept on this device",
+      "permission-denied":"Cloud sync blocked: Firestore rules",
       "failed-precondition":"Cloud sync unavailable: create Firestore",
       "unavailable":"Cloud sync unavailable: check connection",
       "unauthenticated":"Cloud sync failed: sign in again"};
@@ -917,11 +920,15 @@ v.addEventListener("timeupdate",()=>{
   update();
   saveCloudPosition(false);
 });
-// While playing, sync playback to Firestore approximately once per second.
-// The in-flight guard prevents overlapping writes on slower connections.
+// Checkpoint to the cloud every second; local checkpoints keep the
+// latest position when quota/network prevents Firestore acknowledgement.
 const cloudSyncTimer=setInterval(()=>{ if(!v.paused) saveCloudPosition(false); },1000);
 v.addEventListener("pause",()=>{void saveCloudPosition(true);});
-v.addEventListener("seeked",()=>{void saveCloudPosition(true);});
+let seekSaveTimer;
+v.addEventListener("seeked",()=>{
+  clearTimeout(seekSaveTimer);
+  seekSaveTimer=setTimeout(()=>{void saveCloudPosition(true);},1200);
+});
 
 // Save the exact current timestamp whenever the page/app is being hidden.
 // This matters most on phones, where closing/switching apps may not fire
@@ -946,6 +953,20 @@ v.addEventListener("ended",async()=>{
 );
 ["loadeddata","canplay"].forEach(type=>v.addEventListener(type,()=>{void loadCloudPosition();}));
 void loadCloudPosition();
+function updatePlaybackSyncStatus(state){
+  const status=$("playbackSyncStatus");
+  if(!window.MH_USER){status.textContent="Sign in to save playback across devices";return;}
+  const code=window.MH_PLAYBACK_CLOUD_ERROR?.code;
+  if(code==="resource-exhausted") status.textContent="Firebase quota exceeded · progress kept on this device until cloud sync is available";
+  else if(code) status.textContent="Progress kept on this device · cloud sync unavailable";
+  else status.textContent=state==="synced"?"Playback synced to your account":
+    state==="local"?"Progress kept on this device · waiting for cloud sync":"Playback sync ready";
+}
+window.addEventListener("mh-cloud-playback-status",event=>updatePlaybackSyncStatus(event.detail.state));
+window.addEventListener("mh-cloud-save-ok",()=>updatePlaybackSyncStatus("synced"));
+window.addEventListener("mh-playback-local-saved",()=>updatePlaybackSyncStatus("local"));
+window.addEventListener("mh-auth-changed",()=>updatePlaybackSyncStatus());
+updatePlaybackSyncStatus();
 
 function setPlayingUI(){
  const playing=!v.paused;

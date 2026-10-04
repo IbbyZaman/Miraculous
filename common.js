@@ -1,8 +1,22 @@
 (function(){
   const THEME = "mh-theme";
-  // Playback progress is intentionally NOT stored in localStorage.
-  // Signed-in users use Firestore as the single source of truth.
+  // Keep pending progress on this device when Firestore has no quota or
+  // connection. Each account has its own cache; cloud success is explicit.
   let progressCache = [];
+  let progressCacheUid = null;
+  const CACHE_PREFIX = "mh-playback-pending-v3:";
+  function restoreAccountCache(){
+    const uid=window.MH_USER?.uid || null;
+    if(uid===progressCacheUid) return;
+    progressCacheUid=uid;
+    progressCache=[];
+    if(uid){
+      try{
+        const saved=JSON.parse(localStorage.getItem(CACHE_PREFIX+uid)||"[]");
+        if(Array.isArray(saved)) progressCache=saved.slice(0,30);
+      }catch{}
+    }
+  }
 
   function setTheme(t){
     document.documentElement.classList.toggle("light", t === "light");
@@ -106,11 +120,20 @@
   });
 
   function readCache(){
+    restoreAccountCache();
     return progressCache.slice();
   }
 
   function writeCache(items){
+    restoreAccountCache();
     progressCache = (Array.isArray(items) ? items : []).slice(0, 30);
+    if(progressCacheUid){
+      try{localStorage.setItem(CACHE_PREFIX+progressCacheUid,JSON.stringify(progressCache));}catch{}
+    }
+  }
+  function stamp(item){
+    return Number(item.clientUpdatedAt) || item.updatedAt?.toMillis?.() ||
+      (Number(item.updatedAt?.seconds)||0)*1000 || Number(item.updatedAt)||0;
   }
 
   // One identity for playback, watched state, favourites and the page cache.
@@ -124,8 +147,8 @@
     return readCache();
   };
 
-  // Update the current page's in-memory progress list. Firestore remains
-  // authoritative for signed-in users; there is no persistent local fallback.
+  // Update this account's device cache. pendingCloud distinguishes a
+  // device-only checkpoint from a confirmed cloud save.
   window.mhSaveProgress = function(item){
     const all = readCache().filter(
       x => window.mhPlaybackKey(x) !== window.mhPlaybackKey(item)
@@ -133,20 +156,32 @@
 
     all.unshift({
       ...item,
-      updatedAt: Date.now()
+      updatedAt: item.updatedAt ?? Date.now()
     });
 
     writeCache(all);
   };
 
+  window.mhGetCachedPlayback = key => readCache().find(item=>window.mhPlaybackKey(item)===key) || null;
+  window.mhStageProgress = function(item){
+    const previous=window.mhGetCachedPlayback(window.mhPlaybackKey(item));
+    const payload={...item,clientUpdatedAt:Math.max(Date.now(),Number(previous?.clientUpdatedAt||0)+1),pendingCloud:true};
+    window.mhSaveProgress(payload);
+    window.dispatchEvent(new Event("mh-playback-local-saved"));
+    return payload;
+  };
+  window.mhConfirmCloudProgress = function(item){
+    const newer=window.mhGetCachedPlayback(window.mhPlaybackKey(item));
+    if(newer && stamp(newer)>stamp(item)) return;
+    window.mhSaveProgress({...item,pendingCloud:false});
+  };
+
   window.mhSavePosition = async function(item){
-    window.mhSaveProgress(item);
+    const payload=window.mhStageProgress(item);
     if (!window.MH_CLOUD || !window.MH_USER) return false;
 
-    await window.MH_CLOUD.savePlayback(
-      window.mhPlaybackKey(item),
-      item
-    );
+    await window.MH_CLOUD.savePlayback(window.mhPlaybackKey(item),payload);
+    window.mhConfirmCloudProgress(payload);
 
     window.dispatchEvent(new CustomEvent(
       "mh-cloud-save-ok",
@@ -163,18 +198,7 @@
     );
   };
 
-  // Firestore is the only persistent playback source for signed-in accounts.
-  window.mhSyncCloudProgress = async function(){
-    if (!window.MH_CLOUD || !window.MH_USER) {
-      writeCache([]);
-      window.dispatchEvent(new Event("mh-progress-synced"));
-      return [];
-    }
-
-    try {
-      const uid=window.MH_USER.uid;
-      const cloud = await window.MH_CLOUD.getAllPlayback();
-      if(window.MH_USER?.uid!==uid) return readCache();
+  function mergeCloudProgress(cloud){
       const normalised = cloud
         .map(x => {
           const id = String(x.id || "");
@@ -203,6 +227,7 @@
             animeSlug: animeSlug || x.animeSlug || null,
             animeTitle: animeShow?.title || x.animeTitle || null,
             type: animeSlug ? "anime" : specialMatch ? "special" : (x.type || "episode"),
+            pendingCloud:!!x.pendingCloud,
             title: x.title || known?.title || "Episode",
             position,
             duration,
@@ -220,17 +245,65 @@
           return bt - at;
         });
 
-      const seen=new Set();
-      writeCache(normalised.filter(item=>{
+      const combined=new Map();
+      for(const item of normalised){
         const key=window.mhPlaybackKey(item);
-        if(seen.has(key)) return false;
-        seen.add(key);return true;
-      }));
+        if(!combined.has(key)) combined.set(key,item);
+      }
+      for(const item of readCache()){
+        const key=window.mhPlaybackKey(item),remote=combined.get(key);
+        if(item.pendingCloud && (!remote || stamp(item)>stamp(remote))) combined.set(key,item);
+      }
+      writeCache([...combined.values()].sort((a,b)=>stamp(b)-stamp(a)));
 
       window.dispatchEvent(new Event("mh-progress-synced"));
       return readCache();
+  }
+  let playbackFeedUid=null,stopPlaybackFeed=null;
+  function startPlaybackFeed(){
+    const uid=window.MH_USER?.uid || null;
+    if(uid===playbackFeedUid && stopPlaybackFeed) return;
+    if(stopPlaybackFeed) stopPlaybackFeed();
+    stopPlaybackFeed=null;playbackFeedUid=null;
+    if(!uid || !window.MH_CLOUD?.subscribePlayback) return;
+    playbackFeedUid=uid;
+    stopPlaybackFeed=window.MH_CLOUD.subscribePlayback((items,error)=>{
+      if(window.MH_USER?.uid!==uid) return;
+      if(error){
+        window.dispatchEvent(new CustomEvent("mh-cloud-save-error",{detail:error}));
+        return;
+      }
+      mergeCloudProgress(items || []);
+    });
+  }
+  // Update other open tabs from device checkpoints too, including while the
+  // project's quota prevents cloud writes. Cloud updates use one live feed.
+  window.addEventListener("storage",event=>{
+    if(event.key!==CACHE_PREFIX+(window.MH_USER?.uid || "")) return;
+    progressCacheUid=null;restoreAccountCache();
+    window.dispatchEvent(new Event("mh-progress-synced"));
+  });
+  window.addEventListener("mh-auth-changed",startPlaybackFeed);
+  window.addEventListener("mh-firebase-ready",startPlaybackFeed);
+  window.addEventListener("pageshow",startPlaybackFeed);
+
+  // Merge confirmed cloud records with this device's newer pending saves.
+  window.mhSyncCloudProgress = async function(){
+    if (!window.MH_CLOUD || !window.MH_USER) {
+      writeCache([]);
+      window.dispatchEvent(new Event("mh-progress-synced"));
+      return [];
+    }
+
+    try {
+      const uid=window.MH_USER.uid;
+      const cloud = await window.MH_CLOUD.getAllPlayback();
+      if(window.MH_USER?.uid!==uid) return readCache();
+      return mergeCloudProgress(cloud);
     } catch (error) {
       console.warn("Cloud progress sync failed:", error);
+      window.dispatchEvent(new CustomEvent("mh-cloud-save-error",{detail:error}));
+      window.dispatchEvent(new Event("mh-progress-synced"));
       return readCache();
     }
   };
@@ -539,7 +612,7 @@
     async e => {
       updateAuthButton(e.detail);
 
-      writeCache([]);
+      restoreAccountCache();
       window.dispatchEvent(new Event("mh-progress-synced"));
       if (e.detail) {
         await window.mhSyncCloudProgress();
@@ -559,6 +632,7 @@
     window.MH_FIREBASE_READY.then(() => window.MH_AUTH_READY)
       .then(async user => {
         updateAuthButton(user);
+        startPlaybackFeed();
         if (user) {
           await window.mhSyncCloudProgress();
           window.dispatchEvent(new Event("mh-account-ready"));

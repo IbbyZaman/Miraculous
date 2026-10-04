@@ -22,6 +22,21 @@
         import(`${BASE}/firebase-firestore.js`)
       ]);
 
+      // Firestore retries quota-exhausted writes internally; its setDoc
+      // promise can stay pending. Surface SDK errors as well as rejections.
+      function playbackStatus(state,error=null){
+        window.MH_PLAYBACK_CLOUD_ERROR=error;
+        window.dispatchEvent(new CustomEvent("mh-cloud-playback-status",{
+          detail:{state,code:error?.code || null,message:error?.message || ""}
+        }));
+      }
+      appMod.onLog?.(entry=>{
+        if(/resource-exhausted|quota exceeded/i.test(entry.message || "")){
+          const error=Object.assign(new Error("Firestore quota exceeded"),{code:"resource-exhausted"});
+          if(window.MH_PLAYBACK_CLOUD_ERROR?.code!==error.code) playbackStatus("quota",error);
+        }
+      },{level:"error"});
+      const playbackLists=new Map();
       const app = appMod.initializeApp(config);
       const auth = authMod.getAuth(app);
       const db = fsMod.getFirestore(app);
@@ -66,6 +81,31 @@
         return fsMod.doc(db, "users", u.uid, type, key);
       }
 
+      function normalisePlaybackSnapshot(snap){
+        return snap.docs.map(d=>{
+                const data=d.data() || {};
+                const normal=/^s(\d+)e(\d+)$/i.exec(d.id);
+                const anime=/^anime-([a-z0-9-]+)-e(\d+)$/i.exec(d.id);
+                const special=/^special-(\d+)$/i.exec(d.id);
+                const animeSlug=data.animeSlug || anime?.[1] || null;
+                const season=animeSlug?0:special?"Special":data.season ?? (normal?Number(normal[1]):null);
+                const episode=data.episode ?? (anime?Number(anime[2]):special?Number(special[1]):normal?Number(normal[2]):null);
+                const show=animeSlug?(window.MH_ANIME_SHOWS || []).find(a=>a.slug===animeSlug):null;
+                const known=show?show.episodes?.find(e=>Number(e.episode)===Number(episode)):
+                  (window.MH_EPISODES || []).find(e=>Number(e.season)===Number(season)&&Number(e.episode)===Number(episode));
+                const rawDuration=Number(data.duration),rawPosition=Number(data.position ?? data.currentTime ?? data.time ?? NaN);
+                const duration=Number.isFinite(rawDuration)&&rawDuration>0?rawDuration:0;
+                const rawProgress=Number(data.progress);
+                const position=Number.isFinite(rawPosition)&&rawPosition>=0?rawPosition:
+                  Number.isFinite(rawProgress)&&duration>0?Math.max(0,rawProgress/100*duration):0;
+                const progress=duration>0?Math.min(100,position/duration*100):
+                  Number.isFinite(rawProgress)?Math.max(0,Math.min(100,rawProgress)):0;
+                return {...data,id:d.id,season,episode,animeSlug,animeTitle:show?.title || data.animeTitle || null,
+                  type:animeSlug?"anime":special?"special":data.type || "episode",title:data.title || known?.title || "Episode",
+                  position,duration,progress,pendingCloud:!!d.metadata?.hasPendingWrites};
+              });
+      }
+
       window.MH_CLOUD = {
         async getPlayback(key) {
           const u = auth.currentUser;
@@ -76,11 +116,24 @@
         async savePlayback(key, data) {
           const u = auth.currentUser;
           if (!u) throw new Error("Not signed in");
-          await fsMod.setDoc(userRef("playback", key), {
-            ...data,
-            updatedAt: fsMod.serverTimestamp()
-          }, { merge: true });
-          return true;
+          // Device-only state is never uploaded as a confirmed cloud field.
+          const {pendingCloud,...playback}=data;
+          const timer=setTimeout(()=>{
+            if(auth.currentUser?.uid===u.uid && !window.MH_PLAYBACK_CLOUD_ERROR){
+              playbackStatus("pending",Object.assign(new Error("Waiting for Firestore; check connection or browser blocking"),{code:"unavailable"}));
+            }
+          },10000);
+          try{
+            await fsMod.setDoc(userRef("playback", key), {
+              ...playback,updatedAt:fsMod.serverTimestamp()
+            },{merge:true});
+            playbackLists.delete(u.uid);
+            if(auth.currentUser?.uid===u.uid) playbackStatus("synced");
+            return true;
+          }catch(error){
+            if(auth.currentUser?.uid===u.uid) playbackStatus(error?.code==="resource-exhausted"?"quota":"error",error);
+            throw error;
+          }finally{clearTimeout(timer);}
         },
         async getFavourite(key) {
           const u = auth.currentUser;
@@ -114,38 +167,34 @@
           return (await fsMod.getDoc(userRef("watched", key))).exists();
         },
         async getAllPlayback() {
-          const u = auth.currentUser;
-          if (!u) return [];
-          const snap = await fsMod.getDocs(fsMod.collection(db, "users", u.uid, "playback"));
-
-          // Older playback documents may only contain position/progress and
-          // rely on the document id (for example "s6e11") for the episode.
-          // Normalise them here so Continue Watching works for old accounts too.
-          return snap.docs.map(d => {
-            const data = d.data() || {};
-            const match = /^s(\d+)e(\d+)$/i.exec(d.id);
-            const season = data.season ?? (match ? Number(match[1]) : null);
-            const episode = data.episode ?? (match ? Number(match[2]) : null);
-            const known = (window.MH_EPISODES || []).find(
-              e => Number(e.season) === Number(season) && Number(e.episode) === Number(episode)
-            );
-            const position = Number(data.position ?? data.currentTime ?? data.time ?? 0) || 0;
-            const duration = Number(data.duration ?? 0) || 0;
-            const progress = Number.isFinite(Number(data.progress))
-              ? Number(data.progress)
-              : (duration > 0 ? Math.min(100, (position / duration) * 100) : 0);
-
-            return {
-              id: d.id,
-              ...data,
-              season,
-              episode,
-              title: data.title || known?.title || "Episode",
-              position,
-              duration,
-              progress
-            };
-          });
+          const u=auth.currentUser;
+          if(!u) return [];
+          const previous=playbackLists.get(u.uid);
+          if(previous && Date.now()<previous.expires) return previous.promise;
+          // Auth, pageshow and homepage listeners can request the same list
+          // together. Reuse in-flight reads; live listeners deliver ongoing updates.
+          const request={expires:Date.now()+1000,promise:null};
+          request.promise=(async()=>{
+            try{
+              const snap=await fsMod.getDocs(fsMod.collection(db,"users",u.uid,"playback"));
+              return normalisePlaybackSnapshot(snap);
+            }catch(error){
+              if(playbackLists.get(u.uid)===request) playbackLists.delete(u.uid);
+              throw error;
+            }
+          })();
+          playbackLists.set(u.uid,request);
+          return request.promise;
+        },
+        subscribePlayback(callback){
+          const uid=auth.currentUser?.uid;
+          if(!uid) return ()=>{};
+          return fsMod.onSnapshot(fsMod.collection(db,"users",uid,"playback"),snap=>{
+            if(auth.currentUser?.uid!==uid) return;
+            const items=normalisePlaybackSnapshot(snap);
+            playbackLists.set(uid,{expires:Date.now()+1000,promise:Promise.resolve(items)});
+            callback(items);
+          },error=>callback(null,error));
         },
         async getAllWatched() {
           const u = auth.currentUser;

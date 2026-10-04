@@ -1,29 +1,39 @@
-PLAYBACK AND DEATH NOTE PLAYER UPDATE
+PLAYBACK / FIREBASE EVERY-SECOND UPDATE
 
-Upload ALL files from this ZIP to your existing website, replacing the old files.
-Keep playback-sync.js alongside watch.html, common.js and firebase.js.
-Your existing Firebase project and Cloudflare Worker URLs are retained.
-No Firestore rules change or Worker redeployment is needed for this code update.
+Upload every file in this ZIP, replacing the website files. Keep playback-sync.js
+beside watch.html. Shared asset versions have been updated to every-second-4 so the
+browser requests the new Firebase and playback code.
+
+The console screenshot confirmed Firestore resource-exhausted: Quota exceeded.
+The account could still read 21 playback records, so this was not a lost login or
+missing database. It also showed ERR_BLOCKED_BY_CLIENT for a Firestore request.
 
 Changes:
-- Read saved playback before writing the player's starting position.
-- Save valid playback timestamps even when duration is not yet known.
-- Resume older position/currentTime/time/progress records.
-- Use matching keys for Miraculous, specials and anime everywhere.
-- Recover matching Death Note records saved under the old shared s0e key.
-- Keep different anime separate in Continue Watching, including saves with no duration.
-- Prevent stale account reads and queued writes from affecting another account.
-- Preserve the original Miraculous player design and controls.
-- Death Note has compact transparent controls, no glass panels or large outlines,
-  a faster auto-hide, and no Miraculous intro overlay.
+- firebase.js now surfaces SDK quota errors, even while a write promise keeps retrying.
+- Periodic cloud saves and device checkpoints run every second, as requested.
+- Pause, hide/exit and completion retain exact checkpoints; duplicate writes are skipped.
+- Seeking is debounced so dragging the progress bar does not produce many writes.
+- Continue Watching and anime cards receive live Firestore updates. Duplicate reads reuse a one-second cache.
+- Device checkpoints persist per account, including while cloud saves are pending.
+- Continue Watching merges those checkpoints with older cloud data.
+- A pending device save is labelled honestly; it is not a confirmed cross-device save.
+- Newer device checkpoints are not replaced by acknowledgements for older writes.
+- Miraculous player styling is unchanged. Death Note keeps its compact border-free skin.
 
-Validation:
-15 targeted automated checks passed for playback and the shared progress helpers.
-All original Miraculous player CSS is unchanged.
-Live Firebase writes and browser visual rendering were not verified in this environment.
+The code cannot reset an exhausted Firebase project quota. Firestore free quotas
+reset around midnight Pacific time: approximately 08:00 in the UK on 4 October 2026.
+If the daily free quota caused the error, cloud writes need that reset to recover.
+Check Firebase Console > Firestore > Usage to confirm which quota was exhausted.
+For ERR_BLOCKED_BY_CLIENT, allow Firestore requests for this site in Brave Shields
+or the blocking extension, then reload. No credentials or security rules were changed.
 
-Quick check after uploading:
-Sign in, play an episode, pause, then reload it. Check that it resumes at the paused
-position. Repeat for a Miraculous episode and a Death Note episode.
-If the player reports a Firestore rules/account/connection error, resolve that
-Firebase setting; site code cannot change your deployed Firebase settings.
+Official quota reference: https://firebase.google.com/docs/firestore/quotas
+Free document writes: 20,000/day across the project, not per account.
+A one-second interval alone can produce about 3,600 writes per viewer-hour.
+This build intentionally uses the one-second rate requested by the user.
+The exhausted daily quota still needs to reset; the code cannot increase that quota.
+
+Verification covers write throttling, pending/rejected quota errors, account cache
+isolation, reload/resume, legacy record formats, duplicate reads/writes and
+Continue Watching merges. Live project quota recovery cannot be verified until
+Firebase accepts new writes again.

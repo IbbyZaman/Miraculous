@@ -1,9 +1,12 @@
-MiraculousHub Firebase playback fix
+Firebase playback update — every-second-4
 
-- Playback position no longer uses localStorage.
-- Signed-in playback uses Firestore users/{uid}/playback/{episodeKey} as the single source of truth.
-- Duplicate playback writers were removed from the player loop.
-- Continue Watching is hydrated from Firestore after authentication restores.
-- Episode comments were added using the top-level comments collection.
+Signed-in accounts use Firestore for confirmed cross-device playback.
+Account-specific device checkpoints remain available if Firestore is blocked,
+offline, or out of quota. These are marked pending until Firebase acknowledges.
+Playback keys remain compatible with existing Miraculous, special and anime records.
+Periodic cloud and device checkpoints use a one-second interval; pause/exit save exact times.
+Continue Watching and episode cards receive live changes across open tabs/devices.
+Continue Watching merges pending device checkpoints with confirmed Firestore records.
+Quota errors are visible outside the video so subtitles remain unobstructed.
 
-Publish firestore.rules in Firebase Console > Firestore Database > Rules before using comments.
+See PLAYBACK-UPDATE.txt for deployment and the confirmed quota diagnosis.
