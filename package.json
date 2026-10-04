@@ -1,0 +1,10 @@
+{
+  "name": "miraculoushub-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "deploy:video": "npx wrangler deploy --config wrangler.toml",
+    "deploy:uploader": "npx wrangler deploy --config wrangler-uploader.toml"
+  }
+}

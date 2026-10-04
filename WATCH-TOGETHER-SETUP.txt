@@ -1,0 +1,54 @@
+Watch Together implementation and deployment
+
+First follow START-HERE.txt. Deploying website files alone is insufficient.
+
+Files:
+  cloudflare-worker-current.js — existing streaming + WatchPartyRoom class
+  wrangler.toml — WATCH_PARTIES binding and SQLite migration
+  watch-together.js/.css — player room controls and invite/join UI
+  party-invite.js — strips the invitation fragment before analytics loads
+  site-config.js — current Worker URLs
+  watch.html — one shared integration for every show and special
+
+Transport:
+  POST /party/rooms creates a room and returns separate guest/host keys.
+  GET /party/rooms/<24-character-id>/socket upgrades to a WebSocket.
+  Keys travel as WebSocket subprotocols over TLS, not URL query strings.
+  The guest invitation is carried in the share URL fragment. The host key
+  is kept only in the host's sessionStorage and never in the invite URL.
+  Room storage retains hashes of the keys. Display names are plain text.
+
+Sync:
+  The host sends playback state every second and on play/pause/seek/rate
+  changes. Guests project position using elapsed server time and playback
+  rate, adjust drift over one second, and apply play/pause immediately.
+  Ping round trips estimate server clock offset. Joining/refreshing restores
+  the current room timestamp. Account resume cannot override a party seek.
+  Slow/missing host updates pause guests until the host connection returns.
+  Host disconnection pauses the room and allows a 30-second reconnect grace.
+  Afterwards the earliest connected guest receives a new private host key.
+  An explicit Leave hands over immediately. New episodes start paused.
+
+Durability:
+  Hibernation WebSocket attachments retain the latest host heartbeat state.
+  Commands save immediately; heartbeat database checkpoints are at most
+  once per ten seconds. Hibernation restores the attachment's newer state.
+  Room lifetime is 24 hours, enforced by a Durable Object alarm.
+  A new Worker deployment disconnects sockets; the player reconnects.
+
+Limits:
+  12 connected people per room; messages limited to 4 KiB and 12 per second
+  per connection. Only the host can change the party state or episode.
+  Guests can adjust volume, subtitles, PiP, fullscreen and AirPlay locally.
+  Real playback requires the matching uploaded MP4. Each participant must
+  have a compatible browser and enough connection speed to play it.
+
+Firebase:
+  Party traffic is independent of Firebase. Every-second account playback
+  saving and the existing Continue Watching subscriptions remain in place.
+  The Firestore rules in this ZIP are unchanged. Party invites do not grant
+  access to users' saved playback or other private account data.
+
+Cloudflare reference:
+https://developers.cloudflare.com/durable-objects/best-practices/websockets/
+https://developers.cloudflare.com/durable-objects/api/alarms/

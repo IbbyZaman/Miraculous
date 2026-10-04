@@ -1,0 +1,97 @@
+MiraculousHub — Attack on Titan + Watch Together
+
+This is the FULL website, including the updated uploader and both Workers.
+Watch Together needs the updated video Worker and its Durable Object binding;
+uploading only the HTML files will not activate party rooms.
+
+1. UPDATE THE VIDEO WORKER
+
+   Open wrangler.toml and replace REPLACE_WITH_YOUR_EXISTING_R2_BUCKET_NAME
+   with the actual name of your current R2 video bucket. Keep:
+     Worker name: miraculous-video
+     R2 binding: R2_VIDEOS
+     Durable Object binding: WATCH_PARTIES
+     Durable Object class: WatchPartyRoom
+
+   From this folder, deploy the Worker and its room migration:
+     npx wrangler deploy --config wrangler.toml
+
+   Wrangler will ask you to sign in to your Cloudflare account if necessary.
+   The watch-parties-v1 SQLite migration creates the room namespace.
+   If you already have a Wrangler config, merge the WATCH_PARTIES binding
+   and migration into it and retain any existing bindings/migrations.
+   Keep GOOGLE_SERVICE_ACCOUNT as an existing Worker secret if you still
+   use the old Drive fallbacks. Never add secret values to website files.
+
+   The website already uses your existing Worker address:
+     https://miraculous-video.ibbyzaman4.workers.dev
+
+2. UPDATE THE UPLOADER WORKER
+
+   Either replace its dashboard code with cloudflare-uploader-worker.js,
+   keeping the VIDEOS bucket binding and UPLOAD_PASSWORD secret, or set
+   the same bucket name in wrangler-uploader.toml and deploy:
+     npx wrangler deploy --config wrangler-uploader.toml
+
+   The uploader and video Worker MUST use the same existing R2 bucket.
+   The uploader address is already set to:
+     https://miraculoushub-uploader.ibbyzaman4.workers.dev
+
+3. UPLOAD THE WEBSITE
+
+   Replace your website files with this folder, including all new .js/.css
+   files and attack-on-titan.html. Keep the subtitles folder.
+   site-config.js holds the two Worker addresses if yours change.
+   Firebase settings/rules are unchanged; Watch Together does not need
+   a Firebase login or new Firestore rules.
+
+4. UPLOAD ATTACK ON TITAN
+
+   Open upload.html on miraculoushub.co.uk.
+   Choose Type: Anime -> Attack on Titan -> the named episode.
+   Upload your matching MP4. Its website card already points to that route.
+   The original video filename does not matter.
+
+   Main series: episodes 1–94, grouped by season, including the episodic
+   cut of the Final Chapters as episodes 88–94.
+   Full-length finale files: choose Final Chapters Special 1 or Special 2.
+   Bonus files: choose OAD 1–8.
+   These versions have separate keys so they do not overwrite one another.
+
+   Every title and exact R2 key/player link is also listed in:
+     attack-on-titan-upload-manifest.json
+
+5. USE WATCH TOGETHER
+
+   Open any episode or special -> Watch Together -> enter a nickname ->
+   Create a party room. Copy/share the invite from Party details.
+   Friends open that complete link, enter a nickname and press Join party.
+   They can also paste the invite into Watch Together on any player.
+
+   The host controls play, pause, seeking, speed and episode changes.
+   Guests choose their own volume, subtitles and fullscreen/AirPlay.
+   A browser may require a guest to tap Enable playback once.
+   Up to 12 people can join; rooms expire after 24 hours.
+   Refreshing reconnects with the same role. Keep the host tab open.
+   If the host disconnects, the room pauses and waits 30 seconds before
+   handing control to a friend. Choosing Leave hands over immediately.
+   For another episode, the host uses Previous/Next or a player link in
+   search; everyone follows, and the new episode starts paused at 0:00.
+
+6. VERIFY AFTER DEPLOYING
+
+   Open one episode on two browsers/devices. Create a room in the first,
+   join its invite in the second, and check play/pause/seek and Next.
+   For a private preview hostname, add its exact HTTPS origin to
+   ALLOWED_ORIGINS in BOTH Workers before testing there.
+
+   Code checks exercised the two player controllers with the actual room
+   handlers through simulated WebSockets, plus upload/routing, security,
+   hibernation, reconnect and Firebase progress regression checks.
+   Your live Cloudflare bindings and real videos still need the check above.
+
+The original Miraculous player appearance is retained. Death Note stays
+compact; Attack on Titan uses the same subtitle-friendly compact controls.
+Progress saves and room playback checkpoints still run every second.
+Firebase quota/network failures keep the latest account checkpoint on this
+device; deploying the room Worker does not reset a Firebase quota.

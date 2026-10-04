@@ -69,11 +69,11 @@
     const animeHits = (window.MH_ANIME_SHOWS || [])
       .flatMap(show => (show.episodes || []).map(e => ({show,e})))
       .filter(({show,e}) =>
-        `${show.title} ${e.title} episode ${e.episode}`.toLowerCase().includes(q)
+        `${show.title} ${e.title} ${e.label||""} episode ${e.episode}`.toLowerCase().includes(q)
       )
       .map(({show,e}) => ({
         href:`watch.html?anime=${show.slug}&episode=${e.episode}`,
-        label:`${show.title} E${e.episode} · ${e.title}`,
+        label:`${show.title} · ${e.label||"E"+e.episode} · ${e.title}`,
         meta:"Monthly Anime"
       }));
 

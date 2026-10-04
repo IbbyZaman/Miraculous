@@ -1,3 +1,6 @@
+CURRENT RELEASE: read START-HERE.txt for the Watch Together room binding.
+Attack on Titan keys and links are in attack-on-titan-upload-manifest.json.
+
 MiraculousHub universal R2 routing
 
 1. VIDEO WORKER

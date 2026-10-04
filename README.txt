@@ -1,4 +1,12 @@
-MiraculousHub complete starter site
+MiraculousHub full website — Attack on Titan + Watch Together
+
+START HERE: read START-HERE.txt to deploy both Workers and the website.
+The new room backend requires the WATCH_PARTIES Durable Object binding and
+the SQLite migration in wrangler.toml.
+
+New files include attack-on-titan.html, the shared anime catalog and upload
+manifest, the Watch Together controller/styles, invite handling, site config,
+and Wrangler configurations. Both uploader and streaming Workers are updated.
 
 Files:
 - index.html: homepage

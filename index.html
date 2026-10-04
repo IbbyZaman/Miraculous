@@ -16,6 +16,8 @@
 
   gtag('config', 'G-6K9W3X96EY');
 </script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
+     crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -182,6 +184,14 @@
     </div>
   </section>
 
+  <section class="section" id="monthly-anime-shelf">
+    <div class="section-head"><div><p class="kicker">MONTHLY ANIMES</p><h2>Choose your next series</h2></div><a class="show-all" href="monthly-animes.html">All animes →</a></div>
+    <div class="release-stack">
+      <a class="upcoming release-card" href="attack-on-titan.html"><div class="datebox"><strong>AOT</strong></div><div class="upcoming-copy"><small>EVERY SEASON · FINAL CHAPTERS · BONUS OADS</small><h3>Attack on Titan</h3><p>Explore the complete episode list and watch with friends using Watch Together.</p></div><div class="badge">ANIME</div></a>
+      <a class="upcoming release-card release-card-secondary" href="death-note.html"><div class="datebox"><strong>DN</strong></div><div class="upcoming-copy"><small>37 EPISODES</small><h3>Death Note</h3><p>Return to your episode or invite friends to a shared party room.</p></div><div class="badge">ANIME</div></a>
+    </div>
+  </section>
+
   <section class="section" id="latest">
     <div class="section-head">
       <div>
@@ -242,10 +252,10 @@
   <button>PORTUGUÊS</button>
 </div>
 
-<script src="anime-data.js?v=monthly-animes-1"></script>
+<script src="anime-data.js?v=aot-party-1"></script>
 <script src="data.js?v=special-thumbs-s7-grid-1"></script>
 <script src="firebase.js?v=every-second-4"></script>
-<script src="common.js?v=every-second-4"></script>
+<script src="common.js?v=aot-party-1"></script>
 <script src="motion.js?v=mobile-drawer-1"></script>
 <script>
 const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
@@ -284,7 +294,7 @@ function renderCW(){
     const thumbnail=!isAnime?(meta?.thumbnail||""):"";
     const special=x.type==="special" || x.season==="Special";
     const href=isAnime?`watch.html?anime=${x.animeSlug}&episode=${x.episode}`:special?`watch.html?special=${x.episode}`:`watch.html?season=${x.season}&episode=${x.episode}`;
-    const label=isAnime?`${x.animeTitle||"Anime"} · E${x.episode}`:special?`Special ${x.episode}`:`S${x.season} · E${x.episode}`;
+    const label=isAnime?`${x.animeTitle||"Anime"} · ${meta?.label||"E"+x.episode}`:special?`Special ${x.episode}`:`S${x.season} · E${x.episode}`;
     return `
     <a class="continue-card" href="${href}">
       <div class="thumb ${thumbnail?"has-thumb":""}">

@@ -1,3 +1,6 @@
+CURRENT RELEASE: START-HERE.txt contains the full deployment steps for
+Attack on Titan and Watch Together. Older notes below remain for reference.
+
 MiraculousHub updated build
 
 LIVE:

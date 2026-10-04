@@ -1,0 +1,18 @@
+# Use this config for the EXISTING miraculous-video Worker.
+# Replace the bucket_name below with the name of your current video bucket.
+name = "miraculous-video"
+main = "cloudflare-worker-current.js"
+compatibility_date = "2025-09-01"
+workers_dev = true
+
+[[r2_buckets]]
+binding = "R2_VIDEOS"
+bucket_name = "REPLACE_WITH_YOUR_EXISTING_R2_BUCKET_NAME"
+
+[[durable_objects.bindings]]
+name = "WATCH_PARTIES"
+class_name = "WatchPartyRoom"
+
+[[migrations]]
+tag = "watch-parties-v1"
+new_sqlite_classes = ["WatchPartyRoom"]

@@ -1,0 +1,11 @@
+name = "miraculoushub-uploader"
+main = "cloudflare-uploader-worker.js"
+compatibility_date = "2025-09-01"
+workers_dev = true
+
+[[r2_buckets]]
+binding = "VIDEOS"
+bucket_name = "REPLACE_WITH_YOUR_EXISTING_R2_BUCKET_NAME"
+
+# Retain the existing UPLOAD_PASSWORD secret in Cloudflare.
+# Do not put it here or in upload.html.

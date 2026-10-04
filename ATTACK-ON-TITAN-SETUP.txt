@@ -1,0 +1,54 @@
+Attack on Titan upload destinations
+
+Main episodes: 1–94
+  Season 1: overall 1–25
+  Season 2: overall 26–37
+  Season 3: overall 38–59
+  The Final Season: overall 60–94
+
+  R2: anime/attack-on-titan/e01.mp4 through e94.mp4
+  Stream: /video/anime/attack-on-titan/e01 through e94
+  Player: watch.html?anime=attack-on-titan&episode=1 through episode=94
+
+Final Chapters, original full-length specials (alternative finale format)
+  Part 1: anime/attack-on-titan/sp01.mp4
+          /video/anime/attack-on-titan/sp01
+          watch.html?anime=attack-on-titan&episode=95
+  Part 2: anime/attack-on-titan/sp02.mp4
+          /video/anime/attack-on-titan/sp02
+          watch.html?anime=attack-on-titan&episode=96
+
+The 95/96 player IDs are internal catalog slots, not official episode numbers.
+The website and uploader display Special 1/Special 2 instead.
+Do not upload a complete long-form special under e88/e89; those keys are
+reserved for the split episodic version. Specials and episodes 88–94 contain
+the same finale story in different cuts.
+
+Bonus OADs
+  R2: anime/attack-on-titan/oad01.mp4 through oad08.mp4
+  Stream: /video/anime/attack-on-titan/oad01 through oad08
+  Player: watch.html?anime=attack-on-titan&episode=101 through episode=108
+  The website displays OAD 1–8; these IDs do not extend official numbering.
+
+Downloads use /download instead of /video on the same paths.
+English WebVTT files use:
+  subtitles/anime/attack-on-titan/e01.en.vtt
+  subtitles/anime/attack-on-titan/sp01.en.vtt
+  subtitles/anime/attack-on-titan/oad01.en.vtt
+
+Episode cards, uploader choices, search and Continue Watching all use the
+same anime-data.js catalog. There are no external episode download links
+or embedded video files in this package; upload your matching MP4s to R2.
+
+All titles, season numbers and exact upload/watch/download paths are in
+attack-on-titan-upload-manifest.json. Titles use the short English names;
+Season 1's repeating story-arc subtitles are omitted for readable cards.
+
+Title/numbering references checked on 4 October 2026:
+https://en.wikipedia.org/wiki/Attack_on_Titan_season_1
+https://en.wikipedia.org/wiki/Attack_on_Titan_season_2
+https://en.wikipedia.org/wiki/Attack_on_Titan_season_3
+https://en.wikipedia.org/wiki/Attack_on_Titan_season_4
+https://shingeki.tv/news/archives/8042
+https://www.crunchyroll.com/news/latest/2022/5/2/crunchyroll-to-launch-attack-on-titan-oad-english-dub-starting-may-8
+https://aot-portal.com/en/animation/oad-archive/

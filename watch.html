@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script src="party-invite.js?v=aot-party-1"></script>
+<script src="site-config.js?v=aot-party-1"></script>
+<link rel="stylesheet" href="watch-together.css?v=aot-party-1">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png"><title>MiraculousHub — Watch</title>
@@ -499,6 +502,8 @@ body .simple-player .quick-overlay{display:none}
  body .simple-player .player-time{font-size:9px;margin:0 2px}
 }
 </style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
+     crossorigin="anonymous"></script>
 </head>
 <body>
 <header class="topbar">
@@ -578,6 +583,7 @@ body .simple-player .quick-overlay{display:none}
          <div class="settings-label">Playback speed</div>
          <button data-speed="0.75">0.75×</button><button data-speed="1">Normal <span>✓</span></button><button data-speed="1.25">1.25×</button><button data-speed="1.5">1.5×</button><button data-speed="2">2×</button>
          <div class="settings-label">Player</div>
+         <button id="watchTogetherSettings" type="button">Watch Together <span>♧</span></button>
          <button id="pip">Picture-in-picture <span>↗</span></button>
          <button id="theater">Theater mode <span>▣</span></button>
          <button id="applePlayer" hidden>Apple player <span></span></button>
@@ -592,6 +598,7 @@ body .simple-player .quick-overlay{display:none}
  </div>
  <div class="player-caption-note" id="captionNote">Subtitles are available when a matching WebVTT file is placed in the <code>subtitles/</code> folder.</div>
 
+ <section class="party-strip" id="partyStrip" hidden aria-label="Watch Together party"><div class="party-strip-copy"><strong id="partySummary">Watch Together</strong><p id="partyHint" role="status" aria-live="polite"></p></div><button class="party-small party-enable" id="partyEnable" type="button" hidden>Enable playback</button><button class="party-small" id="partyReconnect" type="button" hidden>Reconnect</button><button class="party-small" id="partyDetails" type="button">Party details</button><button class="party-small" id="partyLeaveQuick" type="button">Leave</button></section>
  <p class="playback-sync-status" id="playbackSyncStatus" role="status">Connecting playback sync…</p>
 
  <section class="watch-meta">
@@ -602,6 +609,7 @@ body .simple-player .quick-overlay{display:none}
    <button class="watch-action" id="watched">✓ Mark as watched</button>
    <button class="watch-action" id="download" type="button">⬇ Download Episode</button>
    <button class="watch-action" id="share">Share</button>
+   <button class="watch-action" id="watchTogether" type="button">Watch Together</button>
    <button class="watch-action watch-action-report" id="episodeReportBtn" type="button">⚑ Report issue</button>
   </div>
   <div class="description">Watch this episode on MiraculousHub. Your viewing progress is saved securely to your MiraculousHub account when you are signed in.</div>
@@ -652,7 +660,17 @@ body .simple-player .quick-overlay{display:none}
  </div>
 </div>
 
-<script src="data.js?v=monthly-animes-1"></script><script src="anime-data.js?v=monthly-animes-1"></script><script src="firebase.js?v=every-second-4"></script><script src="common.js?v=every-second-4"></script><script src="motion.js?v=player-perf-1"></script><script src="playback-sync.js?v=every-second-4"></script>
+<dialog class="party-dialog" id="partyDialog" aria-labelledby="partyDialogTitle">
+ <div class="party-dialog-head"><h2 id="partyDialogTitle">Watch Together</h2><button class="party-close" id="partyClose" type="button" aria-label="Close Watch Together">×</button></div>
+ <div id="partySetup"><p>Create a party and share the invite with friends. The host’s play, pause, seeking, speed and episode changes sync to everyone.</p>
+ <label for="partyName">Your name in the party</label><input id="partyName" maxlength="24" minlength="2" autocomplete="nickname" placeholder="Choose a nickname">
+ <button class="party-primary" id="partyCreate" type="button">Create a party room</button>
+ <div class="party-divider"><span>Have an invite?</span><label for="partyJoinLink">Invite link</label><input id="partyJoinLink" type="url" placeholder="Paste a Watch Together invite" autocomplete="off" spellcheck="false"><button class="party-primary" id="partyJoin" type="button">Join party</button></div></div>
+ <div id="partyActive" hidden><p class="party-now" id="partyNow"></p><p id="partyRole"></p><label for="partyInvite">Invite friends</label><div class="party-invite-row"><input id="partyInvite" readonly aria-label="Party invite link"><button class="party-small" id="partyCopy" type="button">Copy</button></div><button class="party-primary" id="partyShare" type="button">Share invite</button><h3>People in the room</h3><ul class="party-members" id="partyMembers"></ul><p>Rooms last up to 24 hours. If the host leaves, another person takes over.</p><button class="party-leave" id="partyLeave" type="button">Leave party</button></div>
+ <p class="party-error" id="partyError" role="status" aria-live="polite"></p>
+</dialog>
+<script src="watch-together.js?v=aot-party-1"></script>
+<script src="data.js?v=monthly-animes-1"></script><script src="anime-data.js?v=aot-party-1"></script><script src="firebase.js?v=every-second-4"></script><script src="common.js?v=aot-party-1"></script><script src="motion.js?v=player-perf-1"></script><script src="playback-sync.js?v=aot-party-1"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
@@ -671,15 +689,18 @@ const ep=isAnime
     ? {season:"Special",episode:specialNumber,title:specialTitles[specialNumber-1],code:`SPECIAL ${specialNumber}`,specialSlug:specialSlugs[specialNumber-1]}
     : (window.MH_EPISODES||[]).find(x=>x.season===season&&x.episode===number)||(window.MH_EPISODES||[]).at(-1);
 const $=id=>document.getElementById(id);
+let partySync=null;
 document.title=`MiraculousHub — ${ep.title}`;
-$("episodeCode").textContent=isAnime?`${ep.animeTitle.toUpperCase()} · EPISODE ${ep.episode}`:isSpecial?`SPECIAL · ${ep.title}`:`SEASON ${ep.season} · EPISODE ${ep.episode}`;
+$("episodeCode").textContent=isAnime?`${ep.animeTitle.toUpperCase()} · ${animeEpisode.label||"EPISODE "+ep.episode}`:isSpecial?`SPECIAL · ${ep.title}`:`SEASON ${ep.season} · EPISODE ${ep.episode}`;
 $("title").textContent=ep.title;
+document.querySelector(".watch-meta .sub").textContent=isAnime?`${ep.animeTitle} · ${animeEpisode.label||"Episode "+ep.episode}`:isSpecial?"Miraculous World · Special":`Miraculous Ladybug · Season ${ep.season}`;
 $("playerTitle").textContent=ep.title;
-$("playerCode").textContent=isAnime?`DN E${String(ep.episode).padStart(2,"0")}`:isSpecial?`SPECIAL ${String(ep.episode).padStart(2,"0")}`:`S${String(ep.season).padStart(2,"0")} E${String(ep.episode).padStart(2,"0")}`;
+$("playerCode").textContent=isAnime?`${animeShow.abbreviation||animeShow.title} ${animeEpisode.label||"E"+String(ep.episode).padStart(2,"0")}`:isSpecial?`SPECIAL ${String(ep.episode).padStart(2,"0")}`:`S${String(ep.season).padStart(2,"0")} E${String(ep.episode).padStart(2,"0")}`;
 
 if(isAnime){
-  const ai=animeShow.episodes.findIndex(x=>Number(x.episode)===ep.episode);
-  const prevAnime=animeShow.episodes[ai-1], nextAnime=animeShow.episodes[ai+1];
+  const sequence=animeShow.episodes.filter(x=>x.group===animeEpisode.group);
+  const ai=sequence.findIndex(x=>Number(x.episode)===ep.episode);
+  const prevAnime=sequence[ai-1], nextAnime=sequence[ai+1];
   if(prevAnime) $("prev").href=`watch.html?anime=${animeShow.slug}&episode=${prevAnime.episode}`; else $("prev").style.visibility="hidden";
   if(nextAnime) $("next").href=`watch.html?anime=${animeShow.slug}&episode=${nextAnime.episode}`; else $("next").style.visibility="hidden";
 }else{
@@ -691,14 +712,14 @@ if(isAnime){
 
 
 const v=$("video"), player=$("player"), stage=$("stage"), progressArea=$("progressArea");
-const isDeathNote=isAnime && ep.animeSlug==="death-note";
-if(isDeathNote) player.classList.add("simple-player");
+const isSimpleAnime=isAnime;
+if(isSimpleAnime) player.classList.add("simple-player");
 const current=$("current"), buffer=$("buffer"), knob=$("knob"), time=$("time");
 if(ep.thumbnail) v.poster=ep.thumbnail;
 
-const VIDEO_WORKER="https://miraculous-video.ibbyzaman4.workers.dev";
+const VIDEO_WORKER=window.MH_SITE_CONFIG.videoWorker;
 const mediaPath=isAnime
-  ? `/video/anime/${ep.animeSlug}/e${String(ep.episode).padStart(2,"0")}`
+  ? animeEpisode.videoPath
   : isSpecial
     ? `/video/special/${ep.specialSlug}`
     : `/video/s${String(ep.season).padStart(2,"0")}e${String(ep.episode).padStart(2,"0")}`;
@@ -883,6 +904,7 @@ const playbackSync=window.MHPlayback.create({
     ...(isAnime?{type:"anime",animeSlug:ep.animeSlug,animeTitle:ep.animeTitle}:{}),
     ...(isSpecial?{type:"special",specialSlug:ep.specialSlug}:{})},
   key:cloudKey,
+  canResume:()=>!partySync?.active() && !window.MH_PARTY_CONNECTING && !new URL(location.href).searchParams.has("room"),
   onResume:pos=>{update();showToast(pos>2?`Resumed at ${fmt(pos)}`:"Playback synced");},
   onSave:payload=>window.dispatchEvent(new CustomEvent("mh-cloud-save-ok",{detail:{...payload,key:cloudKey}})),
   onError:error=>{
@@ -997,7 +1019,7 @@ function runMiraculousIdent(){
 }
 
 async function playWithMiraculousIdent(){
-  if(isDeathNote || mhIdentPlayed || mhIdentRunning){
+  if(isSimpleAnime || partySync?.active() || mhIdentPlayed || mhIdentRunning){
     try{ await v.play(); }catch{}
     return;
   }
@@ -1023,6 +1045,7 @@ async function playWithMiraculousIdent(){
 }
 
 async function togglePlay(){
+  if(partySync?.active()&&!partySync.isHost()){partySync.enablePlayback();return;}
   try{
     if(v.paused) await playWithMiraculousIdent();
     else v.pause();
@@ -1156,10 +1179,10 @@ function activity(){
  hideTimer=setTimeout(()=>{
    player.classList.remove("show-ui","mobile-quick");
    if(!isMobile() && !v.paused) player.classList.add("cursor-hidden");
- },isDeathNote?1200:1800);
+ },isSimpleAnime?1200:1800);
 }
 function showMobileQuick(){
- if(isDeathNote){activity();return;}
+ if(isSimpleAnime){activity();return;}
  if(!isLandscapeMobileFullscreen()) return;
  player.classList.add("show-ui","mobile-quick");
  clearTimeout(hideTimer);
@@ -1196,6 +1219,7 @@ stage.addEventListener("click",e=>{
 // PC: a quick Space tap toggles play/pause; holding Space temporarily switches to 2×.
 let spaceHeld=false, spaceTimer=null, spaceDidSpeed=false, speedBeforeHold=1;
 document.addEventListener("keydown",e=>{
+ if($("partyDialog").open) return;
  if(e.code==="Space"){
    if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName)) return;
    e.preventDefault();
@@ -1302,7 +1326,7 @@ window.addEventListener("mh-cloud-save-error", e => {
 const downloadBtn=$("download");
 if(downloadBtn){
   const downloadPath=isAnime
-    ? `/download/anime/${ep.animeSlug}/e${String(ep.episode).padStart(2,"0")}`
+    ? animeEpisode.downloadPath
     : isSpecial
       ? `/download/special/${ep.specialSlug}`
       : `/download/s${String(ep.season).padStart(2,"0")}e${String(ep.episode).padStart(2,"0")}`;
@@ -1313,9 +1337,9 @@ $("share").onclick=async()=>{try{if(navigator.share)await navigator.share({title
 
 let subtitleTrack=null;
 async function setupSubtitles(){
- if(isAnime){ $("captionNote").textContent="Anime subtitle files can be added under subtitles/anime/death-note/."; return; }
- if(isSpecial){ $("captionNote").textContent="Subtitles are not configured for this special yet."; return; }
- const path=`subtitles/S${String(ep.season).padStart(2,"0")}E${String(ep.episode).padStart(2,"0")}.en.vtt`;
+ const path=isAnime?`subtitles/anime/${ep.animeSlug}/${animeEpisode.mediaId}.en.vtt`:
+   isSpecial?`subtitles/specials/${ep.specialSlug}.en.vtt`:
+   `subtitles/S${String(ep.season).padStart(2,"0")}E${String(ep.episode).padStart(2,"0")}.en.vtt`;
  try{
   const r=await fetch(path,{method:"HEAD"});
   if(!r.ok) throw new Error("missing");
@@ -1333,6 +1357,9 @@ $("captions").onclick=()=>{
  showToast(subtitleTrack.mode==="showing"?"Subtitles on":"Subtitles off");
 };
 setupSubtitles();
+partySync=window.MHWatchTogether.create({video:v,worker:VIDEO_WORKER,media:{path:mediaPath,title:ep.title},onNotice:showToast,
+ beforeOpen:async()=>{try{if(document.fullscreenElement||document.webkitFullscreenElement){if(document.exitFullscreen)await document.exitFullscreen();else document.webkitExitFullscreen?.();}if(v.webkitDisplayingFullscreen)v.webkitExitFullscreen();}catch{} $("settingsMenu").hidden=true;}
+});
 </script>
 </body>
 </html>

@@ -1,6 +1,10 @@
 MiraculousHub Monthly Animes
 
 Death Note is prepared with 37 episodes.
+Attack on Titan is prepared with 94 numbered episodes, 2 alternative
+full-length Final Chapters specials and 8 bonus OADs. Its exact titles and
+routes are in attack-on-titan-upload-manifest.json.
+See ATTACK-ON-TITAN-SETUP.txt and START-HERE.txt for the new deployment steps.
 
 Uploader:
 - Type: Anime

@@ -145,12 +145,13 @@ function parseMediaPath(pathname){
     const ss=String(season).padStart(2,"0"), ee=String(episode).padStart(2,"0");
     return {key:`season-${season}/s${ss}e${ee}.mp4`,filename:`S${ss}E${ee}.mp4`,download:m[1].toLowerCase()==="download"};
   }
-  m=pathname.match(/^\/(video|download)\/anime\/([a-z0-9-]+)\/e(\d{2})\/?$/i);
+  m=pathname.match(/^\/(video|download)\/anime\/([a-z0-9-]+)\/(e|sp|oad)(\d{2})\/?$/i);
   if(m){
-    const slug=m[2].toLowerCase(), episode=Number(m[3]);
+    const slug=m[2].toLowerCase(), kind=m[3].toLowerCase(), episode=Number(m[4]);
     if(episode<1||episode>99) return null;
+    if(kind!=="e" && (slug!=="attack-on-titan" || episode>(kind==="sp"?2:8))) return null;
     const ee=String(episode).padStart(2,"0");
-    return {key:`anime/${slug}/e${ee}.mp4`,filename:`${slug}-e${ee}.mp4`,download:m[1].toLowerCase()==="download"};
+    return {key:`anime/${slug}/${kind}${ee}.mp4`,filename:`${slug}-${kind}${ee}.mp4`,download:m[1].toLowerCase()==="download"};
   }
   m=pathname.match(/^\/(video|download)\/special\/([a-z0-9-]+)\/?$/i);
   if(m){
@@ -257,6 +258,7 @@ async function serve(request,env,file){
 export default {
   async fetch(request,env){
     const url=new URL(request.url);
+    if(url.pathname.startsWith("/party/")) return handleParty(request,env);
     if(!isAllowedOrigin(request)) return textResponse(request,"Forbidden - MiraculousHub only.",403);
     if(request.method==="OPTIONS") return new Response(null,{status:204,headers:corsHeaders(request)});
     if(request.method!=="GET"&&request.method!=="HEAD") return textResponse(request,"Method Not Allowed",405);
@@ -266,3 +268,189 @@ export default {
     return textResponse(request,"Not Found",404);
   }
 };
+
+/* Watch Together — same video Worker, separate from Firebase playback saves.
+   Deploy with durable_objects binding WATCH_PARTIES -> WatchPartyRoom and
+   the SQLite migration in wrangler.toml. No Firebase rules changes required. */
+const PARTY_TTL=24*60*60*1000, HOST_GRACE=30000, PARTY_LIMIT=12;
+function partyHeaders(request){
+  const origin=request.headers.get("Origin");
+  return {"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store",
+    "Vary":"Origin","Access-Control-Allow-Methods":"GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers":"Content-Type",
+    ...(ALLOWED_ORIGINS.has(origin)?{"Access-Control-Allow-Origin":origin}:{})};
+}
+function partyJSON(request,data,status=200){return new Response(JSON.stringify(data),{status,headers:partyHeaders(request)})}
+function partyToken(){return crypto.randomUUID().replace(/-/g,"")+crypto.randomUUID().replace(/-/g,"")}
+async function partyHash(token){
+  const bytes=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(token));
+  return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,"0")).join("");
+}
+function partyMedia(value){
+  const path=String(value?.path||""), title=String(value?.title||"Episode").slice(0,160);
+  let m,watchPath;
+  if((m=/^\/video\/s(\d{2})e(\d{2})$/.exec(path))){
+    if(Number(m[1])<1||Number(m[1])>7||Number(m[2])<1||Number(m[2])>27)return null;
+    watchPath=`watch.html?season=${Number(m[1])}&episode=${Number(m[2])}`;
+  }else if((m=/^\/video\/anime\/(death-note|attack-on-titan)\/(e|sp|oad)(\d{2})$/.exec(path))){
+    const n=Number(m[3]);
+    if(n<1 || (m[2]==="e" && n>(m[1]==="death-note"?37:94))) return null;
+    if(m[2]!=="e" && (m[1]!=="attack-on-titan" || n>(m[2]==="sp"?2:8))) return null;
+    watchPath=`watch.html?anime=${m[1]}&episode=${n+(m[2]==="sp"?94:m[2]==="oad"?100:0)}`;
+  }else if((m=/^\/video\/special\/(new-york|shanghai|awakening|paris|london|tokyo)$/.exec(path))){
+    watchPath=`watch.html?special=${["new-york","shanghai","awakening","paris","london","tokyo"].indexOf(m[1])+1}`;
+  }else return null;
+  return {path,title,watchPath};
+}
+function partyState(value,media,seq){
+  const position=Number(value?.position),duration=Number(value?.duration),rate=Number(value?.rate);
+  if(!Number.isFinite(position)||position<0||position>12*60*60||typeof value?.paused!=="boolean")return null;
+  return {media,position,duration:Number.isFinite(duration)&&duration>0?Math.min(duration,12*60*60):0,
+    paused:value.paused,rate:Number.isFinite(rate)?Math.max(.5,Math.min(3,rate)):1,
+    updatedAt:Date.now(),seq};
+}
+function projectedPartyPosition(state,now=Date.now()){
+  const position=state.position+(state.paused?0:Math.max(0,(now-state.updatedAt)/1000)*state.rate);
+  return state.duration>0?Math.min(position,state.duration):position;
+}
+async function handleParty(request,env){
+  if(!ALLOWED_ORIGINS.has(request.headers.get("Origin")))return partyJSON(request,{error:"Forbidden"},403);
+  if(request.method==="OPTIONS")return new Response(null,{status:204,headers:partyHeaders(request)});
+  if(!env.WATCH_PARTIES)return partyJSON(request,{error:"Watch Together is not available on this server yet."},503);
+  const url=new URL(request.url);
+  if(request.method==="POST"&&url.pathname==="/party/rooms"){
+    if(Number(request.headers.get("Content-Length"))>4096)return partyJSON(request,{error:"Request too large"},413);
+    let body;try{const raw=await request.text();if(raw.length>4096)throw new Error();body=JSON.parse(raw)}catch{return partyJSON(request,{error:"Invalid room data"},400)}
+    const media=partyMedia(body.media),state=media&&partyState(body.state,media,1);
+    if(!state)return partyJSON(request,{error:"Choose a valid episode first."},400);
+    const id=crypto.randomUUID().replace(/-/g,"").slice(0,24),invite=partyToken(),host=partyToken();
+    const room={id,inviteHash:await partyHash(invite),hostHash:await partyHash(host),
+      hostId:null,hostDeadline:Date.now()+HOST_GRACE,state,expiresAt:Date.now()+PARTY_TTL};
+    const stub=env.WATCH_PARTIES.get(env.WATCH_PARTIES.idFromName(id));
+    const result=await stub.fetch(new Request('https://party.internal/create',{method:'POST',body:JSON.stringify(room)}));
+    if(!result.ok)return partyJSON(request,{error:"Could not create the party. Try again."},500);
+    return partyJSON(request,{id,invite,host,expiresAt:room.expiresAt},201);
+  }
+  const match=/^\/party\/rooms\/([a-f0-9]{24})\/socket$/.exec(url.pathname);
+  if(match&&request.method==="GET"){
+    if(request.headers.get("Upgrade")?.toLowerCase()!=="websocket")return partyJSON(request,{error:"WebSocket required"},426);
+    return env.WATCH_PARTIES.get(env.WATCH_PARTIES.idFromName(match[1])).fetch(request);
+  }
+  return partyJSON(request,{error:"Not found"},404);
+}
+
+export class WatchPartyRoom {
+  constructor(ctx,env){
+    this.ctx=ctx;this.env=env;this.room=null;this.lastStored=0;
+    ctx.blockConcurrencyWhile(async()=>{
+      this.room=await ctx.storage.get('room')||null;
+      this.lastStored=this.room?.storedAt||0;
+      // Host heartbeat state lives in the hibernation attachment. This keeps
+      // one-second sync accurate without one database write per second.
+      if(this.room)for(const ws of ctx.getWebSockets()){
+        const member=ws.deserializeAttachment();
+        if(member?.active && member.authority && member.id===this.room.hostId && member.snapshot?.seq>this.room.state.seq)this.room.state=member.snapshot;
+      }
+    });
+  }
+  sockets(){return this.ctx.getWebSockets().filter(ws=>ws.readyState===1&&ws.deserializeAttachment()?.active)}
+  send(ws,data){try{ws.send(JSON.stringify(data))}catch{}}
+  broadcast(data){for(const ws of this.sockets())this.send(ws,data)}
+  roster(){return this.sockets().map(ws=>{const a=ws.deserializeAttachment();return {id:a.id,name:a.name,host:a.id===this.room.hostId}})}
+  packet(type='state'){return {type,state:this.room.state,serverTime:Date.now(),hostId:this.room.hostId,expiresAt:this.room.expiresAt}}
+  broadcastRoster(){this.broadcast({...this.packet('roster'),members:this.roster()})}
+  async persist(){this.lastStored=Date.now();this.room.storedAt=this.lastStored;await this.ctx.storage.put('room',this.room)}
+  async schedule(){await this.ctx.storage.setAlarm(Math.min(this.room.expiresAt,this.room.hostDeadline||Infinity))}
+  async expire(){
+    this.broadcast({type:'ended',message:'This party has expired. Create a new one.'});
+    for(const ws of this.sockets()){const a=ws.deserializeAttachment();ws.serializeAttachment({...a,active:false});try{ws.close(1000,'Party expired')}catch{}}
+    this.room=null;await this.ctx.storage.deleteAll();await this.ctx.storage.deleteAlarm();
+  }
+  async fetch(request){
+    const url=new URL(request.url);
+    if(url.pathname==='/create'&&request.method==='POST'){
+      if(this.room)return new Response('Already exists',{status:409});
+      this.room=await request.json();await this.persist();await this.schedule();return new Response('Created',{status:201});
+    }
+    if(!this.room||Date.now()>=this.room.expiresAt)return new Response('Party expired or not found',{status:404});
+    if(!ALLOWED_ORIGINS.has(request.headers.get('Origin')))return new Response('Forbidden',{status:403});
+    if(request.headers.get('Upgrade')?.toLowerCase()!=='websocket')return new Response('WebSocket required',{status:426});
+    const protocols=(request.headers.get('Sec-WebSocket-Protocol')||'').split(',').map(x=>x.trim());
+    const credential=prefix=>protocols.find(x=>x.startsWith(prefix))?.slice(prefix.length)||'';
+    const invite=credential('invite.'),host=credential('host.'),id=credential('member.');
+    if(!protocols.includes('mh-party')||!/^([a-f0-9]{64})$/.test(invite)||!/^[a-f0-9]{32}$/.test(id)||await partyHash(invite)!==this.room.inviteHash)return new Response('Invalid invite',{status:403});
+    const isHost=/^[a-f0-9]{64}$/.test(host)&&await partyHash(host)===this.room.hostHash;
+    const existing=this.sockets().filter(ws=>ws.deserializeAttachment().id===id);
+    if(id===this.room.hostId && !isHost)return new Response('Host credential required',{status:403});
+    if(this.sockets().length-existing.length>=PARTY_LIMIT)return new Response('Party is full',{status:409});
+    const rawName=String(url.searchParams.get('name')||'Friend').trim().replace(/[\u0000-\u001f\u007f]/g,'');
+    const name=rawName.slice(0,24)||'Friend';
+    const pair=new WebSocketPair(),[client,server]=Object.values(pair);
+    this.ctx.acceptWebSocket(server);
+    server.serializeAttachment({id,name,active:true,authority:isHost,joinedAt:Date.now(),windowAt:Date.now(),messages:0});
+    if(isHost){
+      this.room.hostId=id;this.room.hostDeadline=null;
+      server.serializeAttachment({...server.deserializeAttachment(),snapshot:this.room.state});
+      await this.persist();await this.schedule();
+    }
+    for(const ws of existing){const a=ws.deserializeAttachment();ws.serializeAttachment({...a,active:false});try{ws.close(4001,'Reconnected in another tab')}catch{}}
+    if(!this.room.hostId&&!this.room.hostDeadline)await this.promote();
+    this.send(server,{...this.packet('welcome'),id,role:id===this.room.hostId?'host':'guest',members:this.roster()});
+    this.broadcastRoster();
+    return new Response(null,{status:101,webSocket:client,headers:{'Sec-WebSocket-Protocol':'mh-party'}});
+  }
+  async webSocketMessage(ws,message){
+    const member=ws.deserializeAttachment();
+    if(!this.room||!member?.active)return;
+    if(Date.now()>=this.room.expiresAt){await this.expire();return}
+    if(typeof message!=='string'||message.length>4096){ws.close(1009,'Message too large');return}
+    const now=Date.now();
+    if(now-member.windowAt>=1000){member.windowAt=now;member.messages=0}
+    if(++member.messages>12){ws.serializeAttachment(member);this.send(ws,{type:'error',message:'Too many updates. Please wait.'});return}
+    ws.serializeAttachment(member);
+    let data;try{data=JSON.parse(message)}catch{this.send(ws,{type:'error',message:'Invalid message'});return}
+    if(!data||typeof data!=='object')return;
+    if(data.type==='ping'){this.send(ws,{type:'pong',clientTime:data.clientTime,serverTime:now});return}
+    if(data.type==='sync'){this.send(ws,this.packet());return}
+    if(data.type==='leave'){await this.disconnect(ws,true);try{ws.close(1000,'Left party')}catch{};return}
+    if(data.type!=='state'&&data.type!=='media')return;
+    if(member.id!==this.room.hostId||!member.authority){this.send(ws,{type:'error',message:'The host controls party playback.'});this.send(ws,this.packet());return}
+    const media=data.type==='media'?partyMedia(data.media):this.room.state.media;
+    const next=media&&partyState(data.state,media,this.room.state.seq+1);
+    if(!next){this.send(ws,{type:'error',message:'Invalid playback update'});return}
+    this.room.state=next;
+    member.snapshot=next;ws.serializeAttachment(member);
+    if(data.type==='media'||data.reason!=='heartbeat'||now-this.lastStored>=10000)await this.persist();
+    this.broadcast({...this.packet(),command:data.type==='media'||data.reason!=='heartbeat'});
+  }
+  async disconnect(ws,immediate=false){
+    const member=ws.deserializeAttachment();if(!this.room||!member?.active)return;
+    ws.serializeAttachment({...member,active:false});
+    const otherHost=this.sockets().some(socket=>socket.deserializeAttachment().id===this.room.hostId);
+    if(member.id===this.room.hostId&&!otherHost){
+      this.room.state={...this.room.state,position:projectedPartyPosition(this.room.state),paused:true,updatedAt:Date.now(),seq:this.room.state.seq+1};
+      this.room.hostDeadline=Date.now()+(immediate?0:HOST_GRACE);
+      await this.persist();this.broadcast({...this.packet(),command:true});
+      if(immediate)await this.promote();else await this.schedule();
+    }
+    this.broadcastRoster();
+  }
+  async promote(){
+    const next=this.sockets().sort((a,b)=>a.deserializeAttachment().joinedAt-b.deserializeAttachment().joinedAt)[0];
+    if(!next){this.room.hostId=null;this.room.hostDeadline=null;await this.persist();await this.schedule();return}
+    const token=partyToken(),member=next.deserializeAttachment();
+    this.room.hostId=member.id;this.room.hostHash=await partyHash(token);this.room.hostDeadline=null;
+    member.authority=true;member.snapshot=this.room.state;next.serializeAttachment(member);
+    await this.persist();await this.schedule();
+    // Only the new host receives this credential. Invite links never contain it.
+    this.send(next,{...this.packet('promoted'),host:token});this.broadcastRoster();
+  }
+  async webSocketClose(ws,code,reason,wasClean){try{ws.close(code,reason)}catch{}await this.disconnect(ws)}
+  async webSocketError(ws){await this.disconnect(ws);try{ws.close(1011,'Connection error')}catch{}}
+  async alarm(){
+    if(!this.room)return;
+    if(Date.now()>=this.room.expiresAt){await this.expire();return}
+    if(this.room.hostDeadline&&Date.now()>=this.room.hostDeadline)await this.promote();
+    else await this.schedule();
+  }
+}

@@ -2,7 +2,7 @@
 // player's initial 0:00 cannot overwrite an existing Firestore resume point.
 (function(){
   window.MHPlayback = {
-    create({video, item, key, onResume=()=>{}, onError=()=>{}, onSave=()=>{}, now=()=>Date.now()}){
+    create({video, item, key, onResume=()=>{}, onError=()=>{}, onSave=()=>{}, canResume=()=>true, now=()=>Date.now()}){
       const SAVE_INTERVAL=1000;
       function same(a,b){return !!a && !!b && Math.abs(a.position-b.position)<.05 && (a.duration||0)===(b.duration||0);}
       function stamp(data){return Number(data?.clientUpdatedAt) || (Number(data?.updatedAt?.seconds)||0)*1000 || Number(data?.updatedAt)||0;}
@@ -18,7 +18,11 @@
       }
       function active(s){return currentSession()===s && !!s.uid;}
       function resume(s){
-        if(!active(s) || s.pending===null || video.readyState<1) return;
+        if(!active(s) || s.pending===null) return;
+        // A party supplies the playback position. Loading account history still
+        // enables progress saves, but must not seek away from the shared room.
+        if(!canResume()){s.pending=null;return;}
+        if(video.readyState<1) return;
         const actual=Number(video.duration);
         const pos=Number.isFinite(actual) && actual>0
           ? Math.min(s.pending,Math.max(0,actual-.01)) : s.pending;
