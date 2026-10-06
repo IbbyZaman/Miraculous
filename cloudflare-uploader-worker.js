@@ -7,10 +7,10 @@ function json(request,data,status=200){return new Response(JSON.stringify(data),
 function validKey(key){return !!key&&!key.includes("..")&&(/^season-\d{1,2}\/s\d{2}e\d{2,3}\.mp4$/i.test(key)||/^specials\/[a-z0-9-]+\.mp4$/i.test(key)||/^anime\/[a-z0-9-]+\/e\d{2,3}\.mp4$/i.test(key)||/^anime\/attack-on-titan\/(sp0[12]|oad0[1-8])\.mp4$/i.test(key))}
 function uploadedRoutes(key){
   let m,videoPath,watchPath;
-  if((m=/^anime\/([a-z0-9-]+)\/(e|sp|oad)(\d{2})\.mp4$/i.exec(key))){
+  if((m=/^anime\/([a-z0-9-]+)\/(e|sp|oad)(\d{2,3})\.mp4$/i.exec(key))){
     videoPath=`/video/anime/${m[1]}/${m[2]}${m[3]}`;
     watchPath=`watch.html?anime=${m[1]}&episode=${Number(m[3])+(m[2]==="sp"?94:m[2]==="oad"?100:0)}`;
-  }else if((m=/^season-\d+\/s(\d{2})e(\d{2})\.mp4$/i.exec(key))){
+  }else if((m=/^season-\d+\/s(\d{2})e(\d{2,3})\.mp4$/i.exec(key))){
     videoPath=`/video/s${m[1]}e${m[2]}`;watchPath=`watch.html?season=${Number(m[1])}&episode=${Number(m[2])}`;
   }else{
     const slug=key.slice('specials/'.length,-4);

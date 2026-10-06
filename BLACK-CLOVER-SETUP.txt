@@ -1,4 +1,25 @@
+Black Clover player fix
+=======================
+
 Black Clover has 170 episode slots.
-Upload through upload.html and choose Black Clover.
-R2 keys use anime/black-clover/e001.mp4 through anime/black-clover/e170.mp4.
-The website/player links are already connected.
+
+R2 canonical keys:
+  anime/black-clover/e001.mp4
+  ...
+  anime/black-clover/e170.mp4
+
+IMPORTANT: the website files alone are not enough. The video Worker must also
+be redeployed because it is what turns /video/anime/black-clover/e001 into the
+R2 object. Deploy BOTH updated Worker files after replacing this site version.
+
+Video Worker:
+  cloudflare-worker-current.js
+Uploader Worker:
+  cloudflare-uploader-worker.js
+
+The fixed video Worker accepts e1, e01 and e001 style Black Clover URLs and
+resolves them to the canonical three-digit object. It also falls back to older
+two-digit/one-digit R2 object names for episodes 1-99 if you already uploaded
+files that way.
+
+The uploader now correctly returns routes for three-digit Black Clover keys.

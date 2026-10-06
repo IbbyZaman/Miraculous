@@ -145,7 +145,7 @@ function parseMediaPath(pathname){
     const ss=String(season).padStart(2,"0"), ee=String(episode).padStart(2,"0");
     return {key:`season-${season}/s${ss}e${ee}.mp4`,filename:`S${ss}E${ee}.mp4`,download:m[1].toLowerCase()==="download"};
   }
-  m=pathname.match(/^\/(video|download)\/anime\/([a-z0-9-]+)\/(e|sp|oad)(\d{2,3})\/?$/i);
+  m=pathname.match(/^\/(video|download)\/anime\/([a-z0-9-]+)\/(e|sp|oad)(\d{1,3})\/?$/i);
   if(m){
     const slug=m[2].toLowerCase(), kind=m[3].toLowerCase(), episode=Number(m[4]);
     if(episode<1||episode>999) return null;
@@ -249,8 +249,26 @@ async function streamDrive(request,env,file){
   return new Response(request.method==="HEAD"?null:r.body,{status:r.status,headers:h});
 }
 
+function mediaCandidates(file){
+  const out=[file];
+  // Black Clover originally used a mix of e1/e01/e001 keys while the catalog
+  // was being added. Keep the player compatible with all three, but prefer
+  // the canonical three-digit key used by the uploader.
+  const m=/^anime\/black-clover\/e(\d{3})\.mp4$/i.exec(file.key);
+  if(m){
+    const n=Number(m[1]);
+    if(n>0&&n<100){
+      out.push({...file,key:`anime/black-clover/e${String(n).padStart(2,"0")}.mp4`});
+      out.push({...file,key:`anime/black-clover/e${n}.mp4`});
+    }
+  }
+  return out;
+}
+
 async function serve(request,env,file){
-  try{const r2=await streamR2(request,env,file);if(r2)return r2;}catch(e){console.error("R2 error",e);}
+  for(const candidate of mediaCandidates(file)){
+    try{const r2=await streamR2(request,env,candidate);if(r2)return r2;}catch(e){console.error("R2 error",e);}
+  }
   try{const drive=await streamDrive(request,env,file);if(drive)return drive;}catch(e){console.error("Drive fallback error",e);}
   return textResponse(request,"This episode or special has not been uploaded to R2 yet.",404);
 }
@@ -292,7 +310,7 @@ function partyMedia(value){
   if((m=/^\/video\/s(\d{2})e(\d{2})$/.exec(path))){
     if(Number(m[1])<1||Number(m[1])>7||Number(m[2])<1||Number(m[2])>27)return null;
     watchPath=`watch.html?season=${Number(m[1])}&episode=${Number(m[2])}`;
-  }else if((m=/^\/video\/anime\/(death-note|attack-on-titan|black-clover)\/(e|sp|oad)(\d{2,3})$/.exec(path))){
+  }else if((m=/^\/video\/anime\/(death-note|attack-on-titan|black-clover)\/(e|sp|oad)(\d{1,3})$/.exec(path))){
     const n=Number(m[3]);
     if(n<1 || (m[2]==="e" && n>(m[1]==="death-note"?37:m[1]==="black-clover"?170:94))) return null;
     if(m[2]!=="e" && (m[1]!=="attack-on-titan" || n>(m[2]==="sp"?2:8))) return null;
