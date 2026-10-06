@@ -1,0 +1,4 @@
+Black Clover has 170 episode slots.
+Upload through upload.html and choose Black Clover.
+R2 keys use anime/black-clover/e001.mp4 through anime/black-clover/e170.mp4.
+The website/player links are already connected.

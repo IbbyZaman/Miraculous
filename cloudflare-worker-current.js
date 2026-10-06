@@ -145,12 +145,12 @@ function parseMediaPath(pathname){
     const ss=String(season).padStart(2,"0"), ee=String(episode).padStart(2,"0");
     return {key:`season-${season}/s${ss}e${ee}.mp4`,filename:`S${ss}E${ee}.mp4`,download:m[1].toLowerCase()==="download"};
   }
-  m=pathname.match(/^\/(video|download)\/anime\/([a-z0-9-]+)\/(e|sp|oad)(\d{2})\/?$/i);
+  m=pathname.match(/^\/(video|download)\/anime\/([a-z0-9-]+)\/(e|sp|oad)(\d{2,3})\/?$/i);
   if(m){
     const slug=m[2].toLowerCase(), kind=m[3].toLowerCase(), episode=Number(m[4]);
-    if(episode<1||episode>99) return null;
+    if(episode<1||episode>999) return null;
     if(kind!=="e" && (slug!=="attack-on-titan" || episode>(kind==="sp"?2:8))) return null;
-    const ee=String(episode).padStart(2,"0");
+    const ee=String(episode).padStart(slug==="black-clover"&&kind==="e"?3:2,"0");
     return {key:`anime/${slug}/${kind}${ee}.mp4`,filename:`${slug}-${kind}${ee}.mp4`,download:m[1].toLowerCase()==="download"};
   }
   m=pathname.match(/^\/(video|download)\/special\/([a-z0-9-]+)\/?$/i);
@@ -292,9 +292,9 @@ function partyMedia(value){
   if((m=/^\/video\/s(\d{2})e(\d{2})$/.exec(path))){
     if(Number(m[1])<1||Number(m[1])>7||Number(m[2])<1||Number(m[2])>27)return null;
     watchPath=`watch.html?season=${Number(m[1])}&episode=${Number(m[2])}`;
-  }else if((m=/^\/video\/anime\/(death-note|attack-on-titan)\/(e|sp|oad)(\d{2})$/.exec(path))){
+  }else if((m=/^\/video\/anime\/(death-note|attack-on-titan|black-clover)\/(e|sp|oad)(\d{2,3})$/.exec(path))){
     const n=Number(m[3]);
-    if(n<1 || (m[2]==="e" && n>(m[1]==="death-note"?37:94))) return null;
+    if(n<1 || (m[2]==="e" && n>(m[1]==="death-note"?37:m[1]==="black-clover"?170:94))) return null;
     if(m[2]!=="e" && (m[1]!=="attack-on-titan" || n>(m[2]==="sp"?2:8))) return null;
     watchPath=`watch.html?anime=${m[1]}&episode=${n+(m[2]==="sp"?94:m[2]==="oad"?100:0)}`;
   }else if((m=/^\/video\/special\/(new-york|shanghai|awakening|paris|london|tokyo)$/.exec(path))){
