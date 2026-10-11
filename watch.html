@@ -3,13 +3,12 @@
 <head>
 <meta charset="utf-8">
 <script src="party-invite.js?v=aot-party-1"></script>
-
-<script src="site-config.js?v=downloads-1"></script>
+<script src="site-config.js?v=aot-party-1"></script>
 <link rel="stylesheet" href="watch-together.css?v=aot-party-1">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#05070c">
-<link rel="icon" type="image/svg+xml" href="favicon.svg"><title>MiraculousHub — Watch</title>
-<link rel="stylesheet" href="styles.css?v=downloads-1">
+<link rel="icon" type="image/png" href="favicon.png"><title>MiraculousHub — Watch</title>
+<link rel="stylesheet" href="styles.css?v=every-second-4">
 <style>
 /* Modern video player */
 .watch-shell{width:min(1240px,94vw);padding:24px 0 70px}
@@ -608,7 +607,7 @@ body .simple-player .quick-overlay{display:none}
   <p class="sub">Miraculous Ladybug · Season 6</p>
   <div class="watch-actions">
    <button class="watch-action" id="watched">✓ Mark as watched</button>
-   <button class="watch-action" id="download" type="button">Sign in to download</button>
+   <button class="watch-action" id="download" type="button">⬇ Download Episode</button>
    <button class="watch-action" id="share">Share</button>
    <button class="watch-action" id="watchTogether" type="button">Watch Together</button>
    <button class="watch-action watch-action-report" id="episodeReportBtn" type="button">⚑ Report issue</button>
@@ -638,8 +637,7 @@ body .simple-player .quick-overlay{display:none}
  </section>
 </main>
 
-<footer class="footer"><div><div class="brand"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></div></div><div class="footer-links"><div><b>Explore</b><a href="index.html">Home</a><a href="episodes.html">Episodes</a></div><div><b>Support</b><a href="#">Help</a></div></div><p class="copyright">© 2026 MiraculousHub. Fan project.</p>
-</footer>
+<footer class="footer"><div><div class="brand"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></div></div><div class="footer-links"><div><b>Explore</b><a href="index.html">Home</a><a href="episodes.html">Episodes</a></div><div><b>Support</b><a href="#">Help</a></div></div><p class="copyright">© 2026 MiraculousHub. Fan project.</p></footer>
 
 <div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
 <div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
@@ -672,8 +670,7 @@ body .simple-player .quick-overlay{display:none}
  <p class="party-error" id="partyError" role="status" aria-live="polite"></p>
 </dialog>
 <script src="watch-together.js?v=aot-party-1"></script>
-<script src="downloads.js?v=downloads-1"></script>
-<script src="data.js?v=s5-all-thumbnails-1"></script><script src="anime-data.js?v=black-clover-player-2"></script><script src="firebase.js?v=every-second-4"></script><script src="common.js?v=downloads-1"></script><script src="motion.js?v=player-perf-1"></script><script src="playback-sync.js?v=aot-party-1"></script>
+<script src="data.js?v=s5-all-thumbnails-1"></script><script src="anime-data.js?v=black-clover-player-2"></script><script src="firebase.js?v=every-second-4"></script><script src="common.js?v=aot-party-1"></script><script src="motion.js?v=player-perf-1"></script><script src="playback-sync.js?v=aot-party-1"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
@@ -1333,7 +1330,7 @@ if(downloadBtn){
     : isSpecial
       ? `/download/special/${ep.specialSlug}`
       : `/download/s${String(ep.season).padStart(2,"0")}e${String(ep.episode).padStart(2,"0")}`;
-  window.MH_DOWNLOADS.bind({button:downloadBtn,path:downloadPath,worker:VIDEO_WORKER,onNotice:showToast});
+  downloadBtn.onclick=()=>{ window.location.href=VIDEO_WORKER+downloadPath; };
 }
 
 $("share").onclick=async()=>{try{if(navigator.share)await navigator.share({title:`${ep.title} — MiraculousHub`,url:location.href});else{await navigator.clipboard.writeText(location.href);$("share").textContent="Copied!"}}catch{}};

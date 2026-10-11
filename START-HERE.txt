@@ -1,6 +1,3 @@
-LATEST UPDATE: read DOWNLOADS-AND-DOMAINS.txt first. Deploy the updated video
-Worker and add its DOWNLOAD_SIGNING_KEY secret before uploading the website.
-
 MiraculousHub — Attack on Titan + Watch Together
 
 This is the FULL website, including the updated uploader and both Workers.
@@ -85,8 +82,8 @@ uploading only the HTML files will not activate party rooms.
 
    Open one episode on two browsers/devices. Create a room in the first,
    join its invite in the second, and check play/pause/seek and Next.
-   Test downloads, uploads and parties on miraculoushub.co.uk or its www
-   hostname. Other website origins are intentionally excluded.
+   For a private preview hostname, add its exact HTTPS origin to
+   ALLOWED_ORIGINS in BOTH Workers before testing there.
 
    Code checks exercised the two player controllers with the actual room
    handlers through simulated WebSockets, plus upload/routing, security,
