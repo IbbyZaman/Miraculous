@@ -1,0 +1,20 @@
+name = "miraculoushub-auto-subtitles"
+main = "subtitle-workflow.js"
+compatibility_date = "2026-10-06"
+workers_dev = true
+
+[[r2_buckets]]
+binding = "VIDEOS"
+bucket_name = "REPLACE_WITH_YOUR_EXISTING_R2_BUCKET_NAME"
+
+[stream]
+binding = "STREAM"
+
+[vars]
+VIDEO_WORKER_ORIGIN = "https://miraculous-video.ibbyzaman4.workers.dev"
+CF_ACCOUNT_ID = "REPLACE_WITH_YOUR_CLOUDFLARE_ACCOUNT_ID"
+
+[[workflows]]
+binding = "AUTO_SUBS"
+name = "miraculoushub-auto-subtitles-workflow"
+class_name = "AutoSubtitleWorkflow"

@@ -44,7 +44,17 @@ export default{async fetch(request,env){
       let body;try{body=await request.json()}catch{return json(request,{error:"Invalid completion data."},400)}
       if(!Array.isArray(body?.parts)||!body.parts.length)return json(request,{error:"No uploaded parts supplied."},400);
       const parts=[...body.parts].sort((a,b)=>a.partNumber-b.partNumber),upload=env.VIDEOS.resumeMultipartUpload(key,uploadId),obj=await upload.complete(parts);
-      return json(request,{success:true,message:"Upload complete!",key:obj.key,etag:obj.httpEtag,...uploadedRoutes(obj.key)});
+      const routes=uploadedRoutes(obj.key);
+      let subtitlesQueued=false,subtitleWorkflowId=null,subtitleError=null;
+      // AUTO_SUBS is an optional cross-script Cloudflare Workflow binding.
+      // Uploads still succeed if auto captions are not configured yet.
+      if(env.AUTO_SUBS){
+        try{
+          const instance=await env.AUTO_SUBS.create({params:{key:obj.key,videoPath:routes.videoPath,language:"en"}});
+          subtitlesQueued=true;subtitleWorkflowId=instance.id;
+        }catch(e){console.error("Auto subtitle workflow could not start",e);subtitleError=e instanceof Error?e.message:String(e)}
+      }
+      return json(request,{success:true,message:"Upload complete!",key:obj.key,etag:obj.httpEtag,...routes,subtitlesQueued,subtitleWorkflowId,subtitleError});
     }
     if(request.method==="POST"&&action==="abort"){
       const uploadId=url.searchParams.get("uploadId");if(!uploadId)return json(request,{error:"Missing uploadId."},400);

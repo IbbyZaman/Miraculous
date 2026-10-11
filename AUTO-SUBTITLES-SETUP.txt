@@ -1,0 +1,63 @@
+MIRACULOUSHUB — AUTOMATIC SUBTITLES
+===================================
+
+What this version does
+----------------------
+After an MP4 upload finishes, the uploader starts a Cloudflare Workflow.
+The Workflow makes a temporary Cloudflare Stream copy, asks Stream to generate
+English AI captions, saves the resulting WebVTT back into your EXISTING R2
+bucket, then deletes the temporary Stream copy. Your normal playback remains R2.
+
+Generated R2 examples:
+  season-6/s06e01.mp4
+  subtitles/season-6/s06e01.en.vtt
+
+  anime/black-clover/e001.mp4
+  subtitles/anime/black-clover/e001.en.vtt
+
+The watch page automatically checks the video Worker /subtitle/... route.
+No manual VTT upload is needed for new uploads once setup is complete.
+
+IMPORTANT
+---------
+Use this only for videos you own or are licensed/allowed to process and host.
+Cloudflare Stream must be enabled on your account because its AI caption system
+is used for full-length video caption generation.
+
+SETUP
+-----
+1. In ALL THREE wrangler files replace:
+     REPLACE_WITH_YOUR_EXISTING_R2_BUCKET_NAME
+   with the exact same R2 bucket name you already use.
+
+2. In wrangler-subtitles.toml replace:
+     REPLACE_WITH_YOUR_CLOUDFLARE_ACCOUNT_ID
+   with your Cloudflare account ID.
+
+3. Create a Cloudflare API token with Stream Read permission. Keep it secret.
+   Put it on the subtitle Worker:
+     npx wrangler secret put CF_STREAM_API_TOKEN --config wrangler-subtitles.toml
+
+4. Create ONE long random signing secret and put the SAME value on both Workers:
+     npx wrangler secret put AUTO_SUBTITLE_SIGNING_KEY --config wrangler.toml
+     npx wrangler secret put AUTO_SUBTITLE_SIGNING_KEY --config wrangler-subtitles.toml
+
+5. Keep your existing uploader password secret on the uploader Worker:
+     npx wrangler secret put UPLOAD_PASSWORD --config wrangler-uploader.toml
+
+6. Deploy in this order:
+     npx wrangler deploy --config wrangler.toml
+     npx wrangler deploy --config wrangler-subtitles.toml
+     npx wrangler deploy --config wrangler-uploader.toml
+
+7. Upload an MP4 from upload.html. The uploader will say that auto subtitles are
+   generating in the background. When the workflow finishes, refresh the watch
+   page and the CC button will use the generated English WebVTT file.
+
+NOTES
+-----
+- Upload succeeds even if the subtitle workflow is unavailable.
+- Existing manually-created subtitle files with the same R2 key are reused and
+  are not regenerated.
+- The temporary Stream video is deleted after the VTT is copied into R2.
+- Generation is asynchronous and can take a few minutes for a full episode.

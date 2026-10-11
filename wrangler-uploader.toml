@@ -9,3 +9,14 @@ bucket_name = "REPLACE_WITH_YOUR_EXISTING_R2_BUCKET_NAME"
 
 # Retain the existing UPLOAD_PASSWORD secret in Cloudflare.
 # Do not put it here or in upload.html.
+
+# Auto subtitle jobs are started after a multipart upload completes.
+# Deploy wrangler-subtitles.toml first.
+[[workflows]]
+binding = "AUTO_SUBS"
+name = "miraculoushub-auto-subtitles-workflow"
+class_name = "AutoSubtitleWorkflow"
+script_name = "miraculoushub-auto-subtitles"
+
+[vars]
+VIDEO_WORKER_ORIGIN = "https://miraculous-video.ibbyzaman4.workers.dev"

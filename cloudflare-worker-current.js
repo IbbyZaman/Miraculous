@@ -137,6 +137,34 @@ function textResponse(request,text,status=200){
   return new Response(text,{status,headers:{...corsHeaders(request),"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-store"}});
 }
 
+
+function hex(bytes){return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,"0")).join("")}
+async function verifyAutoSubtitleRequest(request,env,url){
+  if(!env.AUTO_SUBTITLE_SIGNING_KEY||request.method!=="GET"||!url.pathname.startsWith("/video/"))return false;
+  const exp=Number(url.searchParams.get("autosub_exp")),sig=String(url.searchParams.get("autosub_sig")||"");
+  if(!Number.isFinite(exp)||exp<Math.floor(Date.now()/1000)-30||exp>Math.floor(Date.now()/1000)+3600||!/^[a-f0-9]{64}$/i.test(sig))return false;
+  const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(env.AUTO_SUBTITLE_SIGNING_KEY),{name:"HMAC",hash:"SHA-256"},false,["verify"]);
+  const bytes=Uint8Array.from(sig.match(/../g),x=>parseInt(x,16));
+  return crypto.subtle.verify("HMAC",key,bytes,new TextEncoder().encode(`${url.pathname}|${exp}`));
+}
+function parseSubtitlePath(pathname){
+  let m=pathname.match(/^\/subtitle\/s(\d{2})e(\d{2})\.en\.vtt\/?$/i);
+  if(m){const season=Number(m[1]),episode=Number(m[2]);if(season<1||season>99||episode<1||episode>99)return null;return {key:`subtitles/season-${season}/s${m[1]}e${m[2]}.en.vtt`}}
+  m=pathname.match(/^\/subtitle\/anime\/([a-z0-9-]+)\/(e|sp|oad)(\d{1,3})\.en\.vtt\/?$/i);
+  if(m){const slug=m[1].toLowerCase(),kind=m[2].toLowerCase(),episode=Number(m[3]);if(episode<1||episode>999)return null;if(kind!=="e"&&(slug!=="attack-on-titan"||episode>(kind==="sp"?2:8)))return null;const ee=String(episode).padStart(slug==="black-clover"&&kind==="e"?3:2,"0");return {key:`subtitles/anime/${slug}/${kind}${ee}.en.vtt`}}
+  m=pathname.match(/^\/subtitle\/special\/([a-z0-9-]+)\.en\.vtt\/?$/i);
+  if(m)return {key:`subtitles/specials/${m[1].toLowerCase()}.en.vtt`};
+  return null;
+}
+async function serveSubtitle(request,env,file){
+  if(!env.R2_VIDEOS)return textResponse(request,"R2_VIDEOS binding is missing",500);
+  const meta=await env.R2_VIDEOS.head(file.key);if(!meta)return textResponse(request,"Subtitles are not ready yet.",404);
+  const h=new Headers(corsHeaders(request));h.set("Content-Type","text/vtt; charset=utf-8");h.set("Cache-Control","public, max-age=300");h.set("Content-Length",String(meta.size));if(meta.httpEtag)h.set("ETag",meta.httpEtag);
+  if(request.method==="HEAD")return new Response(null,{status:200,headers:h});
+  const obj=await env.R2_VIDEOS.get(file.key);if(!obj||!("body" in obj))return textResponse(request,"Subtitles are not ready yet.",404);
+  return new Response(obj.body,{status:200,headers:h});
+}
+
 function parseMediaPath(pathname){
   let m=pathname.match(/^\/(video|download)\/s(\d{2})e(\d{2})\/?$/i);
   if(m){
@@ -277,9 +305,12 @@ export default {
   async fetch(request,env){
     const url=new URL(request.url);
     if(url.pathname.startsWith("/party/")) return handleParty(request,env);
-    if(!isAllowedOrigin(request)) return textResponse(request,"Forbidden - MiraculousHub only.",403);
+    const internalAutoSubtitle=await verifyAutoSubtitleRequest(request,env,url);
+    if(!internalAutoSubtitle&&!isAllowedOrigin(request)) return textResponse(request,"Forbidden - MiraculousHub only.",403);
     if(request.method==="OPTIONS") return new Response(null,{status:204,headers:corsHeaders(request)});
     if(request.method!=="GET"&&request.method!=="HEAD") return textResponse(request,"Method Not Allowed",405);
+    const subtitle=parseSubtitlePath(url.pathname);
+    if(subtitle) return serveSubtitle(request,env,subtitle);
     const file=parseMediaPath(url.pathname);
     if(file) return serve(request,env,file);
     if(url.pathname==="/") return textResponse(request,"MiraculousHub universal R2 video server is online.\nEpisodes: /video/s01e01\nSpecials: /video/special/london\n");

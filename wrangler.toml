@@ -16,3 +16,6 @@ class_name = "WatchPartyRoom"
 [[migrations]]
 tag = "watch-parties-v1"
 new_sqlite_classes = ["WatchPartyRoom"]
+
+# AUTO_SUBTITLE_SIGNING_KEY is a secret shared with the subtitle workflow.
+# Set it with: npx wrangler secret put AUTO_SUBTITLE_SIGNING_KEY --config wrangler.toml
