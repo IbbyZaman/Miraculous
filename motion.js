@@ -59,12 +59,15 @@
 
   function moveNavGlider(link, smooth = true) {
     if (!link || !navGlider || !nav) return;
-    const nr = nav.getBoundingClientRect();
-    const lr = link.getBoundingClientRect();
+    if (!nav.offsetWidth || !link.offsetWidth) return;
+    // Use local layout coordinates so page-entry scaling cannot skew the pill.
+    // The link and pill share the nav as their positioning parent.
+    const left = link.offsetLeft - navGlider.offsetLeft;
+    const width = parseFloat(getComputedStyle(link).width) || link.offsetWidth;
 
     if (!smooth) navGlider.style.transition = "none";
-    navGlider.style.transform = `translate3d(${lr.left - nr.left}px,0,0)`;
-    navGlider.style.width = `${lr.width}px`;
+    navGlider.style.transform = `translate3d(${left}px,0,0)`;
+    navGlider.style.width = `${width}px`;
 
     if (!smooth) {
       navGlider.getBoundingClientRect();
@@ -193,4 +196,5 @@
 
   addEventListener("resize", realignNav, { passive: true });
   addEventListener("orientationchange", () => setTimeout(realignNav, 150));
+  document.fonts?.ready.then(realignNav);
 })();

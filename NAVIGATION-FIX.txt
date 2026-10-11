@@ -1,0 +1,15 @@
+MiraculousHub version 4 — navigation alignment fix
+
+The navigation pill now uses local layout coordinates, avoiding the extra
+left inset and page-entry scale offset. It realigns once fonts load.
+The motion.js cache version is updated on every page.
+
+Upload the website files to GitHub Pages to activate this update.
+
+Verified in Chromium: active tabs on Home, Episodes, Monthly Animes,
+Upcoming Releases and the shared player; hover on every navigation tab;
+resize at 900, 1024 and 1280 pixels; mobile menu at 375 pixels.
+The previous offset was approximately 4–5 pixels. The corrected pill
+matches the link edges within a fraction of one pixel.
+
+This full package includes the previous video/upload custom-domain update.
