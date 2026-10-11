@@ -1,3 +1,5 @@
+CUSTOM DOMAIN UPDATE: read CUSTOM-DOMAINS-UPDATE.txt first.
+
 MiraculousHub — Attack on Titan + Watch Together
 
 This is the FULL website, including the updated uploader and both Workers.
@@ -24,7 +26,7 @@ uploading only the HTML files will not activate party rooms.
    use the old Drive fallbacks. Never add secret values to website files.
 
    The website already uses your existing Worker address:
-     https://miraculous-video.ibbyzaman4.workers.dev
+     https://video.miraculoushub.co.uk
 
 2. UPDATE THE UPLOADER WORKER
 
@@ -35,7 +37,7 @@ uploading only the HTML files will not activate party rooms.
 
    The uploader and video Worker MUST use the same existing R2 bucket.
    The uploader address is already set to:
-     https://miraculoushub-uploader.ibbyzaman4.workers.dev
+     https://upload.miraculoushub.co.uk
 
 3. UPLOAD THE WEBSITE
 

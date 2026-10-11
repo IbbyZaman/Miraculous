@@ -119,8 +119,24 @@ function getRequestOrigin(request) {
   try { return new URL(referer).origin; } catch { return null; }
 }
 function isAllowedOrigin(request) {
-  const origin=getRequestOrigin(request);
-  return !!origin && ALLOWED_ORIGINS.has(origin);
+  const origin=request.headers.get("Origin");
+  const referer=request.headers.get("Referer");
+  const dest=request.headers.get("Sec-Fetch-Dest");
+  if(dest==="iframe"||dest==="frame") return false;
+  if(origin&&!ALLOWED_ORIGINS.has(origin)) return false;
+  if(referer){
+    try { if(!ALLOWED_ORIGINS.has(new URL(referer).origin)) return false; }
+    catch { return false; }
+  }
+  return !!origin || !!referer;
+}
+function redirectToWebsite(){
+  return new Response(null,{status:302,headers:{
+    "Location":"https://miraculoushub.co.uk/",
+    "Cache-Control":"no-store",
+    "Vary":"Origin, Referer, Sec-Fetch-Dest, Sec-Fetch-Mode",
+    "Content-Security-Policy":"frame-ancestors 'none'"
+  }});
 }
 function corsHeaders(request) {
   const origin=request.headers.get("Origin");
@@ -128,7 +144,9 @@ function corsHeaders(request) {
     "Access-Control-Allow-Headers":"Range, Content-Type, Accept",
     "Access-Control-Allow-Methods":"GET, HEAD, OPTIONS",
     "Access-Control-Expose-Headers":"Content-Length, Content-Range, Accept-Ranges, Content-Disposition, ETag",
-    "Vary":"Origin"
+    "Vary":"Origin, Referer, Sec-Fetch-Dest, Sec-Fetch-Mode",
+    "Content-Security-Policy":"frame-ancestors 'none'",
+    "X-Content-Type-Options":"nosniff"
   };
   if(origin && ALLOWED_ORIGINS.has(origin)) h["Access-Control-Allow-Origin"]=origin;
   return h;
@@ -159,7 +177,7 @@ function parseSubtitlePath(pathname){
 async function serveSubtitle(request,env,file){
   if(!env.R2_VIDEOS)return textResponse(request,"R2_VIDEOS binding is missing",500);
   const meta=await env.R2_VIDEOS.head(file.key);if(!meta)return textResponse(request,"Subtitles are not ready yet.",404);
-  const h=new Headers(corsHeaders(request));h.set("Content-Type","text/vtt; charset=utf-8");h.set("Cache-Control","public, max-age=300");h.set("Content-Length",String(meta.size));if(meta.httpEtag)h.set("ETag",meta.httpEtag);
+  const h=new Headers(corsHeaders(request));h.set("Content-Type","text/vtt; charset=utf-8");h.set("Cache-Control","private, max-age=300");h.set("Content-Length",String(meta.size));if(meta.httpEtag)h.set("ETag",meta.httpEtag);
   if(request.method==="HEAD")return new Response(null,{status:200,headers:h});
   const obj=await env.R2_VIDEOS.get(file.key);if(!obj||!("body" in obj))return textResponse(request,"Subtitles are not ready yet.",404);
   return new Response(obj.body,{status:200,headers:h});
@@ -223,7 +241,7 @@ async function streamR2(request,env,file){
   h.set("Content-Type",meta.httpMetadata?.contentType||"video/mp4");
   h.set("Accept-Ranges","bytes");
   h.set("ETag",meta.httpEtag);
-  h.set("Cache-Control","public, max-age=3600");
+  h.set("Cache-Control","private, max-age=3600");
   if(file.download) h.set("Content-Disposition",`attachment; filename="${file.filename}"`);
   if(request.method==="HEAD"){
     h.set("Content-Length",String(meta.size));
@@ -272,6 +290,7 @@ async function streamDrive(request,env,file){
   if(!r.ok) return null;
   const h=new Headers(corsHeaders(request));
   h.set("Content-Type",r.headers.get("Content-Type")||"video/mp4"); h.set("Accept-Ranges","bytes");
+  h.set("Cache-Control","private, max-age=3600");
   for(const n of ["Content-Length","Content-Range","ETag"]){const v=r.headers.get(n);if(v)h.set(n,v);}
   if(file.download) h.set("Content-Disposition",`attachment; filename="${fallback.filename}"`);
   return new Response(request.method==="HEAD"?null:r.body,{status:r.status,headers:h});
@@ -304,6 +323,12 @@ async function serve(request,env,file){
 export default {
   async fetch(request,env){
     const url=new URL(request.url);
+    const readable=request.method==="GET"||request.method==="HEAD";
+    // Redirect the address-bar entry point, including direct episode links.
+    // Keep downloads clicked on the website working as attachment navigations.
+    if(readable&&url.pathname==="/") return redirectToWebsite();
+    const navigation=request.headers.get("Sec-Fetch-Mode")==="navigate"&&request.headers.get("Sec-Fetch-Dest")==="document";
+    if(readable&&navigation&&!(parseMediaPath(url.pathname)?.download&&isAllowedOrigin(request))) return redirectToWebsite();
     if(url.pathname.startsWith("/party/")) return handleParty(request,env);
     const internalAutoSubtitle=await verifyAutoSubtitleRequest(request,env,url);
     if(!internalAutoSubtitle&&!isAllowedOrigin(request)) return textResponse(request,"Forbidden - MiraculousHub only.",403);

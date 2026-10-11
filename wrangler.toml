@@ -3,7 +3,11 @@
 name = "miraculous-video"
 main = "cloudflare-worker-current.js"
 compatibility_date = "2025-09-01"
-workers_dev = true
+workers_dev = false
+
+[[routes]]
+pattern = "video.miraculoushub.co.uk"
+custom_domain = true
 
 [[r2_buckets]]
 binding = "R2_VIDEOS"

@@ -9,9 +9,9 @@ LIVE:
 
 EPISODE VIDEO ROUTES:
 - S06E26 uses the existing Worker endpoint:
-  https://miraculous-video.ibbyzaman4.workers.dev/video
+  https://video.miraculoushub.co.uk/video
 - S01E02 (The Bubbler) is configured for:
-  https://miraculous-video.ibbyzaman4.workers.dev/video/1mHkQXdh5JowLNUKGHRDgWM1PyOk9xcO9
+  https://video.miraculoushub.co.uk/video/1mHkQXdh5JowLNUKGHRDgWM1PyOk9xcO9
 
 IMPORTANT:
 The Worker must support /video/<google-drive-file-id> before S01E02 can play.

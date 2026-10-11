@@ -11,7 +11,7 @@ bucket_name = "REPLACE_WITH_YOUR_EXISTING_R2_BUCKET_NAME"
 binding = "STREAM"
 
 [vars]
-VIDEO_WORKER_ORIGIN = "https://miraculous-video.ibbyzaman4.workers.dev"
+VIDEO_WORKER_ORIGIN = "https://video.miraculoushub.co.uk"
 CF_ACCOUNT_ID = "REPLACE_WITH_YOUR_CLOUDFLARE_ACCOUNT_ID"
 
 [[workflows]]

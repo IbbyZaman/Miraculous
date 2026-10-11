@@ -1,7 +1,11 @@
 name = "miraculoushub-uploader"
 main = "cloudflare-uploader-worker.js"
 compatibility_date = "2025-09-01"
-workers_dev = true
+workers_dev = false
+
+[[routes]]
+pattern = "upload.miraculoushub.co.uk"
+custom_domain = true
 
 [[r2_buckets]]
 binding = "VIDEOS"
@@ -19,4 +23,4 @@ class_name = "AutoSubtitleWorkflow"
 script_name = "miraculoushub-auto-subtitles"
 
 [vars]
-VIDEO_WORKER_ORIGIN = "https://miraculous-video.ibbyzaman4.workers.dev"
+VIDEO_WORKER_ORIGIN = "https://video.miraculoushub.co.uk"

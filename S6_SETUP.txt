@@ -2,7 +2,7 @@ Season 6 is unlocked in the website catalogue.
 
 The watch page uses the Cloudflare Worker as the video source.
 For S6 it requests:
-https://miraculous-video.ibbyzaman4.workers.dev/video/<episode-slug>
+https://video.miraculoushub.co.uk/video/<episode-slug>
 
 Therefore the Cloudflare Worker must have a matching route for each S6 episode.
 No Google Drive credentials are stored in the website.
