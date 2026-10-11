@@ -1,0 +1,50 @@
+MiraculousHub — Design beta
+
+Upload ALL website files from this ZIP to the same GitHub Pages repository
+as your current website, keeping the files in the existing website root.
+The ZIP includes the complete website, uploader, Workers and configuration.
+
+HOW TO TRY IT
+
+1. Open MiraculousHub and scroll to the bottom.
+2. Select Design beta. AnimeFlix opens on your current domain.
+3. Explore the homepage, Miraculous seasons, specials and anime collections.
+4. Select Return to classic in any beta footer to switch back.
+
+The choice is remembered in this browser. It does not change the design for
+other visitors or modify account/video data. New visitors see MiraculousHub.
+If storage is blocked, explicit view links keep the beta working as you browse.
+
+Direct links:
+  animeflix.html?view=animeflix
+  index.html?view=miraculous
+
+WHAT CHANGES IN THE BETA
+
+New AnimeFlix homepage with Attack on Titan, Death Note, Black Clover and
+Miraculous. New header, catalogue cards, season filters, search, account
+screens, Watch Together, comments, release news and uploader styling.
+
+All players share a flat, compact beta design. On the normal watch page,
+controls sit below the video so they cannot cover subtitles. In fullscreen,
+controls overlay the video and hide when inactive. iOS native fullscreen
+continues using the device's own player.
+
+Playback, episode URLs, subtitles, Firebase sign-in, one-second progress
+updates and party-room services retain their existing implementation.
+Classic MiraculousHub keeps its existing player styles.
+
+FILES
+
+site-brand.js       Detects the choice, remembers it and brands shared pages
+design-beta.css     Full beta appearance, including the new player controls
+animeflix.html      Beta homepage
+animeflix.css       Homepage artwork and AnimeFlix base theme
+animeflix-home.js   Continue Watching with the shared account progress
+
+No new domain, DNS update or Worker deployment is needed just to enable the
+design beta. The included Workers remain available for the existing playback,
+upload, subtitles and Watch Together setup. See their setup files if those
+services have not already been deployed.
+
+The files are ready to upload. This ZIP does not itself publish changes.

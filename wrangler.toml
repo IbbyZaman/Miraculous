@@ -5,6 +5,17 @@ main = "cloudflare-worker-current.js"
 compatibility_date = "2025-09-01"
 workers_dev = true
 
+[[routes]]
+pattern = "video.miraculoushub.co.uk"
+custom_domain = true
+
+[vars]
+FIREBASE_PROJECT_ID = "miraculoushub0"
+FIREBASE_WEB_API_KEY = "AIzaSyBndazB7-e9QWMkYt2vCA1h_B097k4Wgsg"
+# Required secret (at least 32 random characters): DOWNLOAD_SIGNING_KEY.
+# npx wrangler secret put DOWNLOAD_SIGNING_KEY --config wrangler.toml
+# Never commit that secret to GitHub or include it in website JavaScript.
+
 [[r2_buckets]]
 binding = "R2_VIDEOS"
 bucket_name = "REPLACE_WITH_YOUR_EXISTING_R2_BUCKET_NAME"

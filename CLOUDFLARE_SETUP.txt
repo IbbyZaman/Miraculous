@@ -1,4 +1,6 @@
 Current Cloudflare setup: read START-HERE.txt.
+Latest account-download and Worker-domain steps: DOWNLOADS-AND-DOMAINS.txt.
+Add DOWNLOAD_SIGNING_KEY as a video Worker secret before using downloads.
 
 Video Worker: cloudflare-worker-current.js
 Existing name: miraculous-video

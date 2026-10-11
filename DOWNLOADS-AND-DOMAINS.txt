@@ -1,0 +1,107 @@
+MiraculousHub: account downloads and Cloudflare domains
+
+This is the full website with AnimeFlix and the Design beta removed.
+Miraculous retains its original player. The anime players retain compact
+controls, captions, Watch Together and the existing playback saves.
+
+DEPLOY THE VIDEO WORKER FIRST
+
+1. Cloudflare -> Workers & Pages -> miraculous-video.
+   Deploy cloudflare-worker-current.js. Keep your R2_VIDEOS binding, the
+   WATCH_PARTIES Durable Object binding/migration, and all existing secrets
+   used by your Drive fallback or subtitle workflow.
+   If deploying with Wrangler, replace the bucket-name placeholder in
+   wrangler.toml with your existing R2 bucket name first. Merge the config
+   with any existing production bindings rather than replacing those.
+
+2. Worker -> Settings -> Variables and Secrets -> Add.
+   Type: Secret. Name: DOWNLOAD_SIGNING_KEY.
+   Value: at least 32 random characters; use a password-manager generator
+   or run openssl rand -hex 32. Keep the generated value only in Cloudflare.
+   Deploy the secret change. Never paste it into GitHub or website files.
+   With Wrangler: npx wrangler secret put DOWNLOAD_SIGNING_KEY --config wrangler.toml
+   Then deploy: npm run deploy:video
+
+3. The code already uses your Firebase project miraculoushub0 and its public
+   web API key. FIREBASE_PROJECT_ID and FIREBASE_WEB_API_KEY variables can
+   override those defaults if you change projects.
+   If your key only permits browser HTTP referrers, create a separate key
+   for this same Firebase project permitting the Identity Toolkit API, and
+   set FIREBASE_WEB_API_KEY on the video Worker. Browser-referrer keys cannot
+   be used by a server request. Do not use a Firebase service-account JSON
+   as the API key, and do not change the website's Firebase project.
+
+4. Deploy cloudflare-uploader-worker.js to miraculoushub-uploader. Keep
+   VIDEOS pointing at the same R2 bucket, UPLOAD_PASSWORD and AUTO_SUBS.
+   For Wrangler, fill in the existing bucket name in wrangler-uploader.toml.
+
+PUT THE WORKERS UNDER YOUR DOMAIN
+
+Your miraculoushub.co.uk zone must be active in Cloudflare. For each Worker:
+Workers & Pages -> select Worker -> Settings -> Domains & Routes ->
+Add -> Custom Domain -> enter the hostname -> Add Custom Domain.
+
+  miraculous-video                 video.miraculoushub.co.uk
+  miraculoushub-uploader           upload.miraculoushub.co.uk
+  miraculoushub-auto-subtitles     subtitles.miraculoushub.co.uk (optional)
+
+The Wrangler configs include these custom domains with workers_dev = true.
+Cloudflare creates the DNS records and HTTPS certificates for Custom Domains.
+Leave each Worker's workers.dev address enabled. No redirect is needed.
+Do not attach a Worker to miraculoushub.co.uk or www.miraculoushub.co.uk:
+those website hostnames should continue pointing to your GitHub Pages site.
+If the chosen Worker subdomain already has a CNAME, resolve that subdomain
+conflict before adding it; do not change the website's root DNS records.
+
+After the custom domains open successfully, replace site-config.js with
+the contents of site-config.custom-domains.js and upload your full website.
+The shipped site-config.js keeps your existing workers.dev addresses until
+you activate the domains, so installing this package does not depend on DNS
+already being ready. The optional config file is not loaded automatically.
+If you use auto captions, set VIDEO_WORKER_ORIGIN to
+https://video.miraculoushub.co.uk in the subtitle Workflow's variables too.
+Existing auto-caption jobs can continue using the old workers.dev address.
+
+DOWNLOAD AND PLAYBACK BEHAVIOUR
+
+- Every player shows Sign in to download when signed out. Clicking opens
+  the existing account sign-in dialog.
+- Once signed in, Download Episode sends a Firebase ID token in an
+  Authorization header to /download-ticket. The Worker asks Firebase to
+  verify the token and rejects anonymous, expired, revoked, disabled and wrong-project
+  credentials. Tokens and account details never go in the download URL.
+- A valid request from miraculoushub.co.uk or www.miraculoushub.co.uk receives
+  a signed, five-minute link bound to that site, Worker hostname and episode.
+  The Worker streams the attachment directly, including byte-range support.
+  Download responses and tickets are not publicly cached.
+- All /download routes, including legacy episode/special routes and Drive
+  fallbacks, require the ticket and a MiraculousHub Origin/Referer.
+- Worker roots and direct /video links can open normally. Browser requests
+  from unrelated websites are denied, without wildcard CORS. Foreign frames
+  are also blocked by the frame-ancestors policy. Uploads remain protected
+  by their site check and upload password; Watch Together stays site-only.
+
+This blocks ordinary browser hotlinking and anonymous attachment downloads.
+Public playback cannot prevent someone recording or saving the playable
+stream, or a non-browser client imitating request headers. Signed download
+links are temporary bearer credentials; they can be reused until expiry.
+Keep the R2 bucket private: disable its public r2.dev/media-domain access
+if enabled, otherwise those public object URLs bypass the Worker entirely.
+Connect video.miraculoushub.co.uk to the WORKER, not directly to the R2 bucket.
+
+CHECK AFTER DEPLOYING
+
+1. Open the existing workers.dev root and an uploaded /video/s05e01 link
+   directly. Check the same URLs on video.miraculoushub.co.uk.
+2. Signed out on the website: Download opens Sign in; direct /download
+   addresses do not return an attachment.
+3. Sign in and download one Miraculous episode and one anime episode.
+   Check play/seek/subtitles and Watch Together on two browsers.
+4. An unrelated website's video/iframe embedding the Worker should fail.
+5. Confirm uploads still complete and produce the correct player links.
+
+Official setup documentation:
+https://developers.cloudflare.com/workers/configuration/routing/custom-domains/
+https://developers.cloudflare.com/workers/configuration/routing/workers-dev/
+https://firebase.google.com/docs/reference/rest/auth#section-get-account-info
+https://developers.cloudflare.com/r2/buckets/public-buckets/

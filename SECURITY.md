@@ -1,33 +1,34 @@
-# Cloudflare Worker hardening notes
+# MiraculousHub Worker access
 
-Your Google service-account JSON should remain a Cloudflare Worker Secret, never in HTML/JS.
-Cloudflare documents that Secrets are encrypted and exposed to Worker code through `env`, while plaintext vars are not encrypted.
+The video Worker verifies Firebase ID tokens through Google's accounts:lookup
+endpoint before signing an attachment link. It also checks the project, issuer,
+user, expiry, anonymous/disabled status and revocation time. Firebase ID tokens remain in
+an Authorization header; signed download URLs contain no account details.
 
-Recommended production approach:
-1. Keep GOOGLE_SERVICE_ACCOUNT as a Secret.
-2. Add a second secret such as PLAYER_SHARED_SECRET.
-3. Have your site obtain a short-lived signed playback token from the Worker.
-4. Make `/video` reject requests without a valid token.
-5. Optionally check `Origin`/`Referer` as an additional signal for your own domain.
-6. Add rate limiting.
-7. Consider putting the Worker behind your own domain, e.g. video.miraculoushub.co.uk.
+DOWNLOAD_SIGNING_KEY is a required Worker secret with at least 32 random
+characters. HMAC-SHA256 tickets expire after five minutes and are bound to the
+episode path, issuing website origin and Worker hostname. Every attachment
+route, including legacy routes and Drive fallbacks, passes the same checks.
+Range and HEAD requests require authorization too. Responses use private,
+no-store. Sign-out/account changes during preparation cancel the client action.
+A ticket already issued is a bearer credential until it expires.
 
-Important:
-- CORS/origin checks are not a complete anti-hotlink solution.
-- Referer can be missing or altered.
-- A browser that is allowed to play a video can still inspect its network request.
-- The goal is to make copying/hotlinking harder and prevent unauthorised access to the backend, not to make the media cryptographically invisible.
+Only https://miraculoushub.co.uk and its www hostname can request tickets,
+download attachments, create party rooms or use the password-protected uploader.
+Playback also accepts direct Worker navigation and the Worker's own native
+player requests. Foreign browser Origin/Referer requests and no-referrer
+cross-site embeds are denied; frame-ancestors blocks foreign iframes. CORS
+never permits a wildcard origin. Internal subtitle ingestion retains its
+separate, signed video-only access.
 
-Example of a basic origin check (not sufficient by itself):
+Public playback is intentionally accessible. A viewer can still save or record
+the stream, and non-browser clients can imitate Origin/Referer/fetch headers.
+These checks protect the signed attachment route and block ordinary browser
+hotlinking; they are not DRM. Keep R2 public r2.dev access and public bucket
+domains disabled to avoid exposing object URLs outside the Worker.
 
-const allowed = new Set([
-  "https://miraculoushub.co.uk",
-  "https://www.miraculoushub.co.uk"
-]);
+Keep UPLOAD_PASSWORD, GOOGLE_SERVICE_ACCOUNT, AUTO_SUBTITLE_SIGNING_KEY
+and DOWNLOAD_SIGNING_KEY in Cloudflare secrets. The Firebase web API key is
+public project configuration, not an authorization credential.
 
-const origin = request.headers.get("Origin");
-if (origin && !allowed.has(origin)) {
-  return new Response("Forbidden", {status:403});
-}
-
-Use signed short-lived tokens for real access control.
+See DOWNLOADS-AND-DOMAINS.txt for deployment and domain setup.

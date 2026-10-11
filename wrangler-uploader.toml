@@ -3,6 +3,10 @@ main = "cloudflare-uploader-worker.js"
 compatibility_date = "2025-09-01"
 workers_dev = true
 
+[[routes]]
+pattern = "upload.miraculoushub.co.uk"
+custom_domain = true
+
 [[r2_buckets]]
 binding = "VIDEOS"
 bucket_name = "REPLACE_WITH_YOUR_EXISTING_R2_BUCKET_NAME"

@@ -1021,6 +1021,7 @@ html.mh-fallback-leave[data-glide="back"] body{
 }
 .auth-close{
   position:absolute;right:13px;top:12px;
+  z-index:1;
   width:40px;height:40px;
   border:1px solid var(--line);border-radius:13px;
   background:var(--glass);color:var(--muted);font-size:22px;
