@@ -39,7 +39,10 @@
       const playbackLists=new Map();
       const app = appMod.initializeApp(config);
       const auth = authMod.getAuth(app);
-      const db = fsMod.getFirestore(app);
+      const db = fsMod.initializeFirestore(app, {
+        experimentalAutoDetectLongPolling: true,
+        ignoreUndefinedProperties: true
+      });
       const provider = new authMod.GoogleAuthProvider();
 
       try {
@@ -110,8 +113,9 @@
         async getPlayback(key) {
           const u = auth.currentUser;
           if (!u) return null;
-          const snap = await fsMod.getDoc(userRef("playback", key));
-          return snap.exists() ? snap.data() : null;
+          // Require the server resume point before a fresh player can write.
+          const snap = await fsMod.getDocFromServer(userRef("playback", key));
+          return snap.exists() ? {...snap.data(),pendingCloud:!!snap.metadata?.hasPendingWrites} : null;
         },
         async savePlayback(key, data) {
           const u = auth.currentUser;
@@ -176,7 +180,7 @@
           const request={expires:Date.now()+1000,promise:null};
           request.promise=(async()=>{
             try{
-              const snap=await fsMod.getDocs(fsMod.collection(db,"users",u.uid,"playback"));
+              const snap=await fsMod.getDocsFromServer(fsMod.collection(db,"users",u.uid,"playback"));
               return normalisePlaybackSnapshot(snap);
             }catch(error){
               if(playbackLists.get(u.uid)===request) playbackLists.delete(u.uid);

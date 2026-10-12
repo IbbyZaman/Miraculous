@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png"><title>MiraculousHub — Watch</title>
-<link rel="stylesheet" href="styles.css?v=every-second-4">
+<link rel="stylesheet" href="styles.css?v=account-v4-1">
 <style>
 /* Modern video player */
 .watch-shell{width:min(1240px,94vw);padding:24px 0 70px}
@@ -670,7 +670,8 @@ body .simple-player .quick-overlay{display:none}
  <p class="party-error" id="partyError" role="status" aria-live="polite"></p>
 </dialog>
 <script src="watch-together.js?v=aot-party-1"></script>
-<script src="data.js?v=s5-all-thumbnails-1"></script><script src="anime-data.js?v=black-clover-player-2"></script><script src="firebase.js?v=every-second-4"></script><script src="common.js?v=aot-party-1"></script><script src="motion.js?v=nav-alignment-v4-1"></script><script src="playback-sync.js?v=aot-party-1"></script>
+<script src="downloads.js?v=account-v4-1"></script>
+<script src="data.js?v=s5-all-thumbnails-1"></script><script src="anime-data.js?v=black-clover-player-2"></script><script src="firebase.js?v=account-v4-1"></script><script src="common.js?v=account-v4-1"></script><script src="motion.js?v=nav-alignment-v4-1"></script><script src="playback-sync.js?v=account-v4-1"></script>
 <script>
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
@@ -922,6 +923,7 @@ const playbackSync=window.MHPlayback.create({
 });
 function loadCloudPosition(){return playbackSync.load();}
 function saveCloudPosition(force=false){return playbackSync.save(force);}
+window.addEventListener("online",()=>{void playbackSync.retry();});
 
 function fmt(sec){if(!Number.isFinite(sec)) return "--:--";sec=Math.max(0,Math.floor(sec||0));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`;}
 function update(){
@@ -980,12 +982,16 @@ function updatePlaybackSyncStatus(state){
   if(!window.MH_USER){status.textContent="Sign in to save playback across devices";return;}
   const code=window.MH_PLAYBACK_CLOUD_ERROR?.code;
   if(code==="resource-exhausted") status.textContent="Firebase quota exceeded · progress kept on this device until cloud sync is available";
-  else if(code) status.textContent="Progress kept on this device · cloud sync unavailable";
+  else if(code==="permission-denied") status.textContent="Cloud sync blocked by Firestore rules · progress kept on this device";
+  else if(code==="unauthenticated") status.textContent="Sign in again to sync playback · progress kept on this device";
+  else if(code==="failed-precondition") status.textContent="Firestore database is unavailable · progress kept on this device";
+  else if(code) status.textContent="Progress kept on this device · cloud sync unavailable ("+code+")";
   else status.textContent=state==="synced"?"Playback synced to your account":
     state==="local"?"Progress kept on this device · waiting for cloud sync":"Playback sync ready";
 }
 window.addEventListener("mh-cloud-playback-status",event=>updatePlaybackSyncStatus(event.detail.state));
-window.addEventListener("mh-cloud-save-ok",()=>updatePlaybackSyncStatus("synced"));
+window.addEventListener("mh-cloud-save-ok",()=>{window.MH_PLAYBACK_CLOUD_ERROR=null;updatePlaybackSyncStatus("synced");});
+window.addEventListener("mh-cloud-save-error",event=>{window.MH_PLAYBACK_CLOUD_ERROR=event.detail||null;updatePlaybackSyncStatus("error");});
 window.addEventListener("mh-playback-local-saved",()=>updatePlaybackSyncStatus("local"));
 window.addEventListener("mh-auth-changed",()=>updatePlaybackSyncStatus());
 updatePlaybackSyncStatus();
@@ -1330,7 +1336,7 @@ if(downloadBtn){
     : isSpecial
       ? `/download/special/${ep.specialSlug}`
       : `/download/s${String(ep.season).padStart(2,"0")}e${String(ep.episode).padStart(2,"0")}`;
-  downloadBtn.onclick=()=>{ window.location.href=VIDEO_WORKER+downloadPath; };
+  window.MH_DOWNLOADS.bind({button:downloadBtn,path:downloadPath,worker:VIDEO_WORKER,onNotice:showToast});
 }
 
 $("share").onclick=async()=>{try{if(navigator.share)await navigator.share({title:`${ep.title} — MiraculousHub`,url:location.href});else{await navigator.clipboard.writeText(location.href);$("share").textContent="Copied!"}}catch{}};

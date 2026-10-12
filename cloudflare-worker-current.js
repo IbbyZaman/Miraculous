@@ -38,6 +38,10 @@ const ALLOWED_ORIGINS = new Set([
   "https://www.miraculoushub.co.uk"
 ]);
 
+const DOWNLOAD_TTL=300;
+const FIREBASE_PROJECT_ID="miraculoushub0";
+const FIREBASE_WEB_API_KEY="AIzaSyBndazB7-e9QWMkYt2vCA1h_B097k4Wgsg";
+
 /* Existing Drive files remain temporary fallbacks while you migrate. */
 const DRIVE_FALLBACKS = {
   "season-1/s01e01.mp4": { id:"13kJTw_ybytXBuMlYmpwG1kGZLqu3Kd5y", filename:"S01E01 - Stormy Weather.mp4" },
@@ -141,8 +145,8 @@ function redirectToWebsite(){
 function corsHeaders(request) {
   const origin=request.headers.get("Origin");
   const h={
-    "Access-Control-Allow-Headers":"Range, Content-Type, Accept",
-    "Access-Control-Allow-Methods":"GET, HEAD, OPTIONS",
+    "Access-Control-Allow-Headers":"Range, Content-Type, Accept, Authorization",
+    "Access-Control-Allow-Methods":"GET, HEAD, POST, OPTIONS",
     "Access-Control-Expose-Headers":"Content-Length, Content-Range, Accept-Ranges, Content-Disposition, ETag",
     "Vary":"Origin, Referer, Sec-Fetch-Dest, Sec-Fetch-Mode",
     "Content-Security-Policy":"frame-ancestors 'none'",
@@ -155,6 +159,91 @@ function textResponse(request,text,status=200){
   return new Response(text,{status,headers:{...corsHeaders(request),"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-store"}});
 }
 
+
+function downloadJSON(request,data,status=200){
+  return new Response(JSON.stringify(data),{status,headers:{...corsHeaders(request),"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"}});
+}
+function decodeBase64URL(value){
+  const raw=atob(value.replace(/-/g,"+").replace(/_/g,"/").padEnd(Math.ceil(value.length/4)*4,"="));
+  return Uint8Array.from(raw,c=>c.charCodeAt(0));
+}
+function downloadSecretReady(env){
+  return typeof env.DOWNLOAD_SIGNING_KEY==="string"&&env.DOWNLOAD_SIGNING_KEY.length>=32;
+}
+async function downloadSigningKey(env,usage){
+  return crypto.subtle.importKey("raw",new TextEncoder().encode(env.DOWNLOAD_SIGNING_KEY),{name:"HMAC",hash:"SHA-256"},false,[usage]);
+}
+async function verifyFirebaseUser(request,env){
+  const authorization=request.headers.get("Authorization")||"";
+  const match=/^Bearer ([A-Za-z0-9_.-]{1,8192})$/i.exec(authorization);
+  const unauthenticated={error:"Sign in again to download this episode.",status:401};
+  if(!match)return unauthenticated;
+  const idToken=match[1];
+  if(idToken.split(".").length!==3)return unauthenticated;
+  const project=env.FIREBASE_PROJECT_ID||FIREBASE_PROJECT_ID;
+  const apiKey=env.FIREBASE_WEB_API_KEY||FIREBASE_WEB_API_KEY;
+  let account;
+  try{
+    // Google verifies the credential. Decoding a JWT alone is not authentication.
+    const response=await fetch("https://identitytoolkit.googleapis.com/v1/accounts:lookup?key="+encodeURIComponent(apiKey),{
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken}),
+      signal:AbortSignal.timeout(10000),redirect:"error"
+    });
+    const result=await response.json();
+    if(!response.ok){
+      const code=String(result?.error?.message||"").split(":")[0].trim();
+      if(["INVALID_ID_TOKEN","TOKEN_EXPIRED","USER_DISABLED","USER_NOT_FOUND"].includes(code))return unauthenticated;
+      return {error:"Sign-in verification is temporarily unavailable. Please try again.",status:503};
+    }
+    account=result?.users?.length===1?result.users[0]:null;
+  }catch{return {error:"Sign-in verification is temporarily unavailable. Please try again.",status:503}}
+  try{
+    const claims=JSON.parse(new TextDecoder().decode(decodeBase64URL(idToken.split(".")[1])));
+    const now=Math.floor(Date.now()/1000);
+    if(!account?.localId||account.disabled||claims.firebase?.sign_in_provider==="anonymous"||claims.sub!==account.localId||
+       claims.aud!==project||claims.iss!=="https://securetoken.google.com/"+project||
+       !Number.isFinite(claims.exp)||claims.exp<=now||
+       !Number.isFinite(claims.iat)||claims.iat>now+30||
+       !Number.isFinite(claims.auth_time)||claims.auth_time>now+30||
+       Number(account.validSince||0)>claims.auth_time)return unauthenticated;
+    return {uid:account.localId};
+  }catch{return unauthenticated}
+}
+async function issueDownloadTicket(request,env,url){
+  if(!ALLOWED_ORIGINS.has(request.headers.get("Origin"))||!isAllowedOrigin(request))return downloadJSON(request,{error:"Downloads are only available from MiraculousHub."},403);
+  if(request.method==="OPTIONS")return new Response(null,{status:204,headers:corsHeaders(request)});
+  if(request.method!=="POST")return downloadJSON(request,{error:"Method Not Allowed"},405);
+  if(!(request.headers.get("Content-Type")||"").toLowerCase().startsWith("application/json"))return downloadJSON(request,{error:"Use a JSON request."},415);
+  if(Number(request.headers.get("Content-Length"))>4096)return downloadJSON(request,{error:"Request too large."},413);
+  let body;
+  try{const raw=await request.text();if(raw.length>4096)return downloadJSON(request,{error:"Request too large."},413);body=JSON.parse(raw)}catch{return downloadJSON(request,{error:"Invalid download request."},400)}
+  const path=body?.path;
+  if(typeof path!=="string"||path.length>200||!parseMediaPath(path)?.download)return downloadJSON(request,{error:"Choose a valid episode."},400);
+  const user=await verifyFirebaseUser(request,env);
+  if(user.error)return downloadJSON(request,{error:user.error},user.status);
+  if(!downloadSecretReady(env))return downloadJSON(request,{error:"Downloads are not set up on this server yet."},503);
+  const expiresAt=Math.floor(Date.now()/1000)+DOWNLOAD_TTL;
+  const payload=base64url(new TextEncoder().encode(JSON.stringify({p:path,o:getRequestOrigin(request),h:url.origin,exp:expiresAt,n:crypto.randomUUID()})));
+  const signature=await crypto.subtle.sign("HMAC",await downloadSigningKey(env,"sign"),new TextEncoder().encode(payload));
+  const destination=new URL(path,url.origin);
+  destination.searchParams.set("ticket",payload+"."+base64url(signature));
+  return downloadJSON(request,{url:destination.href,expiresAt});
+}
+async function verifyDownloadTicket(request,env,url){
+  if(!downloadSecretReady(env))return false;
+  const ticket=url.searchParams.get("ticket")||"";
+  if(ticket.length>2048)return false;
+  const match=/^([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]{43})$/.exec(ticket);
+  if(!match)return false;
+  try{
+    const valid=await crypto.subtle.verify("HMAC",await downloadSigningKey(env,"verify"),decodeBase64URL(match[2]),new TextEncoder().encode(match[1]));
+    if(!valid)return false;
+    const claims=JSON.parse(new TextDecoder().decode(decodeBase64URL(match[1])));
+    const now=Math.floor(Date.now()/1000);
+    return claims.p===url.pathname&&claims.h===url.origin&&claims.o===getRequestOrigin(request)&&
+      Number.isInteger(claims.exp)&&claims.exp>now&&claims.exp<=now+DOWNLOAD_TTL;
+  }catch{return false}
+}
 
 function hex(bytes){return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,"0")).join("")}
 async function verifyAutoSubtitleRequest(request,env,url){
@@ -241,7 +330,7 @@ async function streamR2(request,env,file){
   h.set("Content-Type",meta.httpMetadata?.contentType||"video/mp4");
   h.set("Accept-Ranges","bytes");
   h.set("ETag",meta.httpEtag);
-  h.set("Cache-Control","private, max-age=3600");
+  h.set("Cache-Control",file.download?"private, no-store":"private, max-age=3600");
   if(file.download) h.set("Content-Disposition",`attachment; filename="${file.filename}"`);
   if(request.method==="HEAD"){
     h.set("Content-Length",String(meta.size));
@@ -290,7 +379,7 @@ async function streamDrive(request,env,file){
   if(!r.ok) return null;
   const h=new Headers(corsHeaders(request));
   h.set("Content-Type",r.headers.get("Content-Type")||"video/mp4"); h.set("Accept-Ranges","bytes");
-  h.set("Cache-Control","private, max-age=3600");
+  h.set("Cache-Control",file.download?"private, no-store":"private, max-age=3600");
   for(const n of ["Content-Length","Content-Range","ETag"]){const v=r.headers.get(n);if(v)h.set(n,v);}
   if(file.download) h.set("Content-Disposition",`attachment; filename="${fallback.filename}"`);
   return new Response(request.method==="HEAD"?null:r.body,{status:r.status,headers:h});
@@ -330,6 +419,15 @@ export default {
     const navigation=request.headers.get("Sec-Fetch-Mode")==="navigate"&&request.headers.get("Sec-Fetch-Dest")==="document";
     if(readable&&navigation&&!(parseMediaPath(url.pathname)?.download&&isAllowedOrigin(request))) return redirectToWebsite();
     if(url.pathname.startsWith("/party/")) return handleParty(request,env);
+    if(url.pathname==="/download-ticket") return issueDownloadTicket(request,env,url);
+    const downloadFile=parseMediaPath(url.pathname);
+    if(downloadFile?.download){
+      if(!isAllowedOrigin(request)) return textResponse(request,"Downloads are only available from MiraculousHub.",403);
+      if(request.method==="OPTIONS") return new Response(null,{status:204,headers:corsHeaders(request)});
+      if(!readable) return textResponse(request,"Method Not Allowed",405);
+      if(!await verifyDownloadTicket(request,env,url)) return textResponse(request,"Sign in on MiraculousHub and press Download Episode for a new download link.",401);
+      return serve(request,env,downloadFile);
+    }
     const internalAutoSubtitle=await verifyAutoSubtitleRequest(request,env,url);
     if(!internalAutoSubtitle&&!isAllowedOrigin(request)) return textResponse(request,"Forbidden - MiraculousHub only.",403);
     if(request.method==="OPTIONS") return new Response(null,{status:204,headers:corsHeaders(request)});

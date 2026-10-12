@@ -1,0 +1,72 @@
+MiraculousHub version 4 — account downloads and playback cloud sync
+
+DEPLOY THE DOWNLOAD CHANGE
+1. Cloudflare -> Workers & Pages -> miraculous-video -> Settings ->
+   Variables and Secrets -> Add. Choose Secret and name it exactly:
+     DOWNLOAD_SIGNING_KEY
+   Give it a newly generated random value of at least 32 characters (64 random
+   characters recommended). Keep the value private; never add it to GitHub,
+   website files or a public R2 object. This is separate from your subtitle key.
+2. Deploy cloudflare-worker-current.js to your existing video Worker.
+   Retain R2_VIDEOS, WATCH_PARTIES, migration history and all other secrets.
+3. Upload this package's website files to your existing GitHub Pages site.
+   downloads.js is required alongside the updated watch.html and Firebase files.
+4. Keep video.miraculoushub.co.uk and upload.miraculoushub.co.uk active.
+   The old video/uploader workers.dev routes remain disabled in the configs.
+   The uploader is unchanged; its existing password still controls uploads.
+
+DOWNLOAD BEHAVIOUR
+Signed out: Download opens the existing sign-in dialog and contacts no ticket API.
+Signed in: the browser sends its Firebase ID token in an Authorization header.
+The video Worker asks Firebase to verify it, checks the account/project and
+issues a five-minute link for that episode and site origin only.
+GET/HEAD/range download requests require that signed link. This includes anime,
+specials and old Drive fallback aliases. Video watching does not require sign-in.
+Expired, forged, disabled/revoked and anonymous account credentials are rejected.
+Direct video-domain visits still redirect to miraculoushub.co.uk.
+Previously issued tickets remain valid for up to five minutes after sign-out;
+new download requests require a current Firebase session.
+
+FIREBASE CLOUD SETUP
+Firebase project: miraculoushub0 (the existing project, not a new one).
+1. Ensure Firestore Database exists in this project.
+2. Firestore -> Rules -> paste the included firestore.rules and Publish.
+   These rules restrict user data to that user; do not open the whole database.
+3. Authentication -> Sign-in method: enable Email/Password and Google as needed.
+4. Authentication -> Settings -> Authorized domains: include
+   miraculoushub.co.uk and www.miraculoushub.co.uk.
+5. If App Check enforcement is enabled, configure App Check for this website;
+   this package does not disable App Check or change your project's enforcement.
+6. Check Firestore usage if the player reports resource-exhausted. A code update
+   cannot reset Firebase's daily quota. One-second updates remain as requested,
+   so prolonged viewing by several people can exhaust the project's quota.
+
+CLOUD PLAYBACK CHANGES
+Resume reads and initial Continue Watching reads now explicitly request the
+server. A cached missing record cannot silently authorize overwriting a remote
+resume point with 0:00. A pending device checkpoint is still kept as a fallback.
+Optional undefined metadata is skipped by Firestore serialization.
+A failed live Continue Watching feed can restart on page return or reconnect.
+On reconnect, the player retries failed reads/saves; quota backoff is preserved.
+One-second checkpoints, pause/seek saves and account isolation are retained.
+The player shows the actual error code when cloud sync is unavailable.
+
+LIVE VERIFICATION
+Sign out -> Download: the sign-in dialog should open.
+Sign in -> Download: the chosen MP4 should download.
+Watch an episode, pause, then open it in another browser signed into the same
+account: it should resume near the saved timestamp. Check Continue Watching too.
+Confirm that a different account does not see that history.
+
+The package is tested with Firebase/R2 boundary fixtures; no live Cloudflare or
+Firebase account settings, secrets or rules were changed by creating this ZIP.
+If downloads return 503 after adding the secret, check Cloudflare Worker logs
+and the Firebase API key restrictions. The key must permit Identity Toolkit
+accounts:lookup from the Worker. An optional FIREBASE_WEB_API_KEY Worker variable
+can supply a separate key for the same project if the browser key restricts
+HTTP referrers. Do not change FIREBASE_PROJECT_ID away from miraculoushub0.
+
+Browser hotlink controls are retained. Playable videos can still be copied;
+keep R2 private to avoid public object URLs bypassing the Worker.
+The navigation fix, all episode thumbnails, player styles and Watch Together
+are retained. Twitch remains the livestream choice.

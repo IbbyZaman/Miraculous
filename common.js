@@ -270,6 +270,8 @@
     stopPlaybackFeed=window.MH_CLOUD.subscribePlayback((items,error)=>{
       if(window.MH_USER?.uid!==uid) return;
       if(error){
+        stopPlaybackFeed?.();
+        stopPlaybackFeed=null;playbackFeedUid=null;
         window.dispatchEvent(new CustomEvent("mh-cloud-save-error",{detail:error}));
         return;
       }
@@ -286,6 +288,11 @@
   window.addEventListener("mh-auth-changed",startPlaybackFeed);
   window.addEventListener("mh-firebase-ready",startPlaybackFeed);
   window.addEventListener("pageshow",startPlaybackFeed);
+  window.addEventListener("online",()=>{
+    stopPlaybackFeed?.();stopPlaybackFeed=null;playbackFeedUid=null;
+    startPlaybackFeed();
+    window.mhSyncCloudProgress?.().catch(error=>window.dispatchEvent(new CustomEvent("mh-cloud-save-error",{detail:error})));
+  });
 
   // Merge confirmed cloud records with this device's newer pending saves.
   window.mhSyncCloudProgress = async function(){

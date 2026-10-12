@@ -11,7 +11,7 @@
         const uid=window.MH_USER?.uid || null;
         if(!session || session.uid!==uid){
           session={uid,generation:++generation,loaded:false,read:null,pending:null,
-            duration:0,lastSave:-Infinity,retryAt:0,writeRetryAt:0,writing:null,queued:null,
+            duration:0,lastSave:-Infinity,retryAt:0,writeRetryAt:0,writeErrorCode:null,writing:null,queued:null,
             confirmed:null,localPayload:null,lastLocalStage:-Infinity};
         }
         return session;
@@ -102,13 +102,14 @@
           await window.MH_CLOUD.savePlayback(key,payload);
           saved=true;
           if(active(s)){
-            s.confirmed=payload;s.writeRetryAt=0;
+            s.confirmed=payload;s.writeRetryAt=0;s.writeErrorCode=null;
             if(window.mhConfirmCloudProgress) window.mhConfirmCloudProgress(payload);
             else window.mhSaveProgress?.(payload);
             onSave(payload);
           }
         }catch(error){
           if(active(s)){
+            s.writeErrorCode=error?.code || "unknown";
             s.writeRetryAt=now()+(error?.code==="resource-exhausted"?900000:30000);
             onError(error);
           }
@@ -155,7 +156,13 @@
         s.writing=drain(s,payload);
         try{return await s.writing;}finally{s.writing=null;}
       }
-      return {load,save};
+      function retry(){
+        const s=currentSession();
+        s.retryAt=0;
+        if(s.writeErrorCode!=="resource-exhausted") s.writeRetryAt=0;
+        return save(true);
+      }
+      return {load,save,retry};
     }
   };
 })();

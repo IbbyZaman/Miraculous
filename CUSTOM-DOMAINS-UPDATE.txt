@@ -26,9 +26,9 @@ Direct address-bar visits to video/subtitle/party links also redirect.
 Video, subtitles and downloads are allowed only when Origin/Referer identifies
 https://miraculoushub.co.uk or its www address. Foreign browser embeds and
 requests without site headers are refused. Downloads clicked on the website
-still work. Watch Together keeps its site-only origin policy.
+require sign-in and a temporary authorized link. Watch Together keeps its site-only origin policy.
 Signed internal auto-subtitle ingestion remains supported.
-No sign-in download requirement is introduced in this version-4 domain update.
+Read ACCOUNT-DOWNLOADS-AND-CLOUD.txt for the sign-in download update.
 
 CHECK LIVE
 Open an uploaded episode through miraculoushub.co.uk: play and seek, change
