@@ -80,7 +80,6 @@ function cleanEntry(body){
  if(!Number.isInteger(season)||season<1||season>7||!title||title.length>160||/[<>\x00-\x1f]/.test(title))throw new Error("Choose a season from 1–7 and a title of 1–160 characters.");
  if(thumbnail){const u=new URL(thumbnail);if(u.protocol!=="https:"||u.username||u.password||thumbnail.length>2000||/[<>"'\x00-\x20]/.test(thumbnail))throw new Error("Thumbnail must be a valid HTTPS image URL.");}
  if(body.kind==="trailer"){
-  if(season!==7)throw new Error("Trailer publishing is available on the Season 7 page.");
   const id=String(body.id||"");if(!/^[a-z0-9][a-z0-9-]{0,79}$/.test(id))throw new Error("Invalid trailer ID.");
   return {kind:"trailer",id,season,title,thumbnail,key:`trailers/${id}.mp4`};
  }
@@ -121,7 +120,7 @@ async function trailer(request,env,url){
 function validKey(key){return !!key&&!key.includes("..")&&(/^trailers\/[a-z0-9][a-z0-9-]{0,79}\.mp4$/.test(key)||/^season-\d{1,2}\/s\d{2}e\d{2,3}\.mp4$/i.test(key)||/^specials\/[a-z0-9-]+\.mp4$/i.test(key)||/^anime\/[a-z0-9-]+\/e\d{2,3}\.mp4$/i.test(key)||/^anime\/attack-on-titan\/(sp0[12]|oad0[1-8])\.mp4$/i.test(key))}
 function uploadedRoutes(key){
   let m,videoPath,watchPath;
-  if(key.startsWith("trailers/"))return {videoPath:`/trailer?id=${key.slice(9,-4)}`,watchPath:"season7.html#season7-trailer",watchUrl:"https://miraculoushub.co.uk/season7.html#season7-trailer"};
+  if(key.startsWith("trailers/"))return {videoPath:`/trailer?id=${key.slice(9,-4)}`,watchPath:`trailer.html?id=${key.slice(9,-4)}`,watchUrl:`https://miraculoushub.co.uk/trailer.html?id=${key.slice(9,-4)}`};
   if((m=/^anime\/([a-z0-9-]+)\/(e|sp|oad)(\d{2,3})\.mp4$/i.exec(key))){
     videoPath=`/video/anime/${m[1]}/${m[2]}${m[3]}`;
     watchPath=`watch.html?anime=${m[1]}&episode=${Number(m[3])+(m[2]==="sp"?94:m[2]==="oad"?100:0)}`;

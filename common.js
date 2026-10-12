@@ -78,7 +78,8 @@
         meta:"Monthly Anime"
       }));
 
-    const hits=[...miraculousHits,...animeHits].slice(0,12);
+    const trailerHits=(window.MH_TRAILERS||[]).filter(t=>`${t.title} season ${t.season} trailer`.toLowerCase().includes(q)).map(t=>({href:`trailer.html?id=${encodeURIComponent(t.id)}`,label:t.title,meta:`Season ${t.season} · Trailer`}));
+    const hits=[...miraculousHits,...animeHits,...trailerHits].slice(0,12);
 
     results.innerHTML = hits.length
       ? hits.map(e =>

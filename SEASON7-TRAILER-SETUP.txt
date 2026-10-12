@@ -1,12 +1,1 @@
-Season 7 trailer
-
-Upload the website files to GitHub Pages, including the assets folder:
-  season7.html
-  assets/season-7-trailer.mp4
-  assets/season-7-trailer-poster.jpg
-
-The uploaded 1080p trailer is included in full, with its original video/audio.
-The Season 7 page has a Watch trailer link, an embedded player and a poster
-frame from the supplied trailer. Playback starts when the visitor presses Play.
-The video is hosted with the website, so no additional R2 upload is required.
-The current video/upload Worker setup and sign-in downloads are retained.
+The bundled first teaser has been removed. Read TRAILER-CARDS-SETUP.txt for the uploaded-trailer cards and dedicated trailer player.

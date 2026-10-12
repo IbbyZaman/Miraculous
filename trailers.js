@@ -1,11 +1,17 @@
 (async()=>{
  await window.MH_CATALOG_READY;
- const section=document.getElementById("season7-trailer");if(!section)return;
- for(const entry of window.MH_TRAILERS||[]){
-  if(entry.season!==7)continue;
-  const card=document.createElement("div");card.className="s7-trailer-card";card.style.marginTop="16px";
-  const frame=document.createElement("div");frame.className="s7-trailer-frame";
-  const video=document.createElement("video");video.controls=true;video.playsInline=true;video.preload="metadata";video.src=entry.src;video.setAttribute("controlslist","nodownload");video.setAttribute("aria-label",entry.title);if(entry.thumbnail)video.poster=entry.thumbnail;
-  const caption=document.createElement("div");caption.className="s7-trailer-caption";const title=document.createElement("p");title.textContent=entry.title;caption.append(title);frame.append(video);card.append(frame,caption);section.append(card);
+ const selected=new URLSearchParams(location.search).get('id');
+ for(const [id,filter] of [['trailerGrid',()=>true],['season7TrailerGrid',t=>t.season===7],['relatedTrailerGrid',t=>t.id!==selected]]){
+  const grid=document.getElementById(id);if(!grid)continue;
+  grid.replaceChildren();
+  for(const entry of window.MH_TRAILERS||[]){
+   if(!filter(entry))continue;
+   const card=document.createElement('a');card.className='card trailer-card';card.href='trailer.html?id='+encodeURIComponent(entry.id);
+   const art=document.createElement('div');art.className='art has-thumb';const img=document.createElement('img');img.className='episode-thumb';img.alt='';img.loading='lazy';img.decoding='async';img.referrerPolicy='no-referrer';img.src=entry.thumbnail||'assets/trailer-placeholder.svg';img.onerror=()=>{img.onerror=null;img.src='assets/trailer-placeholder.svg'};
+   const badge=document.createElement('span');badge.className='epno';badge.textContent=`SEASON ${entry.season} · TRAILER`;
+   const info=document.createElement('div');info.className='card-info';const title=document.createElement('h3');title.textContent=entry.title;const caption=document.createElement('p');caption.textContent='Watch trailer →';
+   art.append(img,badge);info.append(title,caption);card.append(art,info);grid.append(card);
+  }
+  if(!grid.children.length){const empty=document.createElement('p');empty.textContent='More trailers coming soon.';empty.style.color='var(--muted)';grid.append(empty)}
  }
 })();

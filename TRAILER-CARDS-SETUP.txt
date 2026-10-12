@@ -1,0 +1,8 @@
+TRAILER CARDS + DEDICATED PLAYER
+
+Upload this full website to GitHub, including trailer.html, trailer-player.js, trailer-player.css, trailers.js and catalog.js.
+Deploy the included cloudflare-uploader-worker.js to the upload Worker to support trailers for seasons 1–7 and updated watch links. Keep the same VIDEOS binding and UPLOAD_PASSWORD secret. The episode video Worker and episode player are unchanged.
+
+Trailers now appear as thumbnail cards on the homepage and in search. Season 7 shows matching trailer cards too. Clicking a card opens a dedicated trailer page with a cinema-style video area, native playback/seek/volume/fullscreen controls, title, season, sharing and more trailer cards. Trailer pages use trailer.html?id=TRAILER-ID.
+
+Uploaded trailers publish automatically. Existing trailer catalog entries continue working; no re-upload needed. The bundled Lila teaser has been removed. Only your uploaded catalog trailers are shown. Missing thumbnails use a neutral trailer placeholder. Upload trailers through the Type: Trailer section, not the episode-card form.
