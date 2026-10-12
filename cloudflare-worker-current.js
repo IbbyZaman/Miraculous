@@ -173,10 +173,10 @@ function downloadSecretReady(env){
 async function downloadSigningKey(env,usage){
   return crypto.subtle.importKey("raw",new TextEncoder().encode(env.DOWNLOAD_SIGNING_KEY),{name:"HMAC",hash:"SHA-256"},false,[usage]);
 }
-function firebaseVerificationError(reason){
+function firebaseVerificationError(reason,detail=""){
   const safe=/^[A-Z][A-Z0-9_]{0,79}$/.test(String(reason))?reason:"FIREBASE_VERIFICATION_FAILED";
-  console.error("MiraculousHub download verification:",safe);
-  return {error:"Sign-in verification unavailable ("+safe+").",status:503};
+  console.error("MiraculousHub download verification:",safe,detail);
+  return {error:"Sign-in verification unavailable ("+safe+(detail?": "+detail:"")+").",status:503};
 }
 async function verifyFirebaseUser(request,env){
   const authorization=request.headers.get("Authorization")||"";
@@ -188,11 +188,13 @@ async function verifyFirebaseUser(request,env){
   const project=env.FIREBASE_PROJECT_ID||FIREBASE_PROJECT_ID;
   const apiKey=env.FIREBASE_WEB_API_KEY||FIREBASE_WEB_API_KEY;
   let account;
+  const controller=typeof AbortController==="function"?new AbortController():null;
+  const timer=controller?setTimeout(()=>controller.abort(),10000):null;
   try{
     // Google verifies the credential. Decoding a JWT alone is not authentication.
     const response=await fetch("https://identitytoolkit.googleapis.com/v1/accounts:lookup?key="+encodeURIComponent(apiKey),{
       method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken}),
-      signal:AbortSignal.timeout(10000),redirect:"error"
+      signal:controller?.signal,redirect:"manual"
     });
     const result=await response.json();
     if(!response.ok){
@@ -203,8 +205,19 @@ async function verifyFirebaseUser(request,env){
     }
     account=result?.users?.length===1?result.users[0]:null;
   }catch(error){
-    return firebaseVerificationError(error?.name==="TimeoutError"||error?.name==="AbortError"?"FIREBASE_TIMEOUT":
-      error?.name==="SyntaxError"?"FIREBASE_INVALID_RESPONSE":"FIREBASE_NETWORK_ERROR");
+    const reason=controller?.signal.aborted||error?.name==="TimeoutError"||error?.name==="AbortError"?"FIREBASE_TIMEOUT":
+      error?.name==="SyntaxError"?"FIREBASE_INVALID_RESPONSE":"FIREBASE_NETWORK_ERROR";
+    // Report the runtime exception without returning credentials or URLs.
+    const name=String(error?.name||"Error").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,40);
+    const message=String(error?.message||"")
+      .split(idToken).join("[redacted]")
+      .split(String(apiKey)).join("[redacted]")
+      .replace(/https?:\/\/\S+/g,"[endpoint]")
+      .replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,"[redacted]")
+      .slice(0,180);
+    return firebaseVerificationError(reason,reason==="FIREBASE_NETWORK_ERROR"?name+(message?": "+message:""):"");
+  }finally{
+    if(timer!==null)clearTimeout(timer);
   }
   try{
     const claims=JSON.parse(new TextDecoder().decode(decodeBase64URL(idToken.split(".")[1])));

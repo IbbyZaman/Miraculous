@@ -1,0 +1,12 @@
+Worker request compatibility update
+
+Deploy cloudflare-worker-current.js to miraculous-video.
+It uses AbortController with a cleared timeout and manual redirects.
+Authentication checks remain enforced. A redirect from the fixed Google endpoint
+is treated as a failed verification; the token is not forwarded to another URL.
+
+If verification still fails, the error now includes the exception name and
+a short message. Token/key values and URLs are redacted. Send only that
+message for diagnosis; do not share your real Firebase ID token or secret.
+
+This changes the Worker only. No website upload or secret replacement is needed.
