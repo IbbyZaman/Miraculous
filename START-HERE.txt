@@ -1,3 +1,5 @@
+LATEST UPDATE: read TRAILER-CUSTOM-PLAYER-SETUP.txt first.
+
 LATEST TRAILER UPDATE: read TRAILER-CARDS-SETUP.txt first.
 
 LATEST CONTENT TOOLS: read ADMIN-CONTENT-SETUP.txt first. Deploy the updated uploader Worker and website.

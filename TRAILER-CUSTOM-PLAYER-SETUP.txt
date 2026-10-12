@@ -1,0 +1,8 @@
+TRAILER PLAYER, DOWNLOADS AND COMMENTS
+
+1. Upload all website files to GitHub. Trailer cards now sit immediately below Continue Watching.
+2. Deploy cloudflare-worker-current.js to your existing video.miraculoushub.co.uk Worker. Keep all existing bindings and secrets, including R2_VIDEOS and DOWNLOAD_SIGNING_KEY. This adds secure /download/trailer/ID routes using the same Firebase verification and signed ticket protection as episode downloads. The uploader Worker remains as previously deployed.
+3. Trailer pages now have custom play/pause, seek, skip, mute, volume, speed and fullscreen controls, plus sharing and account-only downloads. Trailer playback still uses the existing uploader streaming endpoint, so playback continues working while the video Worker update is being deployed.
+4. Comments use the existing Firebase comments collection and rules. Guests can read; signed-in users with a nickname can post and delete their own comments. Each trailer has its own thread. No new Firebase rules are needed if your existing comments rules are already deployed.
+
+The old bundled teaser stays removed. Existing uploaded trailers do not need to be uploaded again. Episode players are unchanged apart from the shared download script cache version.

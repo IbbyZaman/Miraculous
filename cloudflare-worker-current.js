@@ -295,6 +295,8 @@ async function serveSubtitle(request,env,file){
 }
 
 function parseMediaPath(pathname){
+  const trailer=pathname.match(/^\/(video|download)\/trailer\/([a-z0-9][a-z0-9-]{0,79})\/?$/);
+  if(trailer)return {key:`trailers/${trailer[2]}.mp4`,filename:`${trailer[2]}.mp4`,download:trailer[1]==="download"};
   let m=pathname.match(/^\/(video|download)\/s(\d{2})e(\d{2})\/?$/i);
   if(m){
     const season=Number(m[2]), episode=Number(m[3]);

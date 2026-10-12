@@ -1,14 +1,14 @@
 /* Account downloads are streamed by the Worker; large episodes never use a JS Blob. */
 (function(){
   "use strict";
-  function bind({button,path,worker,onNotice=()=>{}}){
+  function bind({button,path,worker,onNotice=()=>{},mediaLabel="Episode"}){
     let busy=false;
     const signedIn=()=>window.MH_USER&&!window.MH_USER.isAnonymous&&typeof window.MH_USER.getIdToken==="function";
     function label(){
       button.disabled=busy;
-      button.textContent=busy?"Preparing download…":signedIn()?"⬇ Download Episode":"Sign in to download";
+      button.textContent=busy?"Preparing download…":signedIn()?"⬇ Download "+mediaLabel:"Sign in to download";
     }
-    function signIn(){window.mhOpenAuth?.();onNotice("Sign in to download this episode");}
+    function signIn(){window.mhOpenAuth?.();onNotice("Sign in to download this "+mediaLabel.toLowerCase());}
     async function authReady(){await window.MH_FIREBASE_READY;await window.MH_AUTH_READY;}
     window.addEventListener("mh-auth-changed",label);
     authReady().then(label,label);
