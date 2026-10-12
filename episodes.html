@@ -147,11 +147,13 @@
   <button>PORTUGUÊS</button>
 </div>
 
-<script src="data.js?v=s5-all-thumbnails-1"></script>
+<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="catalog.js?v=admin-v4-1"></script>
 <script src="firebase.js?v=account-v4-1"></script>
-<script src="common.js?v=account-v4-1"></script>
+<script src="common.js?v=admin-v4-1"></script>
 <script src="motion.js?v=nav-alignment-v4-1"></script>
 <script>
+(async()=>{await window.MH_CATALOG_READY;
+
 const requestedSeason=new URLSearchParams(location.search).get("season");
 let season=["0","1","2","3","4","5","6","7","specials"].includes(requestedSeason)?requestedSeason:"0", mode="all", q="";
 const tabs=document.querySelector("#seasonTabs");
@@ -241,7 +243,7 @@ function render(){
             </div>
             <div class="card-info">
               <span class="epno">${e.special?`SPECIALS · EPISODE ${e.episode}`:`SEASON ${e.season} · EPISODE ${e.episode}`}</span>
-              <h3>${e.title}</h3>
+              <h3>${window.mhEscapeHTML(e.title)}</h3>
               ${progress>0?`<p class="episode-progress-copy">${Math.round(progress)}% watched</p>`:""}
             </div>
           </a>`;
@@ -317,6 +319,8 @@ render();
 // Keep the little watch-progress line in sync with Firebase playback data.
 window.addEventListener("mh-progress-synced",render);
 window.addEventListener("mh-cloud-save-ok",render);
+
+})();
 </script>
 </body>
 </html>

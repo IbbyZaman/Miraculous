@@ -1,12 +1,127 @@
 /* MiraculousHub R2 uploader Worker
    Bind your R2 bucket as VIDEOS and create a secret named UPLOAD_PASSWORD. */
 const ALLOWED_ORIGINS=new Set(["https://miraculoushub.co.uk","https://www.miraculoushub.co.uk"]);
-function allowed(request){const o=request.headers.get("Origin");return !!o&&ALLOWED_ORIGINS.has(o)}
-function cors(request){const o=request.headers.get("Origin"),h={"Access-Control-Allow-Methods":"POST, PUT, OPTIONS","Access-Control-Allow-Headers":"Content-Type, X-Upload-Password","Access-Control-Expose-Headers":"ETag","Cache-Control":"no-store","Vary":"Origin"};if(o&&ALLOWED_ORIGINS.has(o))h["Access-Control-Allow-Origin"]=o;return h}
+function allowed(request){const o=request.headers.get("Origin"),r=request.headers.get("Referer");if(request.headers.get("Sec-Fetch-Dest")==="iframe")return false;try{if(r&&!ALLOWED_ORIGINS.has(new URL(r).origin))return false;return o?ALLOWED_ORIGINS.has(o):!!r}catch{return false}}
+function cors(request){const o=request.headers.get("Origin"),h={"Access-Control-Allow-Methods":"GET, HEAD, POST, PUT, OPTIONS","Access-Control-Allow-Headers":"Content-Type, X-Upload-Password, Authorization, Range","Access-Control-Expose-Headers":"ETag, Content-Length, Content-Range, Accept-Ranges","Cache-Control":"no-store","Vary":"Origin"};if(o&&ALLOWED_ORIGINS.has(o))h["Access-Control-Allow-Origin"]=o;return h}
 function json(request,data,status=200){return new Response(JSON.stringify(data),{status,headers:{...cors(request),"Content-Type":"application/json; charset=utf-8"}})}
-function validKey(key){return !!key&&!key.includes("..")&&(/^season-\d{1,2}\/s\d{2}e\d{2,3}\.mp4$/i.test(key)||/^specials\/[a-z0-9-]+\.mp4$/i.test(key)||/^anime\/[a-z0-9-]+\/e\d{2,3}\.mp4$/i.test(key)||/^anime\/attack-on-titan\/(sp0[12]|oad0[1-8])\.mp4$/i.test(key))}
+const FIREBASE_PROJECT_ID="miraculoushub0",FIREBASE_WEB_API_KEY="AIzaSyBndazB7-e9QWMkYt2vCA1h_B097k4Wgsg";
+function decodeBase64URL(value){
+  const raw=atob(value.replace(/-/g,"+").replace(/_/g,"/").padEnd(Math.ceil(value.length/4)*4,"="));
+  return Uint8Array.from(raw,c=>c.charCodeAt(0));
+}
+function firebaseVerificationError(reason,detail=""){
+  const safe=/^[A-Z][A-Z0-9_]{0,79}$/.test(String(reason))?reason:"FIREBASE_VERIFICATION_FAILED";
+  console.error("MiraculousHub download verification:",safe,detail);
+  return {error:"Sign-in verification unavailable ("+safe+(detail?": "+detail:"")+").",status:503};
+}
+async function verifyFirebaseUser(request,env){
+  const authorization=request.headers.get("Authorization")||"";
+  const match=/^Bearer ([A-Za-z0-9_.-]{1,8192})$/i.exec(authorization);
+  const unauthenticated={error:"Sign in again to manage content.",status:401};
+  if(!match)return unauthenticated;
+  const idToken=match[1];
+  if(idToken.split(".").length!==3)return unauthenticated;
+  const project=env.FIREBASE_PROJECT_ID||FIREBASE_PROJECT_ID;
+  const apiKey=env.FIREBASE_WEB_API_KEY||FIREBASE_WEB_API_KEY;
+  let account;
+  const controller=typeof AbortController==="function"?new AbortController():null;
+  const timer=controller?setTimeout(()=>controller.abort(),10000):null;
+  try{
+    // Google verifies the credential. Decoding a JWT alone is not authentication.
+    const response=await fetch("https://identitytoolkit.googleapis.com/v1/accounts:lookup?key="+encodeURIComponent(apiKey),{
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken}),
+      signal:controller?.signal,redirect:"manual"
+    });
+    const result=await response.json();
+    if(!response.ok){
+      const code=String(result?.error?.message||"").split(":")[0].trim();
+      if(["INVALID_ID_TOKEN","TOKEN_EXPIRED","USER_DISABLED","USER_NOT_FOUND"].includes(code))return unauthenticated;
+      const detail=Array.isArray(result?.error?.details)?result.error.details.find(item=>/^[A-Z][A-Z0-9_]{0,79}$/.test(String(item?.reason))):null;
+      return firebaseVerificationError(detail?.reason||(/^[A-Z][A-Z0-9_]{0,79}$/.test(code)?code:"FIREBASE_HTTP_"+response.status));
+    }
+    account=result?.users?.length===1?result.users[0]:null;
+  }catch(error){
+    const reason=controller?.signal.aborted||error?.name==="TimeoutError"||error?.name==="AbortError"?"FIREBASE_TIMEOUT":
+      error?.name==="SyntaxError"?"FIREBASE_INVALID_RESPONSE":"FIREBASE_NETWORK_ERROR";
+    // Report the runtime exception without returning credentials or URLs.
+    const name=String(error?.name||"Error").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,40);
+    const message=String(error?.message||"")
+      .split(idToken).join("[redacted]")
+      .split(String(apiKey)).join("[redacted]")
+      .replace(/https?:\/\/\S+/g,"[endpoint]")
+      .replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,"[redacted]")
+      .slice(0,180);
+    return firebaseVerificationError(reason,reason==="FIREBASE_NETWORK_ERROR"?name+(message?": "+message:""):"");
+  }finally{
+    if(timer!==null)clearTimeout(timer);
+  }
+  try{
+    const claims=JSON.parse(new TextDecoder().decode(decodeBase64URL(idToken.split(".")[1])));
+    const now=Math.floor(Date.now()/1000);
+    if(!account?.localId||account.disabled||claims.firebase?.sign_in_provider==="anonymous"||claims.sub!==account.localId||
+       claims.aud!==project||claims.iss!=="https://securetoken.google.com/"+project||
+       !Number.isFinite(claims.exp)||claims.exp<=now||
+       !Number.isFinite(claims.iat)||claims.iat>now+30||
+       !Number.isFinite(claims.auth_time)||claims.auth_time>now+30||
+       Number(account.validSince||0)>claims.auth_time)return unauthenticated;
+    return {uid:account.localId,email:account.email,emailVerified:account.emailVerified===true};
+  }catch{return unauthenticated}
+}
+
+const ADMIN_EMAIL="ibbyzaman4@gmail.com";
+async function adminUser(request,env){
+ const user=await verifyFirebaseUser(request,env);
+ if(user.error)return user;
+ if(!user.emailVerified||String(user.email||"").toLowerCase()!==ADMIN_EMAIL)return {error:"Only the verified owner account can manage content.",status:403};
+ return user;
+}
+function cleanEntry(body){
+ const season=Number(body?.season),episode=Number(body?.episode),title=String(body?.title||"").trim(),thumbnail=String(body?.thumbnail||"").trim();
+ if(!Number.isInteger(season)||season<1||season>7||!title||title.length>160||/[<>\x00-\x1f]/.test(title))throw new Error("Choose a season from 1–7 and a title of 1–160 characters.");
+ if(thumbnail){const u=new URL(thumbnail);if(u.protocol!=="https:"||u.username||u.password||thumbnail.length>2000||/[<>"'\x00-\x20]/.test(thumbnail))throw new Error("Thumbnail must be a valid HTTPS image URL.");}
+ if(body.kind==="trailer"){
+  if(season!==7)throw new Error("Trailer publishing is available on the Season 7 page.");
+  const id=String(body.id||"");if(!/^[a-z0-9][a-z0-9-]{0,79}$/.test(id))throw new Error("Invalid trailer ID.");
+  return {kind:"trailer",id,season,title,thumbnail,key:`trailers/${id}.mp4`};
+ }
+ if(body.kind!=="episode"||!Number.isInteger(episode)||episode<1||episode>99)throw new Error("Episode must be between 1 and 99.");
+ const code=`S${String(season).padStart(2,"0")}E${String(episode).padStart(2,"0")}`;
+ return {kind:"episode",id:code.toLowerCase(),season,episode,title,code,thumbnail,new:body.new!==false,videoPath:`/video/${code.toLowerCase()}`,key:`season-${season}/${code.toLowerCase()}.mp4`};
+}
+async function publishEntry(env,entry){
+ if(!await env.VIDEOS.head(entry.key))throw new Error("Upload this video first, then publish its card.");
+ const value={...entry,updatedAt:new Date().toISOString()};
+ // One object per entry avoids losing unrelated cards when admins save concurrently.
+ await env.VIDEOS.put(`catalog/${entry.kind}/${entry.id}.json`,JSON.stringify(value),{httpMetadata:{contentType:"application/json"}});
+ return value;
+}
+async function catalog(request,env){
+ const entries=[];let cursor;
+ do{const page=await env.VIDEOS.list({prefix:"catalog/",limit:1000,...(cursor?{cursor}:{})});
+  for(let i=0;i<page.objects.length;i+=20){const rows=await Promise.all(page.objects.slice(i,i+20).map(async o=>{const obj=await env.VIDEOS.get(o.key);return obj?obj.json():null}));entries.push(...rows.filter(Boolean));}
+  cursor=page.truncated?page.cursor:null;
+ }while(cursor);
+ return json(request,{entries});
+}
+async function trailer(request,env,url){
+ const id=url.searchParams.get("id");if(!/^[a-z0-9][a-z0-9-]{0,79}$/.test(id||""))return json(request,{error:"Invalid trailer."},400);
+ const key=`trailers/${id}.mp4`,meta=await env.VIDEOS.head(key);if(!meta)return json(request,{error:"Trailer not found."},404);
+ let range;const raw=request.headers.get("Range");
+ if(raw){const m=/^bytes=(\d*)-(\d*)$/.exec(raw);if(!m||(!m[1]&&!m[2]))return new Response(null,{status:416,headers:{...cors(request),"Content-Range":`bytes */${meta.size}`}});
+  const start=m[1]?Number(m[1]):Math.max(0,meta.size-Number(m[2])),end=m[1]?(m[2]?Math.min(Number(m[2]),meta.size-1):meta.size-1):meta.size-1;
+  if(!Number.isSafeInteger(start)||!Number.isSafeInteger(end)||start>end||start>=meta.size)return new Response(null,{status:416,headers:{...cors(request),"Content-Range":`bytes */${meta.size}`}});
+  range={offset:start,length:end-start+1};
+ }
+ const headers={...cors(request),"Content-Type":"video/mp4","Accept-Ranges":"bytes","Content-Length":String(range?.length??meta.size),"Content-Security-Policy":"frame-ancestors 'none'","X-Content-Type-Options":"nosniff"};
+ if(range)headers["Content-Range"]=`bytes ${range.offset}-${range.offset+range.length-1}/${meta.size}`;
+ const obj=request.method==="HEAD"?null:await env.VIDEOS.get(key,range?{range}:undefined);
+ return new Response(request.method==="HEAD"?null:obj?.body,{status:range?206:200,headers});
+}
+
+function validKey(key){return !!key&&!key.includes("..")&&(/^trailers\/[a-z0-9][a-z0-9-]{0,79}\.mp4$/.test(key)||/^season-\d{1,2}\/s\d{2}e\d{2,3}\.mp4$/i.test(key)||/^specials\/[a-z0-9-]+\.mp4$/i.test(key)||/^anime\/[a-z0-9-]+\/e\d{2,3}\.mp4$/i.test(key)||/^anime\/attack-on-titan\/(sp0[12]|oad0[1-8])\.mp4$/i.test(key))}
 function uploadedRoutes(key){
   let m,videoPath,watchPath;
+  if(key.startsWith("trailers/"))return {videoPath:`/trailer?id=${key.slice(9,-4)}`,watchPath:"season7.html#season7-trailer",watchUrl:"https://miraculoushub.co.uk/season7.html#season7-trailer"};
   if((m=/^anime\/([a-z0-9-]+)\/(e|sp|oad)(\d{2,3})\.mp4$/i.exec(key))){
     videoPath=`/video/anime/${m[1]}/${m[2]}${m[3]}`;
     watchPath=`watch.html?anime=${m[1]}&episode=${Number(m[3])+(m[2]==="sp"?94:m[2]==="oad"?100:0)}`;
@@ -24,10 +139,21 @@ function uploadedRoutes(key){
 export default{async fetch(request,env){
   if(request.method==="OPTIONS")return allowed(request)?new Response(null,{status:204,headers:cors(request)}):new Response("Forbidden",{status:403});
   if(!allowed(request))return new Response("Forbidden - MiraculousHub only.",{status:403,headers:cors(request)});
-  if(!env.UPLOAD_PASSWORD||request.headers.get("X-Upload-Password")!==env.UPLOAD_PASSWORD)return json(request,{error:"Wrong upload password."},401);
+
   if(!env.VIDEOS)return json(request,{error:"R2 binding VIDEOS is missing."},500);
-  const url=new URL(request.url);if(url.pathname!=="/upload")return json(request,{error:"Not found."},404);
+
+  const url=new URL(request.url);
+  if(url.pathname==="/catalog"&&request.method==="GET"){try{return await catalog(request,env)}catch{return json(request,{error:"Catalog unavailable."},503)}}
+  if(url.pathname==="/trailer"&&["GET","HEAD"].includes(request.method))return trailer(request,env,url);
+  if(!env.UPLOAD_PASSWORD||request.headers.get("X-Upload-Password")!==env.UPLOAD_PASSWORD)return json(request,{error:"Wrong upload password."},401);
+  if(url.pathname==="/catalog"&&request.method==="POST"){
+   const user=await adminUser(request,env);if(user.error)return json(request,{error:user.error},user.status);
+   let entry;try{entry=cleanEntry(await request.json())}catch(e){return json(request,{error:e.message||"Invalid card."},400)}
+   try{return json(request,{success:true,entry:await publishEntry(env,entry)})}catch(e){return json(request,{error:e.message},409)}
+  }
+  if(url.pathname!=="/upload")return json(request,{error:"Not found."},404);
   const action=url.searchParams.get("action"),key=url.searchParams.get("key");if(!validKey(key))return json(request,{error:"Invalid R2 object key."},400);
+  if(key.startsWith("trailers/")){const user=await adminUser(request,env);if(user.error)return json(request,{error:user.error},user.status)}
   try{
     if(request.method==="POST"&&action==="create"){
       const upload=await env.VIDEOS.createMultipartUpload(key,{httpMetadata:{contentType:"video/mp4"}});
@@ -43,12 +169,14 @@ export default{async fetch(request,env){
       const uploadId=url.searchParams.get("uploadId");if(!uploadId)return json(request,{error:"Missing uploadId."},400);
       let body;try{body=await request.json()}catch{return json(request,{error:"Invalid completion data."},400)}
       if(!Array.isArray(body?.parts)||!body.parts.length)return json(request,{error:"No uploaded parts supplied."},400);
+      let entry;if(key.startsWith("trailers/")){try{entry=cleanEntry({...body.entry,kind:"trailer"});if(entry.key!==key)throw new Error("Trailer destination does not match.")}catch(e){return json(request,{error:e.message},400)}}
       const parts=[...body.parts].sort((a,b)=>a.partNumber-b.partNumber),upload=env.VIDEOS.resumeMultipartUpload(key,uploadId),obj=await upload.complete(parts);
       const routes=uploadedRoutes(obj.key);
+      if(entry)await publishEntry(env,entry);
       let subtitlesQueued=false,subtitleWorkflowId=null,subtitleError=null;
       // AUTO_SUBS is an optional cross-script Cloudflare Workflow binding.
       // Uploads still succeed if auto captions are not configured yet.
-      if(env.AUTO_SUBS){
+      if(env.AUTO_SUBS&&!entry){
         try{
           const instance=await env.AUTO_SUBS.create({params:{key:obj.key,videoPath:routes.videoPath,language:"en"}});
           subtitlesQueued=true;subtitleWorkflowId=instance.id;

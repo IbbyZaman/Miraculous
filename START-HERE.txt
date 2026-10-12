@@ -1,3 +1,5 @@
+LATEST CONTENT TOOLS: read ADMIN-CONTENT-SETUP.txt first. Deploy the updated uploader Worker and website.
+
 LATEST UPDATE: read ACCOUNT-DOWNLOADS-AND-CLOUD.txt first.
 
 CUSTOM DOMAIN UPDATE: read CUSTOM-DOMAINS-UPDATE.txt first.

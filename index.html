@@ -253,11 +253,13 @@
 </div>
 
 <script src="anime-data.js?v=aot-party-1"></script>
-<script src="data.js?v=s5-all-thumbnails-1"></script>
+<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="catalog.js?v=admin-v4-1"></script>
 <script src="firebase.js?v=account-v4-1"></script>
-<script src="common.js?v=account-v4-1"></script>
+<script src="common.js?v=admin-v4-1"></script>
 <script src="motion.js?v=nav-alignment-v4-1"></script>
 <script>
+(async()=>{await window.MH_CATALOG_READY;
+
 const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
 document.querySelector("#latestGrid").innerHTML=latest.map(e=>`
   <a class="card" href="watch.html?season=${e.season}&episode=${e.episode}">
@@ -267,7 +269,7 @@ document.querySelector("#latestGrid").innerHTML=latest.map(e=>`
       <span class="epno">SEASON ${e.season} · EPISODE ${e.episode}</span>
     </div>
     <div class="card-info">
-      <h3>${e.title}</h3>
+      <h3>${window.mhEscapeHTML(e.title)}</h3>
       <p>${e.code}</p>
     </div>
   </a>`).join("");
@@ -351,6 +353,8 @@ window.addEventListener("pageshow",()=>syncContinueWatching());
 document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState==="visible") syncContinueWatching();
 });
+
+})();
 </script>
 </body>
 </html>

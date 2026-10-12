@@ -671,8 +671,10 @@ body .simple-player .quick-overlay{display:none}
 </dialog>
 <script src="watch-together.js?v=aot-party-1"></script>
 <script src="downloads.js?v=account-v4-1"></script>
-<script src="data.js?v=s5-all-thumbnails-1"></script><script src="anime-data.js?v=black-clover-player-2"></script><script src="firebase.js?v=account-v4-1"></script><script src="common.js?v=account-v4-1"></script><script src="motion.js?v=nav-alignment-v4-1"></script><script src="playback-sync.js?v=account-v4-1"></script>
+<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="catalog.js?v=admin-v4-1"></script><script src="anime-data.js?v=black-clover-player-2"></script><script src="firebase.js?v=account-v4-1"></script><script src="common.js?v=admin-v4-1"></script><script src="motion.js?v=nav-alignment-v4-1"></script><script src="playback-sync.js?v=account-v4-1"></script>
 <script>
+(async()=>{await window.MH_CATALOG_READY;
+
 const params=new URLSearchParams(location.search);
 const specialNumber=Number(params.get("special")||0);
 const specialTitles=["New York: United Heroez","Shanghai: The Legend of Lady Dragon","Awakening - The Movie","Miraculous World Paris: Tales of Shadybug and Claw Noir","London: At the Edge of Time","Miraculous World: Tokyo, Stellar Force"];
@@ -1365,6 +1367,8 @@ setupSubtitles();
 partySync=window.MHWatchTogether.create({video:v,worker:VIDEO_WORKER,media:{path:mediaPath,title:ep.title},onNotice:showToast,
  beforeOpen:async()=>{try{if(document.fullscreenElement||document.webkitFullscreenElement){if(document.exitFullscreen)await document.exitFullscreen();else document.webkitExitFullscreen?.();}if(v.webkitDisplayingFullscreen)v.webkitExitFullscreen();}catch{} $("settingsMenu").hidden=true;}
 });
+
+})();
 </script>
 </body>
 </html>

@@ -1,4 +1,5 @@
 (function(){
+  const escapeHTML=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
   const THEME = "mh-theme";
   // Keep pending progress on this device when Firestore has no quota or
   // connection. Each account has its own cache; cloud success is explicit.
@@ -82,8 +83,8 @@
     results.innerHTML = hits.length
       ? hits.map(e =>
           `<a class="result" href="${e.href}">
-             <strong>${e.label}</strong>
-             <small>${e.meta}</small>
+             <strong>${escapeHTML(e.label)}</strong>
+             <small>${escapeHTML(e.meta)}</small>
            </a>`
         ).join("")
       : '<div class="result"><small>No episodes found.</small></div>';
@@ -380,7 +381,7 @@
         <button class="auth-close" data-account-close>×</button>
         <div class="auth-kicker">MIRACULOUSHUB ACCOUNT</div>
         <h2>Your profile</h2>
-        <p class="account-email" id="accountEmail"></p>
+        <p class="account-email" id="accountEmail"></p><a id="adminContentLink" href="upload.html" hidden>Manage trailers and episode cards ↗</a>
         <label class="account-label" for="accountNickname">Public nickname</label>
         <input id="accountNickname" type="text" maxlength="24" autocomplete="nickname" placeholder="Choose a nickname">
         <p class="account-note">Only this nickname appears beside your comments. Your email and Google account name stay private.</p>
@@ -518,6 +519,7 @@
   };
 
   function updateAuthButton(user){
+    const adminLink=document.querySelector("#adminContentLink");if(adminLink)adminLink.hidden=!(user?.emailVerified&&!user?.isAnonymous&&user?.email?.toLowerCase()==="ibbyzaman4@gmail.com");
     document.querySelectorAll(".signin").forEach(b => {
       b.textContent = user ? "Account" : "Sign in";
       b.onclick = () =>
