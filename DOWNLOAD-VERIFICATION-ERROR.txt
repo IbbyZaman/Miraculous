@@ -1,0 +1,34 @@
+Download verification diagnostics — version 4
+
+Update only miraculous-video's Worker code from cloudflare-worker-current.js.
+Keep DOWNLOAD_SIGNING_KEY and all other bindings/secrets. The existing website
+already displays the returned error; no website upload is needed for this change.
+
+Try Download again while signed in and read the code in parentheses.
+The original generic message meant the Firebase account verification request
+could not complete; the download signing key is checked later.
+
+API_KEY_HTTP_REFERRER_BLOCKED / API_KEY_IP_ADDRESS_BLOCKED:
+The browser Firebase key cannot be used from this server. Create a separate key
+in the SAME Google Cloud project miraculoushub0, scoped only to Identity Toolkit
+API. Select an application restriction compatible with a Cloudflare Worker
+(HTTP website-referrer restrictions cannot identify server requests).
+Store that key in the video Worker as a Secret named FIREBASE_WEB_API_KEY and
+deploy. Retain the existing browser key and its restrictions in firebase.js.
+Do not share your key/token in screenshots or chat.
+
+API_KEY_SERVICE_BLOCKED:
+Check that Identity Toolkit API is included in this key's API restriction
+allowlist. Prefer a separate Worker key scoped to that API.
+SERVICE_DISABLED / ACCESS_NOT_CONFIGURED:
+Enable Identity Toolkit API in project miraculoushub0.
+API_KEY_INVALID / API_KEY_NOT_VALID:
+Use a current key for project miraculoushub0 in FIREBASE_WEB_API_KEY.
+FIREBASE_TIMEOUT / FIREBASE_NETWORK_ERROR:
+Cloudflare's outgoing verification request failed. Retry once and check the
+video Worker's logs; no token or secret value is logged by this update.
+FIREBASE_HTTP_429 / RATE_LIMIT_EXCEEDED:
+Review Firebase Authentication quotas before repeated retries.
+
+These codes identify the cause. This update does not change account settings,
+key restrictions or secrets and keeps all sign-in checks enforced.

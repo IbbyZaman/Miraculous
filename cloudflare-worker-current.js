@@ -173,6 +173,11 @@ function downloadSecretReady(env){
 async function downloadSigningKey(env,usage){
   return crypto.subtle.importKey("raw",new TextEncoder().encode(env.DOWNLOAD_SIGNING_KEY),{name:"HMAC",hash:"SHA-256"},false,[usage]);
 }
+function firebaseVerificationError(reason){
+  const safe=/^[A-Z][A-Z0-9_]{0,79}$/.test(String(reason))?reason:"FIREBASE_VERIFICATION_FAILED";
+  console.error("MiraculousHub download verification:",safe);
+  return {error:"Sign-in verification unavailable ("+safe+").",status:503};
+}
 async function verifyFirebaseUser(request,env){
   const authorization=request.headers.get("Authorization")||"";
   const match=/^Bearer ([A-Za-z0-9_.-]{1,8192})$/i.exec(authorization);
@@ -193,10 +198,14 @@ async function verifyFirebaseUser(request,env){
     if(!response.ok){
       const code=String(result?.error?.message||"").split(":")[0].trim();
       if(["INVALID_ID_TOKEN","TOKEN_EXPIRED","USER_DISABLED","USER_NOT_FOUND"].includes(code))return unauthenticated;
-      return {error:"Sign-in verification is temporarily unavailable. Please try again.",status:503};
+      const detail=Array.isArray(result?.error?.details)?result.error.details.find(item=>/^[A-Z][A-Z0-9_]{0,79}$/.test(String(item?.reason))):null;
+      return firebaseVerificationError(detail?.reason||(/^[A-Z][A-Z0-9_]{0,79}$/.test(code)?code:"FIREBASE_HTTP_"+response.status));
     }
     account=result?.users?.length===1?result.users[0]:null;
-  }catch{return {error:"Sign-in verification is temporarily unavailable. Please try again.",status:503}}
+  }catch(error){
+    return firebaseVerificationError(error?.name==="TimeoutError"||error?.name==="AbortError"?"FIREBASE_TIMEOUT":
+      error?.name==="SyntaxError"?"FIREBASE_INVALID_RESPONSE":"FIREBASE_NETWORK_ERROR");
+  }
   try{
     const claims=JSON.parse(new TextDecoder().decode(decodeBase64URL(idToken.split(".")[1])));
     const now=Math.floor(Date.now()/1000);
