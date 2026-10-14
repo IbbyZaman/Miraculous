@@ -76,6 +76,13 @@ async function adminUser(request,env){
  return user;
 }
 function cleanEntry(body){
+ if(body?.kind==="timer"){
+  const id=String(body.id||""),title=String(body.title||"").trim(),description=String(body.description||"").trim(),targetAt=body.targetAt;
+  if(!/^[a-z0-9][a-z0-9-]{0,79}$/.test(id)||!title||title.length>160||description.length>1000||/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(title+description))throw new Error("Enter a valid timer ID, title and description (up to 1000 characters).");
+  if(typeof targetAt!=="string"||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(targetAt)||!Number.isFinite(Date.parse(targetAt))||new Date(targetAt).toISOString()!==targetAt)throw new Error("Choose a valid timer date and UTC time.");
+  return {kind:"timer",id,title,description,targetAt,enabled:body.enabled!==false};
+ }
+
  const season=Number(body?.season),episode=Number(body?.episode),title=String(body?.title||"").trim(),thumbnail=String(body?.thumbnail||"").trim();
  if(!Number.isInteger(season)||season<1||season>7||!title||title.length>160||/[<>\x00-\x1f]/.test(title))throw new Error("Choose a season from 1–7 and a title of 1–160 characters.");
  if(thumbnail){const u=new URL(thumbnail);if(u.protocol!=="https:"||u.username||u.password||thumbnail.length>2000||/[<>"'\x00-\x20]/.test(thumbnail))throw new Error("Thumbnail must be a valid HTTPS image URL.");}
@@ -84,11 +91,17 @@ function cleanEntry(body){
   return {kind:"trailer",id,season,title,thumbnail,key:`trailers/${id}.mp4`};
  }
  if(body.kind!=="episode"||!Number.isInteger(episode)||episode<1||episode>99)throw new Error("Episode must be between 1 and 99.");
+ const description=String(body.description||"").trim();if(description.length>1000||/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(description))throw new Error("Description must be at most 1000 characters.");
+ const releaseDate=body.releaseDate||null,releaseAt=body.releaseAt||null;
+ if(releaseDate&&(!/^\d{4}-\d{2}-\d{2}$/.test(releaseDate)||!Number.isFinite(Date.parse(releaseDate))||new Date(releaseDate).toISOString().slice(0,10)!==releaseDate))throw new Error("Choose a valid release date.");
+ if(releaseAt&&(!releaseDate||typeof releaseAt!=="string"||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(releaseAt)||!Number.isFinite(Date.parse(releaseAt))||new Date(releaseAt).toISOString()!==releaseAt||releaseAt.slice(0,10)!==releaseDate))throw new Error("Choose a valid UTC release time on that date.");
+ const releaseRegion=String(body.releaseRegion||"").trim();if(releaseRegion.length>80||/[<>\x00-\x1f]/.test(releaseRegion))throw new Error("Invalid release region.");
+ const releaseStatus=releaseDate?(body.releaseStatus==="confirmed"?"confirmed":"reported"):"unknown";
  const code=`S${String(season).padStart(2,"0")}E${String(episode).padStart(2,"0")}`;
- return {kind:"episode",id:code.toLowerCase(),season,episode,title,code,thumbnail,new:body.new!==false,videoPath:`/video/${code.toLowerCase()}`,key:`season-${season}/${code.toLowerCase()}.mp4`};
+ return {kind:"episode",id:code.toLowerCase(),season,episode,title,code,thumbnail,new:body.new!==false,available:body.available!==false,description,releaseDate,releaseAt,releaseRegion,releaseStatus,videoPath:`/video/${code.toLowerCase()}`,key:`season-${season}/${code.toLowerCase()}.mp4`};
 }
 async function publishEntry(env,entry){
- if(!await env.VIDEOS.head(entry.key))throw new Error("Upload this video first, then publish its card.");
+ if(entry.kind!=="timer"&&entry.available!==false&&!await env.VIDEOS.head(entry.key))throw new Error("Upload this video first, then publish its card.");
  const value={...entry,updatedAt:new Date().toISOString()};
  // One object per entry avoids losing unrelated cards when admins save concurrently.
  await env.VIDEOS.put(`catalog/${entry.kind}/${entry.id}.json`,JSON.stringify(value),{httpMetadata:{contentType:"application/json"}});
@@ -168,14 +181,16 @@ export default{async fetch(request,env){
       const uploadId=url.searchParams.get("uploadId");if(!uploadId)return json(request,{error:"Missing uploadId."},400);
       let body;try{body=await request.json()}catch{return json(request,{error:"Invalid completion data."},400)}
       if(!Array.isArray(body?.parts)||!body.parts.length)return json(request,{error:"No uploaded parts supplied."},400);
-      let entry;if(key.startsWith("trailers/")){try{entry=cleanEntry({...body.entry,kind:"trailer"});if(entry.key!==key)throw new Error("Trailer destination does not match.")}catch(e){return json(request,{error:e.message},400)}}
+      let entry;if(!key.startsWith("trailers/")&&body.entry){const user=await adminUser(request,env);if(user.error)return json(request,{error:user.error},user.status);try{entry=cleanEntry({...body.entry,kind:"episode",available:true});if(entry.key!==key)throw new Error("Episode destination does not match.")}catch(e){return json(request,{error:e.message},400)}}
+      if(key.startsWith("trailers/")){try{entry=cleanEntry({...body.entry,kind:"trailer"});if(entry.key!==key)throw new Error("Trailer destination does not match.")}catch(e){return json(request,{error:e.message},400)}}
       const parts=[...body.parts].sort((a,b)=>a.partNumber-b.partNumber),upload=env.VIDEOS.resumeMultipartUpload(key,uploadId),obj=await upload.complete(parts);
       const routes=uploadedRoutes(obj.key);
       if(entry)await publishEntry(env,entry);
+      else if(/^season-/.test(key)){const id=key.split('/')[1].slice(0,-4);const saved=await env.VIDEOS.get(`catalog/episode/${id}.json`);if(saved){const previous=await saved.json();await publishEntry(env,{...previous,available:true});}}
       let subtitlesQueued=false,subtitleWorkflowId=null,subtitleError=null;
       // AUTO_SUBS is an optional cross-script Cloudflare Workflow binding.
       // Uploads still succeed if auto captions are not configured yet.
-      if(env.AUTO_SUBS&&!entry){
+      if(env.AUTO_SUBS&&entry?.kind!=="trailer"){
         try{
           const instance=await env.AUTO_SUBS.create({params:{key:obj.key,videoPath:routes.videoPath,language:"en"}});
           subtitlesQueued=true;subtitleWorkflowId=instance.id;

@@ -28,7 +28,7 @@
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
      crossorigin="anonymous"></script>
-</head>
+<link rel="stylesheet" href="season7-update.css?v=season7-ready-1"></head>
 <body>
 <header class="topbar">
   <a class="brand" href="index.html" aria-label="MiraculousHub home">
@@ -66,11 +66,11 @@
     <div class="s7-hero-copy">
       <p class="kicker">MIRACULOUSHUB · RELEASE WATCH</p>
       <h1>Season <span>7</span></h1>
-      <p class="s7-lead">A dedicated home for release dates, schedule changes and episode news. We separate confirmed information from reported listings so the page stays useful when schedules move.</p>
+      <p class="s7-lead">Explore the new season, upcoming episode dates and trailers.</p>
       <div class="s7-status-row">
         <span class="s7-status confirmed"><i></i> 26 episodes confirmed</span>
-        <span class="s7-status reported"><i></i> Nov 20 U.S. date reported</span>
-        <span class="s7-status"><i></i> Updated 2 Oct 2026</span>
+        <span class="s7-status reported"><i></i> Nov 1 · TF1 premiere confirmed</span>
+        <span class="s7-status"><i></i> Updated 14 Oct 2026</span>
       </div>
       <div class="hero-actions">
         <a class="primary" href="#season7-trailer">Watch trailer <span>▶</span></a>
@@ -78,42 +78,12 @@
         <a class="secondary" href="episodes.html">Current episodes</a>
       </div>
     </div>
-    <div class="s7-number" aria-hidden="true">07</div>
+    <img class="s7-page-poster" src="assets/main-season7-poster.png" alt="Ladybug and Cat Noir above Paris" width="1280" height="720">
   </section>
 
   <section class="section" id="season7-trailer" aria-labelledby="s7-trailer-heading"><div class="section-head"><h2 id="s7-trailer-heading">Season 7 trailers</h2><a class="show-all" href="index.html#trailers">All trailers →</a></div><div class="grid" id="season7TrailerGrid"></div></section>
 
-  <section class="section" id="release-calendar">
-    <div class="section-head"><div><p class="kicker">WHAT WE KNOW RIGHT NOW</p><h2>Release calendar</h2></div></div>
-    <div class="s7-timeline">
-      <article class="s7-event">
-        <div class="s7-event-date"><span>NOV</span><strong>14</strong><small>2026</small></div>
-        <div><span class="s7-pill reported">REPORTED</span><h3>Disney Channel EMEA</h3><p>Current programme trackers list an English-dub Season 7 launch in EMEA from November 14. This is a regional rollout and may differ by country.</p></div>
-      </article>
-      <article class="s7-event featured">
-        <div class="s7-event-date"><span>NOV</span><strong>20</strong><small>2026</small></div>
-        <div><span class="s7-pill reported">REPORTED</span><h3>Disney Channel U.S. premiere</h3><p>November 20 is the current reported U.S. premiere date. Miraculous' official site confirms Disney acquired Season 7, but its current news page has not yet published a dated Season 7 premiere announcement.</p></div>
-      </article>
-      <article class="s7-event">
-        <div class="s7-event-date soft"><span>26</span><strong>EPS</strong><small>CONFIRMED</small></div>
-        <div><span class="s7-pill confirmed">CONFIRMED</span><h3>Full season order</h3><p>Miraculous officially states that Season 7 consists of 26 episodes, each approximately 22 minutes long.</p></div>
-      </article>
-    </div>
-    <p class="s7-note">TV schedules can change. Dates marked “reported” are intentionally not shown as official confirmations.</p>
-  </section>
-
-  <section class="section">
-    <div class="section-head"><div><p class="kicker">RECENT LISTINGS</p><h2>Episode-title watch</h2></div></div>
-    <div class="s7-title-grid">
-      <article><span>S07E01</span><strong>Replay Value</strong><small>Reported title · not yet treated as official</small></article>
-      <article><span>S07E02</span><strong>Chrysalis</strong><small>Reported title · not yet treated as official</small></article>
-      <article><span>S07E03</span><strong>Dislove</strong><small>Reported title · not yet treated as official</small></article>
-      <article><span>S07E04</span><strong>Management</strong><small>Reported title · not yet treated as official</small></article>
-      <article><span>S07E05</span><strong>Marinette Dupain-Cheng</strong><small>Reported title · not yet treated as official</small></article>
-      <article><span>S07E06?</span><strong>Glaciator</strong><small>Unclear listing · may be a repeat rather than S7</small></article>
-    </div>
-    <p class="s7-note">These names are being circulated from recent listings. “Glaciator” is especially uncertain because an episode with that title already exists in Season 2, so MiraculousHub will wait for clearer confirmation before treating it as S07E06.</p>
-  </section>
+  <section class="section"><div class="section-head"><h2>Season 7 synopsis</h2></div><p class="s7-synopsis-copy" data-s7-synopsis></p><a class="show-all" href="https://tf1pro.com/actualites/article/miraculous-nouvelle-saison" target="_blank" rel="noopener">Source: TF1 ↗</a></section><section class="section" id="release-calendar"><div class="section-head"><h2>Episode release countdowns</h2></div><p class="s7-schedule-note">The first two episodes share TF1’s confirmed premiere block. Reported English-dub dates remain separate. Dates can vary by region; uploaded episodes are marked ready to watch.</p><div class="s7-release-grid" id="s7ReleaseGrid"></div></section>
 
   <section class="section">
     <div class="s7-ready-card">
@@ -131,9 +101,9 @@
 
 <div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn" aria-label="Close search">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
 <div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button><button>DEUTSCH</button><button>ITALIANO</button><button>PORTUGUÊS</button></div>
-<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="catalog.js?v=trailer-cards-1"></script><script src="trailers.js?v=trailer-cards-1"></script>
+<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="season7-data.js?v=season7-ready-1"></script><script src="catalog.js?v=timers-ready-1"></script><script src="trailers.js?v=trailer-cards-1"></script>
 <script src="firebase.js?v=account-v4-1"></script>
 <script src="common.js?v=trailer-cards-1"></script>
 <script src="motion.js?v=nav-alignment-v4-1"></script>
-</body>
+<script src="season7-release.js?v=timers-ready-1"></script></body>
 </html>

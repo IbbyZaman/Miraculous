@@ -1,0 +1,11 @@
+OWNER COUNTDOWNS AND DESCRIPTIONS
+
+Deploy all website files to GitHub, including custom-timers.js and timers-admin.js. Deploy cloudflare-uploader-worker.js to your existing upload.miraculoushub.co.uk Worker. Keep VIDEOS, UPLOAD_PASSWORD and existing subtitle Workflow bindings. No new bindings or Firebase rules are needed.
+
+In upload.html sign in as your verified owner account and enter the upload password. Under Create a countdown choose New timer, enter a title and ID, add a description and choose the ending date/time. The form uses UTC, while homepage dates display in each visitor's local timezone. Save countdown to publish it. IDs are generated from new titles but can be edited before saving.
+
+Choose an existing countdown from Create or edit to change its title, description or ending time. Uncheck Show on homepage and save to hide it; check it again later to show it. Saving an existing ID updates that timer instead of creating duplicates.
+
+The homepage has a Countdowns section above the Season 7 release schedule. Timers update every second locally and show Countdown finished at zero. Descriptions preserve line breaks and are displayed as plain text. There is no server call every second.
+
+You can also add a Countdown description to an episode card in the Season 7 form. It appears with that episode's release timer. All timer and episode-card changes require the server-verified owner account and upload password. The video Worker is unchanged.

@@ -671,7 +671,7 @@ body .simple-player .quick-overlay{display:none}
 </dialog>
 <script src="watch-together.js?v=aot-party-1"></script>
 <script src="downloads.js?v=trailer-custom-1"></script>
-<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="catalog.js?v=trailer-cards-1"></script><script src="anime-data.js?v=black-clover-player-2"></script><script src="firebase.js?v=account-v4-1"></script><script src="common.js?v=trailer-cards-1"></script><script src="motion.js?v=nav-alignment-v4-1"></script><script src="playback-sync.js?v=account-v4-1"></script>
+<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="season7-data.js?v=season7-ready-1"></script><script src="catalog.js?v=timers-ready-1"></script><script src="anime-data.js?v=black-clover-player-2"></script><script src="firebase.js?v=account-v4-1"></script><script src="common.js?v=trailer-cards-1"></script><script src="motion.js?v=nav-alignment-v4-1"></script><script src="playback-sync.js?v=account-v4-1"></script>
 <script>
 (async()=>{await window.MH_CATALOG_READY;
 
@@ -686,6 +686,7 @@ const animeNumber=Number(params.get("episode")||0);
 const animeEpisode=animeShow?.episodes?.find(x=>Number(x.episode)===animeNumber);
 const isAnime=!!(animeShow&&animeEpisode);
 const season=Number(params.get("season")||6), number=Number(params.get("episode")||26);
+if(!isAnime&&!isSpecial&&season===7&&!(window.MH_EPISODES||[]).some(e=>e.season===7&&e.episode===number)){const main=document.querySelector("main.watch-shell");main.replaceChildren();const h=document.createElement("h1"),copy=document.createElement("p"),link=document.createElement("a");h.textContent="Episode not uploaded yet";copy.textContent="This Season 7 episode is coming soon.";link.href=`season7.html#s7e${number}`;link.textContent="See its release schedule →";main.append(h,copy,link);return;}
 const ep=isAnime
   ? {season:0,episode:animeNumber,title:animeEpisode.title,code:`${animeShow.title.toUpperCase()} E${String(animeNumber).padStart(2,"0")}`,animeSlug:animeShow.slug,animeTitle:animeShow.title}
   : isSpecial

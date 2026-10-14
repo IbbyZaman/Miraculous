@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#05070c">
 <link rel="icon" type="image/png" href="favicon.png">
 <title>MiraculousHub — Episodes</title>
-<link rel="stylesheet" href="styles.css?v=account-v4-1">
+<link rel="stylesheet" href="season7-update.css?v=season7-ready-1"><link rel="stylesheet" href="styles.css?v=account-v4-1">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
 <script>
@@ -147,7 +147,7 @@
   <button>PORTUGUÊS</button>
 </div>
 
-<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="catalog.js?v=trailer-cards-1"></script>
+<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="season7-data.js?v=season7-ready-1"></script><script src="catalog.js?v=timers-ready-1"></script>
 <script src="firebase.js?v=account-v4-1"></script>
 <script src="common.js?v=trailer-cards-1"></script>
 <script src="motion.js?v=nav-alignment-v4-1"></script>
@@ -206,7 +206,7 @@ function getEpisodes(){
         specialSlug:["new-york","shanghai","awakening","paris","london","tokyo"][i],
         thumbnail:(window.MH_SPECIAL_THUMBNAILS||[])[i]
       }))
-    : MH_EPISODES.filter(e=>season==="0"||e.season==season);
+    : (season==="7"?(window.MH_SEASON7||[]):MH_EPISODES.filter(e=>season==="0"||e.season==season));
 
   // Kept compatible with the existing data: "sub" becomes useful
   // automatically when an episode later receives a subtitle flag.
@@ -227,7 +227,7 @@ function render(){
     ? arr.map(e=>{
         const href=e.special
           ? `watch.html?special=${e.episode}`
-          : `watch.html?season=${e.season}&episode=${e.episode}`;
+          : e.available===false?`season7.html#s7e${e.episode}`:`watch.html?season=${e.season}&episode=${e.episode}`;
 
         const saved=e.special?null:(window.mhGetProgress?.()||[]).find(x=>
           Number(x.season)===Number(e.season) && Number(x.episode)===Number(e.episode)
@@ -235,7 +235,7 @@ function render(){
         const progress=Math.max(0,Math.min(100,Number(saved?.progress)||0));
 
         return `
-          <a class="card episode-library-card" href="${href}">
+          <a class="card episode-library-card ${e.available===false?'is-upcoming':''}" href="${href}">
             <div class="art ${e.thumbnail?'has-thumb':''}">
               ${e.thumbnail?`<img class="episode-thumb" src="${e.thumbnail}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:""}
               ${e.new?'<span class="new">NEW</span>':''}
@@ -243,7 +243,7 @@ function render(){
             </div>
             <div class="card-info">
               <span class="epno">${e.special?`SPECIALS · EPISODE ${e.episode}`:`SEASON ${e.season} · EPISODE ${e.episode}`}</span>
-              <h3>${window.mhEscapeHTML(e.title)}</h3>
+              <h3>${window.mhEscapeHTML(e.title)}</h3>${e.available===false?'<p class="upcoming-label">Coming soon · see release date</p>':''}
               ${progress>0?`<p class="episode-progress-copy">${Math.round(progress)}% watched</p>`:""}
             </div>
           </a>`;

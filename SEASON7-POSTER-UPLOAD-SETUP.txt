@@ -1,0 +1,20 @@
+SEASON 7 POSTER, PREPARED CARDS AND COUNTDOWNS
+
+Deploy the full website to GitHub, including assets/main-season7-poster.png, season7-data.js, season7-release.js and season7-update.css.
+Deploy cloudflare-uploader-worker.js to upload.miraculoushub.co.uk. Keep the existing VIDEOS R2 bucket binding, UPLOAD_PASSWORD secret and any subtitle Workflow binding. The video Worker has not changed in this update.
+
+Your original uploaded image is now the main homepage poster and the Season 7 poster. All 26 Season 7 slots are prepared. Upcoming cards link to the schedule, and cannot accidentally play a different episode.
+
+Sign in to upload.html with your verified owner account. In the episode-card form choose Season 7 and an episode number. The supplied names and dates are prefilled where known. Edit the title and thumbnail, release date, optional exact UTC time, region and confirmed/reported status. Leave Video is uploaded unchecked to save a coming-soon card before uploading any media. Leave an unknown release date or time blank.
+
+When uploading the corresponding episode MP4 later, any existing prepared card is automatically marked ready to watch. You can also check Publish an episode title card when this upload finishes to create its title card in the same upload. Match the season and episode in the form to the upload destination. Uploaded videos keep the normal episode player.
+
+Countdowns update every second locally, without a server request each second. Exact scheduled times are stored as UTC and displayed in the viewer's timezone. Date-only listings show an approximate days countdown without pretending that a broadcast hour has been announced. Unknown dates show Date to be announced. A broadcast countdown reaching zero does not label an episode available until its video is uploaded.
+
+Schedule checked 14 October 2026:
+TF1's 13 October announcement confirms episodes 1 and 2 in a French premiere block on 1 November at 08:35 France time (07:35 UTC). The same block-start countdown is used for both, rather than inventing a separate exact episode-2 time.
+English-dub listings report 14 November for episodes 1–2 and 20 November for episodes 3–6. These are marked reported, and exact English-dub hours are left unknown. Later episode dates are not fabricated. Episode 6's reported title remains a listing, not an official confirmation.
+Official synopsis/date source: https://tf1pro.com/actualites/article/miraculous-nouvelle-saison
+Reported English listings: https://miraculous.to/en/
+
+The original poster file bytes are preserved. Existing uploaded catalog cards, comments, downloads, party rooms and trailer tools stay supported. No new Firestore rules or Cloudflare bindings are needed.
