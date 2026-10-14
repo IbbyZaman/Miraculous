@@ -18,7 +18,7 @@
     if(row.thumbnail&&!/^https:\/\/[^\s<>"']+$/.test(row.thumbnail))continue;
     if(row.kind==="episode"&&Number.isInteger(row.episode)&&row.episode>=1&&row.episode<=99){
      const code=`S${String(row.season).padStart(2,"0")}E${String(row.episode).padStart(2,"0")}`;
-     const entry={season:row.season,episode:row.episode,title:row.title,code,videoPath:"/video/"+code.toLowerCase(),thumbnail:row.thumbnail||(row.season===7?"assets/main-season7-poster.png":""),new:row.new===true,available:row.available!==false,description:typeof row.description==="string"?row.description.slice(0,1000):""};
+     const entry={season:row.season,episode:row.episode,title:row.title,code,videoPath:"/video/"+code.toLowerCase(),thumbnail:row.thumbnail||(row.season===7?"main-season7-poster.png":""),new:row.new===true,available:row.available!==false,description:typeof row.description==="string"?row.description.slice(0,1000):""};
      const list=window.MH_EPISODES||(window.MH_EPISODES=[]),index=list.findIndex(e=>e.season===entry.season&&e.episode===entry.episode);
      if(entry.available){if(index<0)list.push(entry);else list[index]=entry;}else if(index>=0)list.splice(index,1);
      if(row.season===7){const planned=window.MH_SEASON7?.find(e=>e.episode===row.episode);if(planned){const schedule={};for(const key of ['releaseDate','releaseAt','releaseRegion','releaseStatus'])if(Object.hasOwn(row,key))schedule[key]=row[key];if((Object.hasOwn(row,"releaseDate")&&row.releaseDate!==planned.releaseDate)||(Object.hasOwn(row,"releaseAt")&&row.releaseAt!==planned.releaseAt))schedule.releaseSource=null;Object.assign(planned,entry,schedule);}}

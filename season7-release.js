@@ -7,8 +7,8 @@
  }
  window.MH_S7_COUNTDOWN=countdown;
  async function render(){
-  await window.MH_CATALOG_READY;
   document.querySelectorAll('[data-s7-synopsis]').forEach(el=>el.textContent=window.MH_SEASON7_SYNOPSIS);
+  await window.MH_CATALOG_READY;
   for(const [id,limit] of [['s7HomeReleaseGrid',6],['s7OtherReleaseGrid',26],['s7ReleaseGrid',26]]){
    const grid=document.getElementById(id);if(!grid)continue;grid.replaceChildren();
    const entries=(window.MH_SEASON7||[]).slice(id==='s7OtherReleaseGrid'?6:0,limit);

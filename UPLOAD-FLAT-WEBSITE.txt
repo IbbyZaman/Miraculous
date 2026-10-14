@@ -1,0 +1,11 @@
+FOLDER-FREE WEBSITE UPLOAD
+
+This ZIP contains files directly at its root, with no folders to upload. Extract it first, then open the extracted folder and select all files inside. Upload those files to the root of your existing GitHub Pages repository, replacing files with matching names. Do not upload the ZIP itself.
+
+main-season7-poster.png and trailer-placeholder.svg now sit beside index.html. All website references have been changed to those root filenames, so you do not need an assets folder. Old assets folders can stay in the repository; this version does not use them.
+
+This update changes the website layout and image locations. It does not change either Worker; no Worker deployment is needed if you already deployed the previous custom-timers update.
+
+The homepage has a full-image welcome banner with the Season 7 synopsis. Episode countdowns and your custom countdowns appear in bars on the right on desktop, then below the banner on smaller screens. Existing owner controls still create, edit and hide custom timers.
+
+Season 7 episode cards appear in the library only after their videos have been uploaded and published. Upcoming release timers remain visible in the sidebar.

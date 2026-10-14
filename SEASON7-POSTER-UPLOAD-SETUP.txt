@@ -1,6 +1,6 @@
 SEASON 7 POSTER, PREPARED CARDS AND COUNTDOWNS
 
-Deploy the full website to GitHub, including assets/main-season7-poster.png, season7-data.js, season7-release.js and season7-update.css.
+Deploy the full website to GitHub, including main-season7-poster.png, season7-data.js, season7-release.js and season7-update.css.
 Deploy cloudflare-uploader-worker.js to upload.miraculoushub.co.uk. Keep the existing VIDEOS R2 bucket binding, UPLOAD_PASSWORD secret and any subtitle Workflow binding. The video Worker has not changed in this update.
 
 Your original uploaded image is now the main homepage poster and the Season 7 poster. All 26 Season 7 slots are prepared. Upcoming cards link to the schedule, and cannot accidentally play a different episode.

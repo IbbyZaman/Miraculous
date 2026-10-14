@@ -5,7 +5,7 @@
  const notice=text=>$('trailerNotice').textContent=text;
  if(!entry){$('trailerTitle').textContent='Trailer unavailable';status.textContent='This trailer could not be found. Return to the homepage or try again later.';['trailerShare','trailerDownload','trailerBigPlay','trailerControls','trailerComments'].forEach(id=>$(id).hidden=true);return}
  document.title=`MiraculousHub — ${entry.title}`;$('trailerTitle').textContent=entry.title;$('trailerLabel').textContent=`SEASON ${entry.season} · TRAILER`;$('trailerDescription').textContent='Miraculous · Trailer';
- video.setAttribute('aria-label',entry.title);video.poster=entry.thumbnail||'assets/trailer-placeholder.svg';video.hidden=false;status.hidden=true;
+ video.setAttribute('aria-label',entry.title);video.poster=entry.thumbnail||'trailer-placeholder.svg';video.hidden=false;status.hidden=true;
  let timer;
  function showControls(){screen.classList.remove('controls-hidden');clearTimeout(timer);if(!video.paused)timer=setTimeout(()=>screen.classList.add('controls-hidden'),2500)}
  const toggle=async()=>{try{if(video.paused)await video.play();else video.pause()}catch{notice('Tap play to start this trailer.')}};

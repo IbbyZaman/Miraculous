@@ -1,0 +1,12 @@
+SIMPLER UPLOAD CENTRE
+
+Upload the files inside this folder-free ZIP to the root of your GitHub Pages repository, replacing existing files. Include upload-sections.js and upload-sections.css. Neither Worker has changed, so you do not need to redeploy a Worker for this interface update.
+
+upload.html now has three separate tabs:
+Upload video: choose an episode, special, anime or trailer and upload its MP4. Only upload controls are shown by default.
+Episode cards: create or edit titles and thumbnails. Optional release descriptions and scheduling fields are inside Release timer & description (optional).
+Timer settings: create, edit or hide homepage countdowns, separately from the upload form.
+
+Account and upload password settings are shared across the tabs. Episode cards and Timer settings remain available only to the verified owner account. Fields are preserved when switching tabs. Tabs are disabled during an active multipart upload, while Cancel remains available. Episode details can be opened directly from Upload video with the matching season and episode. Trailer IDs are automatically suggested from titles, and can still be entered manually.
+
+The homepage banner, right-hand countdown bars and uploaded-only Season 7 episode library remain as in the previous update. All images remain at the root beside index.html; no asset folders are needed.

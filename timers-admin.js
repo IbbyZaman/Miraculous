@@ -1,7 +1,7 @@
 (()=>{
  const $=id=>document.getElementById(id);let rows=[];
  const owner=()=>{const u=window.MH_AUTH?.user();return u?.emailVerified&&!u?.isAnonymous&&u?.email?.toLowerCase()==='ibbyzaman4@gmail.com'};
- function auth(){$('timerAdmin').hidden=!owner()}
+ function auth(){$('timerAdmin').hidden=!owner();window.mhUploaderView?.refresh()}
  async function load(selected=''){
   const response=await fetch(window.MH_SITE_CONFIG.uploaderWorker+'/catalog',{signal:AbortSignal.timeout(15000)});if(!response.ok)throw new Error('Could not load saved timers.');const result=await response.json();rows=(result.entries||[]).filter(r=>r.kind==='timer');const selector=$('timerEdit');selector.replaceChildren();const option=document.createElement('option');option.value='';option.textContent='New timer';selector.append(option);
   for(const row of rows){const option=document.createElement('option');option.value=row.id;option.textContent=row.title+(row.enabled===false?' (hidden)':'');selector.append(option)}selector.value=selected;
