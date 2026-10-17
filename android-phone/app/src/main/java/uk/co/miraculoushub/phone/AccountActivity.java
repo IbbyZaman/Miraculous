@@ -25,7 +25,7 @@ public class AccountActivity extends Activity {
     root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(dp(25),dp(55),dp(25),dp(24));scroll.addView(root);
     heading=text("YOUR MIRACULOUSHUB ACCOUNT",27,true);heading.setTextColor(0xffff5285);root.addView(heading);
     TextView description=text("Sign in with the same email and password you use on the website.",15,false);description.setPadding(0,dp(12),0,dp(22));root.addView(description);
-    if(getPreferences(0).contains("email")){TextView active=text("Signed in as "+getPreferences(0).getString("email",""),17,true);root.addView(active);button("Sign out",()->{getPreferences(0).edit().clear().apply();render();});return;}
+    if(getSharedPreferences("mh_account",MODE_PRIVATE).contains("email")){TextView active=text("Signed in as "+getSharedPreferences("mh_account",MODE_PRIVATE).getString("email",""),17,true);root.addView(active);button("Sign out",()->{getSharedPreferences("mh_account",MODE_PRIVATE).edit().clear().apply();render();});return;}
     email=new EditText(this);email.setTextColor(-1);email.setHintTextColor(0xffa69eb5);email.setHint("Email address");email.setInputType(33);email.setSingleLine();email.setPadding(dp(14),dp(10),dp(14),dp(10));email.setBackground(shape(0xff2b2339));root.addView(email,new LinearLayout.LayoutParams(-1,dp(55)));
     password=new EditText(this);password.setTextColor(-1);password.setHintTextColor(0xffa69eb5);password.setHint("Password");password.setInputType(129);password.setSingleLine();password.setPadding(dp(14),dp(10),dp(14),dp(10));password.setBackground(shape(0xff2b2339));LinearLayout.LayoutParams pp=new LinearLayout.LayoutParams(-1,dp(55));pp.topMargin=dp(12);root.addView(password,pp);
     feedback=text("",13,false);feedback.setPadding(0,dp(12),0,dp(12));root.addView(feedback);
@@ -45,7 +45,7 @@ public class AccountActivity extends Activity {
       InputStream stream=conn.getResponseCode()<400?conn.getInputStream():conn.getErrorStream();
       ByteArrayOutputStream out=new ByteArrayOutputStream();try(InputStream in=stream){byte[] buf=new byte[4096];int n;while((n=in.read(buf))!=-1&&out.size()<30000)out.write(buf,0,n);}
       JSONObject json=new JSONObject(out.toString("UTF-8"));if(conn.getResponseCode()>=400){String err=json.optJSONObject("error")!=null?json.getJSONObject("error").optString("message"):"Sign in failed";throw new IOException(err.replace('_',' '));}
-      getPreferences(0).edit().putString("email",mail).putString("uid",json.getString("localId")).putString("refreshToken",json.getString("refreshToken")).putString("idToken",json.getString("idToken")).apply();
+      getSharedPreferences("mh_account",MODE_PRIVATE).edit().putString("email",mail).putString("uid",json.getString("localId")).putString("refreshToken",json.getString("refreshToken")).putString("idToken",json.getString("idToken")).apply();
       runOnUiThread(this::render);
     }catch(Exception ex){runOnUiThread(()->feedback.setText("Could not sign in: "+ex.getMessage()));}}).start();
   }
