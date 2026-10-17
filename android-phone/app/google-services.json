@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "570314503995",
+    "firebase_url": "https://miraculoushub0-default-rtdb.firebaseio.com",
+    "project_id": "miraculoushub0",
+    "storage_bucket": "miraculoushub0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:570314503995:android:95a941678498dbe5fe291e",
+        "android_client_info": {
+          "package_name": "uk.co.miraculoushub.phone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "570314503995-9lr4u1m59fdu40c9ljavu42gl6n4737r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClwvDdYHJSDdEUqgEalf_c5XXp6PCwIUA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "570314503995-9lr4u1m59fdu40c9ljavu42gl6n4737r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
