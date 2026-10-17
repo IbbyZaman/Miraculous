@@ -1,0 +1,9 @@
+NEATER HOMEPAGE COUNTDOWN BARS
+
+Upload the files inside this folder-free ZIP to your GitHub Pages repository, replacing files with the same names. Neither Worker has changed; no Worker deployment is needed for this update.
+
+The homepage poster banner and countdown sidebar now share the same desktop height. The sidebar scrolls independently when its contents are longer, and expansion does not make it extend below the banner. On smaller screens the panels stack naturally.
+
+Each homepage countdown shows its name and live countdown, followed by View more. Expanding this reveals its description, date and region/status when applicable. View less closes it again. Details are collapsed by default, and the source links are removed from homepage countdown bars. Season 7's full release page continues to show schedule information.
+
+The simpler uploader tabs and existing owner countdown controls remain unchanged. Timers still update every second. Unuploaded Season 7 episodes remain hidden from the playable episode library. All images stay beside index.html; there are no folders to upload.

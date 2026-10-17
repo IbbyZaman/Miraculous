@@ -19,9 +19,13 @@
     const date=document.createElement('p');date.textContent=entry.releaseAt?new Date(entry.releaseAt).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})+' · your local time':entry.releaseDate?new Date(entry.releaseDate+'T12:00:00Z').toLocaleDateString([], {dateStyle:'medium',timeZone:'UTC'})+' · exact time TBA':'Release date not announced';
     const region=document.createElement('p');region.className='s7-region';region.textContent=entry.releaseRegion||'Date will appear when announced';
     const clock=document.createElement('strong');clock.className='s7-countdown';clock.dataset.episode=entry.episode;clock.setAttribute('aria-label','Release countdown');clock.textContent=countdown(entry);
-    card.append(code,title);if(entry.description){const description=document.createElement("p");description.textContent=entry.description;description.style.whiteSpace="pre-wrap";card.append(description)}card.append(date,region,clock);
-    if(entry.available){const link=document.createElement('a');link.href=`watch.html?season=7&episode=${entry.episode}`;link.textContent='Watch episode →';card.append(link)}
-    if(entry.releaseSource){const source=document.createElement('a');source.href=entry.releaseSource;source.target='_blank';source.rel='noopener';source.textContent='Schedule source ↗';card.append(source)}
+    const compact=id!=='s7ReleaseGrid';
+    const information=document.createElement('div');information.append(code);
+    if(entry.description){const description=document.createElement('p');description.textContent=entry.description;description.style.whiteSpace='pre-wrap';information.append(description)}information.append(date,region);
+    if(entry.available){const link=document.createElement('a');link.href=`watch.html?season=7&episode=${entry.episode}`;link.textContent='Watch episode →';information.append(link)}
+    if(!compact&&entry.releaseSource){const source=document.createElement('a');source.href=entry.releaseSource;source.target='_blank';source.rel='noopener';source.textContent='Schedule source ↗';information.append(source)}
+    card.append(title,clock);
+    if(compact){const details=document.createElement('details'),summary=document.createElement('summary');details.className='countdown-information';summary.textContent='View more';details.addEventListener('toggle',()=>summary.textContent=details.open?'View less':'View more');details.append(summary,information);card.append(details)}else card.append(information);
     grid.append(card);
    }
   }

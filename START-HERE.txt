@@ -1,3 +1,5 @@
+LATEST UPDATE: read COUNTDOWN-BARS-UPDATE.txt first.
+
 LATEST UPDATE: read UPLOAD-CENTRE-SETUP.txt first.
 
 LATEST UPDATE: read UPLOAD-FLAT-WEBSITE.txt first. All files can be uploaded without folders.
