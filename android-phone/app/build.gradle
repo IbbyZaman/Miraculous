@@ -2,7 +2,7 @@ plugins { id 'com.android.application' }
 android {
  namespace 'uk.co.miraculoushub.phone'
  compileSdk 35
- defaultConfig { applicationId 'uk.co.miraculoushub.phone'; minSdk 23; targetSdk 35; versionCode (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger(); versionName '1.0.' + (System.getenv('GITHUB_RUN_NUMBER') ?: '1') }
+ defaultConfig { applicationId 'uk.co.miraculoushub.phone'; minSdk 23; targetSdk 35; versionCode = Integer.parseInt(System.getenv('GITHUB_RUN_NUMBER') ?: '1'); versionName = "1.0.${System.getenv('GITHUB_RUN_NUMBER') ?: '1'}" }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 dependencies {
