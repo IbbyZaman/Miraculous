@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     defaults:
       run:
         working-directory: android-phone
@@ -33,3 +33,13 @@ jobs:
           name: MiraculousHubPhone-APK
           path: android-phone/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      - name: Prepare release APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk MiraculousHubPhone.apk
+      - name: Publish phone update
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: phone-build-${{ github.run_number }}
+          name: MiraculousHub Phone update ${{ github.run_number }}
+          files: android-phone/MiraculousHubPhone.apk
+          generate_release_notes: false
