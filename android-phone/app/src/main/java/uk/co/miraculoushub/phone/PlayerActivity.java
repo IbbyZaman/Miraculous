@@ -46,9 +46,11 @@ public class PlayerActivity extends Activity {
   private int cloudSeason,cloudEpisode;
   private boolean cloudReady=false,userSeeked=false;
   private long lastCloudWrite=0;
+  private long pendingResumeMs=-1;
+  private boolean resumeLoaded=false;
   private final Runnable cloudTimer=new Runnable(){@Override public void run(){
     savePlayback(false);
-    if(player!=null)handler.postDelayed(this,6000);
+    if(player!=null)handler.postDelayed(this,1000);
   }};
   private final Runnable hideControls=()->setControls(false);
   private final Runnable progress=new Runnable(){
@@ -160,7 +162,9 @@ public class PlayerActivity extends Activity {
     player.addListener(new Player.Listener(){
       @Override public void onPlaybackStateChanged(int state){
         if(buffer==null)return;
-        if(state==Player.STATE_READY){buffer.setVisibility(View.GONE);showTemporarily();}
+        if(state==Player.STATE_READY){
+          if(pendingResumeMs>0&&!userSeeked){long d=player.getDuration();if(d<=0||pendingResumeMs<d-4000)player.seekTo(pendingResumeMs);pendingResumeMs=-1;}
+          buffer.setVisibility(View.GONE);showTemporarily();}
         else if(state==Player.STATE_BUFFERING){buffer.setText("Buffering…");buffer.setVisibility(View.VISIBLE);}
         else if(state==Player.STATE_ENDED){setControls(true);buffer.setVisibility(View.GONE);}
       }
@@ -172,7 +176,11 @@ public class PlayerActivity extends Activity {
         buffer.setVisibility(View.VISIBLE);setControls(true);
       }
     });
-    player.setMediaItem(MediaItem.fromUri(url));player.prepare();player.play();
+    player.setMediaItem(MediaItem.fromUri(url));
+    if(cloudDocument==null&&cloudKey!=null&&!cloudKey.isEmpty()){
+      pendingResumeMs=getSharedPreferences("mh-playback-cache",MODE_PRIVATE).getLong(accountScope+":"+cloudKey,0L);
+    }
+    player.prepare();player.play();
     if(cloudDocument!=null){
       // Always read the server resume point BEFORE uploading initial position 0:00.
       cloudDocument.get(Source.SERVER).addOnCompleteListener(this,result->{
@@ -188,14 +196,13 @@ public class PlayerActivity extends Activity {
         if(!userSeeked&&current instanceof Number){
           long position=(long)(((Number)current).doubleValue()*1000);
           long duration=player.getDuration();
-          if(position>0&&(duration<=0||position<duration-4000))player.seekTo(position);
+          if(position>0&&(duration<=0||position<duration-4000)){
+            if(player.getPlaybackState()==Player.STATE_READY)player.seekTo(position);
+            else pendingResumeMs=position;
+          }
         }
-        cloudReady=true;
+        cloudReady=true;resumeLoaded=true;
       });
-    }else if(cloudKey!=null&&!cloudKey.isEmpty()){
-      long local=getSharedPreferences("mh-playback-cache",MODE_PRIVATE)
-        .getLong(accountScope+":"+cloudKey,0L);
-      if(local>0)player.seekTo(local);
     }
     handler.post(progress);handler.postDelayed(cloudTimer,6000);showTemporarily();
   }
@@ -222,7 +229,7 @@ public class PlayerActivity extends Activity {
     getSharedPreferences("mh-playback-cache",MODE_PRIVATE).edit()
       .putLong(accountScope+":"+cloudKey,position).apply();
     if(cloudDocument==null||!cloudReady||position<1000)return;
-    if(!force&&System.currentTimeMillis()-lastCloudWrite<5500)return;
+    if(!force&&System.currentTimeMillis()-lastCloudWrite<1000)return;
     lastCloudWrite=System.currentTimeMillis();
     Map<String,Object> values=new HashMap<>();
     values.put("type",cloudKey.startsWith("anime-")?"anime":"episode");
