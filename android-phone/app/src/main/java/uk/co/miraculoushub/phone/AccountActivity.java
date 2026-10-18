@@ -88,6 +88,10 @@ public class AccountActivity extends Activity {
     if(create)auth.createUserWithEmailAndPassword(address,secret).addOnCompleteListener(this,t->authFinished(t));
     else auth.signInWithEmailAndPassword(address,secret).addOnCompleteListener(this,t->authFinished(t));
   }
+  private String appVersion(){
+    try{return getPackageManager().getPackageInfo(getPackageName(),0).versionName;}
+    catch(Exception ignored){return "unknown";}
+  }
   private void authFinished(Task<?> task){
     if(task.isSuccessful())render();
     else if(feedback!=null)feedback.setText("Sign-in failed: "+(task.getException()!=null?task.getException().getLocalizedMessage():"Please try again."));
@@ -104,6 +108,6 @@ public class AccountActivity extends Activity {
       if(account==null||account.getIdToken()==null)throw new Exception("Google did not return a sign-in token.");
       auth.signInWithCredential(GoogleAuthProvider.getCredential(account.getIdToken(),null))
         .addOnCompleteListener(this,t->authFinished(t));
-    }catch(Exception e){if(feedback!=null){if(e instanceof ApiException&&((ApiException)e).getStatusCode()==10)feedback.setText("Android Google sign-in returned error 10 (DEVELOPER_ERROR). The SHA-1 is already registered in Firebase, so please try the website sign-in option above. App build: "+BuildConfig.VERSION_NAME+"; web OAuth configuration or Google Play services may still require checking.");else feedback.setText("Google sign-in unavailable: "+e.getMessage());}}
+    }catch(Exception e){if(feedback!=null){if(e instanceof ApiException&&((ApiException)e).getStatusCode()==10)feedback.setText("Android Google sign-in returned error 10 (DEVELOPER_ERROR). The SHA-1 is already registered in Firebase, so please try the website sign-in option above. App build: "+appVersion()+"; web OAuth configuration or Google Play services may still require checking.");else feedback.setText("Google sign-in unavailable: "+e.getMessage());}}
   }
 }
