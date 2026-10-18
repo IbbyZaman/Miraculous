@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090b13"><title>Connect your TV | MiraculousHub</title><link rel="icon" href="favicon.png">
+<style>:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#4c1d42,#090b13 70%);color:white;font:16px/1.5 system-ui,sans-serif}main{max-width:500px;padding:35px 18px 75px;margin:auto}.brand{display:block;color:white;font-weight:800;font-size:25px;text-decoration:none;margin-bottom:35px}.brand span{color:#ff4982}.panel{background:#151a29;border:1px solid #414354;border-radius:25px;padding:26px;box-shadow:0 20px 70px #0009}.kicker{color:#ff9abf;text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:800}h1{margin:8px 0 10px;font-size:34px}p{margin:8px 0 17px}.muted{color:#afb7c9}.code{margin:20px 0 8px;border:1px solid #656074;background:#080b13;text-align:center;letter-spacing:.22em;font:bold 39px/1.7 monospace;border-radius:17px}.note{text-align:center;color:#bfc2d5;font-size:13px}input:not([type=checkbox]){display:block;width:100%;padding:14px;border-radius:12px;border:1px solid #51596a;background:#0c1120;color:white;font-size:16px;margin:10px 0}button{cursor:pointer;border:0;border-radius:12px;width:100%;padding:14px 10px;margin:7px 0;background:#ff3776;color:white;font-weight:750;font-size:15px}button.secondary{background:#30394c}button:disabled{opacity:.55;cursor:not-allowed}.check{display:flex;gap:12px;align-items:flex-start;margin:15px 0}.check input{width:20px;height:20px;accent-color:#ff3776;margin-top:4px}#status{color:#ffc1d2;min-height:20px;font-size:14px}[hidden]{display:none!important}</style></head>
+<body><main><a class="brand" href="index.html">Miraculous<span>Hub</span></a>
+<div class="panel"><div class="kicker">Secure TV pairing</div><h1>Connect your TV</h1>
+<p class="muted">Sign in on this device, then approve the code shown on your TV. Your password stays here.</p><p id="status" role="status" aria-live="polite">Checking pairing…</p>
+<section id="pairSection" hidden><div id="pairCode" class="code"></div><p class="note" id="expiry"></p>
+<div id="signInBox" hidden><p>Sign in to your MiraculousHub account.</p><button class="secondary" id="google">Continue with Google</button><p class="note">or sign in with email</p><form id="emailForm">
+<input id="email" type="email" placeholder="Email address" autocomplete="email" required><input id="password" type="password" placeholder="Password" autocomplete="current-password" required><button type="submit">Sign in</button></form></div>
+<div id="confirmBox" hidden><p id="account"></p><label class="check"><input type="checkbox" id="matches"><span>The code above matches the one on <b>my TV</b>, and I want to sign that TV in.</span></label><button id="approve" disabled>Approve this TV</button><button id="switch" class="secondary">Use a different account</button></div>
+<p id="success" hidden style="color:#a7ecc3">✓ Approved! Your TV will sign in automatically.</p></section><p class="muted" style="font-size:13px">Only approve codes you requested. Pairing expires after five minutes.</p></div></main>
+<script src="firebase.js?v=tv-qr-1"></script>
+<script>
+(async()=>{
+const $=id=>document.getElementById(id),endpoint="https://upload.miraculoushub.co.uk";
+const pair=new URLSearchParams(location.search).get("pair")||"";let details,finished=false;
+const say=m=>$("status").textContent=m;
+if(!/^[a-f0-9]{32}$/.test(pair)){say("Invalid link. Scan the TV QR code again.");return;}
+try{
+ const r=await fetch(endpoint+"/tv-pair/info?pair="+pair,{cache:"no-store"});details=await r.json();
+ if(!r.ok)throw Error(details.error||"Pairing expired.");
+ if(details.status!=="pending")throw Error("TV already approved. Start again on your TV.");
+ $("pairCode").textContent=details.code.slice(0,3)+" "+details.code.slice(3);
+ $("expiry").textContent="Expires in about "+Math.ceil(Math.max(0,details.expiresAt-Date.now())/60000)+" minutes.";
+ $("pairSection").hidden=false;say("");
+}catch(e){say(e.message);return;}
+try{await window.MH_FIREBASE_READY;await window.MH_AUTH_READY;}
+catch(e){say("Firebase sign-in unavailable. Try again.");return;}
+function showUser(){
+ if(finished)return;
+ const user=window.MH_AUTH.user();
+ $("signInBox").hidden=!!user;$("confirmBox").hidden=!user;
+ $("account").textContent=user?"You are signed in as "+(user.email||"your MiraculousHub account")+".":"";
+ say("");
+}
+window.addEventListener("mh-auth-changed",showUser);showUser();
+$("matches").onchange=()=>$("approve").disabled=!$("matches").checked;
+$("google").onclick=async()=>{
+ $("google").disabled=true;say("Signing in with Google…");
+ try{await window.MH_AUTH.google();showUser();}catch(e){say(e.message||"Google sign-in failed.");}
+ finally{$("google").disabled=false;}
+};
+$("emailForm").onsubmit=async e=>{
+ e.preventDefault();const submit=$("emailForm").querySelector("button");submit.disabled=true;say("Signing in…");
+ try{await window.MH_AUTH.signIn($("email").value.trim(),$("password").value);showUser();}
+ catch(error){say(error.message||"Sign-in failed.");}finally{submit.disabled=false;}
+};
+$("switch").onclick=async()=>{await window.MH_AUTH.signOut();$("matches").checked=false;$("approve").disabled=true;showUser();};
+$("approve").onclick=async()=>{
+ if(finished||!$("matches").checked||!window.MH_AUTH.user())return;
+ if(Date.now()>=details.expiresAt){say("Code expired. Start again on TV.");return;}
+ $("approve").disabled=true;say("Approving TV…");
+ try{
+  const token=await window.MH_AUTH.user().getIdToken();
+  const r=await fetch(endpoint+"/tv-pair/approve",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({pair,code:details.code})});
+  const value=await r.json();if(!r.ok)throw Error(value.error||"Approval failed.");
+  finished=true;$("signInBox").hidden=true;$("confirmBox").hidden=true;$("success").hidden=false;
+  say("Approved. You can return to your TV.");
+ }catch(error){say(error.message);$("approve").disabled=false;}
+};
+})();
+</script></body></html>
