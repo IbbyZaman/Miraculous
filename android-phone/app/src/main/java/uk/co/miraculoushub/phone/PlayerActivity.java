@@ -42,6 +42,7 @@ public class PlayerActivity extends Activity {
   private static final int PINK=0xffff2f68;
   private final Handler handler=new Handler(Looper.getMainLooper());
   private ExoPlayer player;
+  private String offlinePath;
   private LinearLayout top, bottom, center;
   private TextView playPause,elapsed,remaining,buffer;
   private SeekBar timeline;
@@ -102,6 +103,8 @@ public class PlayerActivity extends Activity {
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
     immersive();
     String url=getIntent().getStringExtra("url"),title=getIntent().getStringExtra("title");
+    offlinePath=getIntent().getStringExtra("offlinePath");
+    boolean offline=offlinePath!=null&&offlinePath.startsWith(getCacheDir().getAbsolutePath()+"/offline-playback-")&&offlinePath.endsWith(".mp4")&&new java.io.File(offlinePath).isFile();
     cloudTitle=title==null?"Episode":title;cloudSeason=getIntent().getIntExtra("season",0);
     cloudEpisode=getIntent().getIntExtra("episode",0);
     nextUrl=getIntent().getStringExtra("nextUrl");nextTitle=getIntent().getStringExtra("nextTitle");
@@ -112,7 +115,7 @@ public class PlayerActivity extends Activity {
     if(signedIn!=null&&cloudKey!=null&&cloudKey.matches("[a-z0-9-]{2,100}"))
       cloudDocument=FirebaseFirestore.getInstance().collection("users").document(signedIn.getUid())
         .collection("playback").document(cloudKey);
-    if(url==null||!url.startsWith("https://")){finish();return;}
+    if(!offline&&(url==null||!url.startsWith("https://"))){finish();return;}
     FrameLayout root=new FrameLayout(this);root.setBackgroundColor(Color.BLACK);setContentView(root);
     PlayerView video=new PlayerView(this);video.setUseController(false);video.setKeepScreenOn(true);
     root.addView(video,new FrameLayout.LayoutParams(-1,-1));
@@ -196,7 +199,7 @@ public class PlayerActivity extends Activity {
         buffer.setVisibility(View.VISIBLE);setControls(true);
       }
     });
-    player.setMediaItem(MediaItem.fromUri(url));
+    player.setMediaItem(MediaItem.fromUri(offline?android.net.Uri.fromFile(new java.io.File(offlinePath)):android.net.Uri.parse(url)));
     if(cloudDocument==null&&cloudKey!=null&&!cloudKey.isEmpty()){
       pendingResumeMs=getSharedPreferences("mh-playback-cache",MODE_PRIVATE).getLong(accountScope+":"+cloudKey,0L);
     }
@@ -333,6 +336,7 @@ public class PlayerActivity extends Activity {
     savePlayback(true);
     handler.removeCallbacks(hideControls);handler.removeCallbacks(progress);handler.removeCallbacks(cloudTimer);
     if(player!=null){player.release();player=null;}
+    if(offlinePath!=null)new java.io.File(offlinePath).delete();
     super.onStop();
   }
 }
