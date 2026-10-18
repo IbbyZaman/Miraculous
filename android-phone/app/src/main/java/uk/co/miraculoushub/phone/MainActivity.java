@@ -147,7 +147,7 @@ public class MainActivity extends Activity {
     view.setBackground(gradient(0xff29253d,0xff10141d,16));
     if(url==null||url.isEmpty())return;
     String resolved=url.startsWith("https://")?url:"https://miraculoushub.co.uk/"+url.replaceFirst("^/","");
-    Glide.with(this).load(resolved).centerCrop().into(view);
+    Glide.with(this).load(resolved).fitCenter().into(view);
   }
   private void open(String newTab){
     tab=newTab;render();
@@ -284,7 +284,7 @@ public class MainActivity extends Activity {
     LinearLayout outer=vertical();outer.setBackground(gradient(0xff272337,0xff101724,20));outer.setClipToOutline(true);
     LinearLayout.LayoutParams mp=new LinearLayout.LayoutParams(dp(184),dp(254));mp.rightMargin=dp(12);outer.setLayoutParams(mp);
     FrameLayout art=new FrameLayout(this);outer.addView(art,new LinearLayout.LayoutParams(-1,dp(174)));
-    ImageView cover=new ImageView(this);cover.setScaleType(ImageView.ScaleType.CENTER_CROP);art.addView(cover,new FrameLayout.LayoutParams(-1,-1));
+    ImageView cover=new ImageView(this);cover.setScaleType(ImageView.ScaleType.FIT_CENTER);art.addView(cover,new FrameLayout.LayoutParams(-1,-1));
     String pic=item.optString("thumbnail","");if(pic.isEmpty()&&item.optInt("season")==7)pic=POSTER;image(cover,pic);
     TextView play=text("▶",17,true);play.setGravity(Gravity.CENTER);play.setBackground(solid(0xdd0b0d17,50));
     FrameLayout.LayoutParams pp=new FrameLayout.LayoutParams(dp(39),dp(39),Gravity.END|Gravity.BOTTOM);pp.setMargins(0,0,dp(7),dp(8));art.addView(play,pp);
@@ -298,7 +298,7 @@ public class MainActivity extends Activity {
     LinearLayout card=new LinearLayout(this);card.setGravity(Gravity.CENTER_VERTICAL);
     card.setPadding(dp(9),dp(9),dp(11),dp(9));
     card.setBackground(gradient(0xff1b2234,0xff0e1320,15));
-    ImageView art=new ImageView(this);art.setScaleType(ImageView.ScaleType.CENTER_CROP);art.setClipToOutline(true);
+    ImageView art=new ImageView(this);art.setScaleType(ImageView.ScaleType.FIT_CENTER);art.setClipToOutline(true);
     art.setBackground(solid(0xff29283b,10));card.addView(art,new LinearLayout.LayoutParams(dp(110),dp(75)));
     String img=item.optString("thumbnail","");if(img.isEmpty()&&item.optInt("season")==7)img=POSTER;image(art,img);
     LinearLayout words=vertical();words.setPadding(dp(12),0,0,0);card.addView(words,new LinearLayout.LayoutParams(0,-2,1));
@@ -362,7 +362,7 @@ public class MainActivity extends Activity {
     int c2=show[1].equals("death-note")?0xff0b0e19:show[1].equals("attack-on-titan")?0xff121417:0xff121d1a;
     FrameLayout outer=new FrameLayout(this);outer.setBackground(gradient(c1,c2,18));outer.setClipToOutline(true);
     LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(176),dp(177));p.rightMargin=dp(12);outer.setLayoutParams(p);
-    ImageView cover=new ImageView(this);cover.setScaleType(ImageView.ScaleType.CENTER_CROP);
+    ImageView cover=new ImageView(this);cover.setScaleType(ImageView.ScaleType.FIT_CENTER);
     outer.addView(cover,new FrameLayout.LayoutParams(-1,-1));image(cover,animeCover(show[1]));
     View shade=new View(this);shade.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
       new int[]{0x1b090b13,0x61090b13,0xf4080c16}));
