@@ -454,38 +454,7 @@ public class MainActivity extends Activity {
  private void checkAppUpdates(){checkAppUpdates(false);}
  private void checkAppUpdates(boolean manual){
    lastUpdateCheck=System.currentTimeMillis();
-   new Thread(()->{
-     try{
-       HttpURLConnection conn=(HttpURLConnection)new URL("https://api.github.com/repos/IbbyZaman/Miraculous/releases?per_page=50").openConnection();
-       conn.setConnectTimeout(7000);conn.setReadTimeout(7000);conn.setRequestProperty("Accept","application/vnd.github+json");conn.setRequestProperty("User-Agent","MiraculousHub-TV");
-       if(conn.getResponseCode()!=200){conn.disconnect();throw new IOException("Updates unavailable");}
-       ByteArrayOutputStream out=new ByteArrayOutputStream();
-       try(InputStream in=conn.getInputStream()){byte[] b=new byte[4096];int n;
-         while((n=in.read(b))!=-1){if(out.size()+n>250000)break;out.write(b,0,n);}}
-       conn.disconnect();
-       int installed=getPackageManager().getPackageInfo(getPackageName(),0).versionCode;
-       JSONArray releases=new JSONArray(out.toString("UTF-8"));
-       for(int i=0;i<releases.length();i++){
-         JSONObject rel=releases.optJSONObject(i);if(rel==null||rel.optBoolean("draft")||rel.optBoolean("prerelease"))continue;
-         String tag=rel.optString("tag_name");if(!tag.matches("tv-build-[0-9]+"))continue;
-         int version=Integer.parseInt(tag.substring(9));if(version<=installed)continue;
-         JSONArray assets=rel.optJSONArray("assets");if(assets==null)continue;
-         for(int j=0;j<assets.length();j++){
-           JSONObject asset=assets.optJSONObject(j);if(asset==null)continue;
-           String uri=asset.optString("browser_download_url");
-           if(!"MiraculousHubTV.apk".equals(asset.optString("name"))||!uri.startsWith("https://github.com/"))continue;
-           handler.post(()->new AlertDialog.Builder(this).setTitle("New MiraculousHub TV update")
-              .setMessage("Build "+version+" is ready. Download the APK and confirm installation to update.")
-              .setNegativeButton("Later",null)
-              .setPositiveButton("Get update",(d,w)->startActivity(new Intent(Intent.ACTION_VIEW,android.net.Uri.parse(uri)))).show());
-           return;
-         }
-       }
-       if(manual)handler.post(()->Toast.makeText(this,"Your TV app is up to date.",Toast.LENGTH_LONG).show());
-     }catch(Exception ex){
-       if(manual)handler.post(()->Toast.makeText(this,"Couldn't check for app updates.",Toast.LENGTH_LONG).show());
-     }
-   }).start();
+   AppUpdater.check(this,manual);
  }
  @Override protected void onPause(){handler.removeCallbacks(liveRefresh);super.onPause();}
  @Override public void onBackPressed(){
@@ -494,7 +463,7 @@ public class MainActivity extends Activity {
    else super.onBackPressed();
  }
  @Override protected void onResume(){
-   super.onResume();immersive();
+   super.onResume();immersive();AppUpdater.onResume(this);
    if(System.currentTimeMillis()-lastUpdateCheck>15*60*1000)checkAppUpdates();
    handler.removeCallbacks(liveRefresh);handler.postDelayed(liveRefresh,120000);
    if(System.currentTimeMillis()-lastLibrarySync>120000)refresh();
