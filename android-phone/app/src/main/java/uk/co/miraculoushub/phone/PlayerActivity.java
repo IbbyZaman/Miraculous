@@ -1,48 +1,169 @@
 package uk.co.miraculoushub.phone;
+
 import android.app.Activity;
-import android.os.Bundle;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.*;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
+import java.util.Locale;
+
 public class PlayerActivity extends Activity {
+  private static final int PINK=0xffff2f68;
+  private final Handler handler=new Handler(Looper.getMainLooper());
   private ExoPlayer player;
-  private PlayerView screen;
-  private TextView status;
-  private int dp(int n){return (int)(getResources().getDisplayMetrics().density*n+.5f);}
-  private GradientDrawable fill(int color){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(13));return d;}
+  private LinearLayout top, bottom, center;
+  private TextView playPause,elapsed,remaining,buffer;
+  private SeekBar timeline;
+  private boolean seeking=false, controlsVisible=true;
+  private final Runnable hideControls=()->setControls(false);
+  private final Runnable progress=new Runnable(){
+    @Override public void run(){
+      if(player!=null){
+        long position=Math.max(0,player.getCurrentPosition()),duration=player.getDuration();
+        if(duration>0&&!seeking&&timeline!=null)timeline.setProgress((int)Math.min(1000,1000d*position/duration));
+        if(elapsed!=null)elapsed.setText(clock(position));
+        if(remaining!=null)remaining.setText(duration>0?clock(duration):"--:--");
+        if(playPause!=null)playPause.setText(player.isPlaying()?"Ⅱ":"▶");
+        handler.postDelayed(this,450);
+      }
+    }
+  };
+  private int dp(float v){return (int)(v*getResources().getDisplayMetrics().density+.5f);}
+  private GradientDrawable round(int c,int radius){GradientDrawable d=new GradientDrawable();d.setColor(c);d.setCornerRadius(dp(radius));return d;}
+  private GradientDrawable fade(boolean top){
+    return new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+      top?new int[]{0xdf080a11,0x00080a11}:new int[]{0x00080a11,0xf5080a11});
+  }
+  private TextView label(String s,int size,boolean bold){
+    TextView t=new TextView(this);t.setText(s);t.setTextColor(Color.WHITE);t.setTextSize(size);
+    if(bold)t.setTypeface(Typeface.DEFAULT,Typeface.BOLD);return t;
+  }
+  private TextView control(String s,int size,int w,int h,LinearLayout row){
+    TextView t=label(s,size,true);t.setGravity(Gravity.CENTER);t.setBackground(round(0xa91b1d2b,100));
+    LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(w),dp(h));p.setMargins(dp(10),0,dp(10),0);row.addView(t,p);return t;
+  }
+  private static String clock(long ms){
+    long sec=Math.max(0,ms)/1000;
+    return String.format(Locale.US,"%02d:%02d",sec/60,sec%60);
+  }
+  private void immersive(){
+    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    getWindow().getDecorView().setSystemUiVisibility(
+      View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY|View.SYSTEM_UI_FLAG_FULLSCREEN|
+      View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|
+      View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+  }
   @Override public void onCreate(Bundle b){
-    super.onCreate(b);setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-    getWindow().setStatusBarColor(Color.BLACK);getWindow().setNavigationBarColor(Color.BLACK);
+    super.onCreate(b);
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+    immersive();
     String url=getIntent().getStringExtra("url"),title=getIntent().getStringExtra("title");
     if(url==null||!url.startsWith("https://")){finish();return;}
-    android.widget.FrameLayout frame=new FrameLayout(this);frame.setBackgroundColor(0xff07080e);setContentView(frame);
-    screen=new PlayerView(this);screen.setUseController(true);screen.setKeepScreenOn(true);
-    screen.setControllerShowTimeoutMs(4000);screen.setControllerAutoShow(true);
-    frame.addView(screen,new FrameLayout.LayoutParams(-1,-1));
-    LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);top.setPadding(dp(18),dp(10),dp(18),dp(10));
-    GradientDrawable fade=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0xee090914,0x00090914});
-    top.setBackground(fade);
-    FrameLayout.LayoutParams tp=new FrameLayout.LayoutParams(-1,dp(76),Gravity.TOP);frame.addView(top,tp);
-    TextView back=new TextView(this);back.setText("‹");back.setTextSize(34);back.setGravity(Gravity.CENTER);back.setTextColor(-1);
-    top.addView(back,new LinearLayout.LayoutParams(dp(44),-1));back.setOnClickListener(v->finish());
-    TextView name=new TextView(this);name.setText(title==null?"MiraculousHub":title);name.setTextSize(18);name.setTypeface(null,Typeface.BOLD);name.setSingleLine(true);name.setEllipsize(android.text.TextUtils.TruncateAt.END);name.setTextColor(-1);top.addView(name,new LinearLayout.LayoutParams(0,-2,1));
-    status=new TextView(this);status.setText("Loading video…");status.setTextSize(13);status.setTextColor(0xffffb8cf);status.setGravity(Gravity.CENTER);status.setBackground(fill(0xcc1d1724));status.setPadding(dp(16),dp(12),dp(16),dp(12));
-    FrameLayout.LayoutParams sp=new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER);frame.addView(status,sp);
-    player=new ExoPlayer.Builder(this).build();screen.setPlayer(player);
+    FrameLayout root=new FrameLayout(this);root.setBackgroundColor(Color.BLACK);setContentView(root);
+    PlayerView video=new PlayerView(this);video.setUseController(false);video.setKeepScreenOn(true);
+    root.addView(video,new FrameLayout.LayoutParams(-1,-1));
+    View hitArea=new View(this);root.addView(hitArea,new FrameLayout.LayoutParams(-1,-1));
+    hitArea.setOnClickListener(v->{setControls(!controlsVisible);});
+    top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);
+    top.setPadding(dp(19),dp(8),dp(18),dp(10));top.setBackground(fade(true));
+    FrameLayout.LayoutParams topP=new FrameLayout.LayoutParams(-1,dp(72),Gravity.TOP);root.addView(top,topP);
+    TextView back=label("‹",36,false);back.setGravity(Gravity.CENTER);
+    top.addView(back,new LinearLayout.LayoutParams(dp(52),-1));back.setOnClickListener(v->finish());
+    TextView titleLabel=label(title==null?"MiraculousHub":title,18,true);
+    titleLabel.setMaxLines(1);titleLabel.setEllipsize(TextUtils.TruncateAt.END);
+    top.addView(titleLabel,new LinearLayout.LayoutParams(0,-2,1));
+    TextView brand=label("MIRACULOUSHUB",10,true);brand.setTextColor(0xffff81a9);top.addView(brand);
+    center=new LinearLayout(this);center.setGravity(Gravity.CENTER);
+    FrameLayout.LayoutParams centerP=new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER);root.addView(center,centerP);
+    TextView back10=control("↶ 10",17,78,58,center);
+    playPause=control("▶",34,80,80,center);
+    playPause.setBackground(round(PINK,100));
+    TextView forward10=control("10 ↷",17,78,58,center);
+    back10.setOnClickListener(v->{skip(-10000);showTemporarily();});
+    forward10.setOnClickListener(v->{skip(10000);showTemporarily();});
+    playPause.setOnClickListener(v->{
+      if(player==null)return;
+      if(player.isPlaying())player.pause();else player.play();
+      showTemporarily();
+    });
+    bottom=new LinearLayout(this);bottom.setOrientation(LinearLayout.VERTICAL);
+    bottom.setPadding(dp(26),dp(20),dp(26),dp(14));bottom.setBackground(fade(false));
+    FrameLayout.LayoutParams bottomP=new FrameLayout.LayoutParams(-1,dp(95),Gravity.BOTTOM);root.addView(bottom,bottomP);
+    timeline=new SeekBar(this);timeline.setMax(1000);timeline.setProgressTintList(android.content.res.ColorStateList.valueOf(PINK));
+    timeline.setThumbTintList(android.content.res.ColorStateList.valueOf(PINK));
+    bottom.addView(timeline,new LinearLayout.LayoutParams(-1,dp(42)));
+    timeline.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+      public void onStartTrackingTouch(SeekBar s){seeking=true;handler.removeCallbacks(hideControls);}
+      public void onProgressChanged(SeekBar s,int p,boolean fromUser){
+        if(fromUser&&player!=null&&player.getDuration()>0&&elapsed!=null)
+          elapsed.setText(clock((long)(player.getDuration()*p/1000.0)));
+      }
+      public void onStopTrackingTouch(SeekBar s){
+        if(player!=null&&player.getDuration()>0)player.seekTo((long)(player.getDuration()*s.getProgress()/1000.0));
+        seeking=false;showTemporarily();
+      }
+    });
+    LinearLayout times=new LinearLayout(this);times.setGravity(Gravity.CENTER_VERTICAL);bottom.addView(times);
+    elapsed=label("00:00",13,true);times.addView(elapsed);
+    TextView split=label(" / ",13,false);split.setTextColor(0xffa2aab8);times.addView(split);
+    remaining=label("--:--",13,false);times.addView(remaining);
+    View spacer=new View(this);times.addView(spacer,new LinearLayout.LayoutParams(0,dp(1),1));
+    TextView hint=label("← 10s    •    10s →",12,false);hint.setTextColor(0xffafbbc9);times.addView(hint);
+    buffer=label("Loading video…",14,true);buffer.setGravity(Gravity.CENTER);
+    buffer.setPadding(dp(19),dp(12),dp(19),dp(12));buffer.setBackground(round(0xde171d2b,15));
+    FrameLayout.LayoutParams bp=new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER);
+    bp.topMargin=dp(102);root.addView(buffer,bp);
+    player=new ExoPlayer.Builder(this).build();video.setPlayer(player);
     player.addListener(new Player.Listener(){
-      @Override public void onPlaybackStateChanged(int state){if(status!=null)status.setVisibility(state==Player.STATE_READY?View.GONE:View.VISIBLE);if(state==Player.STATE_BUFFERING&&status!=null)status.setText("Buffering…");}
-      @Override public void onPlayerError(PlaybackException e){if(status!=null){status.setVisibility(View.VISIBLE);status.setText("Unable to play this video. Check the upload or stream access.");}}
+      @Override public void onPlaybackStateChanged(int state){
+        if(buffer==null)return;
+        if(state==Player.STATE_READY){buffer.setVisibility(View.GONE);showTemporarily();}
+        else if(state==Player.STATE_BUFFERING){buffer.setText("Buffering…");buffer.setVisibility(View.VISIBLE);}
+        else if(state==Player.STATE_ENDED){setControls(true);buffer.setVisibility(View.GONE);}
+      }
+      @Override public void onIsPlayingChanged(boolean playing){
+        if(playPause!=null)playPause.setText(playing?"Ⅱ":"▶");
+      }
+      @Override public void onPlayerError(PlaybackException e){
+        buffer.setText("Can't play this video. Check its upload and stream permissions.");
+        buffer.setVisibility(View.VISIBLE);setControls(true);
+      }
     });
     player.setMediaItem(MediaItem.fromUri(url));player.prepare();player.play();
+    handler.post(progress);showTemporarily();
   }
-  @Override protected void onStop(){super.onStop();if(player!=null){player.release();player=null;}}
+  private void skip(long ms){
+    if(player!=null)player.seekTo(Math.max(0,player.getCurrentPosition()+ms));
+  }
+  private void setControls(boolean show){
+    controlsVisible=show;
+    if(top!=null)top.setVisibility(show?View.VISIBLE:View.GONE);
+    if(bottom!=null)bottom.setVisibility(show?View.VISIBLE:View.GONE);
+    if(center!=null)center.setVisibility(show?View.VISIBLE:View.GONE);
+    immersive();
+  }
+  private void showTemporarily(){
+    setControls(true);handler.removeCallbacks(hideControls);
+    if(player!=null&&player.isPlaying())handler.postDelayed(hideControls,4200);
+  }
+  @Override protected void onStop(){
+    super.onStop();handler.removeCallbacks(hideControls);handler.removeCallbacks(progress);
+    if(player!=null){player.release();player=null;}
+  }
 }
