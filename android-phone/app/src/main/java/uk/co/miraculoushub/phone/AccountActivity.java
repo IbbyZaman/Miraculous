@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.Task;
 
 public class AccountActivity extends Activity {
   private static final int GOOGLE_REQUEST=416;
+  private static final int WEBSITE_REQUEST=417;
   private FirebaseAuth auth;
   private GoogleSignInClient google;
   private EditText email,password;
@@ -62,6 +63,11 @@ public class AccountActivity extends Activity {
     button("Continue with Google",0xfff8f9ff,()->{
       google.signOut().addOnCompleteListener(task->startActivityForResult(google.getSignInIntent(),GOOGLE_REQUEST));
     });
+    button("Sign in through MiraculousHub website",0xff302541,()->{
+      startActivityForResult(new Intent(this,WebsiteSignInActivity.class),WEBSITE_REQUEST);
+    });
+    TextView webHint=text("If Android Google sign-in fails, use the same Google account on our website to link this app securely.",12,false);
+    webHint.setTextColor(0xffb6bfd0);webHint.setPadding(0,dp(2),0,dp(20));root.addView(webHint);
     TextView sep=text("or sign in with email",13,false);sep.setGravity(Gravity.CENTER);sep.setTextColor(0xffb5a3bb);
     sep.setPadding(0,dp(8),0,dp(18));root.addView(sep);
     email=new EditText(this);email.setTextColor(-1);email.setHintTextColor(0xffa9a0af);email.setSingleLine();
@@ -88,12 +94,16 @@ public class AccountActivity extends Activity {
   }
   @Override protected void onActivityResult(int requestCode,int resultCode,Intent data){
     super.onActivityResult(requestCode,resultCode,data);
+    if(requestCode==WEBSITE_REQUEST){
+      if(resultCode==RESULT_OK&&auth.getCurrentUser()!=null)render();
+      return;
+    }
     if(requestCode!=GOOGLE_REQUEST)return;
     try{
       GoogleSignInAccount account=GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class);
       if(account==null||account.getIdToken()==null)throw new Exception("Google did not return a sign-in token.");
       auth.signInWithCredential(GoogleAuthProvider.getCredential(account.getIdToken(),null))
         .addOnCompleteListener(this,t->authFinished(t));
-    }catch(Exception e){if(feedback!=null){if(e instanceof ApiException&&((ApiException)e).getStatusCode()==10)feedback.setText("Google sign-in needs setup: add the current Android signing SHA-1 in Firebase, enable Google sign-in, then refresh google-services.json. (Error 10)");else feedback.setText("Google sign-in unavailable: "+e.getMessage());}}
+    }catch(Exception e){if(feedback!=null){if(e instanceof ApiException&&((ApiException)e).getStatusCode()==10)feedback.setText("Android Google sign-in returned error 10 (DEVELOPER_ERROR). The SHA-1 is already registered in Firebase, so please try the website sign-in option above. App build: "+BuildConfig.VERSION_NAME+"; web OAuth configuration or Google Play services may still require checking.");else feedback.setText("Google sign-in unavailable: "+e.getMessage());}}
   }
 }
