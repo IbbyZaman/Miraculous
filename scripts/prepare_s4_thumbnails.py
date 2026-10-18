@@ -56,7 +56,8 @@ def main(filename):
             count += 1
     if count:
         path.write_text(json.dumps(entries, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    print(f"Season 4: applied {count} title-matched stills from TVmaze; other episode artwork unchanged.")
+    unmatched = [ep.get("title") for ep in entries if ep.get("season") == 4 and not ep.get("thumbnail")]
+    print(f"Season 4: applied {count} title-matched stills from TVmaze; missing: {unmatched}")
 
 if __name__ == "__main__":
     for filename in sys.argv[1:]:
