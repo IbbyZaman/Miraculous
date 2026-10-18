@@ -54,10 +54,24 @@ def main(filename):
         if value:
             ep["thumbnail"] = value
             count += 1
-    if count:
+    # A shared series cover is better than a blank tile if a specific episode
+    # has no matching still or no image in the public metadata.
+    remainder = [ep for ep in entries if ep.get("season") == 4 and not ep.get("thumbnail")]
+    fallback_count = 0
+    if remainder:
+        try:
+            show = get_json("https://api.tvmaze.com/shows/5557")
+            cover = (show.get("image") or {}).get("original") or (show.get("image") or {}).get("medium")
+            if isinstance(cover, str) and cover.startswith("https://"):
+                for ep in remainder:
+                    ep["thumbnail"] = cover
+                    fallback_count += 1
+        except Exception as exc:
+            print("Season 4 series-cover fallback unavailable:", type(exc).__name__)
+    if count or fallback_count:
         path.write_text(json.dumps(entries, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     unmatched = [ep.get("title") for ep in entries if ep.get("season") == 4 and not ep.get("thumbnail")]
-    print(f"Season 4: applied {count} title-matched stills from TVmaze; missing: {unmatched}")
+    print(f"Season 4: {count} episode stills, {fallback_count} series-cover fallbacks, missing: {unmatched}")
 
 if __name__ == "__main__":
     for filename in sys.argv[1:]:
