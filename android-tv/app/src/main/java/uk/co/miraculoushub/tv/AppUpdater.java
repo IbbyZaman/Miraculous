@@ -3,6 +3,8 @@ package uk.co.miraculoushub.tv;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
+import android.content.ClipboardManager;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -45,6 +47,38 @@ public final class AppUpdater {
   private static class Release {
     final int version;final String url,hash;
     Release(int version,String url,String hash){this.version=version;this.url=url;this.hash=hash==null?"":hash.toLowerCase(Locale.US);}
+  }
+  /** A persistent dialog replaces easy-to-miss toast failures on TV. */
+  private static void showIssue(Activity a,String title,String details){
+    main.post(()->{
+      if(a.isFinishing()||a.isDestroyed())return;
+      new AlertDialog.Builder(a).setTitle(title).setMessage(details)
+        .setPositiveButton("OK",(d,w)->{})
+        .setNeutralButton("Copy details",(d,w)->{
+          ClipboardManager cb=(ClipboardManager)a.getSystemService(Context.CLIPBOARD_SERVICE);
+          if(cb!=null)cb.setPrimaryClip(ClipData.newPlainText("MiraculousHub update diagnostic",details));
+        }).show();
+    });
+  }
+  private static class CheckResult{
+    final boolean permitted,installerMustVerify;
+    final String message;
+    CheckResult(boolean allowed,boolean finalCheck,String details){
+      permitted=allowed;installerMustVerify=finalCheck;message=details;
+    }
+  }
+  private static String certDigest(Signature signature)throws Exception{
+    byte[] digest=MessageDigest.getInstance("SHA-256").digest(signature.toByteArray());
+    StringBuilder hex=new StringBuilder();
+    for(byte b:digest)hex.append(String.format(Locale.US,"%02X",b&0xff));
+    return hex.toString();
+  }
+  private static String fingerprint(Signature[] signatures){
+    if(signatures==null||signatures.length==0)return "Not available";
+    try{
+      String hash=certDigest(signatures[0]);
+      return hash.substring(0,16)+"…";
+    }catch(Exception e){return "Cannot read certificate";}
   }
   private static void notify(Activity context,String message){
     main.post(()->{if(!context.isFinishing()&&!context.isDestroyed())
@@ -215,19 +249,41 @@ public final class AppUpdater {
     return info.signatures;
   }
   @SuppressWarnings("deprecation")
-  private static boolean trustedPackage(Activity activity,File file,int newer)throws Exception{
+  private static CheckResult examinePackage(Activity activity,File file,int expected)throws Exception{
     PackageManager pm=activity.getPackageManager();
     int flags=Build.VERSION.SDK_INT>=28?PackageManager.GET_SIGNING_CERTIFICATES:PackageManager.GET_SIGNATURES;
     PackageInfo incoming=pm.getPackageArchiveInfo(file.getAbsolutePath(),flags);
     PackageInfo installed=pm.getPackageInfo(activity.getPackageName(),flags);
-    if(incoming==null||!activity.getPackageName().equals(incoming.packageName))return false;
-    long version=Build.VERSION.SDK_INT>=28?incoming.getLongVersionCode():incoming.versionCode;
-    long old=Build.VERSION.SDK_INT>=28?installed.getLongVersionCode():installed.versionCode;
-    if(version<=old||version!=newer)return false;
-    Signature[] a=signers(incoming),b=signers(installed);
-    if(a==null||b==null||a.length!=b.length||a.length==0)return false;
-    // Current development builds are signed by one persistent signing key.
-    return Arrays.equals(a,b);
+    if(incoming==null)return new CheckResult(false,false,
+      "Android couldn't read the downloaded APK metadata. Try downloading it again.\n\nFile: "+file.getName());
+    if(!activity.getPackageName().equals(incoming.packageName))
+      return new CheckResult(false,false,
+      "Wrong app package!\nInstalled: "+activity.getPackageName()+"\nDownloaded: "+incoming.packageName);
+    long newVersion=Build.VERSION.SDK_INT>=28?incoming.getLongVersionCode():incoming.versionCode;
+    long oldVersion=Build.VERSION.SDK_INT>=28?installed.getLongVersionCode():installed.versionCode;
+    if(newVersion<=oldVersion||newVersion!=expected)
+      return new CheckResult(false,false,"Version mismatch.\nInstalled build: "+oldVersion+
+        "\nDownloaded build: "+newVersion+"\nExpected build: "+expected+
+        "\nPlease try checking for updates again.");
+    Signature[] archiveCert=signers(incoming),installedCert=signers(installed);
+    if(archiveCert==null||archiveCert.length==0||installedCert==null||installedCert.length==0)
+      // Archive signature info can be absent on some Android/TV firmware.
+      // Android's own installer MUST still validate the APK certificate.
+      return new CheckResult(true,true,"Android's package inspector didn't return both certificates."+
+        "\nInstalled cert: "+fingerprint(installedCert)+
+        "\nDownloaded cert: "+fingerprint(archiveCert)+
+        "\n\nAndroid's system installer will verify the signature before installing.");
+    if(!Arrays.equals(archiveCert,installedCert))
+      return new CheckResult(false,false,
+        "The downloaded APK is signed with a different certificate.\n\n"+
+        "Installed build: "+oldVersion+"  •  Certificate: "+fingerprint(installedCert)+
+        "\nDownloaded build: "+newVersion+"  •  Certificate: "+fingerprint(archiveCert)+
+        "\n\nAndroid will not replace an app signed by a different key. "+
+        "Do not uninstall until your account and watch progress are synced. "+
+        "Send a screenshot of this message so we can investigate the installed build.");
+    return new CheckResult(true,false,
+      "Signing certificates match.\nInstalled build: "+oldVersion+
+      "\nDownloaded build: "+newVersion+"\nCertificate: "+fingerprint(installedCert));
   }
   private static void verifyAndPresent(Activity a,long id){
     try{
@@ -240,13 +296,19 @@ public final class AppUpdater {
         expected.getBytes(java.nio.charset.StandardCharsets.US_ASCII),
         sha256(file).getBytes(java.nio.charset.StandardCharsets.US_ASCII)))
         throw new SecurityException("Download checksum did not match");
-      if(!trustedPackage(a,file,version))
-        throw new SecurityException("Signing certificate or package version doesn't match the installed app. Updates must use the same signing key.");
+      CheckResult check=examinePackage(a,file,version);
+      if(!check.permitted){
+        showIssue(a,"Update blocked — details",check.message);
+        // Don't delete the verified APK: it can help diagnose a real mismatch.
+        a.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().putBoolean("staged",true).apply();
+        return;
+      }
       main.post(()->{
         if(a.isFinishing()||a.isDestroyed())return;
         new AlertDialog.Builder(a)
           .setTitle("Update downloaded ✓")
-          .setMessage("Build "+version+" is downloaded and verified. Install it over your current app? Android will ask for confirmation.")
+          .setMessage("Build "+version+" is downloaded and verified. Install it over your current app? Android will ask for confirmation."+
+            (check.installerMustVerify?"\n\n"+check.message:""))
           .setNegativeButton("Later",(d,w)->{
             a.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().putBoolean("staged",false).apply();
           })
@@ -254,7 +316,8 @@ public final class AppUpdater {
           .show();
       });
     }catch(Exception e){
-      clear(a);notify(a,"Update not installed: "+e.getMessage());
+      showIssue(a,"Update couldn't be prepared","Reason: "+e.getMessage()+
+        "\n\nThe current app is still installed and your data hasn't been changed.");
     }
   }
   private static void install(Activity activity,File file){
