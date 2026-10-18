@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
   private final Handler handler=new Handler(Looper.getMainLooper());
   private LinearLayout content, nav;
   private TextView status;
-  private String tab="Home", query="";
+  private String tab="Home", query=""; private String selectedAnime="";
   private final int background=0xff0c0914, surface=0xff251b33, accent=0xffff477f;
 
   @Override public void onCreate(Bundle state){super.onCreate(state);getWindow().setStatusBarColor(background);getWindow().setNavigationBarColor(background);loadAssets();rebuild();refresh();checkUpdates();}
@@ -60,7 +60,8 @@ public class MainActivity extends Activity {
     TextView heading=text("Home".equals(tab)?"Discover":"Continue".equals(tab)?"Keep watching":tab,28,true);LinearLayout.LayoutParams titleParams=new LinearLayout.LayoutParams(-1,-2);titleParams.topMargin=dp(16);content.addView(heading,titleParams);
     if("Search".equals(tab)){EditText search=new EditText(this);search.setSingleLine(true);search.setTextColor(-1);search.setHintTextColor(0xffa6a0b4);search.setHint("Search episode titles");search.setText(query);search.setBackground(bg(surface,12));search.setPadding(dp(14),dp(12),dp(14),dp(12));content.addView(search);search.addTextChangedListener(new android.text.TextWatcher(){public void beforeTextChanged(CharSequence s,int start,int count,int after){}public void onTextChanged(CharSequence s,int start,int before,int count){query=s.toString();drawSearchResults();}public void afterTextChanged(android.text.Editable e){}});resultsHolder=new LinearLayout(this);resultsHolder.setOrientation(LinearLayout.VERTICAL);content.addView(resultsHolder);drawSearchResults();}
     else if("Continue".equals(tab)){String recent=getPreferences(0).getString("recent","");ArrayList<JSONObject> matches=new ArrayList<>();for(JSONObject e:episodes)if(recent.equals(e.optString("code")))matches.add(e);row("Continue watching",matches);}
-    else if("Trailers".equals(tab)){row("Uploaded trailers",trailers);}
+    else if("Trailers".equals(tab)){row("Trailers & previews",trailers);}
+    else if("Anime".equals(tab)){animePage();}
     else if("Seasons".equals(tab)){for(int season=7;season>=1;season--){ArrayList<JSONObject> items=new ArrayList<>();for(JSONObject e:episodes)if(e.optInt("season")==season)items.add(e);if(!items.isEmpty())row("Season "+season,items);}}
     else{
       TextView hero=text("THE MIRACULOUS COLLECTION\nWatch your favourite adventures",23,true);
@@ -68,19 +69,63 @@ public class MainActivity extends Activity {
       android.graphics.drawable.GradientDrawable heroBg=new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.TL_BR,new int[]{0xffdc436e,0xff6b285f,0xff19162f});heroBg.setCornerRadius(dp(20));hero.setBackground(heroBg);
       LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(-1,dp(220));hp.topMargin=dp(18);content.addView(hero,hp);
       ArrayList<JSONObject> latest=new ArrayList<>(episodes);Collections.reverse(latest);
-      row("Just added",new ArrayList<>(latest.subList(0,Math.min(16,latest.size()))));
+      row("Latest episodes",new ArrayList<>(latest.subList(0,Math.min(14,latest.size()))));
+      animeShelf();
       row("Trailers & previews",trailers);
     }
     nav=new LinearLayout(this);nav.setGravity(Gravity.CENTER);nav.setPadding(dp(4),dp(8),dp(4),dp(8));nav.setBackgroundColor(0xff171120);root.addView(nav);
-    for(String name:new String[]{"Home","Seasons","Search","Trailers","Continue","Account"}){TextView button=text(("Home".equals(name)?"⌂ ":"Seasons".equals(name)?"▦ ":"Search".equals(name)?"⌕ ":"Trailers".equals(name)?"▶ ":"Continue".equals(name)?"◷ ":"♙ ")+name,10,name.equals(tab));button.setGravity(Gravity.CENTER);button.setTextColor(name.equals(tab)?accent:-1);button.setPadding(dp(2),dp(14),dp(2),dp(14));button.setOnClickListener(v->{if("Account".equals(name)){startActivity(new Intent(this,AccountActivity.class));return;}tab=name;rebuild();});nav.addView(button,new LinearLayout.LayoutParams(0,-2,1));}
+    for(String name:new String[]{"Home","Seasons","Anime","Trailers","Search","Account"}){TextView button=text(("Home".equals(name)?"⌂ ":"Seasons".equals(name)?"▦ ":"Search".equals(name)?"⌕ ":"Trailers".equals(name)?"▶ ":"Anime".equals(name)?"✧ ":"♙ ")+name,10,name.equals(tab));button.setGravity(Gravity.CENTER);button.setTextColor(name.equals(tab)?accent:-1);button.setPadding(dp(2),dp(14),dp(2),dp(14));button.setOnClickListener(v->{if("Account".equals(name)){startActivity(new Intent(this,AccountActivity.class));return;}tab=name;rebuild();});nav.addView(button,new LinearLayout.LayoutParams(0,-2,1));}
   }
   private LinearLayout resultsHolder;
   private void drawSearchResults(){if(resultsHolder==null)return;resultsHolder.removeAllViews();String q=query.toLowerCase(Locale.ROOT).trim();if(q.isEmpty())return;int count=0;for(JSONObject e:episodes){if(e.optString("title").toLowerCase(Locale.ROOT).contains(q)||e.optString("code").toLowerCase(Locale.ROOT).contains(q)){card(resultsHolder,e);if(++count>=60)break;}}if(count==0)resultsHolder.addView(text("No matching episodes",15,false));}
-  private void row(String heading,ArrayList<JSONObject> data){TextView title=text(heading,19,true);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.topMargin=dp(24);p.bottomMargin=dp(10);content.addView(title,p);if(data.isEmpty()){TextView empty=text("Nothing here yet",14,false);empty.setTextColor(0xffaaa1b5);content.addView(empty);return;}for(JSONObject e:data)card(content,e);}
+  private void row(String heading,ArrayList<JSONObject> data){TextView title=text(heading,19,true);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.topMargin=dp(24);p.bottomMargin=dp(10);content.addView(title,p);if(data.isEmpty()){TextView empty=text("No uploads yet • Pull down or tap refresh",14,false);empty.setTextColor(0xffaaa1b5);content.addView(empty);return;}HorizontalScrollView rail=new HorizontalScrollView(this);rail.setHorizontalScrollBarEnabled(false);content.addView(rail);LinearLayout items=new LinearLayout(this);items.setOrientation(LinearLayout.HORIZONTAL);rail.addView(items);int max=Math.min(data.size(),36);for(int i=0;i<max;i++)card(items,data.get(i));}
   private void card(LinearLayout parent,JSONObject e){String code=e.optString("code"),name=e.optString("title","Episode");boolean trailer="trailer".equals(e.optString("kind"));
-    LinearLayout item=new LinearLayout(this);item.setOrientation(LinearLayout.VERTICAL);item.setPadding(dp(18),dp(22),dp(18),dp(20));item.setBackground(bg(surface,18));item.setElevation(dp(2));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.bottomMargin=dp(10);parent.addView(item,lp);
+    LinearLayout item=new LinearLayout(this);item.setOrientation(LinearLayout.VERTICAL);item.setPadding(dp(18),dp(22),dp(18),dp(20));item.setBackground(bg(surface,18));item.setElevation(dp(2));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(dp(216),dp(242));lp.rightMargin=dp(12);parent.addView(item,lp);
+    ImageView cover=new ImageView(this);cover.setScaleType(ImageView.ScaleType.CENTER_CROP);cover.setBackground(bg(0xff44314f,14));item.addView(cover,new LinearLayout.LayoutParams(-1,dp(115)));loadImage(cover,e.optString("thumbnail"));
     TextView eyebrow=text(trailer?"▶  EXCLUSIVE TRAILER":"●  "+code,12,true);eyebrow.setTextColor(accent);item.addView(eyebrow);TextView label=text(name,17,true);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.topMargin=dp(5);item.addView(label,p);TextView play=text(trailer?"Watch trailer   →":"Watch now   →",12,true);play.setTextColor(0xffeec3d8);LinearLayout.LayoutParams playParams=new LinearLayout.LayoutParams(-1,-2);playParams.topMargin=dp(12);item.addView(play,playParams);
-    item.setOnClickListener(v->{String url=trailer?"https://upload.miraculoushub.co.uk/trailer?id="+e.optString("id"):HOST+e.optString("videoPath");if(!trailer)getPreferences(0).edit().putString("recent",code).apply();Intent playbackIntent=new Intent(this,PlayerActivity.class);playbackIntent.putExtra("url",url);playbackIntent.putExtra("title",name);startActivity(playbackIntent);});
+    item.setOnClickListener(v->{String url=trailer?HOST+"/video/trailer/"+e.optString("id"):HOST+e.optString("videoPath");if(!trailer)getPreferences(0).edit().putString("recent",code).apply();Intent playbackIntent=new Intent(this,PlayerActivity.class);playbackIntent.putExtra("url",url);playbackIntent.putExtra("title",name);startActivity(playbackIntent);});
+  }
+  private void loadImage(ImageView image,String value){
+    if(value==null||!value.startsWith("https://"))return;
+    new Thread(()->{try{
+      HttpURLConnection c=(HttpURLConnection)new URL(value).openConnection();
+      c.setConnectTimeout(5000);c.setReadTimeout(5000);
+      if(c.getResponseCode()!=200){c.disconnect();return;}
+      ByteArrayOutputStream out=new ByteArrayOutputStream();try(InputStream in=c.getInputStream()){
+        byte[] b=new byte[4096];int n;while((n=in.read(b))!=-1){if(out.size()+n>600000)break;out.write(b,0,n);}
+      }c.disconnect();byte[] data=out.toByteArray();
+      android.graphics.Bitmap bitmap=android.graphics.BitmapFactory.decodeByteArray(data,0,data.length);
+      if(bitmap!=null)handler.post(()->image.setImageBitmap(bitmap));
+    }catch(Exception ignored){} }).start();
+  }
+  private void animeShelf(){
+    TextView title=text("MONTHLY ANIMES",13,true);title.setTextColor(accent);
+    LinearLayout.LayoutParams m=new LinearLayout.LayoutParams(-1,-2);m.topMargin=dp(26);content.addView(title,m);
+    LinearLayout rail=new LinearLayout(this);rail.setOrientation(LinearLayout.HORIZONTAL);
+    content.addView(rail);
+    for(String[] show:new String[][]{{"Death Note","death-note"},{"Attack on Titan","attack-on-titan"},{"Black Clover","black-clover"}}){
+      TextView card=text(show[0]+"  →",15,true);card.setGravity(Gravity.CENTER);card.setBackground(bg(surface,15));
+      LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(110),1);lp.setMargins(0,dp(12),dp(8),0);rail.addView(card,lp);
+      card.setOnClickListener(v->{selectedAnime=show[1];tab="Anime";rebuild();});
+    }
+  }
+  private void animePage(){
+    if(selectedAnime.isEmpty()){animeShelf();return;}
+    String label=selectedAnime.equals("death-note")?"Death Note":selectedAnime.equals("attack-on-titan")?"Attack on Titan":"Black Clover";
+    TextView switcher=text("‹  All monthly animes",16,true);switcher.setTextColor(accent);switcher.setPadding(0,dp(12),0,dp(20));
+    content.addView(switcher);switcher.setOnClickListener(v->{selectedAnime="";rebuild();});
+    int count=selectedAnime.equals("death-note")?37:selectedAnime.equals("attack-on-titan")?94:170;
+    TextView heading=text(label+" • "+count+" episodes",19,true);content.addView(heading);
+    // These are website-configured paths; unavailable R2 uploads show the player's error.
+    for(int start=1;start<=count;start+=20){
+      ArrayList<JSONObject> batch=new ArrayList<>();
+      for(int n=start;n<=Math.min(count,start+19);n++){try{
+        JSONObject e=new JSONObject();e.put("title",label+" — Episode "+n);
+        e.put("code","EP "+n);e.put("videoPath","/video/anime/"+selectedAnime+"/e"+(selectedAnime.equals("black-clover")?String.format(Locale.US,"%03d",n):String.format(Locale.US,"%02d",n)));
+        batch.add(e);
+      }catch(Exception ignored){}}
+      row("Episodes "+start+"–"+Math.min(count,start+19),batch);
+    }
   }
   private void checkUpdates(){
     new Thread(()->{try{
