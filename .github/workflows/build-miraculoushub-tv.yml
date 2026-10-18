@@ -61,3 +61,42 @@ jobs:
           name: MiraculousHub TV build ${{ github.run_number }}
           files: android-tv/MiraculousHubTV.apk
           generate_release_notes: false
+
+      # The website download buttons point to these first-party APK mirrors.
+      # The package + JSON are committed together, so SHA256 and version match.
+      # A separate Pages deployment workflow publishes the site afterward.
+      - name: Mirror verified tv APK to website downloads
+        working-directory: .
+        env:
+          APK_BUILD: ${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/mh-apk-mirror
+          cp "android-tv/MiraculousHubTV.apk" "/tmp/mh-apk-mirror/MiraculousHubTV.apk"
+          SHA256=$(sha256sum "/tmp/mh-apk-mirror/MiraculousHubTV.apk" | cut -d ' ' -f1)
+          cat > "/tmp/mh-apk-mirror/tv.json" <<JSON
+          {"versionCode":${APK_BUILD},"versionName":"1.0.${APK_BUILD}","url":"https://miraculoushub.co.uk/downloads/MiraculousHubTV.apk","sha256":"${SHA256}"}
+          JSON
+          git config user.name "MiraculousHub Build Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git checkout -B mirror-downloads origin/main
+            mkdir -p downloads
+            EXISTING=$(python3 -c 'import json, pathlib; p=pathlib.Path("downloads/tv.json"); print(json.loads(p.read_text()).get("versionCode",0) if p.exists() else 0)' || echo 0)
+            if [ "$EXISTING" -ge "$APK_BUILD" ]; then
+              echo "Mirror already has build $EXISTING — skipping outdated build $APK_BUILD."
+              exit 0
+            fi
+            cp "/tmp/mh-apk-mirror/MiraculousHubTV.apk" "downloads/MiraculousHubTV.apk"
+            cp "/tmp/mh-apk-mirror/tv.json" "downloads/tv.json"
+            git add "downloads/MiraculousHubTV.apk" "downloads/tv.json"
+            git commit -m "Mirror tv APK build ${APK_BUILD} for direct website downloads"
+            if git push origin HEAD:main; then
+              echo "Published tv APK build ${APK_BUILD} to first-party mirror branch."
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Could not update first-party APK mirror after retrying."
+          exit 1
