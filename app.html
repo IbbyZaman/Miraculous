@@ -80,15 +80,17 @@
     const response=await fetch(metadata+"?t="+Date.now(),{cache:"no-store"});
     if(!response.ok)throw new Error("Mirror not published");
     const version=await response.json();
-    const required="https://miraculoushub.co.uk/downloads/"+file;
+    const stem=file.slice(0,-4);
+    const required="https://miraculoushub.co.uk/downloads/"+stem+"-"+version.versionCode+".apk";
     if(version.url!==required||!Number.isInteger(version.versionCode)||version.versionCode<1||
       !/^[a-f0-9]{64}$/.test(String(version.sha256||"")))throw new Error("Invalid update metadata");
-    const check=await fetch("/downloads/"+file,{method:"HEAD",cache:"no-store"});
+    const path="/downloads/"+stem+"-"+version.versionCode+".apk";
+    const check=await fetch(path,{method:"HEAD",cache:"no-store"});
     if(!check.ok)throw new Error("APK mirror unavailable");
     const bytes=Number(check.headers.get("Content-Length"));
     caption.textContent="Latest available • Build "+version.versionCode+
       (bytes>0?" • "+(bytes/1048576).toFixed(1)+" MB":"")+" • Direct from our website";
-    anchor.href="/downloads/"+file;
+    anchor.href=path;
     anchor.download=file;
     anchor.dataset.unavailable="false";
     anchor.removeAttribute("aria-disabled");
