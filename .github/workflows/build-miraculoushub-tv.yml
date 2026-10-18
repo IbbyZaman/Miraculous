@@ -75,7 +75,7 @@ jobs:
           cp "android-tv/MiraculousHubTV.apk" "/tmp/mh-apk-mirror/MiraculousHubTV.apk"
           SHA256=$(sha256sum "/tmp/mh-apk-mirror/MiraculousHubTV.apk" | cut -d ' ' -f1)
           cat > "/tmp/mh-apk-mirror/tv.json" <<JSON
-          {"versionCode":${APK_BUILD},"versionName":"1.0.${APK_BUILD}","url":"https://miraculoushub.co.uk/downloads/MiraculousHubTV.apk","sha256":"${SHA256}"}
+          {"versionCode":${APK_BUILD},"versionName":"1.0.${APK_BUILD}","url":"https://miraculoushub.co.uk/downloads/MiraculousHubTV-${APK_BUILD}.apk","sha256":"${SHA256}"}
           JSON
           git config user.name "MiraculousHub Build Bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -88,9 +88,24 @@ jobs:
               echo "Mirror already has build $EXISTING — skipping outdated build $APK_BUILD."
               exit 0
             fi
+            cp "/tmp/mh-apk-mirror/MiraculousHubTV.apk" "downloads/MiraculousHubTV-${APK_BUILD}.apk"
+            # Keep a stable latest alias for old links; versioned URLs are
+            # immutable to avoid cached APK / newer checksum mismatches.
             cp "/tmp/mh-apk-mirror/MiraculousHubTV.apk" "downloads/MiraculousHubTV.apk"
+            # Retain the five newest versioned APKs for ongoing downloads.
+            python3 - <<'PY'
+          import pathlib,re
+          root=pathlib.Path("downloads")
+          names=[]
+          for file in root.glob("MiraculousHubTV-*.apk"):
+              match=re.fullmatch(r"MiraculousHubTV-(\d+)\.apk", file.name)
+              if match: names.append((int(match.group(1)),file))
+          for _version,file in sorted(names,reverse=True)[5:]:
+              file.unlink()
+          PY
             cp "/tmp/mh-apk-mirror/tv.json" "downloads/tv.json"
-            git add "downloads/MiraculousHubTV.apk" "downloads/tv.json"
+            git add -A downloads/
+            # Ensures versioned APKs and the manifest are committed together.
             git commit -m "Mirror tv APK build ${APK_BUILD} for direct website downloads"
             if git push origin HEAD:main; then
               echo "Published tv APK build ${APK_BUILD} to first-party mirror branch."
