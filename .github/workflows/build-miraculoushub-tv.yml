@@ -6,6 +6,7 @@ on:
     branches: [main, master]
     paths:
       - 'android-tv/**'
+      - 'scripts/prepare_s4_thumbnails.py'
       - '.github/workflows/build-miraculoushub-tv.yml'
 
 jobs:
