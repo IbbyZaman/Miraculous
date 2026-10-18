@@ -332,6 +332,16 @@ public class MainActivity extends Activity {
     Intent intent=new Intent(this,PlayerActivity.class);intent.putExtra("url",url);intent.putExtra("title",title);
     if(!cloudKey.isEmpty())intent.putExtra("cloudKey",cloudKey);
     intent.putExtra("season",item.optInt("season"));intent.putExtra("episode",item.optInt("episode"));
+    if(!trailer&&item.optInt("season")>0&&item.optInt("episode")>0){
+      int nextEp=item.optInt("episode")+1,season=item.optInt("season");
+      for(JSONObject following:episodes)if(following.optInt("season")==season&&following.optInt("episode")==nextEp){
+        String nextPath=following.optString("videoPath","");
+        if(nextPath.startsWith("/video/")){
+          intent.putExtra("nextUrl",HOST+nextPath);intent.putExtra("nextTitle",following.optString("title","Next episode"));
+        }
+        break;
+      }
+    }
     startActivity(intent);
   }
   private void animeShelf(){
