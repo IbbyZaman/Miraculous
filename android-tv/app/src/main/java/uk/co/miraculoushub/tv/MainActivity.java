@@ -35,6 +35,8 @@ public class MainActivity extends Activity {
  private boolean updating=false;
  private String catalogError="";
  private long lastUpdateCheck=0;
+ private long lastLibrarySync=0;
+ private final Runnable liveRefresh=new Runnable(){@Override public void run(){refresh();handler.postDelayed(this,120000);}};
 
  @Override public void onCreate(Bundle saved){
    super.onCreate(saved);immersive();loadBundled();render();refresh();checkAppUpdates();
@@ -57,7 +59,9 @@ public class MainActivity extends Activity {
  private void space(LinearLayout parent,int n){View v=new View(this);parent.addView(v,new LinearLayout.LayoutParams(dp(1),dp(n)));}
  private void artwork(ImageView view,String url){
    view.setBackground(blend(0xff38263f,0xff151923,13));
-   if(url!=null&&url.startsWith("https://"))Glide.with(this).load(url).centerCrop().into(view);
+   if(url==null||url.isEmpty())return;
+   String resolved=url.startsWith("https://")?url:"https://miraculoushub.co.uk/"+url.replaceFirst("^/","");
+   if(resolved.startsWith("https://"))Glide.with(this).load(resolved).centerCrop().into(view);
  }
  private void loadBundled(){
    try(InputStream in=getAssets().open("episodes.json")){
@@ -68,26 +72,52 @@ public class MainActivity extends Activity {
      episodes.addAll(bundled);
    }catch(Exception e){android.util.Log.e("MiraculousTV","Missing bundled catalogue",e);}
  }
+ private String getText(String endpoint,int maxBytes) throws Exception {
+   HttpURLConnection conn=(HttpURLConnection)new URL(endpoint).openConnection();
+   conn.setConnectTimeout(8500);conn.setReadTimeout(8500);
+   conn.setRequestProperty("Accept","application/json, text/javascript");
+   conn.setRequestProperty("Cache-Control","no-cache");
+   conn.setRequestProperty("User-Agent","MiraculousHubTV/1.0");
+   if(conn.getResponseCode()!=200){int code=conn.getResponseCode();conn.disconnect();throw new IOException("HTTP "+code);}
+   ByteArrayOutputStream out=new ByteArrayOutputStream();
+   try(InputStream in=conn.getInputStream()){
+     byte[] b=new byte[8192];int n;
+     while((n=in.read(b))!=-1){
+       if(out.size()+n>maxBytes)throw new IOException("Response too large");
+       out.write(b,0,n);
+     }
+   }finally{conn.disconnect();}
+   return out.toString("UTF-8");
+ }
  private void refresh(){
-   if(updating)return;updating=true;
+   if(updating)return;updating=true;lastLibrarySync=System.currentTimeMillis();
    new Thread(()->{
+     LinkedHashMap<String,JSONObject> map=new LinkedHashMap<>();
+     for(JSONObject row:bundled)map.put(row.optString("code"),row);
+     String failure="";
+     ArrayList<JSONObject> ts=new ArrayList<>();
      try{
-       HttpURLConnection conn=(HttpURLConnection)new URL(CATALOG).openConnection();
-       conn.setConnectTimeout(9000);conn.setReadTimeout(9000);conn.setRequestProperty("Accept","application/json");
-       if(conn.getResponseCode()!=200)throw new IOException("HTTP "+conn.getResponseCode());
-       ByteArrayOutputStream out=new ByteArrayOutputStream();
-       try(InputStream in=conn.getInputStream()){
-         byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1){
-           if(out.size()+n>2000000)throw new IOException("Catalogue too large");
-           out.write(b,0,n);
-         }
-       }finally{conn.disconnect();}
-       JSONArray entries=new JSONObject(out.toString("UTF-8")).getJSONArray("entries");
-       LinkedHashMap<String,JSONObject> map=new LinkedHashMap<>();
-       for(JSONObject row:bundled)map.put(row.optString("code"),row);
-       ArrayList<JSONObject> ts=new ArrayList<>();
-       for(int i=0;i<entries.length();i++){
-         JSONObject row=entries.optJSONObject(i);if(row==null)continue;
+       // Fetch the site's own catalogue first: the APK's bundled fallback can get old.
+       String script=getText("https://miraculoushub.co.uk/data.js",1400000);
+       int marker=script.indexOf("window.MH_EPISODES"),open=script.indexOf('[',marker);
+       int close=script.indexOf("];",open);
+       if(marker<0||open<0||close<0)throw new IOException("Website episode data not found");
+       JSONArray site=new JSONArray(script.substring(open,close+1));
+       LinkedHashMap<String,JSONObject> fromWebsite=new LinkedHashMap<>();
+       for(int i=0;i<site.length();i++){
+         JSONObject row=site.optJSONObject(i);if(row==null)continue;
+         int season=row.optInt("season"),ep=row.optInt("episode");
+         if(season<1||season>7||ep<1||ep>99)continue;
+         String code=String.format(Locale.US,"S%02dE%02d",season,ep);
+         if(row.optBoolean("available",true))fromWebsite.put(code,row);
+       }
+       if(!fromWebsite.isEmpty())map=fromWebsite;
+     }catch(Exception ex){failure="Website library: "+ex.getMessage();}
+     try{
+       // Same upload R2 catalog used by upload.html and catalog.js on the website.
+       JSONArray rows=new JSONObject(getText(CATALOG,2000000)).getJSONArray("entries");
+       for(int i=0;i<rows.length();i++){
+         JSONObject row=rows.optJSONObject(i);if(row==null)continue;
          if("trailer".equals(row.optString("kind"))){
            if(row.optString("id").matches("[a-z0-9][a-z0-9-]{0,79}"))ts.add(row);
            continue;
@@ -98,24 +128,21 @@ public class MainActivity extends Activity {
          String code=String.format(Locale.US,"S%02dE%02d",season,ep);
          if(!row.optBoolean("available",true)){map.remove(code);continue;}
          JSONObject copy=new JSONObject(row.toString());copy.put("code",code);
-         copy.put("videoPath","/video/"+code.toLowerCase(Locale.US));map.put(code,copy);
+         copy.put("videoPath","/video/"+code.toLowerCase(Locale.US));
+         // Only the thumbnail explicitly saved in upload.html is applied.
+         map.put(code,copy);
        }
-       ArrayList<JSONObject> updated=new ArrayList<>(map.values());
-       updated.sort((a,b)->{
-         int s=Integer.compare(a.optInt("season"),b.optInt("season"));
-         return s!=0?s:Integer.compare(a.optInt("episode"),b.optInt("episode"));
-       });
-       handler.post(()->{
-         catalogError="";updating=false;episodes.clear();episodes.addAll(updated);
-         trailers.clear();trailers.addAll(ts);
-         render();if(networkStatus!=null)networkStatus.setText("● LIBRARY UPDATED");
-       });
-     }catch(Exception e){
-       handler.post(()->{
-         updating=false;catalogError=e.getMessage()==null?"Network unavailable":e.getMessage();
-         if(networkStatus!=null)networkStatus.setText("● OFFLINE  •  RETRY TO SYNC");
-       });
-     }
+     }catch(Exception ex){failure+=(failure.isEmpty()?"":" • ")+"Upload catalogue: "+ex.getMessage();}
+     ArrayList<JSONObject> updated=new ArrayList<>(map.values());
+     updated.sort((x,y)->{int c=Integer.compare(x.optInt("season"),y.optInt("season"));return c!=0?c:Integer.compare(x.optInt("episode"),y.optInt("episode"));});
+     String problem=failure;
+     handler.post(()->{
+       updating=false;catalogError=problem;
+       episodes.clear();episodes.addAll(updated);
+       trailers.clear();trailers.addAll(ts);
+       render();
+       if(networkStatus!=null)networkStatus.setText(problem.isEmpty()?"● WEBSITE LIBRARY LIVE":"● WEBSITE SYNC PARTIAL");
+     });
    }).start();
  }
  private void render(){
@@ -125,7 +152,7 @@ public class MainActivity extends Activity {
    TextView mark=text("M",43,true,PINK);mark.setTypeface(Typeface.SERIF,Typeface.BOLD);
    menu.addView(mark);TextView brand=text("MIRACULOUS",17,true);menu.addView(brand);
    TextView small=text("HUB  •  TV",14,true,PINK);menu.addView(small);space(menu,32);
-   for(String[] entry:new String[][]{{"⌂","Home"},{"▦","Episodes"},{"✦","Anime"},{"▷","Trailers"},{"◷","Continue"},{"↻","Refresh"}}){
+   for(String[] entry:new String[][]{{"⌂","Home"},{"▦","Episodes"},{"✦","Anime"},{"▷","Trailers"},{"◷","Continue"},{"◉","Account"},{"↻","Refresh"}}){
      TextView nav=text(entry[0]+"    "+entry[1],18,true);
      nav.setGravity(Gravity.CENTER_VERTICAL);nav.setPadding(dp(15),0,dp(8),0);
      nav.setFocusable(true);nav.setClickable(true);
@@ -139,12 +166,16 @@ public class MainActivity extends Activity {
        nav.animate().scaleX(focused?1.04f:1).scaleY(focused?1.04f:1).setDuration(120).start();
      });
      nav.setOnClickListener(v->{
-       if(entry[1].equals("Refresh")){refresh();Toast.makeText(this,"Checking for new episodes…",Toast.LENGTH_SHORT).show();}
+       if(entry[1].equals("Refresh")){refresh();Toast.makeText(this,"Checking the website for updates…",Toast.LENGTH_SHORT).show();}
+       else if(entry[1].equals("Account"))startActivity(new Intent(this,AccountActivity.class));
        else {page=entry[1];if(!"Anime".equals(page))selectedAnime="";render();}
      });
    }
    space(menu,10);
-   networkStatus=text(catalogError.isEmpty()?"● CONNECTED LIBRARY":"● OFFLINE LIBRARY",12,false,MUTED);menu.addView(networkStatus);
+   networkStatus=text(catalogError.isEmpty()?"● WEBSITE LIBRARY LIVE":"● SYNC PARTIAL • CHECK WORKER",11,false,MUTED);menu.addView(networkStatus);
+   com.google.firebase.auth.FirebaseUser signedIn=TvFirebase.auth(this).getCurrentUser();
+   TextView accountLabel=text(signedIn==null?"GUEST • SIGN IN FROM ACCOUNT":"SIGNED IN • "+(signedIn.getEmail()==null?"ACCOUNT":signedIn.getEmail()),11,false,0xffc7ceda);
+   space(menu,7);menu.addView(accountLabel);
    int buildVersion=0;try{buildVersion=getPackageManager().getPackageInfo(getPackageName(),0).versionCode;}catch(Exception ignored){}
    TextView version=text("TV  •  BUILD "+buildVersion,11,false,0xff8592a7);space(menu,15);menu.addView(version);
    TextView check=text("CHECK FOR APP UPDATE ↗",11,true,0xffff96b5);
@@ -253,7 +284,7 @@ public class MainActivity extends Activity {
    card.setOnClickListener(v->{
      String url=trailer?HOST+"/video/trailer/"+item.optString("id"):HOST+item.optString("videoPath");
      if(!trailer)getPreferences(0).edit().putString("recentUrl",url).putString("recentTitle",title).apply();
-     launch(url,title);
+     launch(url,title,item);
    });
    return card;
  }
@@ -316,9 +347,23 @@ public class MainActivity extends Activity {
    item.setBackground(bg(focused?on:off,12));
    item.animate().scaleX(focused?1.045f:1).scaleY(focused?1.045f:1).setDuration(135).start();
  }
- private void launch(String url,String title){
+ private void launch(String url,String title){launch(url,title,null);}
+ private void launch(String url,String title,JSONObject item){
    if(!url.startsWith("https://"))return;
    Intent intent=new Intent(this,PlayerActivity.class);intent.putExtra("url",url);intent.putExtra("title",title);
+   if(item!=null){
+     int season=item.optInt("season"),episode=item.optInt("episode");
+     String path=item.optString("videoPath");
+     if(season>0&&episode>0)intent.putExtra("cloudKey","s"+season+"e"+episode);
+     else if(path.startsWith("/video/anime/")){
+       String[] parts=path.split("/");
+       if(parts.length==5){String slug=parts[3],e=parts[4];try{
+         int number=Integer.parseInt(e.substring(1));
+         intent.putExtra("cloudKey","anime-"+slug+"-e"+number);
+       }catch(Exception ignored){}}
+     }
+     intent.putExtra("season",season);intent.putExtra("episode",episode);
+   }
    startActivity(intent);
  }
  private void checkAppUpdates(){checkAppUpdates(false);}
@@ -357,6 +402,7 @@ public class MainActivity extends Activity {
      }
    }).start();
  }
+ @Override protected void onPause(){handler.removeCallbacks(liveRefresh);super.onPause();}
  @Override public void onBackPressed(){
    if("Anime".equals(page)&&!selectedAnime.isEmpty()){selectedAnime="";render();}
    else if(!"Home".equals(page)){page="Home";render();}
@@ -365,6 +411,8 @@ public class MainActivity extends Activity {
  @Override protected void onResume(){
    super.onResume();immersive();
    if(System.currentTimeMillis()-lastUpdateCheck>15*60*1000)checkAppUpdates();
+   handler.removeCallbacks(liveRefresh);handler.postDelayed(liveRefresh,120000);
+   if(System.currentTimeMillis()-lastLibrarySync>120000)refresh();
    if("Continue".equals(page)&&content!=null)render();
  }
 }
