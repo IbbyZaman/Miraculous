@@ -45,6 +45,19 @@ jobs:
         run: echo "Phone versionCode = $GITHUB_RUN_NUMBER"
       - name: Build Phone APK
         run: gradle --no-daemon :app:assembleDebug
+      - name: Verify actual APK signing certificate
+        run: |
+          set -euo pipefail
+          EXPECTED=$(keytool -list -v -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey -storepass android -keypass android | sed -n 's/.*SHA-256: //p; s/.*SHA256: //p' | head -n 1 | tr -d ':' | tr '[:upper:]' '[:lower:]')
+          ACTUAL=$("$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/debug/app-debug.apk | sed -n 's/.*Signer #1 certificate SHA-256 digest: //p' | head -n 1 | tr -d ':' | tr '[:upper:]' '[:lower:]')
+          echo "Expected signing cert: $EXPECTED"
+          echo "Actual APK signing cert: $ACTUAL"
+          test -n "$EXPECTED"
+          test -n "$ACTUAL"
+          if [ "$EXPECTED" != "$ACTUAL" ]; then
+            echo "::error::Built APK has a different signing certificate; refusing to publish."
+            exit 1
+          fi
       - name: Print signing certificate fingerprint
         run: keytool -list -v -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey -storepass android -keypass android | grep -E 'SHA1:|SHA256:'
       - uses: actions/upload-artifact@v4
