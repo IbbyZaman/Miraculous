@@ -64,10 +64,18 @@ public class MainActivity extends Activity {
     else if("Anime".equals(tab)){animePage();}
     else if("Seasons".equals(tab)){for(int season=7;season>=1;season--){ArrayList<JSONObject> items=new ArrayList<>();for(JSONObject e:episodes)if(e.optInt("season")==season)items.add(e);if(!items.isEmpty())row("Season "+season,items);}}
     else{
-      TextView hero=text("THE MIRACULOUS COLLECTION\nWatch your favourite adventures",23,true);
-      hero.setGravity(Gravity.BOTTOM);hero.setPadding(dp(22),dp(18),dp(22),dp(22));hero.setOnClickListener(v->{tab="Seasons";rebuild();});
-      android.graphics.drawable.GradientDrawable heroBg=new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.TL_BR,new int[]{0xffdc436e,0xff6b285f,0xff19162f});heroBg.setCornerRadius(dp(20));hero.setBackground(heroBg);
-      LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(-1,dp(220));hp.topMargin=dp(18);content.addView(hero,hp);
+      FrameLayout hero=new FrameLayout(this);
+      hero.setBackground(bg(0xff48233f,22));hero.setClipToOutline(true);
+      ImageView poster=new ImageView(this);poster.setScaleType(ImageView.ScaleType.CENTER_CROP);
+      hero.addView(poster,new FrameLayout.LayoutParams(-1,-1));
+      loadImage(poster,"https://miraculoushub.co.uk/main-season7-poster.png");
+      View shade=new View(this);shade.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0x00230c26,0xdd160c1e,0xff0b0914}));
+      hero.addView(shade,new FrameLayout.LayoutParams(-1,-1));
+      TextView heroTitle=text("THE MIRACULOUS UNIVERSE\\nWelcome to MiraculousHub\\nSEASON 7  •  EXPLORE  →",22,true);
+      heroTitle.setGravity(Gravity.BOTTOM);heroTitle.setPadding(dp(20),dp(14),dp(20),dp(22));
+      hero.addView(heroTitle,new FrameLayout.LayoutParams(-1,-1));
+      hero.setOnClickListener(v->{tab="Seasons";rebuild();});
+      LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(-1,dp(250));hp.topMargin=dp(18);content.addView(hero,hp);
       ArrayList<JSONObject> latest=new ArrayList<>(episodes);Collections.reverse(latest);
       row("Latest episodes",new ArrayList<>(latest.subList(0,Math.min(14,latest.size()))));
       animeShelf();
