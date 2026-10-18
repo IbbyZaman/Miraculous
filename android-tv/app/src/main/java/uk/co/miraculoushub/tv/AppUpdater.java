@@ -311,8 +311,17 @@ public final class AppUpdater {
           return;
         }
       }
+      // Android may have installed this APK while the app was in the background.
+      // In that case clear the old download task instead of reporting a mismatch.
+      int installedNow=installedVersion(a);
+      if(installedNow>=version){
+        clear(a);
+        notify(a,"Already up to date • Build "+installedNow);
+        return;
+      }
       CheckResult check=examinePackage(a,file,version);
       if(!check.permitted){
+        if(check.message.startsWith("Already up to date")){clear(a);notify(a,"Already up to date.");return;}
         showIssue(a,"Update blocked — details",check.message);
         // Don't delete the verified APK: it can help diagnose a real mismatch.
         a.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().putBoolean("staged",true).apply();
