@@ -11,7 +11,7 @@
    for(const ep of window.MH_EPISODES||[]){
      if(ep.season!==4||ep.thumbnail)continue;
      const key=NORMALIZE(ep.title);
-     const url=map[key]||map[aliases[key]];
+     const url=map[key]||map[aliases[key]]||map.__seasonCover;
      if(url&&/^https:\/\//.test(url)){ep.thumbnail=url;changed++;}
    }
    if(changed)window.dispatchEvent(new CustomEvent("mh-season4-thumbnails",{detail:{updated:changed}}));
@@ -30,6 +30,17 @@
        if(typeof url!=="string"||!url.startsWith("https://"))continue;
        const key=NORMALIZE(ep.name);images[key]=url;
        if(aliases[key])images[aliases[key]]=url;
+     }
+     const missing=(window.MH_EPISODES||[]).some(ep=>ep.season===4&&!ep.thumbnail&&!images[NORMALIZE(ep.title)]&&!images[aliases[NORMALIZE(ep.title)]]);
+     if(missing){
+       try{
+         const coverResp=await fetch("https://api.tvmaze.com/shows/5557",{signal:AbortSignal.timeout(9000)});
+         if(coverResp.ok){
+           const show=await coverResp.json();
+           const cover=show?.image?.original||show?.image?.medium;
+           if(typeof cover==="string"&&cover.startsWith("https://"))images.__seasonCover=cover;
+         }
+       }catch(_e){}
      }
      sessionStorage.setItem("mh_s4_thumbs_v1",JSON.stringify(images));
      patch(images);
