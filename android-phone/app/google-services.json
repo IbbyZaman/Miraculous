@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "570314503995-u03epp6rhign5hphvthg1ktkr4faeh2o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "uk.co.miraculoushub.phone",
+            "certificate_hash": "0ce4483bc19289b27e3b7f9e6f5b13dfc970db11"
+          }
+        },
+        {
           "client_id": "570314503995-9lr4u1m59fdu40c9ljavu42gl6n4737r.apps.googleusercontent.com",
           "client_type": 3
         }
