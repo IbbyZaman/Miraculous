@@ -6,7 +6,6 @@ on:
     branches: [main, master]
     paths:
       - 'android-tv/**'
-      - 'scripts/prepare_s4_thumbnails.py'
       - '.github/workflows/build-miraculoushub-tv.yml'
 
 jobs:
@@ -44,8 +43,6 @@ jobs:
           if [ ! -f "$HOME/.android/debug.keystore" ]; then
             keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           fi
-      - name: Fill Season 4 stills from TVmaze
-        run: python3 ../scripts/prepare_s4_thumbnails.py app/src/main/assets/episodes.json
       - name: Build Android TV APK
         run: gradle --no-daemon :app:assembleDebug
       - name: Upload APK
