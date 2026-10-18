@@ -45,7 +45,7 @@
  <section class="apps-top">
   <p class="apps-kicker">YOUR SHOWS • YOUR SCREEN</p>
   <h1 class="apps-title">Watch anywhere.<br><span>MiraculousHub Apps.</span></h1>
-  <p class="apps-intro">Take the MiraculousHub experience to your Android phone or Android TV. Each download card finds the newest APK published in our GitHub releases.</p>
+  <p class="apps-intro">Take the MiraculousHub experience to your Android phone or Android TV. Both APKs download directly from MiraculousHub, with the latest version prepared by our build system.</p>
  </section>
  <section class="apps-grid" aria-label="App downloads">
   <article class="apps-card apps-phone">
@@ -53,14 +53,14 @@
    <h2>MiraculousHub Phone</h2>
    <p>Explore seasons, trailers and monthly anime in a modern app built for touchscreens. Sign-in is optional for browsing.</p>
    <div class="apps-meta" id="phone-version" aria-live="polite">Checking latest available build…</div>
-   <a class="apps-download" id="phone-link" href="https://github.com/IbbyZaman/Miraculous/releases" rel="noopener">View phone APK ↗</a>
+   <a class="apps-download" id="phone-link" href="/downloads/MiraculousHubPhone.apk" download="MiraculousHubPhone.apk">Download phone APK ↓</a>
   </article>
   <article class="apps-card apps-tv">
    <span class="apps-tag">✦ MADE FOR YOUR BIG SCREEN</span><div class="apps-art"><div class="apps-device"><strong>M</strong></div></div>
    <h2>MiraculousHub TV</h2>
    <p>A spacious cinema-style experience designed for Android TV remotes, readable episode rails and fullscreen playback.</p>
    <div class="apps-meta" id="tv-version" aria-live="polite">Checking latest available build…</div>
-   <a class="apps-download" id="tv-link" href="https://github.com/IbbyZaman/Miraculous/releases" rel="noopener">View TV APK ↗</a>
+   <a class="apps-download" id="tv-link" href="/downloads/MiraculousHubTV.apk" download="MiraculousHubTV.apk">Download TV APK ↓</a>
   </article>
  </section>
  <aside class="apps-note"><strong>Installing:</strong> Open the APK on your Android device and approve its installation when prompted. Android TV users can transfer the file using their preferred legitimate file-transfer method. Updates require the same signing certificate as your installed version; you may need to reinstall once when switching from an older test build. Only install files from our official GitHub releases.</aside>
@@ -68,22 +68,36 @@
 <footer class="apps-footer">MiraculousHub • <a href="index.html">Return to home</a> • <a href="https://github.com/IbbyZaman/Miraculous/releases">All releases</a></footer>
 <script>
 (async()=>{
- const endpoint="https://api.github.com/repos/IbbyZaman/Miraculous/releases?per_page=60";
- try{
-   const response=await fetch(endpoint,{headers:{"Accept":"application/vnd.github+json"},signal:AbortSignal.timeout(10000)});
-   if(!response.ok)throw new Error("GitHub release API "+response.status);
-   const releases=await response.json();if(!Array.isArray(releases))throw new Error("Invalid releases");
-   for(const [device,prefix,asset] of [["phone","phone-build-","MiraculousHubPhone.apk"],["tv","tv-build-","MiraculousHubTV.apk"]]){
-     const release=releases.filter(r=>!r.draft&&!r.prerelease&&typeof r.tag_name==="string"&&r.tag_name.startsWith(prefix))
-       .sort((a,b)=>Number(b.tag_name.slice(prefix.length))-Number(a.tag_name.slice(prefix.length)))
-       .find(r=>Array.isArray(r.assets)&&r.assets.some(a=>a.name===asset&&typeof a.browser_download_url==="string"&&a.browser_download_url.startsWith("https://github.com/")));
-     const anchor=document.getElementById(device+"-link"),label=document.getElementById(device+"-version");
-     if(!release){label.textContent="APK coming soon — see GitHub releases";continue;}
-     const file=release.assets.find(a=>a.name===asset);
-     anchor.href=file.browser_download_url;anchor.textContent="Download latest APK ↓";
-     label.textContent="Latest version • "+release.tag_name.replace(prefix,"Build ")+" • "+(file.size?Math.round(file.size/1048576*10)/10+" MB":"APK");
-   }
- }catch(e){for(const id of ["phone-version","tv-version"])document.getElementById(id).textContent="Live version unavailable — open GitHub releases";}
+ const available=[["phone","MiraculousHubPhone.apk"],["tv","MiraculousHubTV.apk"]];
+ for(const [device,file] of available){
+  const anchor=document.getElementById(device+"-link");
+  const caption=document.getElementById(device+"-version");
+  const metadata="/downloads/"+device+".json";
+  anchor.removeAttribute("href");anchor.setAttribute("aria-disabled","true");
+  anchor.dataset.unavailable="true";
+  anchor.textContent="Preparing direct download…";
+  try{
+    const response=await fetch(metadata+"?t="+Date.now(),{cache:"no-store"});
+    if(!response.ok)throw new Error("Mirror not published");
+    const version=await response.json();
+    const required="https://miraculoushub.co.uk/downloads/"+file;
+    if(version.url!==required||!Number.isInteger(version.versionCode)||version.versionCode<1||
+      !/^[a-f0-9]{64}$/.test(String(version.sha256||"")))throw new Error("Invalid update metadata");
+    const check=await fetch("/downloads/"+file,{method:"HEAD",cache:"no-store"});
+    if(!check.ok)throw new Error("APK mirror unavailable");
+    const bytes=Number(check.headers.get("Content-Length"));
+    caption.textContent="Latest available • Build "+version.versionCode+
+      (bytes>0?" • "+(bytes/1048576).toFixed(1)+" MB":"")+" • Direct from our website";
+    anchor.href="/downloads/"+file;
+    anchor.download=file;
+    anchor.dataset.unavailable="false";
+    anchor.removeAttribute("aria-disabled");
+    anchor.textContent="Download latest APK ↓";
+  }catch(error){
+    caption.textContent="Direct download is being published. Please check back soon.";
+    anchor.textContent="Download temporarily unavailable";
+  }
+ }
 })();
 </script>
 </body></html>
