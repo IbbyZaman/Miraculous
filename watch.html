@@ -282,6 +282,7 @@ body .player.theater{width:min(1560px,98vw);margin-left:50%;transform:translateX
   body .pbtn.wide{padding-inline:7px}
   body .player-time{font-size:8px}
 }
+ .tv-episode-panel{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:20px 0 8px;padding:17px;border:1px solid rgba(255,255,255,.18);background:rgba(24,27,42,.75);border-radius:18px}.tv-episode-panel select,.tv-episode-panel button{min-height:44px;padding:10px 14px;color:#fff;background:#24263a;border:1px solid rgba(255,255,255,.26);border-radius:12px;font:inherit}.tv-episode-panel button{background:#ff2f68;font-weight:700;cursor:pointer}.tv-episode-panel :focus-visible,#tvEpisodeChooser:focus-visible{outline:3px solid #78dbff;outline-offset:3px}.tv-episode-panel[hidden]{display:none!important}
 </style>
 
 <style id="player-v3-theme">
@@ -564,6 +565,7 @@ body .simple-player .quick-overlay{display:none}
     <div class="player-top">
       <span class="player-title" id="playerTitle">Nemesis</span>
       <span class="player-subtitle" id="playerCode">S06 E26</span>
+      <button class="pbtn wide" id="tvEpisodeChooser" type="button" aria-label="Choose season and episode">☷ Episodes</button>
     </div>
     <div class="player-bottom">
       <div class="progress-area" id="progressArea" aria-label="Video progress">
@@ -614,6 +616,7 @@ body .simple-player .quick-overlay{display:none}
   </div>
   <div class="description">Watch this episode on MiraculousHub. Your viewing progress is saved securely to your MiraculousHub account when you are signed in.</div>
   <div class="prevnext"><a id="prev" href="#">← Previous</a><a id="next" href="#">Next →</a></div>
+  <div class="tv-episode-panel" id="tvEpisodePanel"><label for="tvSeasonSelect">Season</label><select id="tvSeasonSelect" aria-label="Choose season"></select><label for="tvEpisodeSelect">Episode</label><select id="tvEpisodeSelect" aria-label="Choose episode"></select><button id="tvEpisodeGo" type="button">▶ Watch selected episode</button></div>
  </section>
 
 
@@ -715,6 +718,36 @@ if(isAnime){
 }
 
 
+// TV/remote-friendly season and episode navigation. Only use catalogue episodes.
+const tvPanel=$("tvEpisodePanel"),tvSeason=$("tvSeasonSelect"),tvEpisode=$("tvEpisodeSelect"),tvGo=$("tvEpisodeGo"),tvChooser=$("tvEpisodeChooser");
+if(isSpecial){tvPanel.hidden=true;tvChooser.hidden=true;}
+else{
+  const choices=isAnime
+    ? animeShow.episodes.map(item=>({season:item.group||"All",episode:Number(item.episode),title:item.title,url:`watch.html?anime=${encodeURIComponent(animeShow.slug)}&episode=${item.episode}`}))
+    : (window.MH_EPISODES||[]).filter(x=>Number(x.season)>0).map(item=>({season:Number(item.season),episode:Number(item.episode),title:item.title,url:`watch.html?season=${item.season}&episode=${item.episode}`}));
+  const groups=[...new Set(choices.map(x=>String(x.season)))].sort((a,b)=>Number(a)-Number(b)||a.localeCompare(b));
+  for(const group of groups){const o=document.createElement("option");o.value=group;o.textContent=isAnime?group:`Season ${group}`;tvSeason.append(o);}
+  const activeGroup=isAnime?String(animeEpisode.group||"All"):String(ep.season);
+  tvSeason.value=groups.includes(activeGroup)?activeGroup:groups[0];
+  const populateEpisodes=()=>{
+    tvEpisode.replaceChildren();
+    for(const item of choices.filter(x=>String(x.season)===tvSeason.value).sort((a,b)=>a.episode-b.episode)){
+      const o=document.createElement("option");o.value=item.url;
+      o.textContent=`E${String(item.episode).padStart(2,"0")} — ${item.title||"Episode"}`;tvEpisode.append(o);
+    }
+  };
+  tvSeason.addEventListener("change",populateEpisodes);populateEpisodes();
+  const active=choices.find(x=>x.episode===Number(ep.episode)&&String(x.season)===tvSeason.value);
+  if(active)tvEpisode.value=active.url;
+  tvGo.addEventListener("click",()=>{if(tvEpisode.value)location.href=tvEpisode.value;});
+  tvChooser.addEventListener("click",()=>{tvPanel.scrollIntoView({behavior:"smooth",block:"center"});tvSeason.focus();});
+  // Remote control: press N for next episode while the player is focused.
+  document.addEventListener("keydown",e=>{
+    if(e.key.toLowerCase()==="n"&&!e.ctrlKey&&!e.altKey&&!/input|select|textarea/i.test(document.activeElement?.tagName||"")){
+      const next=$("next");if(next&&next.style.visibility!=="hidden"&&next.getAttribute("href")!=="#")location.href=next.href;
+    }
+  });
+}
 const v=$("video"), player=$("player"), stage=$("stage"), progressArea=$("progressArea");
 const isSimpleAnime=isAnime;
 if(isSimpleAnime) player.classList.add("simple-player");
