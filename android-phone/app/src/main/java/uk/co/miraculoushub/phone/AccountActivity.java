@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.view.Gravity;
 import android.widget.*;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,7 +29,7 @@ public class AccountActivity extends Activity {
   private GradientDrawable shape(int c,int r){GradientDrawable d=new GradientDrawable();d.setColor(c);d.setCornerRadius(dp(r));return d;}
   private TextView text(String s,int size,boolean bold){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(-1);if(bold)t.setTypeface(null,Typeface.BOLD);return t;}
   @Override public void onCreate(Bundle b){
-    super.onCreate(b);getWindow().setStatusBarColor(0xff100e18);getWindow().setNavigationBarColor(0xff100e18);
+    super.onCreate(b);getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);getWindow().setStatusBarColor(0xff05070c);getWindow().setNavigationBarColor(0xff100e18);
     auth=FirebaseAuth.getInstance();
     GoogleSignInOptions options=new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
       .requestIdToken(getString(R.string.default_web_client_id)).requestEmail().build();
@@ -36,13 +37,13 @@ public class AccountActivity extends Activity {
     render();
   }
   private void button(String label,int color,Runnable action){
-    TextView v=text(label,16,true);v.setGravity(Gravity.CENTER);v.setBackground(shape(color,16));
+    TextView v=text(label,16,true);v.setGravity(Gravity.CENTER);v.setBackground(shape(color,16));if(label.equals("Continue with Google")){v.setText("G    Continue with Google");v.setTextColor(0xff182236);}
     LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(54));lp.bottomMargin=dp(12);
     root.addView(v,lp);v.setOnClickListener(w->action.run());
   }
   private void render(){
-    ScrollView scroll=new ScrollView(this);scroll.setBackgroundColor(0xff100e18);setContentView(scroll);
-    root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(dp(24),dp(52),dp(24),dp(20));scroll.addView(root);
+    ScrollView scroll=new ScrollView(this);scroll.setBackgroundColor(0xff05070c);setContentView(scroll);
+    root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(dp(24),dp(32),dp(24),dp(28));scroll.addView(root);
     TextView label=text("MIRACULOUSHUB",15,true);label.setTextColor(0xffff538c);root.addView(label);
     TextView title=text("Your account",32,true);title.setPadding(0,dp(16),0,dp(10));root.addView(title);
     TextView subtitle=text("Sign in to sync your watch history and account. Watching videos never requires an account.",14,false);
@@ -50,7 +51,7 @@ public class AccountActivity extends Activity {
     FirebaseUser user=auth.getCurrentUser();
     if(user!=null){
       TextView signed=text("Signed in as\\n"+(user.getEmail()!=null?user.getEmail():"Google account"),18,true);
-      signed.setPadding(dp(16),dp(18),dp(16),dp(22));signed.setBackground(shape(0xff291d37,18));root.addView(signed);
+      signed.setPadding(dp(16),dp(18),dp(16),dp(22));signed.setBackground(shape(0xff171b2b,18));root.addView(signed);
       button("Sign out",0xff603450,()->auth.signOut());
       // Re-render after sign-out; FirebaseAuth is the source of truth.
       root.getChildAt(root.getChildCount()-1).setOnClickListener(v->{
@@ -58,13 +59,13 @@ public class AccountActivity extends Activity {
       });
       return;
     }
-    button("Continue with Google",0xff4058aa,()->{
+    button("Continue with Google",0xfff8f9ff,()->{
       google.signOut().addOnCompleteListener(task->startActivityForResult(google.getSignInIntent(),GOOGLE_REQUEST));
     });
     TextView sep=text("or sign in with email",13,false);sep.setGravity(Gravity.CENTER);sep.setTextColor(0xffb5a3bb);
     sep.setPadding(0,dp(8),0,dp(18));root.addView(sep);
     email=new EditText(this);email.setTextColor(-1);email.setHintTextColor(0xffa9a0af);email.setSingleLine();
-    email.setHint("Email address");email.setInputType(33);email.setBackground(shape(0xff2a2236,14));
+    email.setHint("Email address");email.setInputType(33);email.setBackground(shape(0xff171b2b,14));
     email.setPadding(dp(14),dp(10),dp(14),dp(10));root.addView(email,new LinearLayout.LayoutParams(-1,dp(56)));
     password=new EditText(this);password.setTextColor(-1);password.setHintTextColor(0xffa9a0af);password.setSingleLine();
     password.setHint("Password");password.setInputType(129);password.setBackground(shape(0xff2a2236,14));
@@ -93,6 +94,6 @@ public class AccountActivity extends Activity {
       if(account==null||account.getIdToken()==null)throw new Exception("Google did not return a sign-in token.");
       auth.signInWithCredential(GoogleAuthProvider.getCredential(account.getIdToken(),null))
         .addOnCompleteListener(this,t->authFinished(t));
-    }catch(Exception e){if(feedback!=null)feedback.setText("Google sign-in unavailable: "+e.getMessage()+" — check your Firebase SHA-1 fingerprint.");}
+    }catch(Exception e){if(feedback!=null){if(e instanceof ApiException&&((ApiException)e).getStatusCode()==10)feedback.setText("Google sign-in needs setup: add the current Android signing SHA-1 in Firebase, enable Google sign-in, then refresh google-services.json. (Error 10)");else feedback.setText("Google sign-in unavailable: "+e.getMessage());}}
   }
 }
