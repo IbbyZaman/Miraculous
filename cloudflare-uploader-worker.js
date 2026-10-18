@@ -150,7 +150,13 @@ function uploadedRoutes(key){
 }
 export default{async fetch(request,env){
   if(request.method==="OPTIONS")return allowed(request)?new Response(null,{status:204,headers:cors(request)}):new Response("Forbidden",{status:403});
-  if(!allowed(request))return new Response("Forbidden - MiraculousHub only.",{status:403,headers:cors(request)});
+  // The catalogue is public information. Native Android requests usually have
+  // no Origin/Referer, so allow only this read-only endpoint without them.
+  // Uploads and all admin mutations retain the website and password checks.
+  const requestUrl=new URL(request.url);
+  const nativeCatalogueRead=request.method==="GET"&&requestUrl.pathname==="/catalog"&&
+    !request.headers.get("Origin")&&!request.headers.get("Referer");
+  if(!allowed(request)&&!nativeCatalogueRead)return new Response("Forbidden - MiraculousHub only.",{status:403,headers:cors(request)});
 
   if(!env.VIDEOS)return json(request,{error:"R2 binding VIDEOS is missing."},500);
 
