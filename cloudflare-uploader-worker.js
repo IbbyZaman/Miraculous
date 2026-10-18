@@ -206,11 +206,12 @@ async function firebaseCustomToken(uid,service){
 }
 async function pairingRead(env,id){
   const obj=await env.VIDEOS.get(TV_PAIR_PATH+id+".json");
-  return obj?obj.json():null;
+  return obj?{value:await obj.json(),etag:obj.etag}:null;
 }
-async function pairingWrite(env,id,entry){
-  await env.VIDEOS.put(TV_PAIR_PATH+id+".json",JSON.stringify(entry),
-    {httpMetadata:{contentType:"application/json"}});
+async function pairingWrite(env,id,entry,etag){
+  const options={httpMetadata:{contentType:"application/json"}};
+  if(etag)options.onlyIf={etagMatches:etag};
+  return !!await env.VIDEOS.put(TV_PAIR_PATH+id+".json",JSON.stringify(entry),options);
 }
 async function tvPairRoute(request,env,url){
   const path=url.pathname,device=path==="/tv-pair/start"||path==="/tv-pair/status";
@@ -233,7 +234,7 @@ async function tvPairRoute(request,env,url){
   if(path==="/tv-pair/info"&&request.method==="GET"){
     const id=url.searchParams.get("pair")||"";
     if(!/^[0-9a-f]{32}$/.test(id))return json(request,{error:"Invalid pairing link"},400);
-    const session=await pairingRead(env,id);
+    const read=await pairingRead(env,id),session=read?.value;
     if(!session)return json(request,{error:"Pairing no longer available"},404);
     if(Date.now()>=session.expiresAt){
       await env.VIDEOS.delete(TV_PAIR_PATH+id+".json");
@@ -246,15 +247,18 @@ async function tvPairRoute(request,env,url){
     const id=String(data.pair||""),deviceSecret=String(data.deviceSecret||"");
     if(!/^[0-9a-f]{32}$/.test(id)||!/^[0-9a-f]{64}$/.test(deviceSecret))
       return json(request,{error:"Invalid pairing"},400);
-    const session=await pairingRead(env,id);
+    const read=await pairingRead(env,id),session=read?.value;
     if(!session)return json(request,{status:"expired"},410);
     if(Date.now()>=session.expiresAt){await env.VIDEOS.delete(TV_PAIR_PATH+id+".json");return json(request,{status:"expired"},410)}
     if(!constantEqual(await fingerprint(deviceSecret),session.secretHash))
       return json(request,{error:"Not authorized"},403);
     if(session.state==="pending")return json(request,{status:"pending"});
     if(session.state!=="approved"||typeof session.uid!=="string")return json(request,{status:"expired"},410);
+    // Atomically redeem once, even if the TV retries from two connections.
+    // A second redemption fails the R2 ETag condition and never gets a token.
     const customToken=await firebaseCustomToken(session.uid,service);
-    await env.VIDEOS.delete(TV_PAIR_PATH+id+".json");
+    const redeemed=await pairingWrite(env,id,{...session,state:"redeemed",uid:null},read.etag);
+    if(!redeemed)return json(request,{status:"expired"},410);
     return json(request,{status:"approved",customToken});
   }
   if(path==="/tv-pair/approve"&&request.method==="POST"){
@@ -264,12 +268,13 @@ async function tvPairRoute(request,env,url){
       return json(request,{error:"Invalid pairing code"},400);
     const user=await verifyFirebaseUser(request,env);
     if(user.error)return json(request,{error:user.error},user.status);
-    const session=await pairingRead(env,id);
+    const read=await pairingRead(env,id),session=read?.value;
     if(!session)return json(request,{error:"Pairing not found"},404);
     if(session.expiresAt<=Date.now())return json(request,{error:"Pairing expired"},410);
     if(session.state!=="pending"||!constantEqual(session.code,code))
       return json(request,{error:"Pairing was already used or confirmation code does not match"},409);
-    await pairingWrite(env,id,{...session,state:"approved",uid:user.uid});
+    const saved=await pairingWrite(env,id,{...session,state:"approved",uid:user.uid},read.etag);
+    if(!saved)return json(request,{error:"Pairing was already approved. Try your TV again."},409);
     return json(request,{success:true,message:"TV approved. You can return to your TV."});
   }
   return json(request,{error:"Method not allowed"},405);
