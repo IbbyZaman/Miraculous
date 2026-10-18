@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'android-phone/**'
+      - 'scripts/prepare_s4_thumbnails.py'
       - '.github/workflows/build-miraculoushub-phone.yml'
 jobs:
   build:
