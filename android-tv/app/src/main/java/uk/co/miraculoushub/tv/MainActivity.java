@@ -15,6 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.Source;
 import org.json.*;
 import java.io.*;
 import java.net.*;
@@ -236,13 +240,79 @@ public class MainActivity extends Activity {
    rows("Latest trailers",new ArrayList<>(trailers));
  }
  private void continueWatching(){
-   title("Continue Watching","Pick up where you left off on this TV.");space(content,25);
+   title("Continue Watching","Watch on one device. Resume on your TV, phone or website.");
+   space(content,22);
+   FirebaseUser account=TvFirebase.auth(this).getCurrentUser();
+   if(account!=null){
+     TextView syncing=text("LOADING YOUR FIREBASE WATCH HISTORY…",13,true,0xffff9dbe);
+     content.addView(syncing);space(content,14);
+     LinearLayout holder=vertical();content.addView(holder);
+     TvFirebase.database(this).collection("users").document(account.getUid())
+       .collection("playback").orderBy("updatedAt",Query.Direction.DESCENDING).limit(25)
+       .get(Source.SERVER).addOnCompleteListener(this,result->{
+         if(!"Continue".equals(page)||holder.getParent()==null)return;
+         syncing.setVisibility(View.GONE);holder.removeAllViews();
+         if(!result.isSuccessful()){
+           holder.addView(text("Couldn't reach Firebase. Try again or use the device history below.",16,false,MUTED));
+           return;
+         }
+         HorizontalScrollView scroller=new HorizontalScrollView(this);
+         scroller.setHorizontalScrollBarEnabled(false);scroller.setClipChildren(false);
+         LinearLayout rail=new LinearLayout(this);rail.setClipChildren(false);rail.setPadding(dp(5),dp(6),dp(10),dp(10));
+         scroller.addView(rail);
+         for(DocumentSnapshot snap:result.getResult().getDocuments()){
+           JSONObject episode=findCloudEpisode(snap);
+           if(episode!=null)rail.addView(episodeCard(episode,scroller));
+         }
+         if(rail.getChildCount()>0)holder.addView(scroller);
+         else holder.addView(text("No account progress yet. Start a video on the website or your phone.",16,false,MUTED));
+       });
+   }else{
+     TextView message=text("Sign in to sync your watch history across devices.",17,false,MUTED);
+     content.addView(message);space(content,12);
+     TextView button=text("Sign in or pair with QR code  →",18,true);
+     button.setPadding(dp(19),dp(18),dp(19),dp(18));button.setFocusable(true);
+     button.setBackground(bg(PANEL,14));content.addView(button);
+     button.setOnFocusChangeListener((v,f)->focus(button,f,PINK,PANEL));
+     button.setOnClickListener(v->startActivity(new Intent(this,AccountActivity.class)));
+   }
+   space(content,22);
    String url=getPreferences(0).getString("recentUrl",""),label=getPreferences(0).getString("recentTitle","");
-   if(url.isEmpty()){content.addView(text("Watch an episode to save it to this device.",16,false,MUTED));return;}
-   TextView item=text("▶   Resume  •  "+label,22,true);item.setPadding(dp(20),dp(22),dp(20),dp(22));
+   if(url.isEmpty())return;
+   TextView last=text("On this device",19,true);content.addView(last);space(content,12);
+   TextView item=text("▶   Resume  •  "+label,20,true);item.setPadding(dp(20),dp(22),dp(20),dp(22));
    item.setFocusable(true);item.setBackground(bg(PANEL,15));content.addView(item);
    item.setOnFocusChangeListener((v,f)->focus(item,f,PINK,PANEL));
-   item.setOnClickListener(v->launch(url,label));
+   item.setOnClickListener(v->{
+     Intent intent=new Intent(this,PlayerActivity.class);intent.putExtra("url",url);intent.putExtra("title",label);
+     intent.putExtra("cloudKey",getPreferences(0).getString("recentKey",""));
+     intent.putExtra("season",getPreferences(0).getInt("recentSeason",0));
+     intent.putExtra("episode",getPreferences(0).getInt("recentEpisode",0));
+     startActivity(intent);
+   });
+ }
+ private JSONObject findCloudEpisode(DocumentSnapshot doc){
+   String key=doc.getId(),title=doc.getString("title");
+   try{
+     if(key.matches("s[0-9]+e[0-9]+")){
+       int delimiter=key.indexOf('e'),season=Integer.parseInt(key.substring(1,delimiter)),episode=Integer.parseInt(key.substring(delimiter+1));
+       for(JSONObject e:episodes)if(e.optInt("season")==season&&e.optInt("episode")==episode)return e;
+       JSONObject item=new JSONObject();
+       String code=String.format(Locale.US,"S%02dE%02d",season,episode);
+       item.put("season",season);item.put("episode",episode);item.put("code",code);
+       item.put("title",title==null?"Episode "+episode:title);
+       item.put("videoPath","/video/"+code.toLowerCase(Locale.US));return item;
+     }
+     if(key.matches("anime-[a-z0-9-]+-e[0-9]+")){
+       int delimiter=key.lastIndexOf("-e");String slug=key.substring(6,delimiter);
+       int episode=Integer.parseInt(key.substring(delimiter+2));
+       JSONObject item=new JSONObject();item.put("title",title==null?"Anime episode "+episode:title);
+       item.put("code","EP "+episode);item.put("thumbnail",cover(slug));
+       item.put("videoPath","/video/anime/"+slug+"/e"+String.format(Locale.US,"black-clover".equals(slug)?"%03d":"%02d",episode));
+       return item;
+     }
+   }catch(Exception ignored){}
+   return null;
  }
  private void rows(String heading,ArrayList<JSONObject> items){
    TextView title=text(heading,22,true);content.addView(title);space(content,12);
@@ -283,7 +353,9 @@ public class MainActivity extends Activity {
    });
    card.setOnClickListener(v->{
      String url=trailer?HOST+"/video/trailer/"+item.optString("id"):HOST+item.optString("videoPath");
-     if(!trailer)getPreferences(0).edit().putString("recentUrl",url).putString("recentTitle",title).apply();
+     if(!trailer)getPreferences(0).edit().putString("recentUrl",url).putString("recentTitle",title)
+       .putString("recentKey",cloudKeyForItem(item)).putInt("recentSeason",item.optInt("season"))
+       .putInt("recentEpisode",item.optInt("episode")).apply();
      launch(url,title,item);
    });
    return card;
@@ -346,6 +418,19 @@ public class MainActivity extends Activity {
  private void focus(View item,boolean focused,int on,int off){
    item.setBackground(bg(focused?on:off,12));
    item.animate().scaleX(focused?1.045f:1).scaleY(focused?1.045f:1).setDuration(135).start();
+ }
+ private String cloudKeyForItem(JSONObject item){
+   int season=item.optInt("season"),episode=item.optInt("episode");
+   if(season>0&&episode>0)return "s"+season+"e"+episode;
+   String path=item.optString("videoPath","");
+   if(path.startsWith("/video/anime/")){
+     String[] parts=path.split("/");
+     if(parts.length==5&&parts[4].matches("e[0-9]{1,3}")){
+       try{return "anime-"+parts[3]+"-e"+Integer.parseInt(parts[4].substring(1));}
+       catch(Exception ignored){}
+     }
+   }
+   return "";
  }
  private void launch(String url,String title){launch(url,title,null);}
  private void launch(String url,String title,JSONObject item){
