@@ -43,6 +43,8 @@ jobs:
           test -f "$HOME/.android/debug.keystore"
       - name: Show build version
         run: echo "Phone versionCode = $GITHUB_RUN_NUMBER"
+      - name: Fill Season 4 stills from TVmaze
+        run: python3 ../scripts/prepare_s4_thumbnails.py app/src/main/assets/episodes.json
       - name: Build Phone APK
         run: gradle --no-daemon :app:assembleDebug
       - name: Print signing certificate fingerprint
