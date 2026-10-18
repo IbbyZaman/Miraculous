@@ -40,7 +40,9 @@ public class PlayerActivity extends Activity {
   private LinearLayout top, bottom, center;
   private TextView playPause,elapsed,remaining,buffer;
   private SeekBar timeline;
-  private boolean seeking=false, controlsVisible=true;
+  private boolean seeking=false, controlsVisible=true,controlsLocked=false;
+  private TextView lockButton;
+  private String nextUrl="",nextTitle="";
   private DocumentReference cloudDocument;
   private String cloudKey,cloudTitle,accountScope="guest";
   private int cloudSeason,cloudEpisode;
@@ -97,6 +99,7 @@ public class PlayerActivity extends Activity {
     String url=getIntent().getStringExtra("url"),title=getIntent().getStringExtra("title");
     cloudTitle=title==null?"Episode":title;cloudSeason=getIntent().getIntExtra("season",0);
     cloudEpisode=getIntent().getIntExtra("episode",0);
+    nextUrl=getIntent().getStringExtra("nextUrl");nextTitle=getIntent().getStringExtra("nextTitle");
     cloudKey=getIntent().getStringExtra("cloudKey");
     FirebaseUser signedIn=FirebaseAuth.getInstance().getCurrentUser();
     if(signedIn!=null)accountScope=signedIn.getUid();
@@ -108,7 +111,7 @@ public class PlayerActivity extends Activity {
     PlayerView video=new PlayerView(this);video.setUseController(false);video.setKeepScreenOn(true);
     root.addView(video,new FrameLayout.LayoutParams(-1,-1));
     View hitArea=new View(this);root.addView(hitArea,new FrameLayout.LayoutParams(-1,-1));
-    hitArea.setOnClickListener(v->{setControls(!controlsVisible);});
+    hitArea.setOnClickListener(v->{if(controlsLocked){if(lockButton!=null)lockButton.setVisibility(lockButton.getVisibility()==View.VISIBLE?View.GONE:View.VISIBLE);}else setControls(!controlsVisible);});
     top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);
     top.setPadding(dp(19),dp(8),dp(18),dp(10));top.setBackground(fade(true));
     FrameLayout.LayoutParams topP=new FrameLayout.LayoutParams(-1,dp(72),Gravity.TOP);root.addView(top,topP);
@@ -117,7 +120,9 @@ public class PlayerActivity extends Activity {
     TextView titleLabel=label(title==null?"MiraculousHub":title,18,true);
     titleLabel.setMaxLines(1);titleLabel.setEllipsize(TextUtils.TruncateAt.END);
     top.addView(titleLabel,new LinearLayout.LayoutParams(0,-2,1));
-    TextView brand=label("MIRACULOUSHUB",10,true);brand.setTextColor(0xffff81a9);top.addView(brand);
+    lockButton=label("🔒 Lock",13,true);lockButton.setPadding(dp(14),dp(12),dp(14),dp(12));lockButton.setBackground(round(0xb022182c,13));
+    top.addView(lockButton);lockButton.setOnClickListener(v->toggleLock());
+    TextView brand=label("  ✦",18,true);brand.setTextColor(0xffff81a9);top.addView(brand);
     center=new LinearLayout(this);center.setGravity(Gravity.CENTER);
     FrameLayout.LayoutParams centerP=new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER);root.addView(center,centerP);
     TextView back10=control("↶ 10",17,78,58,center);
@@ -153,7 +158,14 @@ public class PlayerActivity extends Activity {
     TextView split=label(" / ",13,false);split.setTextColor(0xffa2aab8);times.addView(split);
     remaining=label("--:--",13,false);times.addView(remaining);
     View spacer=new View(this);times.addView(spacer,new LinearLayout.LayoutParams(0,dp(1),1));
-    TextView hint=label("← 10s    •    10s →",12,false);hint.setTextColor(0xffafbbc9);times.addView(hint);
+    TextView next=label(nextUrl!=null&&nextUrl.startsWith("https://")?"Next episode  ❯":"✦ MIRACULOUSHUB",13,true);next.setTextColor(0xffff90b6);next.setPadding(dp(12),dp(5),0,dp(5));times.addView(next);
+    if(nextUrl!=null&&nextUrl.startsWith("https://"))next.setOnClickListener(v->{
+      savePlayback(true);
+      android.content.Intent intent=new android.content.Intent(this,PlayerActivity.class);
+      intent.putExtra("url",nextUrl);intent.putExtra("title",nextTitle);
+      intent.putExtra("season",cloudSeason);intent.putExtra("episode",cloudEpisode+1);
+      intent.putExtra("cloudKey","s"+cloudSeason+"e"+(cloudEpisode+1));startActivity(intent);finish();
+    });
     buffer=label("Loading video…",14,true);buffer.setGravity(Gravity.CENTER);
     buffer.setPadding(dp(19),dp(12),dp(19),dp(12));buffer.setBackground(round(0xde171d2b,15));
     FrameLayout.LayoutParams bp=new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER);
@@ -209,11 +221,18 @@ public class PlayerActivity extends Activity {
   private void skip(long ms){
     if(player!=null)player.seekTo(Math.max(0,player.getCurrentPosition()+ms));
   }
+  private void toggleLock(){
+    controlsLocked=!controlsLocked;
+    if(controlsLocked){handler.removeCallbacks(hideControls);top.setVisibility(View.GONE);bottom.setVisibility(View.GONE);center.setVisibility(View.GONE);lockButton.setText("🔓 Unlock");lockButton.setVisibility(View.VISIBLE);}
+    else{lockButton.setText("🔒 Lock");showTemporarily();}
+  }
   private void setControls(boolean show){
+    if(controlsLocked)return;
     controlsVisible=show;
     if(top!=null)top.setVisibility(show?View.VISIBLE:View.GONE);
     if(bottom!=null)bottom.setVisibility(show?View.VISIBLE:View.GONE);
     if(center!=null)center.setVisibility(show?View.VISIBLE:View.GONE);
+    if(lockButton!=null)lockButton.setVisibility(show?View.VISIBLE:View.GONE);
     immersive();
   }
   private void showTemporarily(){
