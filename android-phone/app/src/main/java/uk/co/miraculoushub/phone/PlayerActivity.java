@@ -22,6 +22,16 @@ import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
 import java.util.Locale;
+import java.util.HashMap;
+import java.util.Map;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Source;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.SetOptions;
 
 public class PlayerActivity extends Activity {
   private static final int PINK=0xffff2f68;
@@ -31,6 +41,15 @@ public class PlayerActivity extends Activity {
   private TextView playPause,elapsed,remaining,buffer;
   private SeekBar timeline;
   private boolean seeking=false, controlsVisible=true;
+  private DocumentReference cloudDocument;
+  private String cloudKey,cloudTitle,accountScope="guest";
+  private int cloudSeason,cloudEpisode;
+  private boolean cloudReady=false,userSeeked=false;
+  private long lastCloudWrite=0;
+  private final Runnable cloudTimer=new Runnable(){@Override public void run(){
+    savePlayback(false);
+    if(player!=null)handler.postDelayed(this,6000);
+  }};
   private final Runnable hideControls=()->setControls(false);
   private final Runnable progress=new Runnable(){
     @Override public void run(){
@@ -74,6 +93,14 @@ public class PlayerActivity extends Activity {
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
     immersive();
     String url=getIntent().getStringExtra("url"),title=getIntent().getStringExtra("title");
+    cloudTitle=title==null?"Episode":title;cloudSeason=getIntent().getIntExtra("season",0);
+    cloudEpisode=getIntent().getIntExtra("episode",0);
+    cloudKey=getIntent().getStringExtra("cloudKey");
+    FirebaseUser signedIn=FirebaseAuth.getInstance().getCurrentUser();
+    if(signedIn!=null)accountScope=signedIn.getUid();
+    if(signedIn!=null&&cloudKey!=null&&cloudKey.matches("[a-z0-9-]{2,100}"))
+      cloudDocument=FirebaseFirestore.getInstance().collection("users").document(signedIn.getUid())
+        .collection("playback").document(cloudKey);
     if(url==null||!url.startsWith("https://")){finish();return;}
     FrameLayout root=new FrameLayout(this);root.setBackgroundColor(Color.BLACK);setContentView(root);
     PlayerView video=new PlayerView(this);video.setUseController(false);video.setKeepScreenOn(true);
@@ -95,8 +122,8 @@ public class PlayerActivity extends Activity {
     playPause=control("▶",34,80,80,center);
     playPause.setBackground(round(PINK,100));
     TextView forward10=control("10 ↷",17,78,58,center);
-    back10.setOnClickListener(v->{skip(-10000);showTemporarily();});
-    forward10.setOnClickListener(v->{skip(10000);showTemporarily();});
+    back10.setOnClickListener(v->{userSeeked=true;skip(-10000);showTemporarily();});
+    forward10.setOnClickListener(v->{userSeeked=true;skip(10000);showTemporarily();});
     playPause.setOnClickListener(v->{
       if(player==null)return;
       if(player.isPlaying())player.pause();else player.play();
@@ -109,7 +136,7 @@ public class PlayerActivity extends Activity {
     timeline.setThumbTintList(android.content.res.ColorStateList.valueOf(PINK));
     bottom.addView(timeline,new LinearLayout.LayoutParams(-1,dp(42)));
     timeline.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
-      public void onStartTrackingTouch(SeekBar s){seeking=true;handler.removeCallbacks(hideControls);}
+      public void onStartTrackingTouch(SeekBar s){seeking=true;userSeeked=true;handler.removeCallbacks(hideControls);}
       public void onProgressChanged(SeekBar s,int p,boolean fromUser){
         if(fromUser&&player!=null&&player.getDuration()>0&&elapsed!=null)
           elapsed.setText(clock((long)(player.getDuration()*p/1000.0)));
@@ -146,7 +173,31 @@ public class PlayerActivity extends Activity {
       }
     });
     player.setMediaItem(MediaItem.fromUri(url));player.prepare();player.play();
-    handler.post(progress);showTemporarily();
+    if(cloudDocument!=null){
+      // Always read the server resume point BEFORE uploading initial position 0:00.
+      cloudDocument.get(Source.SERVER).addOnCompleteListener(this,result->{
+        if(player==null)return;
+        if(!result.isSuccessful()){
+          // Do not overwrite a possibly newer server checkpoint while offline.
+          cloudReady=false;
+          android.util.Log.w("MiraculousHub","Cloud resume unavailable",result.getException());
+          return;
+        }
+        DocumentSnapshot record=result.getResult();
+        Object current=record==null?null:record.get("position");
+        if(!userSeeked&&current instanceof Number){
+          long position=(long)(((Number)current).doubleValue()*1000);
+          long duration=player.getDuration();
+          if(position>0&&(duration<=0||position<duration-4000))player.seekTo(position);
+        }
+        cloudReady=true;
+      });
+    }else if(cloudKey!=null&&!cloudKey.isEmpty()){
+      long local=getSharedPreferences("mh-playback-cache",MODE_PRIVATE)
+        .getLong(accountScope+":"+cloudKey,0L);
+      if(local>0)player.seekTo(local);
+    }
+    handler.post(progress);handler.postDelayed(cloudTimer,6000);showTemporarily();
   }
   private void skip(long ms){
     if(player!=null)player.seekTo(Math.max(0,player.getCurrentPosition()+ms));
@@ -162,8 +213,35 @@ public class PlayerActivity extends Activity {
     setControls(true);handler.removeCallbacks(hideControls);
     if(player!=null&&player.isPlaying())handler.postDelayed(hideControls,4200);
   }
+  private void savePlayback(boolean force){
+    if(player==null||cloudKey==null||cloudKey.isEmpty())return;
+    long position=player.getCurrentPosition(),duration=player.getDuration();
+    if(position<0||duration<=0)return;
+    if(!force&&!player.isPlaying())return;
+    // Keep a device checkpoint, too, for guests and interrupted connections.
+    getSharedPreferences("mh-playback-cache",MODE_PRIVATE).edit()
+      .putLong(accountScope+":"+cloudKey,position).apply();
+    if(cloudDocument==null||!cloudReady||position<1000)return;
+    if(!force&&System.currentTimeMillis()-lastCloudWrite<5500)return;
+    lastCloudWrite=System.currentTimeMillis();
+    Map<String,Object> values=new HashMap<>();
+    values.put("type",cloudKey.startsWith("anime-")?"anime":"episode");
+    values.put("season",cloudSeason);values.put("episode",cloudEpisode);
+    if(cloudKey.startsWith("anime-")){
+      int i=cloudKey.lastIndexOf("-e");
+      if(i>6)values.put("animeSlug",cloudKey.substring(6,i));
+    }
+    values.put("title",cloudTitle);values.put("position",position/1000.0);
+    values.put("duration",duration/1000.0);
+    values.put("progress",Math.max(0,Math.min(100,position*100.0/duration)));
+    values.put("updatedAt",FieldValue.serverTimestamp());
+    cloudDocument.set(values,SetOptions.merge()).addOnFailureListener(e->
+      android.util.Log.w("MiraculousHub","Could not sync playback",e));
+  }
   @Override protected void onStop(){
-    super.onStop();handler.removeCallbacks(hideControls);handler.removeCallbacks(progress);
+    savePlayback(true);
+    handler.removeCallbacks(hideControls);handler.removeCallbacks(progress);handler.removeCallbacks(cloudTimer);
     if(player!=null){player.release();player=null;}
+    super.onStop();
   }
 }
