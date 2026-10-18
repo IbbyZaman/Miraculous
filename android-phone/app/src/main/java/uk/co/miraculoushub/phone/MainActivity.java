@@ -342,6 +342,37 @@ public class MainActivity extends Activity {
         break;
       }
     }
+    if(!trailer){
+      JSONArray library=new JSONArray();
+      if(path.startsWith("/video/anime/")){
+        String[] chunks=path.split("/");
+        if(chunks.length==5){
+          String slug=chunks[3],showName=slug.equals("death-note")?"Death Note":slug.equals("attack-on-titan")?"Attack on Titan":"Black Clover";
+          int count=slug.equals("death-note")?37:slug.equals("attack-on-titan")?94:170;
+          for(int n=1;n<=count;n++){JSONObject entry=new JSONObject();
+            try{
+              entry.put("season",1);entry.put("episode",n);entry.put("title",showName+" • Episode "+n);
+              entry.put("path","/video/anime/"+slug+"/e"+String.format(Locale.US,slug.equals("black-clover")?"%03d":"%02d",n));
+              library.put(entry);
+            }catch(JSONException ignored){}
+          }
+        }
+      }else{
+        for(JSONObject itemInLibrary:episodes){
+          String videoPath=itemInLibrary.optString("videoPath","");
+          if(!videoPath.startsWith("/video/"))continue;
+          JSONObject entry=new JSONObject();
+          try{
+            entry.put("season",itemInLibrary.optInt("season"));
+            entry.put("episode",itemInLibrary.optInt("episode"));
+            entry.put("title",itemInLibrary.optString("title","Episode"));
+            entry.put("path",videoPath);
+            library.put(entry);
+          }catch(JSONException ignored){}
+        }
+      }
+      intent.putExtra("episodeLibrary",library.toString());
+    }
     startActivity(intent);
   }
   private void animeShelf(){
