@@ -26,6 +26,16 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      # Reuse the same debug certificate between builds so Android can update
+      # an installed development APK rather than rejecting its signature.
+      # A production app should use a private release keystore held in Actions secrets.
+      - name: Restore phone signing certificate
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: miraculoushub-phone-signing-v1
+      - name: Show build version
+        run: echo "Phone versionCode = $GITHUB_RUN_NUMBER"
       - name: Build Phone APK
         run: gradle --no-daemon :app:assembleDebug
       - uses: actions/upload-artifact@v4
