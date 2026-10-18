@@ -68,32 +68,59 @@ public class OfflineDownloadsActivity extends Activity {
     }catch(Exception ignored){}}
   }
   private static String readText(File f)throws Exception{try(InputStream in=new FileInputStream(f)){ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] b=new byte[4096];int n;while((n=in.read(b))>=0)out.write(b,0,n);return out.toString("UTF-8");}}
-  private void loadAvailable(){message("Loading episode catalogue…");list.removeAllViews();
-    new Thread(()->{try{HttpURLConnection c=(HttpURLConnection)new URL(CATALOG).openConnection();c.setConnectTimeout(12000);c.setReadTimeout(12000);
-      if(c.getResponseCode()!=200)throw new IOException("Catalogue unavailable");
-      ByteArrayOutputStream out=new ByteArrayOutputStream();
-      try(InputStream in=c.getInputStream()){byte[] b=new byte[8192];int n;while((n=in.read(b))>=0){if(out.size()+n>2000000)throw new IOException("Catalogue too large");out.write(b,0,n);}}finally{c.disconnect();}
-      JSONArray rows=new JSONObject(out.toString("UTF-8")).getJSONArray("entries");ArrayList<JSONObject> permitted=new ArrayList<>();
-      for(int i=0;i<rows.length();i++){JSONObject e=rows.optJSONObject(i);if(e!=null&&"episode".equals(e.optString("kind"))&&e.optBoolean("available",true))permitted.add(e);}
-      ui.post(()->{list.removeAllViews();message(permitted.isEmpty()?"No downloadable episodes were found in the catalogue.":"Choose an episode to download.");
-        for(JSONObject e:permitted){int season=e.optInt("season"),ep=e.optInt("episode");if(season<1||season>7||ep<1||ep>99)continue;
-          String id=String.format(Locale.US,"s%02de%02d",season,ep),title=e.optString("title",id);
-          item("⬇  "+title,()->download(id,title,season,ep));
+  private void loadAvailable(){message("Loading all published episodes…");list.removeAllViews();
+    new Thread(()->{
+      try{
+        // data.js is the same season catalogue used by the website and phone homepage.
+        HttpURLConnection conn=(HttpURLConnection)new URL("https://miraculoushub.co.uk/data.js").openConnection();
+        conn.setConnectTimeout(12000);conn.setReadTimeout(12000);
+        if(conn.getResponseCode()!=200)throw new IOException("Episode catalogue unavailable");
+        ByteArrayOutputStream out=new ByteArrayOutputStream();
+        try(InputStream in=conn.getInputStream()){
+          byte[] buf=new byte[8192];int n;
+          while((n=in.read(buf))!=-1){if(out.size()+n>2000000)throw new IOException("Catalogue too large");out.write(buf,0,n);}
+        }finally{conn.disconnect();}
+        String js=out.toString("UTF-8");
+        int marker=js.indexOf("window.MH_EPISODES"),begin=js.indexOf('[',marker),finish=js.indexOf("];",begin);
+        if(marker<0||begin<0||finish<0)throw new IOException("Episode catalogue format changed");
+        JSONArray episodes=new JSONArray(js.substring(begin,finish+1));
+        ArrayList<JSONObject> published=new ArrayList<>();
+        for(int i=0;i<episodes.length();i++){
+          JSONObject e=episodes.optJSONObject(i);
+          if(e==null||!e.optBoolean("available",true))continue;
+          int season=e.optInt("season"),ep=e.optInt("episode");
+          if(season>=1&&season<=7&&ep>=1&&ep<=99)published.add(e);
         }
-      });
-    }catch(Exception error){ui.post(()->message("Could not load available videos: "+error.getMessage()));}}).start();
+        published.sort((a,b)->{
+          int order=Integer.compare(a.optInt("season"),b.optInt("season"));
+          return order!=0?order:Integer.compare(a.optInt("episode"),b.optInt("episode"));
+        });
+        ui.post(()->{
+          list.removeAllViews();
+          message(published.isEmpty()?"No episodes found.":"Showing "+published.size()+" published episodes across all seasons.");
+          int current=0;
+          for(JSONObject e:published){
+            int season=e.optInt("season"),ep=e.optInt("episode");
+            if(current!=season){current=season;TextView header=label("Season "+season,20);header.setPadding(0,dp(18),0,dp(6));list.addView(header);}
+            String id=String.format(Locale.US,"s%02de%02d",season,ep);
+            String title=e.optString("title","Episode "+ep);
+            item("⬇  E"+ep+" · "+title,()->download(id,title,season,ep));
+          }
+        });
+      }catch(Exception error){ui.post(()->message("Could not load episodes: "+error.getMessage()));}
+    }).start();
   }
   private void download(String id,String title,int season,int episode){if(!id.matches("s[0-9]{2}e[0-9]{2}"))return;
     message("Downloading securely: "+title);new Thread(()->{File tmp=new File(folder(),id+".partial");File dest=new File(folder(),id+".bin");
       try{SecretKey secret=key();Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");cipher.init(Cipher.ENCRYPT_MODE,secret);
         HttpURLConnection conn=(HttpURLConnection)new URL(BASE+"/video/"+id).openConnection();conn.setConnectTimeout(16000);conn.setReadTimeout(30000);
         if(conn.getResponseCode()!=200)throw new IOException("Video download unavailable: HTTP "+conn.getResponseCode());
-        long size=conn.getContentLengthLong();if(size>800_000_000L)throw new IOException("Video too large for offline storage");
+        long size=conn.getContentLengthLong();if(size>0&&size>folder().getUsableSpace()-64L*1024*1024)throw new IOException("Not enough free space for this video");
         try(InputStream in=conn.getInputStream();OutputStream raw=new FileOutputStream(tmp)){
           byte[] iv=cipher.getIV();raw.write(iv.length);raw.write(iv);
           try(CipherOutputStream encrypted=new CipherOutputStream(raw,cipher)){
             byte[] buf=new byte[32768];int n;long copied=0;
-            while((n=in.read(buf))!=-1){copied+=n;if(copied>800_000_000L)throw new IOException("Offline storage limit reached");encrypted.write(buf,0,n);}
+            while((n=in.read(buf))!=-1){copied+=n;if(copied>folder().getUsableSpace()-16L*1024*1024)throw new IOException("Storage full during download");encrypted.write(buf,0,n);}
           }
         }finally{conn.disconnect();}
         if(dest.exists())dest.delete();if(!tmp.renameTo(dest))throw new IOException("Could not save encrypted download");
