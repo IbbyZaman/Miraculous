@@ -562,13 +562,14 @@ public class MainActivity extends Activity {
     addTop(content,text("More",30,true),12);
     int currentBuild=0;try{currentBuild=getPackageManager().getPackageInfo(getPackageName(),0).versionCode;}catch(Exception ignored){}
     addTop(content,text("APP BUILD "+currentBuild+"  •  Updates checked automatically",12,false,MUTED),7);
-    String[][] links={{"◉","My Account","Account"},{"▦","All Episodes","Seasons"},{"◷","Continue Watching","Continue"},{"⬇","Check for app updates","Updates"},{"↻","Refresh library","Refresh"},{"⌕","Search","Search"},{"↗","Open website","Website"}};
+    String[][] links={{"◉","My Account","Account"},{"▦","All Episodes","Seasons"},{"◷","Continue Watching","Continue"},{"⬇","Offline Downloads","Offline"},{"⬇","Check for app updates","Updates"},{"↻","Refresh library","Refresh"},{"⌕","Search","Search"},{"↗","Open website","Website"}};
     for(String[] link:links){
       TextView entry=text(link[0]+"     "+link[1]+"       →",17,true);
       entry.setPadding(dp(17),dp(20),dp(17),dp(20));entry.setBackground(solid(0xff171d2a,17));
       addTop(content,entry,12);
       entry.setOnClickListener(v->{
-        if("Account".equals(link[2]))startActivity(new Intent(this,AccountActivity.class));
+        if("Offline".equals(link[2]))startActivity(new Intent(this,OfflineDownloadsActivity.class));
+        else if("Account".equals(link[2]))startActivity(new Intent(this,AccountActivity.class));
         else if("Updates".equals(link[2])){android.widget.Toast.makeText(this,"Checking for a newer APK…",android.widget.Toast.LENGTH_SHORT).show();checkUpdates(true);}
         else if("Refresh".equals(link[2])){refresh();open("Home");}
         else if("Website".equals(link[2]))startActivity(new Intent(Intent.ACTION_VIEW,android.net.Uri.parse("https://miraculoushub.co.uk")));
