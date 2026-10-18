@@ -58,6 +58,8 @@ jobs:
             echo "::error::Built APK has a different signing certificate; refusing to publish."
             exit 1
           fi
+      - name: Confirm phone APK version
+        run: "$ANDROID_HOME/build-tools/35.0.0/aapt dump badging app/build/outputs/apk/debug/app-debug.apk | grep '^package:'"
       - name: Print signing certificate fingerprint
         run: keytool -list -v -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey -storepass android -keypass android | grep -E 'SHA1:|SHA256:'
       - uses: actions/upload-artifact@v4
