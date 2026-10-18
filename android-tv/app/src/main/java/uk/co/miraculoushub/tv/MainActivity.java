@@ -449,6 +449,12 @@ public class MainActivity extends Activity {
      }
      intent.putExtra("season",season);intent.putExtra("episode",episode);
    }
+   JSONArray library=new JSONArray();
+   for(JSONObject e:episodes){int season=e.optInt("season"),episode=e.optInt("episode");String path=e.optString("videoPath","");
+     if(season<=0||episode<=0||!path.startsWith("/video/"))continue;
+     JSONObject row=new JSONObject();try{row.put("season",season);row.put("episode",episode);row.put("title",e.optString("title","Episode"));row.put("path",path);library.put(row);}catch(JSONException ignored){}
+   }
+   intent.putExtra("episodeLibrary",library.toString());
    startActivity(intent);
  }
  private void checkAppUpdates(){checkAppUpdates(false);}
