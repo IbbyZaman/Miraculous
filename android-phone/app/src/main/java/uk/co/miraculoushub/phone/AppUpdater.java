@@ -199,6 +199,13 @@ public final class AppUpdater {
     android.content.SharedPreferences p=a.getSharedPreferences(PREFS,Context.MODE_PRIVATE);
     long id=p.getLong("id",-1);
     if(id<0)return;
+    // Android restarted us after a successful installer update. A staged APK
+    // belonging to the version already installed is no longer an update.
+    try{
+      int pending=p.getInt("version",0);
+      if(pending>0&&installedVersion(a)>=pending){clear(a);return;}
+    }catch(Exception ignored){}
+
     if(p.getBoolean("waitingForInstallPermission",false)){
       if(Build.VERSION.SDK_INT<26||a.getPackageManager().canRequestPackageInstalls()){
         p.edit().putBoolean("waitingForInstallPermission",false).apply();
@@ -296,6 +303,9 @@ public final class AppUpdater {
       File file=new File(prefs.getString("file",""));
       String expected=prefs.getString("sha256","");
       int version=prefs.getInt("version",0);
+      // A delayed download callback may arrive after installation/relaunch.
+      // Treat that as success, not a version mismatch warning.
+      if(version>0&&installedVersion(a)>=version){clear(a);return;}
       if(!file.isFile()||file.length()<10000)throw new java.io.IOException("APK missing or incomplete");
       if(expected.matches("[a-f0-9]{64}")){
         String actual=sha256(file);
