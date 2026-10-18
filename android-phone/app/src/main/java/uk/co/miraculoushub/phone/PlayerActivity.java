@@ -16,6 +16,11 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.app.AlertDialog;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.TreeSet;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
@@ -41,8 +46,8 @@ public class PlayerActivity extends Activity {
   private TextView playPause,elapsed,remaining,buffer;
   private SeekBar timeline;
   private boolean seeking=false, controlsVisible=true,controlsLocked=false;
-  private TextView lockButton;
-  private String nextUrl="",nextTitle="";
+  private TextView lockButton, nextEpisodeButton;
+  private String nextUrl="",nextTitle="",libraryJson="";
   private DocumentReference cloudDocument;
   private String cloudKey,cloudTitle,accountScope="guest";
   private int cloudSeason,cloudEpisode;
@@ -100,6 +105,7 @@ public class PlayerActivity extends Activity {
     cloudTitle=title==null?"Episode":title;cloudSeason=getIntent().getIntExtra("season",0);
     cloudEpisode=getIntent().getIntExtra("episode",0);
     nextUrl=getIntent().getStringExtra("nextUrl");nextTitle=getIntent().getStringExtra("nextTitle");
+    libraryJson=getIntent().getStringExtra("episodeLibrary");
     cloudKey=getIntent().getStringExtra("cloudKey");
     FirebaseUser signedIn=FirebaseAuth.getInstance().getCurrentUser();
     if(signedIn!=null)accountScope=signedIn.getUid();
@@ -122,7 +128,10 @@ public class PlayerActivity extends Activity {
     top.addView(titleLabel,new LinearLayout.LayoutParams(0,-2,1));
     lockButton=label("🔒 Lock",13,true);lockButton.setPadding(dp(14),dp(12),dp(14),dp(12));lockButton.setBackground(round(0xb022182c,13));
     FrameLayout.LayoutParams lockParams=new FrameLayout.LayoutParams(dp(100),dp(48),Gravity.TOP|Gravity.RIGHT);lockParams.setMargins(0,dp(11),dp(15),0);root.addView(lockButton,lockParams);lockButton.setGravity(Gravity.CENTER);lockButton.setOnClickListener(v->toggleLock());
-    TextView brand=label("  ✦",18,true);brand.setTextColor(0xffff81a9);top.addView(brand);
+    TextView browse=label("☷  Episodes",14,true);browse.setGravity(Gravity.CENTER);
+    browse.setBackground(round(0xcc32243b,12));browse.setPadding(dp(15),dp(11),dp(15),dp(11));
+    LinearLayout.LayoutParams epParams=new LinearLayout.LayoutParams(-2,dp(43));epParams.rightMargin=dp(105);
+    top.addView(browse,epParams);browse.setOnClickListener(v->showSeasonPicker());
     center=new LinearLayout(this);center.setGravity(Gravity.CENTER);
     FrameLayout.LayoutParams centerP=new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER);root.addView(center,centerP);
     TextView back10=control("↶ 10",17,78,58,center);
@@ -158,14 +167,13 @@ public class PlayerActivity extends Activity {
     TextView split=label(" / ",13,false);split.setTextColor(0xffa2aab8);times.addView(split);
     remaining=label("--:--",13,false);times.addView(remaining);
     View spacer=new View(this);times.addView(spacer,new LinearLayout.LayoutParams(0,dp(1),1));
-    TextView next=label(nextUrl!=null&&nextUrl.startsWith("https://")?"Next episode  ❯":"✦ MIRACULOUSHUB",13,true);next.setTextColor(0xffff90b6);next.setPadding(dp(12),dp(5),0,dp(5));times.addView(next);
-    if(nextUrl!=null&&nextUrl.startsWith("https://"))next.setOnClickListener(v->{
-      savePlayback(true);
-      android.content.Intent intent=new android.content.Intent(this,PlayerActivity.class);
-      intent.putExtra("url",nextUrl);intent.putExtra("title",nextTitle);
-      intent.putExtra("season",cloudSeason);intent.putExtra("episode",cloudEpisode+1);
-      intent.putExtra("cloudKey","s"+cloudSeason+"e"+(cloudEpisode+1));startActivity(intent);finish();
-    });
+    nextEpisodeButton=label("Next episode  ❯",15,true);
+    nextEpisodeButton.setGravity(Gravity.CENTER);nextEpisodeButton.setPadding(dp(20),0,dp(20),0);
+    nextEpisodeButton.setBackground(round(0xe5fa3069,14));
+    FrameLayout.LayoutParams nextFloat=new FrameLayout.LayoutParams(-2,dp(44),Gravity.RIGHT|Gravity.BOTTOM);
+    nextFloat.setMargins(0,0,dp(25),dp(110));root.addView(nextEpisodeButton,nextFloat);
+    nextEpisodeButton.setVisibility(nextUrl!=null&&nextUrl.startsWith("https://")?View.VISIBLE:View.GONE);
+    nextEpisodeButton.setOnClickListener(v->{if(nextUrl!=null&&!nextUrl.isEmpty())openEpisode(nextUrl,nextTitle,cloudSeason,cloudEpisode+1);});
     buffer=label("Loading video…",14,true);buffer.setGravity(Gravity.CENTER);
     buffer.setPadding(dp(19),dp(12),dp(19),dp(12));buffer.setBackground(round(0xde171d2b,15));
     FrameLayout.LayoutParams bp=new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER);
@@ -218,12 +226,68 @@ public class PlayerActivity extends Activity {
     }
     handler.post(progress);handler.postDelayed(cloudTimer,6000);showTemporarily();
   }
+  private void openEpisode(String url,String title,int season,int episode){
+    if(url==null||!url.startsWith("https://video.miraculoushub.co.uk/video/"))return;
+    savePlayback(true);
+    android.content.Intent intent=new android.content.Intent(this,PlayerActivity.class);
+    intent.putExtra("url",url);intent.putExtra("title",title);
+    intent.putExtra("season",season);intent.putExtra("episode",episode);
+    if(url.contains("/video/anime/")){
+      String[] pieces=url.split("/");
+      if(pieces.length>=7)intent.putExtra("cloudKey","anime-"+pieces[5]+"-e"+episode);
+    }else intent.putExtra("cloudKey","s"+season+"e"+episode);
+    intent.putExtra("episodeLibrary",libraryJson);
+    try{
+      JSONArray all=new JSONArray(libraryJson==null?"[]":libraryJson);
+      for(int i=0;i<all.length();i++){
+        JSONObject entry=all.optJSONObject(i);
+        if(entry!=null&&entry.optInt("season")==season&&entry.optInt("episode")==episode+1){
+          String path=entry.optString("path","");
+          if(path.startsWith("/video/")){
+            intent.putExtra("nextUrl","https://video.miraculoushub.co.uk"+path);
+            intent.putExtra("nextTitle",entry.optString("title","Next episode"));
+          }break;
+        }
+      }
+    }catch(Exception ignored){}
+    startActivity(intent);finish();
+  }
+  private void showSeasonPicker(){
+    if(controlsLocked)return;
+    JSONArray all;
+    try{all=new JSONArray(libraryJson==null?"[]":libraryJson);}catch(Exception e){all=new JSONArray();}
+    if(all.length()==0){
+      new AlertDialog.Builder(this).setTitle("Episodes").setMessage("Episode list unavailable for this video.")
+        .setPositiveButton("OK",null).show();return;
+    }
+    TreeSet<Integer> seasons=new TreeSet<>();
+    for(int i=0;i<all.length();i++){JSONObject e=all.optJSONObject(i);if(e!=null&&e.optInt("season")>0)seasons.add(e.optInt("season"));}
+    if(seasons.isEmpty())return;
+    String[] labels=new String[seasons.size()];int k=0;for(int season:seasons)labels[k++]="Season "+season;
+    final JSONArray library=all;
+    new AlertDialog.Builder(this).setTitle("Choose a season").setItems(labels,(dialog,which)->{
+      int selected=new ArrayList<>(seasons).get(which);
+      ArrayList<JSONObject> choices=new ArrayList<>();
+      for(int i=0;i<library.length();i++){
+        JSONObject e=library.optJSONObject(i);if(e!=null&&e.optInt("season")==selected)choices.add(e);
+      }
+      choices.sort((x,y)->Integer.compare(x.optInt("episode"),y.optInt("episode")));
+      String[] names=new String[choices.size()];
+      for(int i=0;i<choices.size();i++)names[i]="Episode "+choices.get(i).optInt("episode")+"  •  "+choices.get(i).optString("title");
+      new AlertDialog.Builder(this).setTitle("Season "+selected+" • Episodes")
+        .setItems(names,(d,choice)->{
+          JSONObject e=choices.get(choice);String path=e.optString("path","");
+          if(path.startsWith("/video/"))openEpisode("https://video.miraculoushub.co.uk"+path,
+            e.optString("title","Episode"),selected,e.optInt("episode"));
+        }).setNegativeButton("Back",(d,w)->showSeasonPicker()).show();
+    }).setNegativeButton("Cancel",null).show();
+  }
   private void skip(long ms){
     if(player!=null)player.seekTo(Math.max(0,player.getCurrentPosition()+ms));
   }
   private void toggleLock(){
     controlsLocked=!controlsLocked;
-    if(controlsLocked){handler.removeCallbacks(hideControls);top.setVisibility(View.GONE);bottom.setVisibility(View.GONE);center.setVisibility(View.GONE);lockButton.setText("🔓 Unlock");lockButton.setVisibility(View.VISIBLE);}
+    if(controlsLocked){handler.removeCallbacks(hideControls);top.setVisibility(View.GONE);bottom.setVisibility(View.GONE);center.setVisibility(View.GONE);lockButton.setText("🔓 Unlock");lockButton.setVisibility(View.VISIBLE);if(nextEpisodeButton!=null)nextEpisodeButton.setVisibility(View.GONE);}
     else{lockButton.setText("🔒 Lock");showTemporarily();}
   }
   private void setControls(boolean show){
@@ -233,6 +297,7 @@ public class PlayerActivity extends Activity {
     if(bottom!=null)bottom.setVisibility(show?View.VISIBLE:View.GONE);
     if(center!=null)center.setVisibility(show?View.VISIBLE:View.GONE);
     if(lockButton!=null)lockButton.setVisibility(show?View.VISIBLE:View.GONE);
+    if(nextEpisodeButton!=null)nextEpisodeButton.setVisibility(show&&nextUrl!=null&&nextUrl.startsWith("https://")?View.VISIBLE:View.GONE);
     immersive();
   }
   private void showTemporarily(){
