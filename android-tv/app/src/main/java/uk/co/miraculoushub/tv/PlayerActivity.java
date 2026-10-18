@@ -1,6 +1,12 @@
 package uk.co.miraculoushub.tv;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Intent;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.TreeSet;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -39,6 +45,7 @@ public class PlayerActivity extends Activity {
   private String cloudTitle;
   private int cloudSeason,cloudEpisode;
   private boolean userNavigated=false;
+  private String episodeLibrary="";
   private long lastCloudWrite=0;
   private final Runnable cloudSave=new Runnable(){@Override public void run(){savePlayback(false);if(player!=null)handler.postDelayed(this,8000);}};
   private int dp(int n){return (int)(getResources().getDisplayMetrics().density*n+.5f);}
@@ -53,6 +60,7 @@ public class PlayerActivity extends Activity {
     String uri=getIntent().getStringExtra("url"),title=getIntent().getStringExtra("title");
     cloudTitle=title;cloudSeason=getIntent().getIntExtra("season",0);cloudEpisode=getIntent().getIntExtra("episode",0);
     cloudKey=getIntent().getStringExtra("cloudKey");
+    episodeLibrary=getIntent().getStringExtra("episodeLibrary");
     FirebaseUser account=TvFirebase.auth(this).getCurrentUser();
     if(account!=null&&cloudKey!=null&&cloudKey.matches("[a-z0-9-]{2,100}"))
       cloudDocument=TvFirebase.database(this).collection("users").document(account.getUid()).collection("playback").document(cloudKey);
@@ -76,6 +84,8 @@ public class PlayerActivity extends Activity {
     heading=new TextView(this);heading.setText(title==null?"Episode":title);heading.setTextColor(-1);
     heading.setTextSize(23);heading.setTypeface(null,Typeface.BOLD);heading.setSingleLine(true);
     heading.setEllipsize(TextUtils.TruncateAt.END);names.addView(heading);
+    TextView browse=new TextView(this);browse.setText("☷  Episodes");browse.setTextColor(-1);browse.setTextSize(17);browse.setGravity(Gravity.CENTER);browse.setPadding(dp(18),dp(12),dp(18),dp(12));browse.setBackgroundColor(0xff9b2458);browse.setFocusable(true);top.addView(browse);browse.setOnClickListener(v->chooseEpisode());
+    TextView next=new TextView(this);next.setText("Next ❯");next.setTextColor(-1);next.setTextSize(17);next.setGravity(Gravity.CENTER);next.setPadding(dp(18),dp(12),dp(18),dp(12));next.setFocusable(true);top.addView(next);next.setOnClickListener(v->nextEpisode());
     LinearLayout center=new LinearLayout(this);center.setGravity(Gravity.CENTER);
     FrameLayout.LayoutParams cp=new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER);root.addView(center,cp);
     loading=new ProgressBar(this);loading.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(0xffff376f));
@@ -119,6 +129,43 @@ public class PlayerActivity extends Activity {
     video.requestFocus();
     handler.postDelayed(()->{if(top!=null&&player!=null&&player.isPlaying())top.animate().alpha(0f).setDuration(350);},6500);
     video.setOnClickListener(v->top.animate().alpha(1f).setDuration(170));
+  }
+  private JSONArray catalogue(){try{return new JSONArray(episodeLibrary==null?"[]":episodeLibrary);}catch(Exception e){return new JSONArray();}}
+  private void openEntry(JSONObject entry){
+    String path=entry.optString("path","");if(!path.startsWith("/video/"))return;
+    savePlayback(true);
+    int season=entry.optInt("season"),episode=entry.optInt("episode");
+    Intent intent=new Intent(this,PlayerActivity.class);
+    intent.putExtra("url","https://video.miraculoushub.co.uk"+path);
+    intent.putExtra("title",entry.optString("title","Episode"));
+    intent.putExtra("season",season);intent.putExtra("episode",episode);
+    intent.putExtra("cloudKey","s"+season+"e"+episode);
+    intent.putExtra("episodeLibrary",episodeLibrary);
+    startActivity(intent);finish();
+  }
+  private void nextEpisode(){
+    JSONArray entries=catalogue();
+    for(int i=0;i<entries.length();i++){
+      JSONObject e=entries.optJSONObject(i);
+      if(e!=null&&e.optInt("season")==cloudSeason&&e.optInt("episode")==cloudEpisode+1){openEntry(e);return;}
+    }
+    android.widget.Toast.makeText(this,"No next episode available",android.widget.Toast.LENGTH_SHORT).show();
+  }
+  private void chooseEpisode(){
+    JSONArray entries=catalogue();TreeSet<Integer> seasons=new TreeSet<>();
+    for(int i=0;i<entries.length();i++){JSONObject e=entries.optJSONObject(i);if(e!=null&&e.optInt("season")>0)seasons.add(e.optInt("season"));}
+    if(seasons.isEmpty()){new AlertDialog.Builder(this).setMessage("Episode list unavailable").setPositiveButton("OK",null).show();return;}
+    Integer[] values=seasons.toArray(new Integer[0]);String[] titles=new String[values.length];
+    for(int i=0;i<values.length;i++)titles[i]="Season "+values[i];
+    new AlertDialog.Builder(this).setTitle("Select season").setItems(titles,(dialog,index)->{
+      ArrayList<JSONObject> options=new ArrayList<>();int selected=values[index];
+      for(int i=0;i<entries.length();i++){JSONObject e=entries.optJSONObject(i);if(e!=null&&e.optInt("season")==selected)options.add(e);}
+      options.sort((a,b)->Integer.compare(a.optInt("episode"),b.optInt("episode")));
+      String[] labels=new String[options.size()];
+      for(int i=0;i<options.size();i++)labels[i]="E"+options.get(i).optInt("episode")+" • "+options.get(i).optString("title");
+      new AlertDialog.Builder(this).setTitle("Season "+selected).setItems(labels,(d,chosen)->openEntry(options.get(chosen)))
+        .setNegativeButton("Back",(d,which)->chooseEpisode()).show();
+    }).setNegativeButton("Cancel",null).show();
   }
   @Override public boolean dispatchKeyEvent(KeyEvent event){
     if(event.getAction()==KeyEvent.ACTION_DOWN&&player!=null){
