@@ -121,7 +121,7 @@ public class PlayerActivity extends Activity {
     titleLabel.setMaxLines(1);titleLabel.setEllipsize(TextUtils.TruncateAt.END);
     top.addView(titleLabel,new LinearLayout.LayoutParams(0,-2,1));
     lockButton=label("🔒 Lock",13,true);lockButton.setPadding(dp(14),dp(12),dp(14),dp(12));lockButton.setBackground(round(0xb022182c,13));
-    top.addView(lockButton);lockButton.setOnClickListener(v->toggleLock());
+    FrameLayout.LayoutParams lockParams=new FrameLayout.LayoutParams(dp(100),dp(48),Gravity.TOP|Gravity.RIGHT);lockParams.setMargins(0,dp(11),dp(15),0);root.addView(lockButton,lockParams);lockButton.setGravity(Gravity.CENTER);lockButton.setOnClickListener(v->toggleLock());
     TextView brand=label("  ✦",18,true);brand.setTextColor(0xffff81a9);top.addView(brand);
     center=new LinearLayout(this);center.setGravity(Gravity.CENTER);
     FrameLayout.LayoutParams centerP=new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER);root.addView(center,centerP);
