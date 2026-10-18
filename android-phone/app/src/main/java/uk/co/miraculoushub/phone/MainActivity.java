@@ -25,7 +25,7 @@ public class MainActivity extends Activity {
   private LinearLayout content, nav;
   private TextView status;
   private String tab="Home", query=""; private String selectedAnime="";
-  private final int background=0xff0c0914, surface=0xff251b33, accent=0xffff477f;
+  private final int background=0xff05070c, surface=0xff151a27, accent=0xffff2f68;
 
   @Override public void onCreate(Bundle state){super.onCreate(state);getWindow().setStatusBarColor(background);getWindow().setNavigationBarColor(background);loadAssets();rebuild();refresh();checkUpdates();}
   private int dp(int n){return (int)(n*getResources().getDisplayMetrics().density+.5f);}
@@ -51,14 +51,14 @@ public class MainActivity extends Activity {
   }catch(Exception ex){handler.post(()->{if(status!=null)status.setText("Using saved catalogue • Tap refresh to retry");});}}).start();}
   private void rebuild(){
     LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(background);setContentView(root);
-    LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);header.setPadding(dp(20),dp(16),dp(12),dp(12));root.addView(header);
-    TextView logo=text("✦ MIRACULOUSHUB",19,true);logo.setTextColor(accent);header.addView(logo,new LinearLayout.LayoutParams(0,-2,1));
+    LinearLayout header=new LinearLayout(this);header.setGravity(Gravity.CENTER_VERTICAL);header.setPadding(dp(18),dp(14),dp(12),dp(14));header.setBackground(bg(0xff121722,22));LinearLayout.LayoutParams headParams=new LinearLayout.LayoutParams(-1,-2);headParams.setMargins(dp(12),dp(8),dp(12),dp(5));root.addView(header,headParams);
+    TextView logo=text("M  MIRACULOUS HUB",17,true);logo.setTextColor(accent);header.addView(logo,new LinearLayout.LayoutParams(0,-2,1));
     TextView sync=text("⟳",28,true);sync.setGravity(Gravity.CENTER);sync.setContentDescription("Refresh episodes");sync.setOnClickListener(v->{status.setText("Refreshing…");refresh();});header.addView(sync,new LinearLayout.LayoutParams(dp(50),dp(44)));
     ScrollView scroll=new ScrollView(this);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-    content=new LinearLayout(this);content.setOrientation(LinearLayout.VERTICAL);content.setPadding(dp(16),dp(8),dp(16),dp(18));scroll.addView(content);
-    status=text("MiraculousHub on your phone",12,false);status.setTextColor(0xffb9a9c3);content.addView(status);
-    TextView heading=text("Home".equals(tab)?"Discover":"Continue".equals(tab)?"Keep watching":tab,28,true);LinearLayout.LayoutParams titleParams=new LinearLayout.LayoutParams(-1,-2);titleParams.topMargin=dp(16);content.addView(heading,titleParams);
-    if("Search".equals(tab)){EditText search=new EditText(this);search.setSingleLine(true);search.setTextColor(-1);search.setHintTextColor(0xffa6a0b4);search.setHint("Search episode titles");search.setText(query);search.setBackground(bg(surface,12));search.setPadding(dp(14),dp(12),dp(14),dp(12));content.addView(search);search.addTextChangedListener(new android.text.TextWatcher(){public void beforeTextChanged(CharSequence s,int start,int count,int after){}public void onTextChanged(CharSequence s,int start,int before,int count){query=s.toString();drawSearchResults();}public void afterTextChanged(android.text.Editable e){}});resultsHolder=new LinearLayout(this);resultsHolder.setOrientation(LinearLayout.VERTICAL);content.addView(resultsHolder);drawSearchResults();}
+    content=new LinearLayout(this);content.setOrientation(LinearLayout.VERTICAL);content.setPadding(dp(18),dp(8),dp(18),dp(28));scroll.addView(content);
+    status=text("STREAMING COLLECTION  •  YOUR WATCH SPACE",10,true);status.setTextColor(0xffb9a9c3);content.addView(status);
+    TextView heading=text("Home".equals(tab)?"Welcome back":"Anime".equals(tab)?"Monthly Animes":tab,27,true);LinearLayout.LayoutParams titleParams=new LinearLayout.LayoutParams(-1,-2);titleParams.topMargin=dp(16);content.addView(heading,titleParams);
+    if("Search".equals(tab)){TextView account=text("My account   →",16,true);account.setTextColor(accent);account.setPadding(0,dp(8),0,dp(20));content.addView(account);account.setOnClickListener(v->startActivity(new Intent(this,AccountActivity.class)));EditText search=new EditText(this);search.setSingleLine(true);search.setTextColor(-1);search.setHintTextColor(0xffa6a0b4);search.setHint("Search episode titles");search.setText(query);search.setBackground(bg(surface,12));search.setPadding(dp(14),dp(12),dp(14),dp(12));content.addView(search);search.addTextChangedListener(new android.text.TextWatcher(){public void beforeTextChanged(CharSequence s,int start,int count,int after){}public void onTextChanged(CharSequence s,int start,int before,int count){query=s.toString();drawSearchResults();}public void afterTextChanged(android.text.Editable e){}});resultsHolder=new LinearLayout(this);resultsHolder.setOrientation(LinearLayout.VERTICAL);content.addView(resultsHolder);drawSearchResults();}
     else if("Continue".equals(tab)){String recent=getPreferences(0).getString("recent","");ArrayList<JSONObject> matches=new ArrayList<>();for(JSONObject e:episodes)if(recent.equals(e.optString("code")))matches.add(e);row("Continue watching",matches);}
     else if("Trailers".equals(tab)){row("Trailers & previews",trailers);}
     else if("Anime".equals(tab)){animePage();}
@@ -71,7 +71,7 @@ public class MainActivity extends Activity {
       loadImage(poster,"https://miraculoushub.co.uk/main-season7-poster.png");
       View shade=new View(this);shade.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0x00230c26,0xdd160c1e,0xff0b0914}));
       hero.addView(shade,new FrameLayout.LayoutParams(-1,-1));
-      TextView heroTitle=text("THE MIRACULOUS UNIVERSE\\nWelcome to MiraculousHub\\nSEASON 7  •  EXPLORE  →",22,true);
+      TextView heroTitle=text("THE MIRACULOUS UNIVERSE\n\nWelcome to\nMiraculousHub\n\nSEASON 7   •   EXPLORE →",21,true);
       heroTitle.setGravity(Gravity.BOTTOM);heroTitle.setPadding(dp(20),dp(14),dp(20),dp(22));
       hero.addView(heroTitle,new FrameLayout.LayoutParams(-1,-1));
       hero.setOnClickListener(v->{tab="Seasons";rebuild();});
@@ -80,17 +80,25 @@ public class MainActivity extends Activity {
       row("Latest episodes",new ArrayList<>(latest.subList(0,Math.min(14,latest.size()))));
       animeShelf();
       row("Trailers & previews",trailers);
+      TextView accountLink=text("◉   My account  →",15,true);accountLink.setTextColor(0xfff8f9ff);accountLink.setPadding(dp(17),dp(20),dp(17),dp(20));accountLink.setBackground(bg(0xff1a2030,16));LinearLayout.LayoutParams ap=new LinearLayout.LayoutParams(-1,-2);ap.topMargin=dp(24);content.addView(accountLink,ap);accountLink.setOnClickListener(v->startActivity(new Intent(this,AccountActivity.class)));
     }
-    nav=new LinearLayout(this);nav.setGravity(Gravity.CENTER);nav.setPadding(dp(4),dp(8),dp(4),dp(8));nav.setBackgroundColor(0xff171120);root.addView(nav);
-    for(String name:new String[]{"Home","Seasons","Anime","Trailers","Search","Account"}){TextView button=text(("Home".equals(name)?"⌂ ":"Seasons".equals(name)?"▦ ":"Search".equals(name)?"⌕ ":"Trailers".equals(name)?"▶ ":"Anime".equals(name)?"✧ ":"♙ ")+name,10,name.equals(tab));button.setGravity(Gravity.CENTER);button.setTextColor(name.equals(tab)?accent:-1);button.setPadding(dp(2),dp(14),dp(2),dp(14));button.setOnClickListener(v->{if("Account".equals(name)){startActivity(new Intent(this,AccountActivity.class));return;}tab=name;rebuild();});nav.addView(button,new LinearLayout.LayoutParams(0,-2,1));}
+    nav=new LinearLayout(this);nav.setGravity(Gravity.CENTER);nav.setPadding(dp(10),dp(5),dp(10),dp(7));nav.setBackgroundColor(0xff101420);root.addView(nav);
+    for(String name:new String[]{"Home","Seasons","Anime","Search"}){
+      String glyph="Home".equals(name)?"⌂":"Seasons".equals(name)?"▦":"Anime".equals(name)?"✦":"⌕";
+      LinearLayout cell=new LinearLayout(this);cell.setOrientation(LinearLayout.VERTICAL);cell.setGravity(Gravity.CENTER);
+      cell.setPadding(dp(2),dp(6),dp(2),dp(7));
+      TextView symbol=text(glyph,24,true);symbol.setGravity(Gravity.CENTER);symbol.setTextColor(name.equals(tab)?accent:0xffabb2c5);cell.addView(symbol);
+      TextView label=text(name,11,name.equals(tab));label.setGravity(Gravity.CENTER);label.setTextColor(name.equals(tab)?-1:0xffabb2c5);cell.addView(label);
+      cell.setOnClickListener(v->{tab=name;rebuild();});nav.addView(cell,new LinearLayout.LayoutParams(0,dp(63),1));
+    }
   }
   private LinearLayout resultsHolder;
   private void drawSearchResults(){if(resultsHolder==null)return;resultsHolder.removeAllViews();String q=query.toLowerCase(Locale.ROOT).trim();if(q.isEmpty())return;int count=0;for(JSONObject e:episodes){if(e.optString("title").toLowerCase(Locale.ROOT).contains(q)||e.optString("code").toLowerCase(Locale.ROOT).contains(q)){card(resultsHolder,e);if(++count>=60)break;}}if(count==0)resultsHolder.addView(text("No matching episodes",15,false));}
   private void row(String heading,ArrayList<JSONObject> data){TextView title=text(heading,19,true);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.topMargin=dp(24);p.bottomMargin=dp(10);content.addView(title,p);if(data.isEmpty()){TextView empty=text("No uploads yet • Pull down or tap refresh",14,false);empty.setTextColor(0xffaaa1b5);content.addView(empty);return;}HorizontalScrollView rail=new HorizontalScrollView(this);rail.setHorizontalScrollBarEnabled(false);content.addView(rail);LinearLayout items=new LinearLayout(this);items.setOrientation(LinearLayout.HORIZONTAL);rail.addView(items);int max=Math.min(data.size(),36);for(int i=0;i<max;i++)card(items,data.get(i));}
   private void card(LinearLayout parent,JSONObject e){String code=e.optString("code"),name=e.optString("title","Episode");boolean trailer="trailer".equals(e.optString("kind"));
-    LinearLayout item=new LinearLayout(this);item.setOrientation(LinearLayout.VERTICAL);item.setPadding(dp(18),dp(22),dp(18),dp(20));item.setBackground(bg(surface,18));item.setElevation(dp(2));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(dp(216),dp(242));lp.rightMargin=dp(12);parent.addView(item,lp);
-    ImageView cover=new ImageView(this);cover.setScaleType(ImageView.ScaleType.CENTER_CROP);cover.setBackground(bg(0xff44314f,14));item.addView(cover,new LinearLayout.LayoutParams(-1,dp(115)));loadImage(cover,e.optString("thumbnail"));
-    TextView eyebrow=text(trailer?"▶  EXCLUSIVE TRAILER":"●  "+code,12,true);eyebrow.setTextColor(accent);item.addView(eyebrow);TextView label=text(name,17,true);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.topMargin=dp(5);item.addView(label,p);TextView play=text(trailer?"Watch trailer   →":"Watch now   →",12,true);play.setTextColor(0xffeec3d8);LinearLayout.LayoutParams playParams=new LinearLayout.LayoutParams(-1,-2);playParams.topMargin=dp(12);item.addView(play,playParams);
+    LinearLayout item=new LinearLayout(this);item.setOrientation(LinearLayout.VERTICAL);item.setPadding(dp(12),dp(12),dp(12),dp(14));item.setBackground(bg(surface,18));item.setElevation(dp(2));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(dp(246),dp(294));lp.rightMargin=dp(12);parent.addView(item,lp);
+    ImageView cover=new ImageView(this);cover.setScaleType(ImageView.ScaleType.CENTER_CROP);cover.setBackground(bg(0xff44314f,14));item.addView(cover,new LinearLayout.LayoutParams(-1,dp(168)));loadImage(cover,e.optString("thumbnail"));
+    TextView eyebrow=text(trailer?"▶  EXCLUSIVE TRAILER":"●  "+code,12,true);eyebrow.setTextColor(accent);item.addView(eyebrow);TextView label=text(name,16,true);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.topMargin=dp(5);item.addView(label,p);TextView play=text(trailer?"Watch trailer   →":"Watch now   →",12,true);play.setTextColor(0xffeec3d8);LinearLayout.LayoutParams playParams=new LinearLayout.LayoutParams(-1,-2);playParams.topMargin=dp(6);item.addView(play,playParams);
     item.setOnClickListener(v->{String url=trailer?HOST+"/video/trailer/"+e.optString("id"):HOST+e.optString("videoPath");if(!trailer)getPreferences(0).edit().putString("recent",code).apply();Intent playbackIntent=new Intent(this,PlayerActivity.class);playbackIntent.putExtra("url",url);playbackIntent.putExtra("title",name);startActivity(playbackIntent);});
   }
   private void loadImage(ImageView image,String value){
@@ -109,11 +117,11 @@ public class MainActivity extends Activity {
   private void animeShelf(){
     TextView title=text("MONTHLY ANIMES",13,true);title.setTextColor(accent);
     LinearLayout.LayoutParams m=new LinearLayout.LayoutParams(-1,-2);m.topMargin=dp(26);content.addView(title,m);
-    LinearLayout rail=new LinearLayout(this);rail.setOrientation(LinearLayout.HORIZONTAL);
+    LinearLayout rail=new LinearLayout(this);rail.setOrientation(LinearLayout.VERTICAL);
     content.addView(rail);
     for(String[] show:new String[][]{{"Death Note","death-note"},{"Attack on Titan","attack-on-titan"},{"Black Clover","black-clover"}}){
-      TextView card=text(show[0]+"  →",15,true);card.setGravity(Gravity.CENTER);card.setBackground(bg(surface,15));
-      LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(110),1);lp.setMargins(0,dp(12),dp(8),0);rail.addView(card,lp);
+      TextView card=text("✦    "+show[0]+"     →",18,true);card.setGravity(Gravity.CENTER);card.setBackground(bg(surface,15));
+      LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(82));lp.setMargins(0,dp(10),0,0);rail.addView(card,lp);
       card.setOnClickListener(v->{selectedAnime=show[1];tab="Anime";rebuild();});
     }
   }
