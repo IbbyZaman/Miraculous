@@ -181,9 +181,12 @@ public class MainActivity extends Activity {
     View space=new View(this);bar.addView(space,new LinearLayout.LayoutParams(0,1,1));
     TextView lookup=text("⌕",31,false);lookup.setGravity(Gravity.CENTER);lookup.setContentDescription("Search the library");
     bar.addView(lookup,new LinearLayout.LayoutParams(dp(45),dp(48)));lookup.setOnClickListener(v->open("Search"));
-    TextView account=text("●",22,true,0xffff90af);account.setGravity(Gravity.CENTER);account.setBackground(solid(0xff37203e,50));
-    LinearLayout.LayoutParams acp=new LinearLayout.LayoutParams(dp(37),dp(37));bar.addView(account,acp);
-    account.setContentDescription("Your account");account.setOnClickListener(v->startActivity(new Intent(this,AccountActivity.class)));
+    FirebaseUser signed=FirebaseAuth.getInstance().getCurrentUser();
+    TextView account=text(signed==null?"Sign In  →":"Account  ✓",12,true,Color.WHITE);
+    account.setGravity(Gravity.CENTER);account.setBackground(solid(PINK,13));account.setPadding(dp(11),0,dp(11),0);
+    bar.addView(account,new LinearLayout.LayoutParams(-2,dp(40)));
+    account.setContentDescription(signed==null?"Sign in to MiraculousHub":"Your MiraculousHub account");
+    account.setOnClickListener(v->startActivity(new Intent(this,AccountActivity.class)));
   }
   private void home(){
     hero();
@@ -192,14 +195,36 @@ public class MainActivity extends Activity {
     quick.addView(greeting,new LinearLayout.LayoutParams(0,-2,1));
     status=text("LATEST PICKS",10,true,MUTED);status.setGravity(Gravity.END);quick.addView(status);
     addTop(content,quick,20);
+    homeContinueWatching();
     section("Trending Now","Seasons",new ArrayList<>(latestEpisodes(15)),true);
     animeShelf();
     section("Trailers & Previews","Trailers",trailers,true);
-    // A compact watch-history shortcut and settings entry at the bottom.
-    TextView continueLink=text("◷   Continue Watching      →",16,true);
-    continueLink.setBackground(gradient(0xff222439,0xff101523,17));
-    continueLink.setPadding(dp(18),dp(18),dp(18),dp(18));
-    addTop(content,continueLink,26);continueLink.setOnClickListener(v->open("Continue"));
+
+  }
+  private void homeContinueWatching(){
+    heading("Continue Watching","Continue");
+    FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
+    if(user==null){
+      TextView sign=button("Sign in to sync your watch progress   →",PINK,Color.WHITE);
+      sign.setPadding(dp(12),dp(17),dp(12),dp(17));addTop(content,sign,2);
+      sign.setOnClickListener(v->startActivity(new Intent(this,AccountActivity.class)));return;
+    }
+    TextView loading=text("Loading your watch progress…",13,false,MUTED);content.addView(loading);
+    HorizontalScrollView scroller=new HorizontalScrollView(this);scroller.setHorizontalScrollBarEnabled(false);
+    content.addView(scroller);LinearLayout rail=new LinearLayout(this);scroller.addView(rail);
+    FirebaseFirestore.getInstance().collection("users").document(user.getUid()).collection("playback")
+      .orderBy("updatedAt",Query.Direction.DESCENDING).limit(12).get(Source.SERVER).addOnCompleteListener(this,result->{
+        if(!"Home".equals(tab)||rail.getParent()==null)return;
+        loading.setVisibility(View.GONE);rail.removeAllViews();
+        if(!result.isSuccessful()){loading.setText("Could not load saved progress. Tap See all to retry.");loading.setVisibility(View.VISIBLE);return;}
+        int count=0;
+        for(DocumentSnapshot doc:result.getResult().getDocuments()){
+          JSONObject item=findCloudEpisode(doc);if(item==null)continue;
+          View card=posterCard(item);rail.addView(card);
+          count++;
+        }
+        if(count==0){loading.setText("Your watched episodes will appear here.");loading.setVisibility(View.VISIBLE);}
+      });
   }
   private void hero(){
     FrameLayout hero=new FrameLayout(this);
@@ -256,9 +281,9 @@ public class MainActivity extends Activity {
   private View posterCard(JSONObject item){
     String name=item.optString("title","Episode"),code=item.optString("code","");
     boolean trailer="trailer".equals(item.optString("kind"));
-    LinearLayout outer=vertical();outer.setBackground(gradient(0xff1b2032,0xff111320,17));outer.setClipToOutline(true);
-    LinearLayout.LayoutParams mp=new LinearLayout.LayoutParams(dp(163),dp(235));mp.rightMargin=dp(12);outer.setLayoutParams(mp);
-    FrameLayout art=new FrameLayout(this);outer.addView(art,new LinearLayout.LayoutParams(-1,dp(158)));
+    LinearLayout outer=vertical();outer.setBackground(gradient(0xff272337,0xff101724,20));outer.setClipToOutline(true);
+    LinearLayout.LayoutParams mp=new LinearLayout.LayoutParams(dp(184),dp(254));mp.rightMargin=dp(12);outer.setLayoutParams(mp);
+    FrameLayout art=new FrameLayout(this);outer.addView(art,new LinearLayout.LayoutParams(-1,dp(174)));
     ImageView cover=new ImageView(this);cover.setScaleType(ImageView.ScaleType.CENTER_CROP);art.addView(cover,new FrameLayout.LayoutParams(-1,-1));
     String pic=item.optString("thumbnail","");if(pic.isEmpty()&&item.optInt("season")==7)pic=POSTER;image(cover,pic);
     TextView play=text("▶",17,true);play.setGravity(Gravity.CENTER);play.setBackground(solid(0xdd0b0d17,50));
