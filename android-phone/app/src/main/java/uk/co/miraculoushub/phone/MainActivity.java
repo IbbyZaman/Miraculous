@@ -529,42 +529,9 @@ public class MainActivity extends Activity {
   }
   private void checkUpdates(boolean manual){
     lastUpdateCheck=System.currentTimeMillis();
-    new Thread(()->{try{
-      URL u=new URL("https://api.github.com/repos/IbbyZaman/Miraculous/releases?per_page=15");
-      HttpURLConnection c=(HttpURLConnection)u.openConnection();
-      c.setConnectTimeout(7000);c.setReadTimeout(7000);
-      c.setRequestProperty("Accept","application/vnd.github+json");
-      c.setRequestProperty("User-Agent","MiraculousHub-Android");
-      if(c.getResponseCode()!=200){c.disconnect();if(manual)handler.post(()->android.widget.Toast.makeText(this,"Update check unavailable. Please try again.",android.widget.Toast.LENGTH_LONG).show());return;}
-      ByteArrayOutputStream out=new ByteArrayOutputStream();
-      try(InputStream in=c.getInputStream()){byte[] b=new byte[4096];int n;while((n=in.read(b))!=-1 && out.size()<130000)out.write(b,0,n);}
-      c.disconnect();
-      JSONArray releases=new JSONArray(out.toString("UTF-8"));
-      int installed=getPackageManager().getPackageInfo(getPackageName(),0).versionCode;
-      for(int i=0;i<releases.length();i++){
-        JSONObject release=releases.optJSONObject(i);if(release==null||release.optBoolean("draft")||release.optBoolean("prerelease"))continue;
-        String tag=release.optString("tag_name");
-        if(!tag.matches("phone-build-[0-9]+"))continue;
-        int remote=Integer.parseInt(tag.substring("phone-build-".length()));
-        if(remote<=installed)break;
-        JSONArray assets=release.optJSONArray("assets");if(assets==null)continue;
-        for(int j=0;j<assets.length();j++){
-          JSONObject asset=assets.optJSONObject(j);if(asset==null)continue;
-          String url=asset.optString("browser_download_url");
-          if(!asset.optString("name").equals("MiraculousHubPhone.apk")||!url.startsWith("https://github.com/"))continue;
-          handler.post(()->new android.app.AlertDialog.Builder(this)
-            .setTitle("MiraculousHub update available")
-            .setMessage("A new phone app version is ready. Download it and confirm installation to update.")
-            .setNegativeButton("Later",null)
-            .setPositiveButton("Get update",(d,w)->startActivity(new Intent(Intent.ACTION_VIEW,android.net.Uri.parse(url))))
-            .show());
-          return;
-        }
-      }
-      if(manual)handler.post(()->android.widget.Toast.makeText(this,"You already have the latest MiraculousHub version.",android.widget.Toast.LENGTH_LONG).show());
-    }catch(Exception ignored){if(manual)handler.post(()->android.widget.Toast.makeText(this,"Unable to check for updates. Check your connection.",android.widget.Toast.LENGTH_LONG).show());} }).start();
+    AppUpdater.check(this,manual);
   }
 
-  @Override protected void onResume(){super.onResume();if(System.currentTimeMillis()-lastUpdateCheck>15*60*1000)checkUpdates(false);handler.removeCallbacks(periodicLibrarySync);handler.postDelayed(periodicLibrarySync,120000);if(System.currentTimeMillis()-lastLibrarySync>120000)refresh();}
+  @Override protected void onResume(){super.onResume();AppUpdater.onResume(this);if(System.currentTimeMillis()-lastUpdateCheck>15*60*1000)checkUpdates(false);handler.removeCallbacks(periodicLibrarySync);handler.postDelayed(periodicLibrarySync,120000);if(System.currentTimeMillis()-lastLibrarySync>120000)refresh();}
   @Override protected void onPause(){handler.removeCallbacks(periodicLibrarySync);super.onPause();}
 }
