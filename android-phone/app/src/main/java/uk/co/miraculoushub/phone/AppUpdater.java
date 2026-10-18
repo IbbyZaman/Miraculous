@@ -91,6 +91,8 @@ public final class AppUpdater {
   private static String read(String endpoint,int max)throws Exception{
     HttpURLConnection c=(HttpURLConnection)new URL(endpoint).openConnection();
     c.setConnectTimeout(8000);c.setReadTimeout(10000);
+    c.setUseCaches(false);
+    c.setRequestProperty("Cache-Control","no-cache, no-store, max-age=0");
     c.setRequestProperty("Accept","application/json");
     c.setRequestProperty("User-Agent","MiraculousHub-Updater");
     if(c.getResponseCode()!=200){int status=c.getResponseCode();c.disconnect();throw new java.io.IOException("HTTP "+status);}
@@ -107,13 +109,15 @@ public final class AppUpdater {
   private static Release latest()throws Exception{
     // First-party metadata includes the expected SHA-256 of the APK file.
     try{
-      JSONObject site=new JSONObject(read(SITE+"/downloads/"+TYPE+".json",15000));
+      JSONObject site=new JSONObject(read(SITE+"/downloads/"+TYPE+".json?cacheBust="+System.currentTimeMillis(),15000));
       String url=site.optString("url");
       int version=site.optInt("versionCode");
       String sha=site.optString("sha256");
-      Uri parsed=Uri.parse(url);
-      if(version>0&&"https".equals(parsed.getScheme())&&"miraculoushub.co.uk".equals(parsed.getHost())
-        &&sha.matches("[a-fA-F0-9]{64}"))return new Release(version,url,sha);
+      String expectedUrl=SITE+"/downloads/"+ASSET.substring(0,ASSET.length()-4)+"-"+version+".apk";
+      // Immutable file names prevent a newer JSON checksum from referring
+      // to a cached older download of the same "latest.apk" path.
+      if(version>0&&url.equals(expectedUrl)&&sha.matches("[a-fA-F0-9]{64}"))
+        return new Release(version,url,sha);
     }catch(Exception ignored){/* Fallback while the website mirror is deploying. */}
     JSONArray releases=new JSONArray(read(RELEASES,250000));
     Release best=null;
@@ -175,6 +179,7 @@ public final class AppUpdater {
       request.setTitle("MiraculousHub "+TYPE+" update "+release.version);
       request.setDescription("Downloading an update ready to install");
       request.setMimeType("application/vnd.android.package-archive");
+      request.addRequestHeader("Cache-Control","no-cache");
       request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
       request.setAllowedOverMetered(true);
       request.setDestinationInExternalFilesDir(a,Environment.DIRECTORY_DOWNLOADS,file.getName());
@@ -292,10 +297,20 @@ public final class AppUpdater {
       String expected=prefs.getString("sha256","");
       int version=prefs.getInt("version",0);
       if(!file.isFile()||file.length()<10000)throw new java.io.IOException("APK missing or incomplete");
-      if(expected.matches("[a-f0-9]{64}")&&!MessageDigest.isEqual(
-        expected.getBytes(java.nio.charset.StandardCharsets.US_ASCII),
-        sha256(file).getBytes(java.nio.charset.StandardCharsets.US_ASCII)))
-        throw new SecurityException("Download checksum did not match");
+      if(expected.matches("[a-f0-9]{64}")){
+        String actual=sha256(file);
+        if(!MessageDigest.isEqual(
+          expected.getBytes(java.nio.charset.StandardCharsets.US_ASCII),
+          actual.getBytes(java.nio.charset.StandardCharsets.US_ASCII))){
+          clear(a);
+          showIssue(a,"Update file didn't match",
+            "The download failed its security check, so it was not installed.\n\n"+
+            "Build: "+version+"\nExpected SHA-256: "+expected+"\nReceived SHA-256: "+actual+
+            "\n\nThis can happen when an older APK is served from a cache. "+
+            "Please check for updates again. Future builds use version-specific APK links.");
+          return;
+        }
+      }
       CheckResult check=examinePackage(a,file,version);
       if(!check.permitted){
         showIssue(a,"Update blocked — details",check.message);
