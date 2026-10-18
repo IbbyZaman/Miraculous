@@ -35,6 +35,8 @@ public class MainActivity extends Activity {
   private int selectedSeason=7;
   private LinearLayout searchResults;
   private boolean updating=false;
+  private long lastLibrarySync=0;
+  private final Runnable periodicLibrarySync=new Runnable(){@Override public void run(){refresh();handler.postDelayed(this,120000);}};
   private long lastUpdateCheck=0L;
   private String catalogError="";
 
@@ -71,23 +73,43 @@ public class MainActivity extends Activity {
       episodes.addAll(bundled);
     }catch(Exception e){android.util.Log.w("MiraculousHub","Bundled catalogue unavailable",e);}
   }
+  private String loadLiveText(String address,int limit) throws Exception {
+    HttpURLConnection c=(HttpURLConnection)new URL(address).openConnection();
+    c.setConnectTimeout(8500);c.setReadTimeout(8500);
+    c.setRequestProperty("Accept","application/json, text/javascript");
+    c.setRequestProperty("Cache-Control","no-cache");
+    if(c.getResponseCode()!=200){int code=c.getResponseCode();c.disconnect();throw new IOException("HTTP "+code);}
+    ByteArrayOutputStream out=new ByteArrayOutputStream();
+    try(InputStream in=c.getInputStream()){
+      byte[] b=new byte[8192];int n;
+      while((n=in.read(b))!=-1){if(out.size()+n>limit)throw new IOException("Catalogue too large");out.write(b,0,n);}
+    }finally{c.disconnect();}
+    return out.toString("UTF-8");
+  }
   private void refresh(){
-    if(updating)return;updating=true;
+    if(updating)return;updating=true;lastLibrarySync=System.currentTimeMillis();
     new Thread(()->{
+      LinkedHashMap<String,JSONObject> map=new LinkedHashMap<>();
+      for(JSONObject e:bundled)map.put(e.optString("code"),e);
+      String failure="";
+      ArrayList<JSONObject> foundTrailers=new ArrayList<>();
       try{
-        HttpURLConnection c=(HttpURLConnection)new URL(CATALOG).openConnection();
-        c.setConnectTimeout(9000);c.setReadTimeout(9000);
-        c.setRequestProperty("Accept","application/json");
-        if(c.getResponseCode()!=200)throw new IOException("HTTP "+c.getResponseCode());
-        ByteArrayOutputStream out=new ByteArrayOutputStream();
-        try(InputStream in=c.getInputStream()){
-          byte[] b=new byte[8192];int n;
-          while((n=in.read(b))!=-1){if(out.size()+n>2000000)throw new IOException("Catalogue too large");out.write(b,0,n);}
-        }finally{c.disconnect();}
-        JSONArray rows=new JSONObject(out.toString("UTF-8")).getJSONArray("entries");
-        LinkedHashMap<String,JSONObject> map=new LinkedHashMap<>();
-        for(JSONObject e:bundled)map.put(e.optString("code"),e);
-        ArrayList<JSONObject> foundTrailers=new ArrayList<>();
+        String js=loadLiveText("https://miraculoushub.co.uk/data.js",1400000);
+        int at=js.indexOf("window.MH_EPISODES"),start=js.indexOf('[',at),close=js.indexOf("];",start);
+        if(at<0||start<0||close<0)throw new IOException("Website data not found");
+        JSONArray site=new JSONArray(js.substring(start,close+1));
+        LinkedHashMap<String,JSONObject> latestBase=new LinkedHashMap<>();
+        for(int i=0;i<site.length();i++){
+          JSONObject e=site.optJSONObject(i);if(e==null)continue;
+          int season=e.optInt("season"),episode=e.optInt("episode");
+          if(season<1||season>7||episode<1||episode>99)continue;
+          String code=String.format(Locale.US,"S%02dE%02d",season,episode);
+          if(e.optBoolean("available",true))latestBase.put(code,e);
+        }
+        if(!latestBase.isEmpty())map=latestBase;
+      }catch(Exception ex){failure="Website: "+ex.getMessage();}
+      try{
+        JSONArray rows=new JSONObject(loadLiveText(CATALOG,2000000)).getJSONArray("entries");
         for(int i=0;i<rows.length();i++){
           JSONObject row=rows.optJSONObject(i);if(row==null)continue;
           if("trailer".equals(row.optString("kind"))){
@@ -101,24 +123,25 @@ public class MainActivity extends Activity {
           if(!row.optBoolean("available",true)){map.remove(code);continue;}
           JSONObject copy=new JSONObject(row.toString());
           copy.put("code",code);copy.put("videoPath","/video/"+code.toLowerCase(Locale.US));
+          // Never fabricate or replace a missing thumbnail. Use upload.html metadata.
           map.put(code,copy);
         }
-        ArrayList<JSONObject> latest=new ArrayList<>(map.values());
-        latest.sort((a,b)->{int x=Integer.compare(a.optInt("season"),b.optInt("season"));return x!=0?x:Integer.compare(a.optInt("episode"),b.optInt("episode"));});
-        handler.post(()->{
-          catalogError="";updating=false;episodes.clear();episodes.addAll(latest);
-          trailers.clear();trailers.addAll(foundTrailers);
-          render();if(status!=null)status.setText("LIBRARY UPDATED");
-        });
-      }catch(Exception ex){
-        handler.post(()->{updating=false;catalogError=ex.getMessage()==null?"Catalogue unavailable":ex.getMessage();if(status!=null)status.setText("CATALOGUE SYNC FAILED  •  RETRY ↻");});
-      }
+      }catch(Exception ex){failure+=(failure.isEmpty()?"":" • ")+"Uploads: "+ex.getMessage();}
+      ArrayList<JSONObject> latest=new ArrayList<>(map.values());
+      latest.sort((a,b)->{int x=Integer.compare(a.optInt("season"),b.optInt("season"));return x!=0?x:Integer.compare(a.optInt("episode"),b.optInt("episode"));});
+      String error=failure;
+      handler.post(()->{
+        catalogError=error;updating=false;episodes.clear();episodes.addAll(latest);
+        trailers.clear();trailers.addAll(foundTrailers);
+        render();if(status!=null)status.setText(error.isEmpty()?"WEBSITE LIBRARY UPDATED":"PARTIAL WEBSITE SYNC");
+      });
     }).start();
   }
   private void image(ImageView view,String url){
     view.setBackground(gradient(0xff29253d,0xff10141d,16));
-    if(url==null||!url.startsWith("https://"))return;
-    Glide.with(this).load(url).centerCrop().into(view);
+    if(url==null||url.isEmpty())return;
+    String resolved=url.startsWith("https://")?url:"https://miraculoushub.co.uk/"+url.replaceFirst("^/","");
+    Glide.with(this).load(resolved).centerCrop().into(view);
   }
   private void open(String newTab){
     tab=newTab;render();
@@ -453,5 +476,6 @@ public class MainActivity extends Activity {
     }catch(Exception ignored){if(manual)handler.post(()->android.widget.Toast.makeText(this,"Unable to check for updates. Check your connection.",android.widget.Toast.LENGTH_LONG).show());} }).start();
   }
 
-  @Override protected void onResume(){super.onResume();if(System.currentTimeMillis()-lastUpdateCheck>15*60*1000)checkUpdates(false);}
+  @Override protected void onResume(){super.onResume();if(System.currentTimeMillis()-lastUpdateCheck>15*60*1000)checkUpdates(false);handler.removeCallbacks(periodicLibrarySync);handler.postDelayed(periodicLibrarySync,120000);if(System.currentTimeMillis()-lastLibrarySync>120000)refresh();}
+  @Override protected void onPause(){handler.removeCallbacks(periodicLibrarySync);super.onPause();}
 }
