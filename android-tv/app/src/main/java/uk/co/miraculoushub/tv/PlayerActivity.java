@@ -127,7 +127,7 @@ public class PlayerActivity extends Activity {
       handler.postDelayed(cloudSave,8000);
     }
     video.requestFocus();
-    handler.postDelayed(()->{if(top!=null&&player!=null&&player.isPlaying())top.animate().alpha(0f).setDuration(350);},6500);
+    // Keep TV navigation actions visible and discoverable for D-pad users.
     video.setOnClickListener(v->top.animate().alpha(1f).setDuration(170));
   }
   private JSONArray catalogue(){try{return new JSONArray(episodeLibrary==null?"[]":episodeLibrary);}catch(Exception e){return new JSONArray();}}
