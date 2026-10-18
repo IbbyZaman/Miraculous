@@ -1,0 +1,63 @@
+name: Publish MiraculousHub website + direct APK downloads
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '*.html'
+      - '*.css'
+      - '*.js'
+      - '*.png'
+      - '*.webp'
+      - '*.json'
+      - 'assets/**'
+      - '.github/workflows/publish-miraculoushub-pages.yml'
+  workflow_run:
+    workflows:
+      - Build MiraculousHub Phone APK
+      - Build MiraculousHub TV APK
+    types: [completed]
+concurrency:
+  group: miraculoushub-pages-publishing
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
+    steps:
+      - name: Checkout latest website and APK mirrors
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Prepare GitHub Pages artifact
+        run: |
+          mkdir -p _site
+          rsync -a ./ _site/ \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='android-phone/' \
+            --exclude='android-tv/' \
+            --exclude='scripts/' \
+            --exclude='_site/' \
+            --exclude='*.zip' \
+            --exclude='*.md' \
+            --exclude='*.py'
+          touch _site/.nojekyll
+          echo "APK mirror files:"
+          ls -lh _site/downloads/ || true
+      - name: Set up Pages
+        uses: actions/configure-pages@v5
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Publish website
+        id: publish
+        uses: actions/deploy-pages@v4
