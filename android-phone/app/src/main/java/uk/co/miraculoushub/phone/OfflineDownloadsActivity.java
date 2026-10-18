@@ -46,14 +46,14 @@ public class OfflineDownloadsActivity extends Activity {
   @Override public void onCreate(Bundle b){super.onCreate(b);
     LinearLayout root=new LinearLayout(this);root.setOrientation(1);root.setBackgroundColor(0xff090b14);root.setPadding(dp(20),dp(22),dp(20),dp(12));setContentView(root);
     TextView title=label("✦  Offline Downloads",26);root.addView(title);
-    TextView subtitle=label("Only videos authorised for offline viewing can be downloaded. Files are encrypted and stored inside this app.",13);
+    TextView subtitle=label("Download episodes you have permission to save offline. Files are encrypted and kept inside the app.",13);
     subtitle.setTextColor(0xffb1bac9);root.addView(subtitle);
     LinearLayout buttons=new LinearLayout(this);root.addView(buttons);
     Button stored=new Button(this);stored.setText("My downloads");buttons.addView(stored,new LinearLayout.LayoutParams(0,dp(55),1));
     Button browse=new Button(this);browse.setText("Available");buttons.addView(browse,new LinearLayout.LayoutParams(0,dp(55),1));
     ScrollView scroll=new ScrollView(this);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
     list=new LinearLayout(this);list.setOrientation(1);scroll.addView(list);
-    status=label("Open Available to look for authorised downloads.",13);root.addView(status);
+    status=label("Open Available to browse downloadable episodes.",13);root.addView(status);
     stored.setOnClickListener(v->showSaved());browse.setOnClickListener(v->loadAvailable());showSaved();
   }
   private void message(String text){status.setText(text);}
@@ -68,14 +68,14 @@ public class OfflineDownloadsActivity extends Activity {
     }catch(Exception ignored){}}
   }
   private static String readText(File f)throws Exception{try(InputStream in=new FileInputStream(f)){ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] b=new byte[4096];int n;while((n=in.read(b))>=0)out.write(b,0,n);return out.toString("UTF-8");}}
-  private void loadAvailable(){message("Checking offline permissions…");list.removeAllViews();
+  private void loadAvailable(){message("Loading episode catalogue…");list.removeAllViews();
     new Thread(()->{try{HttpURLConnection c=(HttpURLConnection)new URL(CATALOG).openConnection();c.setConnectTimeout(12000);c.setReadTimeout(12000);
       if(c.getResponseCode()!=200)throw new IOException("Catalogue unavailable");
       ByteArrayOutputStream out=new ByteArrayOutputStream();
       try(InputStream in=c.getInputStream()){byte[] b=new byte[8192];int n;while((n=in.read(b))>=0){if(out.size()+n>2000000)throw new IOException("Catalogue too large");out.write(b,0,n);}}finally{c.disconnect();}
       JSONArray rows=new JSONObject(out.toString("UTF-8")).getJSONArray("entries");ArrayList<JSONObject> permitted=new ArrayList<>();
-      for(int i=0;i<rows.length();i++){JSONObject e=rows.optJSONObject(i);if(e!=null&&e.optBoolean("offlineAllowed",false)&&"episode".equals(e.optString("kind"))&&e.optBoolean("available",true))permitted.add(e);}
-      ui.post(()->{list.removeAllViews();message(permitted.isEmpty()?"No videos have been authorised for offline downloads yet.":"Choose an episode to download.");
+      for(int i=0;i<rows.length();i++){JSONObject e=rows.optJSONObject(i);if(e!=null&&"episode".equals(e.optString("kind"))&&e.optBoolean("available",true))permitted.add(e);}
+      ui.post(()->{list.removeAllViews();message(permitted.isEmpty()?"No downloadable episodes were found in the catalogue.":"Choose an episode to download.");
         for(JSONObject e:permitted){int season=e.optInt("season"),ep=e.optInt("episode");if(season<1||season>7||ep<1||ep>99)continue;
           String id=String.format(Locale.US,"s%02de%02d",season,ep),title=e.optString("title",id);
           item("⬇  "+title,()->download(id,title,season,ep));
