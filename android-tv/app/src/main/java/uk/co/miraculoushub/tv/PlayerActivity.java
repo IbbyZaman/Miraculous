@@ -20,6 +20,11 @@ import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PlayerActivity extends Activity {
   private final Handler handler=new Handler(Looper.getMainLooper());
@@ -27,6 +32,12 @@ public class PlayerActivity extends Activity {
   private PlayerView video;
   private TextView status,heading;
   private ProgressBar loading;
+  private DocumentReference cloudDocument;
+  private String cloudTitle;
+  private int cloudSeason,cloudEpisode;
+  private boolean userNavigated=false;
+  private long lastCloudWrite=0;
+  private final Runnable cloudSave=new Runnable(){@Override public void run(){savePlayback(false);handler.postDelayed(this,20000);}};
   private int dp(int n){return (int)(getResources().getDisplayMetrics().density*n+.5f);}
   private void immersive(){
     getWindow().getDecorView().setSystemUiVisibility(
@@ -37,6 +48,11 @@ public class PlayerActivity extends Activity {
   @Override public void onCreate(Bundle saved){
     super.onCreate(saved);immersive();
     String uri=getIntent().getStringExtra("url"),title=getIntent().getStringExtra("title");
+    cloudTitle=title;cloudSeason=getIntent().getIntExtra("season",0);cloudEpisode=getIntent().getIntExtra("episode",0);
+    String cloudKey=getIntent().getStringExtra("cloudKey");
+    FirebaseUser account=TvFirebase.auth(this).getCurrentUser();
+    if(account!=null&&cloudKey!=null&&cloudKey.matches("[a-z0-9-]{2,100}"))
+      cloudDocument=TvFirebase.database(this).collection("users").document(account.getUid()).collection("playback").document(cloudKey);
     if(uri==null||!uri.startsWith("https://")){finish();return;}
     FrameLayout root=new FrameLayout(this);root.setBackgroundColor(Color.BLACK);setContentView(root);
     video=new PlayerView(this);video.setUseController(true);video.setControllerShowTimeoutMs(5500);
@@ -76,19 +92,44 @@ public class PlayerActivity extends Activity {
       }
     });
     player.setMediaItem(MediaItem.fromUri(uri));player.prepare();player.play();
+    if(cloudDocument!=null){
+      cloudDocument.get().addOnSuccessListener(doc->{
+        if(player==null||userNavigated||!doc.exists())return;
+        Object pos=doc.get("position");
+        if(pos instanceof Number){long ms=(long)(((Number)pos).doubleValue()*1000);
+          long duration=player.getDuration();
+          if(ms>0&&(duration<=0||ms<duration-5000))player.seekTo(ms);
+        }
+      });
+      handler.postDelayed(cloudSave,20000);
+    }
     video.requestFocus();
     handler.postDelayed(()->{if(top!=null&&player!=null&&player.isPlaying())top.animate().alpha(0f).setDuration(350);},6500);
     video.setOnClickListener(v->top.animate().alpha(1f).setDuration(170));
   }
   @Override public boolean dispatchKeyEvent(KeyEvent event){
     if(event.getAction()==KeyEvent.ACTION_DOWN&&player!=null){
-      if(event.getKeyCode()==KeyEvent.KEYCODE_MEDIA_FAST_FORWARD){player.seekTo(player.getCurrentPosition()+10000);return true;}
-      if(event.getKeyCode()==KeyEvent.KEYCODE_MEDIA_REWIND){player.seekTo(Math.max(0,player.getCurrentPosition()-10000));return true;}
+      if(event.getKeyCode()==KeyEvent.KEYCODE_MEDIA_FAST_FORWARD){userNavigated=true;player.seekTo(player.getCurrentPosition()+10000);return true;}
+      if(event.getKeyCode()==KeyEvent.KEYCODE_MEDIA_REWIND){userNavigated=true;player.seekTo(Math.max(0,player.getCurrentPosition()-10000));return true;}
     }
     return super.dispatchKeyEvent(event);
   }
+  private void savePlayback(boolean force){
+    if(cloudDocument==null||player==null)return;
+    long current=player.getCurrentPosition(),total=player.getDuration();
+    if(current<1500||total<=0)return;
+    if(!force&&System.currentTimeMillis()-lastCloudWrite<15000)return;
+    lastCloudWrite=System.currentTimeMillis();
+    Map<String,Object> data=new HashMap<>();
+    data.put("title",cloudTitle==null?"Episode":cloudTitle);
+    data.put("season",cloudSeason);data.put("episode",cloudEpisode);
+    data.put("position",current/1000.0);data.put("duration",total/1000.0);
+    data.put("progress",Math.min(100,100.0*current/total));
+    data.put("updatedAt",FieldValue.serverTimestamp());
+    cloudDocument.set(data,com.google.firebase.firestore.SetOptions.merge());
+  }
   @Override protected void onStop(){
-    super.onStop();handler.removeCallbacksAndMessages(null);
+    savePlayback(true);super.onStop();handler.removeCallbacksAndMessages(null);
     if(player!=null){player.release();player=null;}
   }
 }
