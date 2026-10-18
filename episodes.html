@@ -147,7 +147,7 @@
   <button>PORTUGUÊS</button>
 </div>
 
-<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="season7-data.js?v=banner-fix-1"></script><script src="catalog.js?v=banner-fix-1"></script>
+<script src="data.js?v=s5-all-thumbnails-1"></script><script src="season4-thumbnails.js?v=s4-stills-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="season7-data.js?v=banner-fix-1"></script><script src="catalog.js?v=banner-fix-1"></script>
 <script src="firebase.js?v=account-v4-1"></script>
 <script src="common.js?v=trailer-cards-1"></script>
 <script src="motion.js?v=nav-alignment-v4-1"></script>
@@ -319,6 +319,7 @@ render();
 // Keep the little watch-progress line in sync with Firebase playback data.
 window.addEventListener("mh-progress-synced",render);
 window.addEventListener("mh-cloud-save-ok",render);
+window.addEventListener("mh-season4-thumbnails",render);
 
 })();
 </script>
