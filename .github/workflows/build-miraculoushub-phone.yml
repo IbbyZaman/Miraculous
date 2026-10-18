@@ -34,6 +34,13 @@ jobs:
         with:
           path: ~/.android/debug.keystore
           key: miraculoushub-phone-signing-v1
+      - name: Ensure persistent debug signing key
+        run: |
+          mkdir -p "$HOME/.android"
+          if [ ! -f "$HOME/.android/debug.keystore" ]; then
+            keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          fi
+          test -f "$HOME/.android/debug.keystore"
       - name: Show build version
         run: echo "Phone versionCode = $GITHUB_RUN_NUMBER"
       - name: Build Phone APK
