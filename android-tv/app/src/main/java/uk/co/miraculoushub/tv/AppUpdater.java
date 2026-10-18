@@ -157,8 +157,24 @@ public final class AppUpdater {
     a.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().clear().apply();
   }
   public static void onResume(Activity a){
-    long id=a.getSharedPreferences(PREFS,Context.MODE_PRIVATE).getLong("id",-1);
+    android.content.SharedPreferences p=a.getSharedPreferences(PREFS,Context.MODE_PRIVATE);
+    long id=p.getLong("id",-1);
     if(id<0)return;
+    if(p.getBoolean("waitingForInstallPermission",false)){
+      if(Build.VERSION.SDK_INT<26||a.getPackageManager().canRequestPackageInstalls()){
+        p.edit().putBoolean("waitingForInstallPermission",false).apply();
+        String file=p.getString("file","");
+        if(!file.isEmpty()){
+          // Check it again when returning from Android settings.
+          new Thread(()->verifyAndPresent(a,id)).start();
+        }
+      }
+      return;
+    }
+    // The download can complete while the app is backgrounded. Re-show the
+    // installer prompt when the user reopens the app instead of losing it.
+    if(p.getBoolean("staged",false))
+      p.edit().putBoolean("staged",false).apply();
     main.postDelayed(()->poll(a,id),900);
   }
   private static void poll(Activity a,long id){
@@ -243,6 +259,8 @@ public final class AppUpdater {
   }
   private static void install(Activity activity,File file){
     if(Build.VERSION.SDK_INT>=26&&!activity.getPackageManager().canRequestPackageInstalls()){
+      activity.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit()
+        .putBoolean("waitingForInstallPermission",true).apply();
       new AlertDialog.Builder(activity)
         .setTitle("Allow app updates")
         .setMessage("Android requires permission to install an APK from MiraculousHub. Enable 'Allow from this source', then return here to install the verified update. No uninstall is necessary.")
