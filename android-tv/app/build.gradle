@@ -4,6 +4,7 @@ android { namespace 'uk.co.miraculoushub.tv'; compileSdk 35
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 dependencies {
+ implementation 'androidx.core:core:1.15.0'
  implementation 'com.google.zxing:core:3.5.3'
  implementation 'com.google.firebase:firebase-auth:23.2.1'
  implementation 'com.google.firebase:firebase-firestore:25.1.4'
