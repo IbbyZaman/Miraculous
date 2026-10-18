@@ -14,6 +14,7 @@ import android.text.TextWatcher;
 import android.text.Editable;
 import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.*;
 import com.bumptech.glide.Glide;
 import org.json.*;
@@ -34,12 +35,15 @@ public class MainActivity extends Activity {
   private int selectedSeason=7;
   private LinearLayout searchResults;
   private boolean updating=false;
+  private long lastUpdateCheck=0L;
+  private String catalogError="";
 
   @Override public void onCreate(Bundle b){
     super.onCreate(b);
+    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
     getWindow().setStatusBarColor(BG);
     getWindow().setNavigationBarColor(BG);
-    loadBundled();render();refresh();checkUpdates();
+    loadBundled();render();refresh();
   }
   private int dp(float n){return (int)(n*getResources().getDisplayMetrics().density+0.5f);}
   private GradientDrawable solid(int color,int radius){
@@ -102,12 +106,12 @@ public class MainActivity extends Activity {
         ArrayList<JSONObject> latest=new ArrayList<>(map.values());
         latest.sort((a,b)->{int x=Integer.compare(a.optInt("season"),b.optInt("season"));return x!=0?x:Integer.compare(a.optInt("episode"),b.optInt("episode"));});
         handler.post(()->{
-          updating=false;episodes.clear();episodes.addAll(latest);
+          catalogError="";updating=false;episodes.clear();episodes.addAll(latest);
           trailers.clear();trailers.addAll(foundTrailers);
           render();if(status!=null)status.setText("LIBRARY UPDATED");
         });
       }catch(Exception ex){
-        handler.post(()->{updating=false;if(status!=null)status.setText("OFFLINE LIBRARY  •  RETRY ↻");});
+        handler.post(()->{updating=false;catalogError=ex.getMessage()==null?"Catalogue unavailable":ex.getMessage();if(status!=null)status.setText("CATALOGUE SYNC FAILED  •  RETRY ↻");});
       }
     }).start();
   }
@@ -209,7 +213,7 @@ public class MainActivity extends Activity {
   private void section(String label,String destination,ArrayList<JSONObject> items,boolean horizontal){
     heading(label,destination);
     if(items.isEmpty()){
-      TextView empty=text("Nothing uploaded yet. Tap refresh to check again.",14,false,MUTED);
+      TextView empty=text("Trailers".equals(destination)||label.toLowerCase(Locale.ROOT).contains("trailer")?(catalogError.isEmpty()?"No trailers in the catalogue yet.":"Unable to load trailers (catalogue: "+catalogError+"). Update the upload Worker to permit Android catalogue reads."):"No episodes found yet.",14,false,MUTED);
       empty.setPadding(dp(10),dp(17),dp(10),dp(17));empty.setBackground(solid(SURFACE,16));content.addView(empty);
       return;
     }
@@ -265,14 +269,22 @@ public class MainActivity extends Activity {
     LinearLayout cards=new LinearLayout(this);scroller.addView(cards);
     for(String[] show:shows())cards.addView(animeCard(show));
   }
+  private String animeCover(String slug){
+    if("death-note".equals(slug))return "https://cdn.myanimelist.net/images/anime/1079/138100.jpg";
+    if("attack-on-titan".equals(slug))return "https://cdn.myanimelist.net/images/anime/10/47347.jpg";
+    return "https://cdn.myanimelist.net/images/anime/2/88336.jpg";
+  }
   private String[][] shows(){return new String[][]{{"Death Note","death-note","37 EPISODES"},{"Attack on Titan","attack-on-titan","94 EPISODES"},{"Black Clover","black-clover","170 EPISODES"}};}
   private View animeCard(String[] show){
     int c1=show[1].equals("death-note")?0xff363743:show[1].equals("attack-on-titan")?0xff5d372f:0xff324939;
     int c2=show[1].equals("death-note")?0xff0b0e19:show[1].equals("attack-on-titan")?0xff121417:0xff121d1a;
     FrameLayout outer=new FrameLayout(this);outer.setBackground(gradient(c1,c2,18));outer.setClipToOutline(true);
     LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(176),dp(177));p.rightMargin=dp(12);outer.setLayoutParams(p);
-    TextView emblem=text(show[1].equals("death-note")?"✦":show[1].equals("attack-on-titan")?"⚔":"♣",88,true,0x36ffffff);
-    emblem.setGravity(Gravity.TOP|Gravity.END);FrameLayout.LayoutParams ep=new FrameLayout.LayoutParams(-1,-1);ep.setMargins(0,dp(6),dp(12),0);outer.addView(emblem,ep);
+    ImageView cover=new ImageView(this);cover.setScaleType(ImageView.ScaleType.CENTER_CROP);
+    outer.addView(cover,new FrameLayout.LayoutParams(-1,-1));image(cover,animeCover(show[1]));
+    View shade=new View(this);shade.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+      new int[]{0x1b090b13,0x61090b13,0xf4080c16}));
+    outer.addView(shade,new FrameLayout.LayoutParams(-1,-1));
     LinearLayout info=vertical();info.setPadding(dp(13),dp(12),dp(12),dp(16));
     FrameLayout.LayoutParams ilp=new FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM);outer.addView(info,ilp);
     TextView marker=text("MONTHLY ANIME",10,true,0xffff8ba5);info.addView(marker);
@@ -303,6 +315,7 @@ public class MainActivity extends Activity {
       try{
         JSONObject e=new JSONObject();e.put("title",title+" • Episode "+n);
         e.put("code","EPISODE "+n);
+        e.put("thumbnail",animeCover(slug));
         e.put("videoPath","/video/anime/"+slug+"/e"+String.format(Locale.US,slug.equals("black-clover")?"%03d":"%02d",n));
         addTop(content,listCard(e),9);
       }catch(Exception ignored){}
@@ -369,13 +382,16 @@ public class MainActivity extends Activity {
   }
   private void more(){
     addTop(content,text("More",30,true),12);
-    String[][] links={{"◉","My Account","Account"},{"▦","All Episodes","Seasons"},{"◷","Continue Watching","Continue"},{"↻","Refresh library","Refresh"},{"⌕","Search","Search"},{"↗","Open website","Website"}};
+    int currentBuild=0;try{currentBuild=getPackageManager().getPackageInfo(getPackageName(),0).versionCode;}catch(Exception ignored){}
+    addTop(content,text("APP BUILD "+currentBuild+"  •  Updates checked automatically",12,false,MUTED),7);
+    String[][] links={{"◉","My Account","Account"},{"▦","All Episodes","Seasons"},{"◷","Continue Watching","Continue"},{"⬇","Check for app updates","Updates"},{"↻","Refresh library","Refresh"},{"⌕","Search","Search"},{"↗","Open website","Website"}};
     for(String[] link:links){
       TextView entry=text(link[0]+"     "+link[1]+"       →",17,true);
       entry.setPadding(dp(17),dp(20),dp(17),dp(20));entry.setBackground(solid(0xff171d2a,17));
       addTop(content,entry,12);
       entry.setOnClickListener(v->{
         if("Account".equals(link[2]))startActivity(new Intent(this,AccountActivity.class));
+        else if("Updates".equals(link[2])){android.widget.Toast.makeText(this,"Checking for a newer APK…",android.widget.Toast.LENGTH_SHORT).show();checkUpdates(true);}
         else if("Refresh".equals(link[2])){refresh();open("Home");}
         else if("Website".equals(link[2]))startActivity(new Intent(Intent.ACTION_VIEW,android.net.Uri.parse("https://miraculoushub.co.uk")));
         else open(link[2]);
@@ -399,14 +415,15 @@ public class MainActivity extends Activity {
       entry.setContentDescription(spec[0]);entry.setOnClickListener(v->{if("Anime".equals(spec[0]))selectedAnime="";open(spec[0]);});
     }
   }
-  private void checkUpdates(){
+  private void checkUpdates(boolean manual){
+    lastUpdateCheck=System.currentTimeMillis();
     new Thread(()->{try{
       URL u=new URL("https://api.github.com/repos/IbbyZaman/Miraculous/releases?per_page=15");
       HttpURLConnection c=(HttpURLConnection)u.openConnection();
       c.setConnectTimeout(7000);c.setReadTimeout(7000);
       c.setRequestProperty("Accept","application/vnd.github+json");
       c.setRequestProperty("User-Agent","MiraculousHub-Android");
-      if(c.getResponseCode()!=200){c.disconnect();return;}
+      if(c.getResponseCode()!=200){c.disconnect();if(manual)handler.post(()->android.widget.Toast.makeText(this,"Update check unavailable. Please try again.",android.widget.Toast.LENGTH_LONG).show());return;}
       ByteArrayOutputStream out=new ByteArrayOutputStream();
       try(InputStream in=c.getInputStream()){byte[] b=new byte[4096];int n;while((n=in.read(b))!=-1 && out.size()<130000)out.write(b,0,n);}
       c.disconnect();
@@ -432,8 +449,9 @@ public class MainActivity extends Activity {
           return;
         }
       }
-    }catch(Exception ignored){} }).start();
+      if(manual)handler.post(()->android.widget.Toast.makeText(this,"You already have the latest MiraculousHub version.",android.widget.Toast.LENGTH_LONG).show());
+    }catch(Exception ignored){if(manual)handler.post(()->android.widget.Toast.makeText(this,"Unable to check for updates. Check your connection.",android.widget.Toast.LENGTH_LONG).show());} }).start();
   }
 
-  @Override protected void onResume(){super.onResume();}
+  @Override protected void onResume(){super.onResume();if(System.currentTimeMillis()-lastUpdateCheck>15*60*1000)checkUpdates(false);}
 }
