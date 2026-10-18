@@ -153,7 +153,7 @@ public final class AppUpdater {
           prompting=true;
           new AlertDialog.Builder(activity)
             .setTitle("MiraculousHub update • Build "+release.version)
-            .setMessage("Download and prepare this update inside the app? Your account and watch history stay intact if its signing certificate matches. Android will ask you to confirm installation.")
+            .setMessage("Version "+current+" → "+release.version+"\n\nDownload and prepare this update inside the app? The installer should offer Update without clearing your account or watch history. Android will ask you to confirm installation.")
             .setNegativeButton("Later",(d,w)->prompting=false)
             .setOnCancelListener(d->prompting=false)
             .setPositiveButton("Download update",(d,w)->{prompting=false;startDownload(activity,release);})
