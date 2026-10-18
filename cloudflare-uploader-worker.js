@@ -148,6 +148,133 @@ function uploadedRoutes(key){
   return {videoPath,downloadPath:videoPath.replace('/video/','/download/'),watchPath,
     watchUrl:watchPath?`https://miraculoushub.co.uk/${watchPath}`:null};
 }
+
+/* TV pairing: 5-minute one-use pairing, authenticated website approval, and
+   a Firebase custom token signed ONLY by a private Cloudflare Worker secret.
+   Set FIREBASE_SERVICE_ACCOUNT_JSON in Cloudflare Secrets. Never commit it.
+   Use VIDEOS R2 for temporary coordination; configure a 1-day R2 lifecycle
+   expiration rule for tv-pair/ objects to delete abandoned requests.
+*/
+const TV_PAIR_TTL=5*60*1000;
+const TV_PAIR_PATH="tv-pair/";
+const TV_ORIGIN="https://miraculoushub.co.uk";
+function randomHex(bytes){
+  return Array.from(crypto.getRandomValues(new Uint8Array(bytes)),n=>n.toString(16).padStart(2,"0")).join("");
+}
+function b64url(bytes){
+  return btoa(String.fromCharCode(...new Uint8Array(bytes)))
+    .replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
+}
+async function fingerprint(str){
+  const hash=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
+  return b64url(hash);
+}
+function constantEqual(a,b){
+  if(typeof a!=="string"||typeof b!=="string"||a.length!==b.length)return false;
+  let diff=0;
+  for(let i=0;i<a.length;i++)diff|=a.charCodeAt(i)^b.charCodeAt(i);
+  return diff===0;
+}
+async function parseSmallJSON(request){
+  if(Number(request.headers.get("Content-Length")||0)>2048)throw new Error("Request too large");
+  const raw=await request.text();
+  if(raw.length>2048)throw new Error("Request too large");
+  return JSON.parse(raw||"{}");
+}
+function pairingConfig(env){
+  if(!env.VIDEOS||!env.FIREBASE_SERVICE_ACCOUNT_JSON)return null;
+  try{
+    const data=JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    if(data.project_id!==FIREBASE_PROJECT_ID||!data.client_email?.endsWith(".gserviceaccount.com")||
+      !data.private_key?.includes("-----BEGIN PRIVATE KEY-----"))return null;
+    return data;
+  }catch{return null}
+}
+async function firebaseCustomToken(uid,service){
+  const now=Math.floor(Date.now()/1000);
+  const header=b64url(new TextEncoder().encode(JSON.stringify({alg:"RS256",typ:"JWT"})));
+  const claims=b64url(new TextEncoder().encode(JSON.stringify({
+    iss:service.client_email,sub:service.client_email,
+    aud:"https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit",
+    iat:now,exp:now+3600,uid
+  })));
+  const unsigned=header+"."+claims;
+  const raw=atob(service.private_key.replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\s/g,""));
+  const privateBytes=Uint8Array.from(raw,c=>c.charCodeAt(0));
+  const key=await crypto.subtle.importKey("pkcs8",privateBytes,{name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"},false,["sign"]);
+  return unsigned+"."+b64url(await crypto.subtle.sign("RSASSA-PKCS1-v1_5",key,new TextEncoder().encode(unsigned)));
+}
+async function pairingRead(env,id){
+  const obj=await env.VIDEOS.get(TV_PAIR_PATH+id+".json");
+  return obj?obj.json():null;
+}
+async function pairingWrite(env,id,entry){
+  await env.VIDEOS.put(TV_PAIR_PATH+id+".json",JSON.stringify(entry),
+    {httpMetadata:{contentType:"application/json"}});
+}
+async function tvPairRoute(request,env,url){
+  const path=url.pathname,device=path==="/tv-pair/start"||path==="/tv-pair/status";
+  const website=path==="/tv-pair/info"||path==="/tv-pair/approve";
+  const trustedBrowser=allowed(request)&&ALLOWED_ORIGINS.has(request.headers.get("Origin"));
+  if(device&&(request.headers.has("Origin")||request.headers.has("Referer")))
+    return json(request,{error:"Native device only"},403);
+  if(website&&!trustedBrowser)return json(request,{error:"Use the MiraculousHub website"},403);
+  if(!env.VIDEOS)return json(request,{error:"Storage unavailable"},503);
+  // Don't initiate pairing when the server has no signing capability.
+  const service=pairingConfig(env);
+  if(!service)return json(request,{error:"TV pairing is not configured on this Worker yet."},503);
+  if(path==="/tv-pair/start"&&request.method==="POST"){
+    const id=randomHex(16),deviceSecret=randomHex(32);
+    const code=String(100000+crypto.getRandomValues(new Uint32Array(1))[0]%900000);
+    const expiresAt=Date.now()+TV_PAIR_TTL;
+    await pairingWrite(env,id,{secretHash:await fingerprint(deviceSecret),code,expiresAt,state:"pending"});
+    return json(request,{pair:id,deviceSecret,code,expiresAt,url:TV_ORIGIN+"/tv-login.html?pair="+id});
+  }
+  if(path==="/tv-pair/info"&&request.method==="GET"){
+    const id=url.searchParams.get("pair")||"";
+    if(!/^[0-9a-f]{32}$/.test(id))return json(request,{error:"Invalid pairing link"},400);
+    const session=await pairingRead(env,id);
+    if(!session)return json(request,{error:"Pairing no longer available"},404);
+    if(Date.now()>=session.expiresAt){
+      await env.VIDEOS.delete(TV_PAIR_PATH+id+".json");
+      return json(request,{error:"Pairing expired"},410);
+    }
+    return json(request,{code:session.code,expiresAt:session.expiresAt,status:session.state});
+  }
+  if(path==="/tv-pair/status"&&request.method==="POST"){
+    let data;try{data=await parseSmallJSON(request)}catch{return json(request,{error:"Invalid request"},400)}
+    const id=String(data.pair||""),deviceSecret=String(data.deviceSecret||"");
+    if(!/^[0-9a-f]{32}$/.test(id)||!/^[0-9a-f]{64}$/.test(deviceSecret))
+      return json(request,{error:"Invalid pairing"},400);
+    const session=await pairingRead(env,id);
+    if(!session)return json(request,{status:"expired"},410);
+    if(Date.now()>=session.expiresAt){await env.VIDEOS.delete(TV_PAIR_PATH+id+".json");return json(request,{status:"expired"},410)}
+    if(!constantEqual(await fingerprint(deviceSecret),session.secretHash))
+      return json(request,{error:"Not authorized"},403);
+    if(session.state==="pending")return json(request,{status:"pending"});
+    if(session.state!=="approved"||typeof session.uid!=="string")return json(request,{status:"expired"},410);
+    const customToken=await firebaseCustomToken(session.uid,service);
+    await env.VIDEOS.delete(TV_PAIR_PATH+id+".json");
+    return json(request,{status:"approved",customToken});
+  }
+  if(path==="/tv-pair/approve"&&request.method==="POST"){
+    let data;try{data=await parseSmallJSON(request)}catch{return json(request,{error:"Invalid request"},400)}
+    const id=String(data.pair||""),code=String(data.code||"");
+    if(!/^[0-9a-f]{32}$/.test(id)||!/^\d{6}$/.test(code))
+      return json(request,{error:"Invalid pairing code"},400);
+    const user=await verifyFirebaseUser(request,env);
+    if(user.error)return json(request,{error:user.error},user.status);
+    const session=await pairingRead(env,id);
+    if(!session)return json(request,{error:"Pairing not found"},404);
+    if(session.expiresAt<=Date.now())return json(request,{error:"Pairing expired"},410);
+    if(session.state!=="pending"||!constantEqual(session.code,code))
+      return json(request,{error:"Pairing was already used or confirmation code does not match"},409);
+    await pairingWrite(env,id,{...session,state:"approved",uid:user.uid});
+    return json(request,{success:true,message:"TV approved. You can return to your TV."});
+  }
+  return json(request,{error:"Method not allowed"},405);
+}
+
 export default{async fetch(request,env){
   if(request.method==="OPTIONS")return allowed(request)?new Response(null,{status:204,headers:cors(request)}):new Response("Forbidden",{status:403});
   // The catalogue is public information. Native Android requests usually have
@@ -156,11 +283,16 @@ export default{async fetch(request,env){
   const requestUrl=new URL(request.url);
   const nativeCatalogueRead=request.method==="GET"&&requestUrl.pathname==="/catalog"&&
     !request.headers.get("Origin")&&!request.headers.get("Referer");
-  if(!allowed(request)&&!nativeCatalogueRead)return new Response("Forbidden - MiraculousHub only.",{status:403,headers:cors(request)});
+  // Allow only no-origin native pairing requests; website approval remains
+  // restricted to trusted website Origin and a verified Firebase ID token.
+  const tvNativeRequest=(requestUrl.pathname==="/tv-pair/start"||requestUrl.pathname==="/tv-pair/status")&&
+    request.method==="POST"&&!request.headers.get("Origin")&&!request.headers.get("Referer");
+  if(!allowed(request)&&!nativeCatalogueRead&&!tvNativeRequest)return new Response("Forbidden - MiraculousHub only.",{status:403,headers:cors(request)});
 
   if(!env.VIDEOS)return json(request,{error:"R2 binding VIDEOS is missing."},500);
 
   const url=new URL(request.url);
+  if(url.pathname.startsWith("/tv-pair/"))return tvPairRoute(request,env,url);
   if(url.pathname==="/catalog"&&request.method==="GET"){try{return await catalog(request,env)}catch{return json(request,{error:"Catalog unavailable."},503)}}
   if(url.pathname==="/trailer"&&["GET","HEAD"].includes(request.method))return trailer(request,env,url);
   if(!env.UPLOAD_PASSWORD||request.headers.get("X-Upload-Password")!==env.UPLOAD_PASSWORD)return json(request,{error:"Wrong upload password."},401);
