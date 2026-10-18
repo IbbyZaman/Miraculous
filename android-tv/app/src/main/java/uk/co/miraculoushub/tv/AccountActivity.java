@@ -1,6 +1,7 @@
 package uk.co.miraculoushub.tv;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -53,7 +54,10 @@ public class AccountActivity extends Activity {
       button("Back to TV",0xff22283b,()->finish());
       return;
     }
-    TextView intro=text("Use the same email and password as miraculoushub.co.uk. Watching does not require an account.",16,false);
+    TextView tip=text("Scan a QR code with your phone to sign in with Google or email — no TV keyboard needed.",16,false);
+    tip.setTextColor(0xffbac4d6);tip.setPadding(0,dp(16),0,dp(18));content.addView(tip);
+    button("Sign in with QR code",0xffc52f6c,()->startActivityForResult(new Intent(this,TvPairActivity.class),87));
+    TextView intro=text("Or enter your email and password here. Watching does not require an account.",15,false);
     intro.setTextColor(0xffbac4d6);intro.setPadding(0,dp(15),0,dp(23));content.addView(intro);
     email=new EditText(this);email.setHint("Email address");email.setHintTextColor(0xffa2aabb);email.setTextColor(-1);
     email.setSingleLine(true);email.setInputType(33);email.setTextSize(17);
@@ -66,10 +70,15 @@ public class AccountActivity extends Activity {
     message=text("",14,false);message.setTextColor(0xffffa4c1);content.addView(message);
     button("Sign in",0xffae2a57,()->authenticate(false));
     button("Create account",0xff283043,()->authenticate(true));
-    TextView note=text("Google-only accounts need TV pairing, which isn't enabled yet. Use an email/password account for now.",13,false);
+    TextView note=text("Google sign-in works through the QR code on your phone.",13,false);
     note.setTextColor(0xffabb2c2);note.setPadding(0,dp(10),0,dp(10));content.addView(note);
     email.requestFocus();
   }
+  @Override protected void onActivityResult(int request,int result,Intent data){
+    super.onActivityResult(request,result,data);
+    if(request==87&&result==RESULT_OK)render();
+  }
+  @Override protected void onResume(){super.onResume();if(auth!=null&&content!=null&&auth.getCurrentUser()!=null)render();}
   private void authenticate(boolean create){
     String e=email.getText().toString().trim(),p=password.getText().toString();
     if(e.isEmpty()||p.length()<6){message.setText("Enter your email and a password of at least 6 characters.");return;}
