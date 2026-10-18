@@ -145,7 +145,8 @@ public class MainActivity extends Activity {
    }
    space(menu,10);
    networkStatus=text(catalogError.isEmpty()?"● CONNECTED LIBRARY":"● OFFLINE LIBRARY",12,false,MUTED);menu.addView(networkStatus);
-   int buildVersion=0;try{buildVersion=getPackageManager().getPackageInfo(getPackageName(),0).versionCode;}catch(Exception ignored){}\n   TextView version=text("TV  •  BUILD "+buildVersion,11,false,0xff8592a7);space(menu,15);menu.addView(version);
+   int buildVersion=0;try{buildVersion=getPackageManager().getPackageInfo(getPackageName(),0).versionCode;}catch(Exception ignored){}
+   TextView version=text("TV  •  BUILD "+buildVersion,11,false,0xff8592a7);space(menu,15);menu.addView(version);
    TextView check=text("CHECK FOR APP UPDATE ↗",11,true,0xffff96b5);
    check.setFocusable(true);check.setPadding(dp(5),dp(12),0,dp(12));menu.addView(check);
    check.setOnClickListener(v->checkAppUpdates(true));
