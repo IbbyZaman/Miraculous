@@ -332,11 +332,30 @@ public class PlayerActivity extends Activity {
     cloudDocument.set(values,SetOptions.merge()).addOnFailureListener(e->
       android.util.Log.w("MiraculousHub","Could not sync playback",e));
   }
-  @Override protected void onStop(){
+  @Override protected void onPause(){
+    // Keep ExoPlayer and its surface alive when the screen is locked or another
+    // app briefly covers this Activity. Releasing it here caused black video.
+    savePlayback(true);
+    if(player!=null)player.pause();
+    handler.removeCallbacks(hideControls);
+    super.onPause();
+  }
+  @Override protected void onResume(){
+    super.onResume();
+    immersive();
+    if(player!=null){
+      handler.removeCallbacks(progress);handler.post(progress);
+      handler.removeCallbacks(cloudTimer);handler.postDelayed(cloudTimer,1000);
+      showTemporarily();
+    }
+  }
+  @Override protected void onDestroy(){
     savePlayback(true);
     handler.removeCallbacks(hideControls);handler.removeCallbacks(progress);handler.removeCallbacks(cloudTimer);
     if(player!=null){player.release();player=null;}
+    // Decrypted offline playback is private and temporary. Do not delete it
+    // merely because the user briefly locks their phone.
     if(offlinePath!=null)new java.io.File(offlinePath).delete();
-    super.onStop();
+    super.onDestroy();
   }
 }
