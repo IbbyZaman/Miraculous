@@ -1,0 +1,44 @@
+{
+  "name": "miraculoushub-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MiraculousHub personal Windows desktop app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis --x64"
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "uk.co.miraculoushub.desktop",
+    "productName": "MiraculousHub",
+    "asar": true,
+    "files": [
+      "main.js",
+      "offline.html",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "MiraculousHub"
+    }
+  }
+}
