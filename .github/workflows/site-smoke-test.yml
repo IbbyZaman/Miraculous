@@ -1,0 +1,23 @@
+name: MiraculousHub live website smoke tests
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/site-smoke-test.cjs'
+      - '.github/workflows/site-smoke-test.yml'
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Test actual live pages
+        run: node scripts/site-smoke-test.cjs
