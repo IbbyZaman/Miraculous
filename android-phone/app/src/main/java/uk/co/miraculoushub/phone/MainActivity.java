@@ -51,7 +51,34 @@ public class MainActivity extends Activity {
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
     getWindow().setStatusBarColor(BG);
     getWindow().setNavigationBarColor(BG);
-    loadBundled();render();refresh();
+    loadBundled();render();showStartup();refresh();
+  }
+  private void showStartup(){
+    // Lightweight branded startup overlay; library loads and updater runs behind it.
+    FrameLayout overlay=new FrameLayout(this);
+    overlay.setBackground(gradient(0xff201329,0xff05070c,0));
+    LinearLayout center=vertical();center.setGravity(Gravity.CENTER);
+    TextView mark=text("✦",54,true,PINK);mark.setGravity(Gravity.CENTER);center.addView(mark);
+    TextView name=text("MiraculousHub",31,true,Color.WHITE);
+    name.setTypeface(Typeface.create("serif",Typeface.BOLD_ITALIC));name.setGravity(Gravity.CENTER);
+    center.addView(name);
+    TextView detail=text("Preparing your Miraculous universe…",13,false,0xffffa2c1);
+    detail.setGravity(Gravity.CENTER);addTop(center,detail,15);
+    ProgressBar spinner=new ProgressBar(this);
+    spinner.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(PINK));
+    LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(dp(30),dp(30));sp.topMargin=dp(24);sp.gravity=Gravity.CENTER;
+    center.addView(spinner,sp);
+    overlay.addView(center,new FrameLayout.LayoutParams(-1,-1));
+    ((android.view.ViewGroup)getWindow().getDecorView()).addView(overlay,
+      new android.view.ViewGroup.LayoutParams(-1,-1));
+    handler.postDelayed(()->{
+      if(overlay.getParent()!=null){
+        overlay.animate().alpha(0f).setDuration(250).withEndAction(()->{
+          if(overlay.getParent() instanceof android.view.ViewGroup)
+            ((android.view.ViewGroup)overlay.getParent()).removeView(overlay);
+        }).start();
+      }
+    },1150);
   }
   private int dp(float n){return (int)(n*getResources().getDisplayMetrics().density+0.5f);}
   private GradientDrawable solid(int color,int radius){
