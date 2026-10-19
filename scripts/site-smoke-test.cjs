@@ -23,7 +23,6 @@ const routes=['/','/episodes.html','/monthly-animes.html','/watch.html?season=6&
    }catch(e){failures++;console.log(JSON.stringify({route,status,title,head,fatal:e.message,errors}));}
    await page.close();
  }
- await browser.close();
  // Mobile viewport and basic navigation smoke checks, independent of desktop visits.
  for(const route of ['/','/episodes.html','/watch.html?season=6&episode=26']){
    const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
@@ -40,5 +39,6 @@ const routes=['/','/episodes.html','/monthly-animes.html','/watch.html?season=6&
    }catch(e){failures++;console.log(JSON.stringify({mobile:true,route,error:e.message}));}
    await page.close();
  }
+ await browser.close();
  if(failures){console.error(failures+' failed browser smoke checks');process.exitCode=1;}
 })();
