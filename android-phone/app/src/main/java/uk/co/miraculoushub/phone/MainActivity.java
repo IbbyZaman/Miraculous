@@ -578,20 +578,30 @@ public class MainActivity extends Activity {
     }
   }
   private void bottom(LinearLayout root){
-    dock=new LinearLayout(this);dock.setGravity(Gravity.CENTER);dock.setPadding(dp(7),dp(4),dp(7),dp(4));
-    GradientDrawable background=gradient(0xff21182e,0xff0d1220,32);
-    background.setStroke(dp(1),0xffad2760);dock.setBackground(background);dock.setElevation(dp(14));
-    LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-1,dp(76));params.setMargins(dp(17),dp(5),dp(17),dp(13));root.addView(dock,params);
-    String[][] tabs={{"Home","⌂"},{"Anime","✦"},{"Trailers","▣"},{"More","☰"}};
+    dock=new LinearLayout(this);dock.setGravity(Gravity.CENTER);
+    dock.setPadding(dp(6),dp(7),dp(6),dp(7));
+    GradientDrawable background=gradient(0xff29213a,0xff101321,28);
+    background.setStroke(dp(1),0xff62334e);
+    dock.setBackground(background);dock.setElevation(dp(15));
+    LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-1,dp(79));
+    params.setMargins(dp(15),dp(6),dp(15),dp(12));root.addView(dock,params);
+    String[][] tabs={{"Home","⌂"},{"Seasons","▦"},{"Anime","✦"},{"More","☰"}};
     for(String[] spec:tabs){
-      boolean active=spec[0].equals(tab)||("Seasons".equals(tab)&&"Home".equals(spec[0]))||("Search".equals(tab)&&"More".equals(spec[0]));
+      boolean active=spec[0].equals(tab)||("Search".equals(tab)&&"More".equals(spec[0]));
       LinearLayout entry=vertical();entry.setGravity(Gravity.CENTER);
-      LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,-1,1);dock.addView(entry,p);
-      TextView symbol=text(spec[1],26,true,active?PINK:0xffc3c2d2);symbol.setGravity(Gravity.CENTER);
-      entry.addView(symbol);
-      TextView label=text(spec[0],11,active,active?PINK:0xffc3c2d2);
+      entry.setPadding(dp(2),dp(5),dp(2),dp(4));
+      LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,-1,1);
+      p.setMargins(dp(3),0,dp(3),0);dock.addView(entry,p);
+      if(active){
+        GradientDrawable selected=gradient(0xff612547,0xff2b1c3d,18);
+        selected.setStroke(dp(1),0xffac5175);entry.setBackground(selected);
+      }
+      TextView symbol=text(spec[1],25,true,active?0xffff9aba:0xffb8bacb);
+      symbol.setGravity(Gravity.CENTER);entry.addView(symbol);
+      TextView label=text(spec[0],11,true,active?Color.WHITE:0xffbdbece);
       label.setGravity(Gravity.CENTER);entry.addView(label);
-      entry.setContentDescription(spec[0]);entry.setOnClickListener(v->{if("Anime".equals(spec[0]))selectedAnime="";open(spec[0]);});
+      entry.setContentDescription(spec[0]+" tab");
+      entry.setOnClickListener(v->{if("Anime".equals(spec[0]))selectedAnime="";open(spec[0]);});
     }
   }
   private void checkUpdates(boolean manual){
