@@ -1,0 +1,49 @@
+:root{color-scheme:dark;--beta-bg:#080a13;--beta-panel:#151a2b;--beta-pink:#ff3879;--beta-line:#ffffff24;--beta-muted:#b2b9cb}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body.beta-page{margin:0;background:radial-gradient(circle at 80% -18%,#451b3d,transparent 43%),#080a13;color:#f8f5ff;font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.beta-page button,.beta-page input,.beta-page select{font:inherit}.beta-page a{text-decoration:none;color:inherit}.beta-page button{cursor:pointer}
+.beta-nav{position:sticky;top:0;z-index:80;background:#080a13ed;backdrop-filter:blur(18px);border-bottom:1px solid #ffffff21}
+.beta-nav-inner{width:min(1260px,calc(100% - 40px));margin:auto;min-height:77px;display:flex;align-items:center;gap:24px}
+.beta-logo{font-size:22px;font-weight:950;letter-spacing:-.9px;white-space:nowrap}.beta-logo span{color:#ff5790}.beta-logo i{font-style:normal;font-size:10px;letter-spacing:1px;background:#ff387931;padding:5px 8px;border-radius:50px;color:#ffb0cb;margin-left:6px}
+.beta-links{display:flex;flex:1;align-items:center;gap:7px;overflow:auto;scrollbar-width:none}.beta-links a{font-size:13px;font-weight:750;white-space:nowrap;color:#c6c4d5;border-radius:12px;padding:11px 13px}.beta-links a:hover,.beta-links a[aria-current="page"]{background:#ff36732c;color:white}
+.beta-return{border:1px solid #ffffff2a;border-radius:12px;padding:10px 14px;font-size:12px;font-weight:800;white-space:nowrap}
+.beta-main{width:min(1250px,calc(100% - 40px));margin:34px auto 80px}.beta-kicker{color:#ff9abd;text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:900}
+.beta-main h1{font-size:clamp(32px,5vw,55px);letter-spacing:-1.8px;line-height:1.07;margin:11px 0}.beta-main .intro{color:var(--beta-muted);font-size:15px;margin:10px 0 28px}
+.beta-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0}.beta-tools input,.beta-tools select{min-height:46px;border:1px solid #ffffff31;background:#161a2a;color:white;border-radius:12px;padding:10px 14px}.beta-tools input{flex:1;min-width:180px}
+.beta-chips{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}.beta-chip{background:#1d1d30;border:1px solid #ffffff25;color:#e6e1f0;border-radius:50px;padding:10px 17px;font-weight:800}
+.beta-chip[aria-pressed="true"]{background:linear-gradient(125deg,#f93270,#8432a2);border-color:#ff98bc;color:white}
+.beta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;margin-top:20px}
+.beta-card{background:linear-gradient(150deg,#222035,#111726);border:1px solid #ffffff24;border-radius:20px;overflow:hidden;transition:transform .15s,border-color .15s}
+.beta-card:hover,.beta-card:focus-visible{border-color:#ff83a9;transform:translateY(-3px)}
+.beta-card-art{aspect-ratio:16/9;background:#0d0e19;display:grid;place-items:center;color:#fb73a1}.beta-card-art img{width:100%;height:100%;object-fit:contain}
+.beta-card-copy{padding:14px}.beta-card-copy strong{display:block;font-size:14px}.beta-card-copy small{display:block;margin-top:8px;color:#ff9abb}
+.beta-empty{padding:25px;border:1px dashed #ffffff28;border-radius:16px;color:#bdc1d0}
+.beta-series{border:1px solid #ffffff23;border-radius:20px;padding:23px;background:linear-gradient(125deg,#271d37,#10192a);text-align:left;color:#fff;min-height:165px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end}
+.beta-series strong{font-size:22px}.beta-series span{font-size:12px;color:#ff9dbd}.beta-series[aria-pressed="true"]{border-color:#ff70a0;box-shadow:0 0 0 2px #ff38792b inset}
+.beta-list{display:grid;gap:11px}.beta-trailer{display:flex;align-items:center;gap:16px;background:linear-gradient(110deg,#191f30,#121625);padding:10px;border:1px solid #ffffff26;border-radius:18px}.beta-trailer:hover{border-color:#ff85b2}
+.beta-trailer-art{width:135px;aspect-ratio:16/9;flex-shrink:0;display:grid;place-items:center;background:#111624;border-radius:12px;overflow:hidden}.beta-trailer-art img{width:100%;height:100%;object-fit:contain}
+.beta-trailer strong{display:block}.beta-trailer small{display:block;color:#b3b6c6;margin-top:5px}.beta-trailer-arrow{margin-left:auto;color:#ff76a7;font-size:25px;padding:0 14px}
+.beta-footer{border-top:1px solid #ffffff1d;padding:26px 0 40px;text-align:center;color:#abaabd;font-size:13px}
+.beta-page :focus-visible{outline:2px solid #ffafcf;outline-offset:3px}
+@media(max-width:750px){.beta-nav-inner{flex-wrap:wrap;padding:14px 0;gap:7px}.beta-links{order:3;width:100%;flex-basis:100%}.beta-return{margin-left:auto}.beta-main{width:calc(100% - 26px);margin-top:25px}.beta-card{min-width:0}.beta-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:11px}.beta-trailer-art{width:100px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+/* Existing production watch/player engine, visually restyled for this beta only. */
+body.beta-watch{background:radial-gradient(circle at 50% -20%,#3f1b37,#080a13 50%);color:#f7f5ff}
+body.beta-watch .topbar{background:rgba(10,11,24,.95);border-bottom:1px solid #ff67a033;backdrop-filter:blur(17px)}
+body.beta-watch .topbar .brand-mark{background:linear-gradient(140deg,#ff377d,#a63fbd)}
+body.beta-watch .nav a{border-radius:13px}
+body.beta-watch .nav a:hover,body.beta-watch .nav a.active{background:#ff38792b;color:#ffb0c9}
+body.beta-watch .watch-shell{width:min(1210px,calc(100% - 28px));padding-top:26px}
+body.beta-watch .player{border-radius:23px;border:1px solid #ffffff30;box-shadow:0 30px 100px #000a,0 0 0 1px #ff387916}
+body.beta-watch .player-overlay{background:linear-gradient(180deg,#090812cc,transparent 38%,#090812ed)}
+body.beta-watch .pbtn:hover,body.beta-watch .pbtn:focus-visible{background:#d83278}
+body.beta-watch .player-meta,body.beta-watch .watch-meta{background:linear-gradient(140deg,#191928,#111724);border:1px solid #ffffff20;border-radius:21px;padding:22px;margin-top:20px}
+body.beta-watch .watch-meta h1{letter-spacing:-.6px}
+body.beta-watch .watch-action{border-radius:13px}
+body.beta-watch .episode-comments{background:linear-gradient(140deg,#17182a,#101622);border:1px solid #ffffff1f;border-radius:20px;padding:20px;margin-top:27px}
+body.beta-watch .prevnext a{border:1px solid #ff387946;border-radius:13px;background:#25192c;color:#ffbbd1;padding:12px 17px}
+body.beta-watch .beta-watch-badge{width:min(1210px,calc(100% - 28px));margin:17px auto 0;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;font-size:12px;color:#d1bdcf}
+body.beta-watch .beta-watch-badge strong{color:#ffa1c1}
+body.beta-watch .beta-watch-badge a{color:#ffa4cb;text-decoration:underline}
+body.beta-watch .footer{border-top-color:#ff387933}
