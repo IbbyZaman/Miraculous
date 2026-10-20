@@ -507,14 +507,105 @@ body .simple-player .quick-overlay{display:none}
      crossorigin="anonymous"></script>
 <link rel="stylesheet" href="beta/beta-pages.css?v=watch-beta-1">
 <meta name="robots" content="noindex">
+
+<style id="beta-watch-redesign-2026">
+/* Beta watch studio: distinct from the classic site, with quiet video-first chrome. */
+body.beta-watch{background:radial-gradient(ellipse at 48% -4%,#3b1734 0%,transparent 38%),#070a13;color:#f8f5ff}
+body.beta-watch .topbar.beta-player-nav{min-height:68px;background:#0c101de8;border-bottom:1px solid #ffffff1d;box-shadow:0 12px 35px #0004}
+body.beta-watch .beta-player-nav .brand{display:flex;gap:5px;align-items:center}
+body.beta-watch .beta-nav-indicator{margin-left:8px;background:#fb357d22;border:1px solid #ff66a35a;color:#ff9fc3;border-radius:7px;font-size:9px;font-weight:900;letter-spacing:1px;padding:5px 7px}
+body.beta-watch .beta-player-nav .nav a.active{color:#fff;background:#e5367636}
+body.beta-watch .beta-watch-badge{width:min(1240px,calc(100% - 36px));margin:14px auto 0}
+body.beta-watch .watch-shell{width:min(1240px,calc(100% - 36px));padding-top:0}
+body.beta-watch .beta-watch-intro{display:flex;align-items:end;justify-content:space-between;gap:20px;padding:26px 3px 18px}
+body.beta-watch .beta-watch-intro-kicker{font-size:10px;color:#ff98be;font-weight:900;letter-spacing:2.3px}
+body.beta-watch .beta-watch-intro h1{font-size:clamp(26px,4vw,43px);letter-spacing:-1.4px;line-height:1.05;margin:9px 0 7px;font-weight:950}
+body.beta-watch .beta-watch-pink{color:#ff4384}
+body.beta-watch .beta-watch-intro p{color:#b4bed2;font-size:13px;margin:0}
+body.beta-watch .beta-browse-link{flex-shrink:0;color:#fff;border:1px solid #ff6a9b66;background:linear-gradient(120deg,#622544,#252039);border-radius:12px;padding:11px 16px;text-decoration:none;font-size:13px;font-weight:850}
+body.beta-watch .player{border-radius:23px;border:1px solid #ffffff24;background:#000;box-shadow:0 25px 75px #0009,0 0 0 1px #ff30771a;overflow:hidden}
+body.beta-watch .player-stage{aspect-ratio:16/9;background:#03040a}
+body.beta-watch .player-overlay{background:linear-gradient(180deg,#080814b8 0%,transparent 28%,transparent 56%,#090811e8 100%);padding:18px}
+body.beta-watch .player-top{border:none;background:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;padding:5px 8px}
+body.beta-watch .player-title{font-size:clamp(12px,1.7vw,17px);letter-spacing:.01em;text-shadow:0 2px 12px #000}
+body.beta-watch .player-subtitle{font-size:11px;letter-spacing:.08em;color:#ffb4d0}
+body.beta-watch .player-bottom{padding:12px 16px 13px;background:#100f1bcc;border:1px solid #ffffff23;border-radius:18px;box-shadow:0 20px 44px #0006;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+body.beta-watch .progress-area{height:25px}
+body.beta-watch .progress-current{background:linear-gradient(90deg,#ff3c72,#ff91b7)}
+body.beta-watch .progress-knob{background:#fff;border:2px solid #ff528b}
+body.beta-watch .control-row{display:flex;gap:8px}
+body.beta-watch .pbtn{border:1px solid #ffffff25;background:#ffffff17;border-radius:12px;min-width:42px;width:42px;height:42px;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+body.beta-watch .pbtn:hover,body.beta-watch .pbtn:focus-visible{border-color:#ff93b8;background:#dd357e65}
+body.beta-watch #play{background:#fb3b7c;border-color:#ff85ae;font-size:18px}
+body.beta-watch #betaPickerToggle{width:auto;min-width:106px;background:#48223b;padding:0 12px;border-color:#c64e87;font-size:12px}
+body.beta-watch .beta-next-inline{display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 13px;white-space:nowrap;background:#e73375;border-color:#ff8ab5;color:#fff;font-size:12px;font-weight:850;text-decoration:none}
+body.beta-watch .beta-next-inline[hidden]{display:none!important}
+body.beta-watch .center-play{background:linear-gradient(135deg,#ff3978,#9c3c9a);border:1px solid #ffb0cf;box-shadow:0 12px 42px #0008}
+body.beta-watch .watch-meta{width:100%;margin:18px 0 0;padding:24px;border:1px solid #ffffff20;border-radius:22px;background:linear-gradient(115deg,#171a2b,#111321);box-shadow:none}
+body.beta-watch .watch-meta h1{font-size:clamp(25px,3.4vw,39px);margin:4px 0 8px}
+body.beta-watch .watch-actions{display:flex;flex-wrap:wrap;gap:9px}
+body.beta-watch .watch-action{border-radius:12px;padding:12px 15px;min-height:44px}
+body.beta-watch .beta-watch-picker{margin:20px 0 0;padding:20px;background:linear-gradient(120deg,#252038,#131827);border:1px solid #ffffff27;border-radius:18px}
+body.beta-watch .beta-watch-picker select{min-width:0}
+body.beta-watch .beta-watch-picker button{cursor:pointer}
+body.beta-watch :is(.pbtn,.watch-action,.beta-browse-link,.beta-watch-picker button,.beta-watch-picker select):focus-visible{outline:3px solid #ffb4d1;outline-offset:3px}
+@media(max-width:760px){
+  body.beta-watch .beta-watch-intro{padding:23px 3px 17px;align-items:center}
+  body.beta-watch .beta-watch-intro p{font-size:12px}
+  body.beta-watch .beta-browse-link{font-size:11px;padding:10px}
+  body.beta-watch .beta-player-nav .nav{gap:3px}
+}
+@media(max-width:680px){
+  body.beta-watch .watch-shell{width:100%}
+  body.beta-watch .beta-watch-badge{width:calc(100% - 28px)}
+  body.beta-watch .beta-watch-intro{margin:0 14px;align-items:start;gap:12px}
+  body.beta-watch .beta-watch-intro h1{font-size:30px}
+  body.beta-watch .beta-watch-intro p{max-width:245px}
+  body.beta-watch .beta-browse-link{max-width:128px;text-align:center}
+  body.beta-watch .player{margin-bottom:175px;border-radius:0;border-left:0;border-right:0;overflow:visible}
+  body.beta-watch .player-stage{aspect-ratio:16/9;overflow:visible}
+  body.beta-watch .player-overlay{opacity:1!important;visibility:visible!important;pointer-events:none!important;padding:0;background:transparent}
+  body.beta-watch .player-top{position:absolute;top:8px;left:9px;right:9px;min-width:0;pointer-events:none;opacity:.94}
+  body.beta-watch .player-title{font-size:12px;max-width:68%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  body.beta-watch .player-subtitle{font-size:10px}
+  body.beta-watch .player-bottom{pointer-events:auto;position:absolute;top:100%;bottom:auto;left:0;right:0;padding:10px 12px 13px;border-radius:0 0 18px 18px;background:#131522;border:1px solid #ffffff1a;box-shadow:0 12px 25px #0005;backdrop-filter:none;-webkit-backdrop-filter:none}
+  body.beta-watch .control-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 5px}
+  body.beta-watch .pbtn{min-width:40px;width:40px;height:40px;border-radius:12px}
+  body.beta-watch .volume-wrap{display:none}
+  body.beta-watch .player-spacer{display:none}
+  body.beta-watch .player-time{order:10;flex:1 1 95px;font-size:11px;margin:0;color:#d3d7e2;text-align:right}
+  body.beta-watch #betaPickerToggle{order:11;flex:1 1 122px;width:auto;min-width:0}
+  body.beta-watch .beta-next-inline{order:12;flex:1 1 100px;min-width:0}
+  body.beta-watch .player-bottom .progress-area{height:27px}
+  body.beta-watch .settings-wrap{position:relative}
+  body.beta-watch .settings-menu{bottom:47px;right:0;min-width:205px;background:#252239f4;backdrop-filter:none;-webkit-backdrop-filter:none}
+  body.beta-watch .watch-meta{margin:10px 13px 0;width:calc(100% - 26px);padding:19px;border-radius:17px}
+  body.beta-watch .watch-meta h1{font-size:26px}
+  body.beta-watch .watch-action{flex:1 1 140px;text-align:center}
+  body.beta-watch .episode-comments{margin-inline:13px}
+  body.beta-watch .player-caption-note{padding:0 14px;margin-top:-6px}
+  body.beta-watch .beta-watch-picker-row{display:grid;grid-template-columns:1fr;gap:9px}
+  body.beta-watch .beta-watch-picker select,body.beta-watch .beta-watch-picker button{width:100%}
+  body.beta-watch .player:fullscreen,body.beta-watch .player:-webkit-full-screen{margin-bottom:0;overflow:hidden;border-radius:0}
+  body.beta-watch .player:fullscreen .player-overlay,body.beta-watch .player:-webkit-full-screen .player-overlay{opacity:0!important;pointer-events:none!important}
+  body.beta-watch .player:fullscreen.show-ui .player-overlay,body.beta-watch .player:-webkit-full-screen.show-ui .player-overlay{opacity:1!important;pointer-events:auto!important}
+  body.beta-watch .player:fullscreen .player-bottom,body.beta-watch .player:-webkit-full-screen .player-bottom{top:auto;bottom:max(8px,env(safe-area-inset-bottom));left:12px;right:12px;border-radius:16px;background:#0b0e1bc9}
+}
+@media(max-width:360px){
+  body.beta-watch .pbtn{width:36px;min-width:36px;height:38px}
+  body.beta-watch .player{margin-bottom:188px}
+  body.beta-watch #betaPickerToggle{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){body.beta-watch .center-play,body.beta-watch .pbtn{transition:none!important}}
+</style>
 </head>
 <body class="beta-watch">
-<header class="topbar">
- <a class="brand" href="index.html"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a>
- <nav class="nav"><a href="index.html">Home</a><a class="active" href="episodes.html">Episodes</a><a href="index.html#upcoming-releases">Upcoming Releases</a><a href="monthly-animes.html">Monthly Animes</a></nav>
+<header class="topbar beta-player-nav">
+ <a class="brand" href="beta/index.html" aria-label="MiraculousHub Beta home"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span><span class="beta-nav-indicator">BETA</span></a>
+ <nav class="nav" aria-label="Beta navigation"><a href="beta/index.html">Home</a><a class="active" href="beta/episodes.html">Seasons</a><a href="beta/anime.html">Anime</a><a href="beta/trailers.html">Trailers</a></nav>
  <div class="actions"><button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button><button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button><button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false"><span></span><span></span><span></span></button></div>
 </header>
-<div class="beta-watch-badge"><span><strong>✦ BETA PLAYER</strong> · Testing a refreshed watching experience</span><a id="betaClassicPlayer" href="watch.html">Original player ↗</a></div>
+<div class="beta-watch-badge"><span><strong>✦ WATCHING ON BETA</strong> · A redesigned place to watch your favourites</span><a id="betaClassicPlayer" href="watch.html">Classic player ↗</a></div>
 <div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
 <aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation">
   <div class="mobile-drawer-head">
@@ -533,21 +624,13 @@ body .simple-player .quick-overlay{display:none}
 
 
 <main class="container watch-shell">
+ <div class="beta-watch-intro"><div><span class="beta-watch-intro-kicker">✦ YOUR MIRACULOUS UNIVERSE</span><h1>Now playing<span class="beta-watch-pink">.</span></h1><p>Full episodes, uninterrupted. Your progress stays in sync.</p></div><a class="beta-browse-link" href="beta/episodes.html">☷ Browse seasons →</a></div>
  <div class="player" id="player" tabindex="0">
   <div class="player-stage" id="stage">
    <video id="video" playsinline webkit-playsinline preload="metadata" crossorigin="anonymous" x-webkit-airplay="allow">
     <source id="source" src="" type="video/mp4">
    </video>
 
-   <div class="mh-video-ident" id="videoIdent" aria-hidden="true">
-    <div class="mh-ident-orbit mh-ident-orbit-a"></div>
-    <div class="mh-ident-orbit mh-ident-orbit-b"></div>
-    <div class="mh-ident-glow"></div>
-    <div class="mh-ident-wordmark">
-      <span class="mh-ident-mark">M</span>
-      <span class="mh-ident-domain">miraculoushub.co.uk</span>
-    </div>
-   </div>
    <div class="quick-overlay" id="quickOverlay" aria-hidden="true">
     <button class="quick-btn" id="quickBack" aria-label="Back 10 seconds">↶<span>10</span></button>
     <button class="quick-btn" id="quickPlay" aria-label="Pause">❚❚</button>
@@ -576,6 +659,7 @@ body .simple-player .quick-overlay{display:none}
        <div class="volume-wrap"><button class="pbtn" id="mute" aria-label="Mute">🔊</button><input class="volume-slider" id="volume" type="range" min="0" max="1" step=".01" value="1" aria-label="Volume"></div>
        <span class="player-time" id="time">0:00 / 0:00</span>
        <span class="player-spacer"></span>
+       <a class="pbtn wide beta-next-inline" id="betaNextInline" href="#" hidden>Next ❯</a>
        <button class="pbtn wide small" id="captions" aria-label="Subtitles">CC</button>
        <div class="settings-wrap">
         <button class="pbtn" id="settings" aria-label="Settings">⚙</button>
@@ -738,6 +822,12 @@ if(isAnime){
 }
 
 
+const betaNextInline=$("betaNextInline");
+const nextLink=$("next");
+if(betaNextInline&&nextLink&&nextLink.style.visibility!=="hidden"&&nextLink.getAttribute("href")!=="#"){
+  betaNextInline.href=nextLink.href;
+  betaNextInline.hidden=false;
+}
 const v=$("video"), player=$("player"), stage=$("stage"), progressArea=$("progressArea");
 const isSimpleAnime=isAnime;
 if(isSimpleAnime) player.classList.add("simple-player");
@@ -1028,58 +1118,10 @@ function setPlayingUI(){
  $("play").textContent=playing?"❚❚":"▶";
  $("centerPlay").textContent=playing?"❚❚":"▶";
 }
-let mhIdentPlayed = false;
-let mhIdentRunning = false;
-
-function runMiraculousIdent(){
-  const ident = $("videoIdent");
-  if(!ident) return Promise.resolve();
-
-  ident.classList.remove("hide","active");
-  void ident.offsetWidth;
-  ident.classList.add("active");
-  ident.setAttribute("aria-hidden","false");
-
-  return new Promise(resolve=>{
-    setTimeout(()=>ident.classList.add("hide"),1250);
-    setTimeout(()=>{
-      ident.classList.remove("active","hide");
-      ident.setAttribute("aria-hidden","true");
-      resolve();
-    },1580);
-  });
-}
-
-async function playWithMiraculousIdent(){
-  if(isSimpleAnime || partySync?.active() || mhIdentPlayed || mhIdentRunning){
-    try{ await v.play(); }catch{}
-    return;
-  }
-
-  mhIdentPlayed = true;
-  mhIdentRunning = true;
-
-  const resumeAt = Number.isFinite(v.currentTime) ? v.currentTime : 0;
-  const wasMuted = v.muted;
-
-  // Start playback immediately while the user gesture is still active.
-  // This keeps iPhone/iPad/Safari happy, while the ident covers the video.
-  v.muted = true;
-  try{ await v.play(); }catch{}
-
-  await runMiraculousIdent();
-
-  try{
-    if(Math.abs(v.currentTime-resumeAt) > .08) v.currentTime = resumeAt;
-  }catch{}
-  v.muted = wasMuted;
-  mhIdentRunning = false;
-}
-
 async function togglePlay(){
   if(partySync?.active()&&!partySync.isHost()){partySync.enablePlayback();return;}
   try{
-    if(v.paused) await playWithMiraculousIdent();
+    if(v.paused) await v.play();
     else v.pause();
   }catch{}
   setPlayingUI();
