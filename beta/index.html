@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090914"><title>MiraculousHub Beta — New Home</title>
+<meta name="description" content="Preview the next MiraculousHub homepage.">
+<link rel="icon" href="../favicon.png">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-6K9W3X96EY');</script>
+<style>
+:root{color-scheme:dark;--bg:#080a13;--card:#121727;--line:#313044;--pink:#ff3879;--text:#f7f6ff;--mute:#adb4c6}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 70% -6%,#341528 0,transparent 38%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}a{color:inherit;text-decoration:none}button,input{font:inherit}button{cursor:pointer}img{display:block;max-width:100%}
+.wrap{width:min(1250px,calc(100% - 42px));margin:auto}
+.top{position:sticky;top:0;z-index:30;backdrop-filter:blur(20px);background:#080a13dd;border-bottom:1px solid #ffffff16}
+.topin{display:flex;align-items:center;gap:25px;min-height:78px}.brand{font-weight:1000;letter-spacing:-1.4px;font-size:24px;white-space:nowrap}.brand b{color:var(--pink)}.brandmark{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#ff336d,#912fda);margin-right:8px;color:white;box-shadow:0 6px 26px #e63b8a44}
+.nav{display:flex;gap:8px;align-items:center;flex:1}.nav a{color:#c7c8d3;padding:11px 13px;border-radius:12px;font-size:13px;font-weight:700}.nav a:hover,.nav a.active{background:#ff367323;color:#fff}
+.actions{display:flex;gap:10px;align-items:center}.pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid #ffffff28;border-radius:13px;padding:12px 18px;font-weight:800;font-size:13px;background:#ffffff13;color:white}.pill.primary{background:var(--pink);border-color:var(--pink);color:#fff}.pill:hover{filter:brightness(1.13)}
+.beta{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:12px 0;color:#c8c7d4;font-size:12px}.beta strong{color:#ff99bc}.beta a{text-decoration:underline}
+.hero{position:relative;border:1px solid #ffffff24;border-radius:28px;overflow:hidden;min-height:435px;background:linear-gradient(100deg,#271022,#16152b);display:flex;align-items:end;box-shadow:0 23px 85px #0008}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 33%}.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#080a12ee 0%,#100b17be 35%,#120b1540 80%),linear-gradient(0deg,#080a12c9,transparent 72%)}
+.hero-content{position:relative;z-index:1;width:min(590px,100%);padding:55px}.eyebrow{text-transform:uppercase;font-weight:950;letter-spacing:2.7px;color:#ffa1bd;font-size:11px}.hero h1{font-size:clamp(36px,5vw,66px);line-height:1.05;letter-spacing:-2.7px;margin:15px 0}.hero h1 em{font-style:normal;color:#ff568b}.hero p{max-width:420px;color:#ece4f2;margin:0 0 27px;font-size:16px}.herobuttons{display:flex;flex-wrap:wrap;gap:12px}
+.section{margin:42px 0}.section-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:16px}.section-heading h2{font-size:clamp(21px,2.8vw,29px);letter-spacing:-.7px;margin:0}.section-heading p{margin:4px 0 0;font-size:13px;color:var(--mute)}.see{font-weight:800;color:#ff8aaa;font-size:13px;white-space:nowrap}
+.rail{display:flex;gap:16px;overflow-x:auto;padding:3px 0 12px;scroll-snap-type:x proximity;scrollbar-width:thin;scrollbar-color:#603048 transparent}
+.episode{flex:0 0 clamp(180px,22vw,260px);background:#151929;border:1px solid #ffffff13;border-radius:17px;overflow:hidden;scroll-snap-align:start;transition:transform .15s}.episode:hover{transform:translateY(-3px);border-color:#ff4d8950}.art{aspect-ratio:16/9;background:#20202d;display:grid;place-items:center;position:relative}.art img{width:100%;height:100%;object-fit:contain}.art .play{position:absolute;bottom:10px;right:10px;background:#ff3279;border-radius:50%;height:35px;width:35px;display:grid;place-items:center;box-shadow:0 3px 16px #0009}.copy{padding:13px}.copy strong{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.copy small{display:block;margin-top:5px;color:#ff94b4;font-size:11px;font-weight:800}.empty{padding:22px;color:#aeb8c6;border:1px dashed #ffffff30;border-radius:17px;width:100%}
+.feature-grid{display:grid;grid-template-columns:1.45fr 1fr;gap:18px}.feature{border:1px solid #ffffff16;border-radius:21px;background:linear-gradient(135deg,#282037,#111724);padding:25px;min-height:190px;display:flex;flex-direction:column;align-items:start;justify-content:end}.feature:nth-child(2){background:linear-gradient(135deg,#122e32,#141126)}.feature .emoji{font-size:30px}.feature h3{margin:9px 0 6px;font-size:23px}.feature p{margin:0;color:var(--mute);font-size:13px}
+.trailer-list{display:flex;flex-direction:column;gap:10px}.trailer{display:flex;align-items:center;gap:15px;min-height:92px;border:1px solid #ffffff1b;border-radius:17px;padding:9px 14px 9px 9px;background:linear-gradient(90deg,#181c2d,#111522)}.trailer:hover{border-color:#ff4e8e7a}.trailer-thumb{width:124px;aspect-ratio:16/9;flex-shrink:0;border-radius:11px;background:#272139;overflow:hidden;display:grid;place-items:center}.trailer-thumb img{width:100%;height:100%;object-fit:contain}.trailer .details{flex:1;min-width:0}.trailer strong{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.trailer small{display:block;color:#aab1c2;margin-top:5px}.trailer .arrow{color:#ff78a2;font-size:26px}
+.footer{margin-top:50px;border-top:1px solid #ffffff16;padding:25px 0 40px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;color:#acafbd;font-size:12px}
+.search{width:min(260px,100%);border:1px solid #ffffff27;color:white;border-radius:12px;padding:11px 13px;background:#ffffff0c}
+@media(max-width:900px){.nav{overflow:auto;white-space:nowrap}.topin{flex-wrap:wrap;gap:6px;padding:12px 0}.topin .nav{order:3;width:100%;flex-basis:100%}.actions{margin-left:auto}.hero{min-height:370px}.hero-content{padding:32px}}
+@media(max-width:600px){.wrap{width:calc(100% - 28px)}.brand{font-size:20px}.topin{min-height:60px}.nav a{padding:8px 12px}.actions .pill{padding:9px}.hero{min-height:410px;border-radius:22px}.hero-content{padding:25px}.hero:after{background:linear-gradient(0deg,#080a12f9,#080a12b5 62%,#080a1240)}.hero h1{letter-spacing:-1.7px}.hero p{font-size:14px}.feature-grid{grid-template-columns:1fr}.feature{min-height:170px}.section{margin:31px 0}.trailer-thumb{width:98px}.trailer{gap:10px}.trailer .details{font-size:13px}.search{display:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style></head><body>
+<header class="top"><div class="wrap topin"><a class="brand" href="./"><span class="brandmark">M</span>Miraculous<b>Hub</b></a><nav class="nav" aria-label="Beta navigation"><a class="active" href="./">Home</a><a href="../episodes.html">Seasons</a><a href="../monthly-animes.html">Anime</a><a href="../season7.html">Season 7</a><a href="../app.html">Apps</a></nav><div class="actions"><a class="pill" href="../index.html">Live website ↗</a></div></div></header>
+<main class="wrap">
+<div class="beta"><span><strong>✦ BETA PREVIEW</strong> · Experimental homepage — nothing here replaces the live site</span><a href="../index.html">Return to original</a></div>
+<section class="hero"><img src="../main-season7-poster.png" alt="Miraculous Ladybug Season 7 feature artwork"><div class="hero-content"><div class="eyebrow">✦ A new era of MiraculousHub</div><h1>Every story.<br><em>One universe.</em></h1><p>Watch Miraculous episodes, pick up where you stopped, and discover what's coming next.</p><div class="herobuttons"><a class="pill primary" href="../episodes.html?season=7">▶ Explore Season 7</a><a class="pill" href="../episodes.html">Browse all seasons ↗</a></div></div></section>
+<section class="section" id="continue" hidden><div class="section-heading"><div><h2>Continue watching</h2><p>Return to your latest episodes</p></div><a href="../episodes.html" class="see">Browse episodes →</a></div><div class="rail" id="continueRail"></div></section>
+<section class="section"><div class="section-heading"><div><h2>Fresh from Miraculous</h2><p>Your latest available episodes</p></div><a class="see" href="../episodes.html">View all episodes →</a></div><div class="rail" id="episodeRail"><div class="empty">Loading your episodes…</div></div></section>
+<section class="feature-grid"><a class="feature" href="../episodes.html"><span class="emoji">🐞</span><h3>All 7 seasons</h3><p>Every Miraculous adventure, organised in one place →</p></a><a class="feature" href="../monthly-animes.html"><span class="emoji">✦</span><h3>Monthly anime</h3><p>Explore the anime collections →</p></a></section>
+<section class="section"><div class="section-heading"><div><h2>Trailers & previews</h2><p>Smaller, cleaner rows so trailers don't take over the homepage</p></div><a href="../episodes.html" class="see">Explore more →</a></div><div class="trailer-list" id="trailerList"><div class="empty">Checking the latest trailers…</div></div></section>
+<section class="section"><div class="section-heading"><div><h2>Recently released</h2><p>More episodes from the catalogue</p></div><a class="see" href="../episodes.html">See all →</a></div><div class="rail" id="moreRail"></div></section>
+</main><footer class="wrap footer"><span>✦ MiraculousHub Beta · Designed for your feedback</span><span>Preview only — your live homepage remains unchanged</span></footer>
+<script src="../site-config.js"></script><script src="../data.js"></script><script src="../catalog.js"></script>
+<script>
+(()=>{
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const epHref=e=>"../watch.html?season="+encodeURIComponent(e.season)+"&episode="+encodeURIComponent(e.episode);
+const pic=e=>/^https:\/\//.test(e.thumbnail||"")?e.thumbnail:"";
+const makeCard=e=>{const a=document.createElement("a");a.className="episode";a.href=epHref(e);a.innerHTML='<div class="art">'+(pic(e)?'<img loading="lazy" referrerpolicy="no-referrer" alt="" src="'+esc(pic(e))+'">':'<span>✦</span>')+'<span class="play">▶</span></div><div class="copy"><strong>'+esc(e.title)+'</strong><small>SEASON '+Number(e.season)+' · EPISODE '+Number(e.episode)+'</small></div>';return a};
+function renderEpisodes(){
+ const items=(window.MH_EPISODES||[]).filter(e=>Number(e.season)>=1&&Number(e.episode)>=1&&e.available!==false).slice().sort((a,b)=>b.season-a.season||b.episode-a.episode);
+ for(const [id,arr] of [["episodeRail",items.slice(0,10)],["moreRail",items.slice(10,20)]]){const el=document.getElementById(id);el.replaceChildren();if(!arr.length){el.innerHTML='<div class="empty">No episodes found.</div>';continue}arr.forEach(e=>el.append(makeCard(e)))}
+}
+function renderTrailers(){
+ const root=document.getElementById("trailerList");root.replaceChildren();
+ const items=(window.MH_TRAILERS||[]).filter(e=>e&&e.title).slice(0,10);
+ if(!items.length){root.innerHTML='<div class="empty">No trailers are available right now. Existing episodes are still ready to browse.</div>';return}
+ for(const e of items){const a=document.createElement("a");a.className="trailer";const safeId=encodeURIComponent(e.id||"");a.href="../trailer.html?id="+safeId;a.innerHTML='<div class="trailer-thumb">'+(pic(e)?'<img loading="lazy" referrerpolicy="no-referrer" src="'+esc(pic(e))+'" alt="">':'<span>▶</span>')+'</div><div class="details"><strong>'+esc(e.title)+'</strong><small>TRAILER · Preview</small></div><span class="arrow">›</span>';root.append(a)}
+}
+function renderLocalProgress(){
+ // Beta reads only existing local playback data; it never modifies account state.
+ const get=window.mhGetProgress;if(typeof get!=="function")return;
+ const items=(get()||[]).filter(x=>Number(x.position)>0&&Number(x.progress||0)<99.5).slice(0,8);
+ const section=document.getElementById("continue"),rail=document.getElementById("continueRail");rail.replaceChildren();
+ for(const x of items){const ep=(window.MH_EPISODES||[]).find(e=>Number(e.season)===Number(x.season)&&Number(e.episode)===Number(x.episode));if(ep){const card=makeCard(ep);card.querySelector("small").textContent="RESUME · "+Math.floor(Number(x.position)/60)+" min";rail.append(card)}}
+ section.hidden=!rail.children.length;
+}
+renderEpisodes();
+const ready=window.MH_CATALOG_READY;
+Promise.resolve(ready).then(()=>{renderEpisodes();renderTrailers();renderLocalProgress()}).catch(()=>renderTrailers());
+renderLocalProgress();
+})();
+</script></body></html>
