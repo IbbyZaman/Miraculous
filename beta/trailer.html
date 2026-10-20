@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<base href="../">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05070c">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>MiraculousHub — Trailer</title>
+<link rel="stylesheet" href="styles.css?v=account-v4-1">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6K9W3X96EY');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
+     crossorigin="anonymous"></script>
+<link rel="stylesheet" href="trailer-player.css?v=trailer-custom-1">
+<link rel="stylesheet" href="beta/beta-pages.css?v=trailer-beta-1">
+<meta name="robots" content="noindex">
+</head>
+<body class="beta-watch beta-trailer-watch"><header class="topbar">
+  <a class="brand" href="beta/index.html" aria-label="MiraculousHub Beta home">
+    <span class="brand-mark">M</span>
+    <span class="brand-text">MIRACULOUS<span>HUB</span></span>
+  </a>
+
+  <nav class="nav" aria-label="Beta navigation"><a href="beta/index.html">Home</a><a href="beta/episodes.html">Seasons</a><a href="beta/anime.html">Anime</a><a href="beta/trailers.html">Trailers</a><a href="index.html">Live site ↗</a></nav>
+
+  <div class="actions">
+    <button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button>
+    <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button>
+    <button class="lang-btn" id="languageButton">EN⌄</button>
+    <button class="signin">Sign in</button>
+    <button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<div class="beta-watch-badge"><span><strong>✦ BETA TRAILER PLAYER</strong> · New styling, same playback controls</span><a href="beta/trailers.html">← All trailers</a></div>
+<div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
+<aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation">
+  <div class="mobile-drawer-head">
+    <div>
+      <span class="mobile-drawer-kicker">MIRACULOUSHUB</span>
+      <strong>Navigation</strong>
+    </div>
+    <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close navigation">×</button>
+  </div>
+  <nav class="mobile-nav-links" aria-label="Mobile navigation links"><a href="beta/index.html"><b>Home</b></a><a href="beta/episodes.html"><b>Seasons</b></a><a href="beta/anime.html"><b>Anime</b></a><a href="beta/trailers.html"><b>Trailers</b></a><a href="index.html"><b>Live website ↗</b></a></nav>
+  <div class="mobile-drawer-foot">
+    <p>Your Miraculous watch space.</p>
+    <button class="signin mobile-drawer-signin">Sign in</button>
+  </div>
+</aside>
+<main class="container trailer-page">
+ <a class="trailer-back" href="index.html#trailers">← All trailers</a>
+ <section class="trailer-watch" aria-labelledby="trailerTitle">
+  <div class="trailer-heading"><p class="kicker" id="trailerLabel">TRAILER</p><h1 id="trailerTitle">Loading trailer…</h1></div>
+  <div class="trailer-screen" id="trailerScreen"><video id="trailerVideo" playsinline preload="metadata" controlslist="nodownload" hidden></video><button id="trailerBigPlay" class="trailer-big-play" aria-label="Play trailer">▶</button><div class="trailer-controls" id="trailerControls">
+ <label class="sr-only" for="trailerSeek">Seek trailer</label><input id="trailerSeek" class="trailer-seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Seek trailer">
+ <div class="trailer-control-row"><button id="trailerPlay" aria-label="Play">▶</button><button id="trailerBack10" aria-label="Back 10 seconds">−10</button><button id="trailerForward10" aria-label="Forward 10 seconds">+10</button><span id="trailerTime">0:00 / 0:00</span><div class="trailer-control-spacer"></div><button id="trailerMute" aria-label="Mute">Sound</button><label class="sr-only" for="trailerVolume">Volume</label><input id="trailerVolume" type="range" min="0" max="1" step="0.05" value="1" aria-label="Volume"><select id="trailerRate" aria-label="Playback speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select><button id="trailerFullscreen" aria-label="Enter fullscreen">⛶</button></div></div><p id="trailerStatus" role="status">Loading…</p></div>
+  <div class="trailer-tools"><p id="trailerDescription">A first look at what’s next.</p><button class="secondary" id="trailerDownload" type="button">Sign in to download</button><button class="secondary" id="trailerShare" type="button">Share trailer ↗</button></div>
+  <p id="trailerNotice" role="status" aria-live="polite"></p>
+ </section>
+ <section class="section trailer-comments" id="trailerComments"><div class="section-head"><h2>Comments</h2><span id="trailerCommentsStatus">Loading…</span></div><div id="trailerCommentsLogin"><p>Sign in to join the conversation.</p><button class="secondary" id="trailerCommentsSignIn">Sign in</button></div><form id="trailerCommentForm" hidden><label class="sr-only" for="trailerCommentInput">Your comment</label><textarea id="trailerCommentInput" maxlength="500" placeholder="What do you think of this trailer?" required></textarea><button class="primary" id="trailerCommentSend" type="submit">Post comment</button></form><div id="trailerCommentsList"></div></section>
+ <section class="section"><div class="section-head"><h2>More trailers</h2></div><div class="grid" id="relatedTrailerGrid"></div></section>
+</main><footer class="footer">
+  <div>
+    <div class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-text">MIRACULOUS<span>HUB</span></span>
+    </div>
+    <p style="color:var(--muted);font-size:9px;line-height:1.6;max-width:340px">A fan-made watch hub with a liquid-glass interface.</p>
+  </div>
+
+  <div class="footer-links">
+    <div>
+      <b>EXPLORE</b>
+      <a href="index.html">Home</a>
+      <a href="episodes.html">Episodes</a>
+      <a href="index.html#upcoming-releases">Upcoming Releases</a>
+      <a href="monthly-animes.html">Monthly Animes</a>
+    </div>
+    <div>
+      <b>SUPPORT</b>
+      <a href="#">Contact</a>
+      <a href="#">Help</a>
+    </div>
+  </div>
+
+  <p class="copyright">© 2026 MiraculousHub. Fan project. Not affiliated with the official Miraculous brand.</p>
+</footer>
+
+<div class="modal" id="searchModal" hidden>
+  <div class="modal-box">
+    <div class="modal-top">
+      <h2>Search episodes</h2>
+      <button class="close" id="searchCloseBtn" aria-label="Close search">×</button>
+    </div>
+    <input id="searchInput" placeholder="Title, description, or episode code">
+    <div class="results" id="searchResults"></div>
+  </div>
+  <div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div>
+</div>
+
+<div class="lang-pop" id="languagePopover" hidden>
+  <button>ENGLISH</button>
+  <button>FRANÇAIS</button>
+  <button>ESPAÑOL</button>
+  <button>DEUTSCH</button>
+  <button>ITALIANO</button>
+  <button>PORTUGUÊS</button>
+</div>
+
+<script src="data.js?v=s5-all-thumbnails-1"></script><script src="anime-data.js?v=black-clover-player-2"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="season7-data.js?v=banner-fix-1"></script><script src="catalog.js?v=banner-fix-1"></script><script src="firebase.js?v=account-v4-1"></script><script src="common.js?v=trailer-cards-1"></script><script src="motion.js?v=nav-alignment-v4-1"></script><script src="trailers.js?v=banner-fix-1"></script><script src="downloads.js?v=trailer-custom-1"></script><script src="trailer-comments.js?v=trailer-custom-1"></script><script src="trailer-player.js?v=banner-fix-1"></script></body></html>
