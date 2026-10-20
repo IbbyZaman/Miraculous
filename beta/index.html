@@ -38,6 +38,21 @@
 .trailer-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.trailer{min-width:0}.trailer-thumb{width:112px}
 @media(max-width:760px){.discovery{grid-template-columns:1fr}.compact-spotlight,.trailer-list{grid-template-columns:1fr}}
 @media(max-width:420px){.trailer-thumb{width:100px}.discovery{padding:16px}}
+
+/* Full beta: built-in season browser, anime showcase and quick access */
+.beta-library{border:1px solid #ffffff20;background:linear-gradient(140deg,#161a2a,#100f1d);border-radius:24px;padding:24px;margin:28px 0}
+.beta-library .section-heading{margin-bottom:19px}.beta-library .season-chips{flex-wrap:wrap;overflow:visible}
+.beta-library .season-chips button{color:#e1ddea;border:1px solid #ffffff25;border-radius:999px;padding:11px 18px;font-size:13px;font-weight:800;background:#272338;cursor:pointer}
+.beta-library .season-chips button[aria-pressed="true"]{color:white;border-color:#ff81b2;background:linear-gradient(135deg,#fb3474,#8f367f);box-shadow:0 6px 24px #ff357536}
+.beta-season-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-top:10px}
+.beta-season-grid .episode{width:100%;min-width:0;flex:none}
+.beta-library .library-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:20px;color:var(--mute);font-size:13px}
+.beta-library .library-footer button{border:1px solid #ffffff2d;background:#262237;border-radius:12px;padding:11px 19px;color:white;font-weight:800}
+.anime-showcase{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.anime-showcase a{min-height:188px;position:relative;display:flex;flex-direction:column;justify-content:end;overflow:hidden;padding:22px;border:1px solid #ffffff26;border-radius:22px;background:linear-gradient(135deg,#2b2540,#101b2a)}.anime-showcase a:nth-child(2){background:linear-gradient(125deg,#26343b,#22182d)}.anime-showcase a:nth-child(3){background:linear-gradient(125deg,#283627,#19162d)}.anime-showcase a:hover,.anime-showcase a:focus-visible{border-color:#ff80a9;transform:translateY(-2px)}.anime-showcase strong{font-size:21px}.anime-showcase small{color:#e5b6cb;font-size:11px;font-weight:850;letter-spacing:1px;margin-top:7px}.anime-showcase .emblem{font-size:30px;margin-bottom:16px}
+.quick-links{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0}.quick-links a{flex:1 1 175px;min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#171929;border:1px solid #ffffff22;border-radius:15px;padding:15px 18px;font-weight:800}.quick-links a:hover{border-color:#ff6c9c}.quick-links span{color:#ff83ab}
+.episode .copy{min-height:66px}.episode .copy strong{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-clamp:2;overflow:hidden}
+@media(max-width:740px){.anime-showcase{grid-template-columns:1fr}.anime-showcase a{min-height:145px}.beta-library{padding:17px}.beta-season-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+@media(max-width:430px){.beta-season-grid{grid-template-columns:1fr 1fr}.beta-season-grid .copy{padding:10px}.beta-season-grid .copy strong{font-size:12px}.beta-library .season-chips button{padding:9px 12px}}
 </style></head><body>
 <header class="top"><div class="wrap topin"><a class="brand" href="./"><span class="brandmark">M</span>Miraculous<b>Hub</b></a><nav class="nav" aria-label="Beta navigation"><a class="active" href="./">Home</a><a href="../episodes.html">Seasons</a><a href="../monthly-animes.html">Anime</a><a href="../season7.html">Season 7</a><a href="../app.html">Apps</a></nav><div class="actions"><a class="pill" href="../index.html">Live website ↗</a></div></div></header>
 <main class="wrap">
@@ -45,10 +60,12 @@
 <section class="hero"><img src="../main-season7-poster.png" alt="Miraculous Ladybug Season 7 feature artwork"><div class="hero-content"><div class="eyebrow">✦ A new era of MiraculousHub</div><h1>Every story.<br><em>One universe.</em></h1><p>Watch Miraculous episodes, pick up where you stopped, and discover what's coming next.</p><div class="herobuttons"><a class="pill primary" href="../episodes.html?season=7">▶ Explore Season 7</a><a class="pill" href="../episodes.html">Browse all seasons ↗</a></div></div></section>
 <section class="discovery" aria-label="Discover episodes"><div><label for="betaEpisodeSearch">Find your next adventure</label><input id="betaEpisodeSearch" type="search" placeholder="Search episode name or code, e.g. S06E26" autocomplete="off"><p>Search all published Miraculous episodes without leaving the beta.</p></div><a class="pill" href="../episodes.html">Full episode library ↗</a></section>
 <section id="searchResults" hidden><div class="section-heading"><div><h2>Search results</h2><p id="searchSummary">Matching episodes</p></div><button class="pill" type="button" id="clearBetaSearch">Clear</button></div><div class="rail" id="searchRail"></div></section>
-<section class="section"><div class="section-heading"><div><h2>Explore by season</h2><p>Jump straight into the story</p></div></div><nav class="season-chips" aria-label="Choose a Miraculous season"><a href="../episodes.html?season=1">Season 1</a><a href="../episodes.html?season=2">Season 2</a><a href="../episodes.html?season=3">Season 3</a><a href="../episodes.html?season=4">Season 4</a><a href="../episodes.html?season=5">Season 5</a><a href="../episodes.html?season=6">Season 6</a><a href="../episodes.html?season=7">Season 7</a></nav></section>
+<section class="beta-library" id="library"><div class="section-heading"><div><div class="eyebrow">✦ The complete collection</div><h2>Explore every season</h2><p>Choose a season and watch any published episode right from the beta.</p></div><a href="../episodes.html" class="see">Original library ↗</a></div><div class="season-chips" id="betaSeasonTabs" role="group" aria-label="Browse a season"></div><div class="beta-season-grid" id="betaSeasonGrid"><div class="empty">Loading episode catalogue…</div></div><div class="library-footer"><span id="betaSeasonCount">Loading episodes…</span><button type="button" id="betaLibraryMore" hidden>Show more episodes ↓</button></div></section>
 <section class="section" id="continue" hidden><div class="section-heading"><div><h2>Continue watching</h2><p>Return to your latest episodes</p></div><a href="../episodes.html" class="see">Browse episodes →</a></div><div class="rail" id="continueRail"></div></section>
 <section class="section"><div class="section-heading"><div><h2>Fresh from Miraculous</h2><p>Your latest available episodes</p></div><a class="see" href="../episodes.html">View all episodes →</a></div><div class="rail" id="episodeRail"><div class="empty">Loading your episodes…</div></div></section>
 <section class="feature-grid"><a class="feature" href="../episodes.html"><span class="emoji">🐞</span><h3>All 7 seasons</h3><p>Every Miraculous adventure, organised in one place →</p></a><a class="feature" href="../monthly-animes.html"><span class="emoji">✦</span><h3>Monthly anime</h3><p>Explore the anime collections →</p></a></section>
+<section class="section" id="betaAnime"><div class="section-heading"><div><h2>Anime universe</h2><p>Three collections, ready to explore</p></div><a class="see" href="../monthly-animes.html">Explore all anime →</a></div><div class="anime-showcase"><a href="../death-note.html"><span class="emblem">◈</span><strong>Death Note</strong><small>ENTER THE SERIES →</small></a><a href="../attack-on-titan.html"><span class="emblem">⚔</span><strong>Attack on Titan</strong><small>ENTER THE SERIES →</small></a><a href="../black-clover.html"><span class="emblem">✦</span><strong>Black Clover</strong><small>ENTER THE SERIES →</small></a></div></section>
+<div class="quick-links"><a href="../episodes.html">Episode library <span>↗</span></a><a href="../season7.html">Season 7 updates <span>↗</span></a><a href="../app.html">Phone & TV apps <span>↗</span></a><a href="../monthly-animes.html">Monthly anime <span>↗</span></a></div>
 <section class="section"><div class="section-heading"><div><h2>Trailers & previews</h2><p>Smaller, cleaner rows so trailers don't take over the homepage</p></div><a href="../episodes.html" class="see">Explore more →</a></div><div class="trailer-list" id="trailerList"><div class="empty">Checking the latest trailers…</div></div></section>
 <section class="compact-spotlight"><div class="spotlight-tile"><span class="eyebrow">✦ The adventure continues</span><h3>Season 7 updates</h3><p>Catch up on announcements, the episode schedule and everything coming next.</p><a href="../season7.html">Explore Season 7 →</a></div><div class="spotlight-tile"><span class="eyebrow">✦ Your watchlist</span><h3>Keep watching</h3><p>Continue from your saved episode using the same MiraculousHub player.</p><a href="../episodes.html">Pick an episode →</a></div></section>
 <section class="section"><div class="section-heading"><div><h2>Recently released</h2><p>More episodes from the catalogue</p></div><a class="see" href="../episodes.html">See all →</a></div><div class="rail" id="moreRail"></div></section>
@@ -60,6 +77,23 @@ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const epHref=e=>"../watch.html?season="+encodeURIComponent(e.season)+"&episode="+encodeURIComponent(e.episode);
 const pic=e=>/^https:\/\//.test(e.thumbnail||"")?e.thumbnail:"";
 const makeCard=e=>{const a=document.createElement("a");a.className="episode";a.href=epHref(e);a.innerHTML='<div class="art">'+(pic(e)?'<img loading="lazy" referrerpolicy="no-referrer" alt="" src="'+esc(pic(e))+'">':'<span>✦</span>')+'<span class="play">▶</span></div><div class="copy"><strong>'+esc(e.title)+'</strong><small>SEASON '+Number(e.season)+' · EPISODE '+Number(e.episode)+'</small></div>';return a};
+
+let betaSeason=6,betaCount=12;
+function renderSeasonBrowser(){
+ const tabs=document.getElementById("betaSeasonTabs"),grid=document.getElementById("betaSeasonGrid");
+ const count=document.getElementById("betaSeasonCount"),more=document.getElementById("betaLibraryMore");
+ if(!tabs||!grid)return;
+ const items=(window.MH_EPISODES||[]).filter(e=>Number(e.season)>=1&&Number(e.season)<=7&&Number(e.episode)>0&&e.available!==false);
+ tabs.replaceChildren();
+ for(let n=1;n<=7;n++){const btn=document.createElement("button");btn.type="button";btn.textContent="Season "+n;btn.setAttribute("aria-pressed",String(betaSeason===n));btn.addEventListener("click",()=>{betaSeason=n;betaCount=12;renderSeasonBrowser()});tabs.append(btn)}
+ const episodes=items.filter(e=>Number(e.season)===betaSeason).sort((a,b)=>a.episode-b.episode);
+ grid.replaceChildren();
+ for(const ep of episodes.slice(0,betaCount))grid.append(makeCard(ep));
+ if(!episodes.length){const empty=document.createElement("div");empty.className="empty";empty.textContent="No published episodes in this season yet. Check the release calendar for updates.";grid.append(empty)}
+ count.textContent=episodes.length+" published episode"+(episodes.length===1?"":"s")+" • Season "+betaSeason;
+ more.hidden=episodes.length<=betaCount;
+ more.onclick=()=>{betaCount+=12;renderSeasonBrowser()};
+}
 function renderEpisodes(){
  const items=(window.MH_EPISODES||[]).filter(e=>Number(e.season)>=1&&Number(e.episode)>=1&&e.available!==false).slice().sort((a,b)=>b.season-a.season||b.episode-a.episode);
  for(const [id,arr] of [["episodeRail",items.slice(0,10)],["moreRail",items.slice(10,20)]]){const el=document.getElementById(id);el.replaceChildren();if(!arr.length){el.innerHTML='<div class="empty">No episodes found.</div>';continue}arr.forEach(e=>el.append(makeCard(e)))}
@@ -94,9 +128,10 @@ function setupBetaSearch(){
  input.addEventListener("input",update);document.getElementById("clearBetaSearch").addEventListener("click",()=>{input.value="";update();input.focus()});
 }
 setupBetaSearch();
+renderSeasonBrowser();
 renderEpisodes();
 const ready=window.MH_CATALOG_READY;
-Promise.resolve(ready).then(()=>{renderEpisodes();renderTrailers();renderLocalProgress()}).catch(()=>renderTrailers());
+Promise.resolve(ready).then(()=>{renderEpisodes();renderSeasonBrowser();renderTrailers();renderLocalProgress()}).catch(error=>{console.warn("Beta catalogue sync unavailable",error);renderEpisodes();renderSeasonBrowser();renderTrailers()});
 renderLocalProgress();
 })();
 </script></body></html>
