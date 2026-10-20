@@ -56,3 +56,10 @@ body.beta-watch .beta-watch-picker button{background:#e72e70;font-weight:850}
 body.beta-watch .beta-watch-picker select:nth-child(2){flex:1;min-width:145px}
 body.beta-watch .beta-watch-picker [hidden]{display:none!important}
 body.beta-watch #betaPickerToggle{width:auto;padding:0 13px;background:#55223e;color:#ffd9e7;font-size:12px;font-weight:800}
+
+body.beta-trailer-watch .trailer-page{padding-top:25px}
+body.beta-trailer-watch .trailer-heading h1{letter-spacing:-.8px}
+body.beta-trailer-watch .trailer-screen{border-radius:22px;border:1px solid #ffffff30;box-shadow:0 28px 85px #0009}
+body.beta-trailer-watch .trailer-tools{background:#151929;border:1px solid #ffffff1c;border-radius:17px;padding:16px;margin-top:15px}
+body.beta-trailer-watch .trailer-comments{border:1px solid #ffffff24;background:#17192a;border-radius:21px;padding:20px}
+body.beta-trailer-watch .trailer-controls button:hover,body.beta-trailer-watch .trailer-controls button:focus-visible{background:#d43879}
