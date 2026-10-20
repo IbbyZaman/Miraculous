@@ -47,3 +47,12 @@ body.beta-watch .beta-watch-badge{width:min(1210px,calc(100% - 28px));margin:17p
 body.beta-watch .beta-watch-badge strong{color:#ffa1c1}
 body.beta-watch .beta-watch-badge a{color:#ffa4cb;text-decoration:underline}
 body.beta-watch .footer{border-top-color:#ff387933}
+
+body.beta-watch .beta-watch-picker{margin:17px 0 6px;padding:19px;background:#161b2b;border:1px solid #ffffff24;border-radius:19px}
+body.beta-watch .beta-watch-picker h2{font-size:18px;margin:0 0 14px}
+body.beta-watch .beta-watch-picker-row{display:flex;flex-wrap:wrap;align-items:center;gap:11px}
+body.beta-watch .beta-watch-picker select,body.beta-watch .beta-watch-picker button{padding:12px 15px;min-height:45px;color:white;background:#282239;border:1px solid #ffffff37;border-radius:12px;font:inherit}
+body.beta-watch .beta-watch-picker button{background:#e72e70;font-weight:850}
+body.beta-watch .beta-watch-picker select:nth-child(2){flex:1;min-width:145px}
+body.beta-watch .beta-watch-picker [hidden]{display:none!important}
+body.beta-watch #betaPickerToggle{width:auto;padding:0 13px;background:#55223e;color:#ffd9e7;font-size:12px;font-weight:800}
