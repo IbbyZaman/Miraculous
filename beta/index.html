@@ -27,15 +27,30 @@
 @media(max-width:900px){.nav{overflow:auto;white-space:nowrap}.topin{flex-wrap:wrap;gap:6px;padding:12px 0}.topin .nav{order:3;width:100%;flex-basis:100%}.actions{margin-left:auto}.hero{min-height:370px}.hero-content{padding:32px}}
 @media(max-width:600px){.wrap{width:calc(100% - 28px)}.brand{font-size:20px}.topin{min-height:60px}.nav a{padding:8px 12px}.actions .pill{padding:9px}.hero{min-height:410px;border-radius:22px}.hero-content{padding:25px}.hero:after{background:linear-gradient(0deg,#080a12f9,#080a12b5 62%,#080a1240)}.hero h1{letter-spacing:-1.7px}.hero p{font-size:14px}.feature-grid{grid-template-columns:1fr}.feature{min-height:170px}.section{margin:31px 0}.trailer-thumb{width:98px}.trailer{gap:10px}.trailer .details{font-size:13px}.search{display:none}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Beta expansion: discoverability without giant trailer tiles */
+.discovery{margin:25px 0 8px;display:grid;grid-template-columns:1fr auto;gap:15px;align-items:center;border:1px solid #ffffff20;background:linear-gradient(110deg,#181c2d,#171022);border-radius:21px;padding:21px 23px}
+.discovery label{display:block;font-weight:850;margin-bottom:8px}.discovery input{display:block;width:100%;background:#090c17;border:1px solid #55506c;color:#fff;padding:14px 17px;border-radius:13px;outline:none}.discovery input:focus{border-color:#ff6197;box-shadow:0 0 0 3px #ff387927}
+.discovery p{margin:6px 0 0;color:var(--mute);font-size:12px}.discovery .pill{align-self:center}
+.season-chips{display:flex;gap:9px;overflow:auto;padding:3px 0 12px}.season-chips a{border:1px solid #ffffff24;border-radius:999px;white-space:nowrap;padding:10px 17px;font-size:13px;font-weight:850;background:#181829}.season-chips a:hover,.season-chips a:focus-visible{background:#6d2047;border-color:#ff6a9f}
+#searchResults[hidden]{display:none}.beta-status{font-size:12px;color:#c0bfd3;margin:6px 0 0}.beta-status strong{color:#ffa2c2}
+.compact-spotlight{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin:24px 0}.spotlight-tile{border:1px solid #ffffff1e;border-radius:20px;padding:24px;background:linear-gradient(125deg,#3b1932,#171a2b)}.spotlight-tile:nth-child(2){background:linear-gradient(120deg,#142b39,#20162b)}.spotlight-tile h3{font-size:22px;margin:8px 0}.spotlight-tile p{font-size:13px;color:#d1ccda;margin:0 0 20px}.spotlight-tile a{color:#ffa2c6;font-weight:850;font-size:13px}
+.trailer-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.trailer{min-width:0}.trailer-thumb{width:112px}
+@media(max-width:760px){.discovery{grid-template-columns:1fr}.compact-spotlight,.trailer-list{grid-template-columns:1fr}}
+@media(max-width:420px){.trailer-thumb{width:100px}.discovery{padding:16px}}
 </style></head><body>
 <header class="top"><div class="wrap topin"><a class="brand" href="./"><span class="brandmark">M</span>Miraculous<b>Hub</b></a><nav class="nav" aria-label="Beta navigation"><a class="active" href="./">Home</a><a href="../episodes.html">Seasons</a><a href="../monthly-animes.html">Anime</a><a href="../season7.html">Season 7</a><a href="../app.html">Apps</a></nav><div class="actions"><a class="pill" href="../index.html">Live website ↗</a></div></div></header>
 <main class="wrap">
 <div class="beta"><span><strong>✦ BETA PREVIEW</strong> · Experimental homepage — nothing here replaces the live site</span><a href="../index.html">Return to original</a></div>
 <section class="hero"><img src="../main-season7-poster.png" alt="Miraculous Ladybug Season 7 feature artwork"><div class="hero-content"><div class="eyebrow">✦ A new era of MiraculousHub</div><h1>Every story.<br><em>One universe.</em></h1><p>Watch Miraculous episodes, pick up where you stopped, and discover what's coming next.</p><div class="herobuttons"><a class="pill primary" href="../episodes.html?season=7">▶ Explore Season 7</a><a class="pill" href="../episodes.html">Browse all seasons ↗</a></div></div></section>
+<section class="discovery" aria-label="Discover episodes"><div><label for="betaEpisodeSearch">Find your next adventure</label><input id="betaEpisodeSearch" type="search" placeholder="Search episode name or code, e.g. S06E26" autocomplete="off"><p>Search all published Miraculous episodes without leaving the beta.</p></div><a class="pill" href="../episodes.html">Full episode library ↗</a></section>
+<section id="searchResults" hidden><div class="section-heading"><div><h2>Search results</h2><p id="searchSummary">Matching episodes</p></div><button class="pill" type="button" id="clearBetaSearch">Clear</button></div><div class="rail" id="searchRail"></div></section>
+<section class="section"><div class="section-heading"><div><h2>Explore by season</h2><p>Jump straight into the story</p></div></div><nav class="season-chips" aria-label="Choose a Miraculous season"><a href="../episodes.html?season=1">Season 1</a><a href="../episodes.html?season=2">Season 2</a><a href="../episodes.html?season=3">Season 3</a><a href="../episodes.html?season=4">Season 4</a><a href="../episodes.html?season=5">Season 5</a><a href="../episodes.html?season=6">Season 6</a><a href="../episodes.html?season=7">Season 7</a></nav></section>
 <section class="section" id="continue" hidden><div class="section-heading"><div><h2>Continue watching</h2><p>Return to your latest episodes</p></div><a href="../episodes.html" class="see">Browse episodes →</a></div><div class="rail" id="continueRail"></div></section>
 <section class="section"><div class="section-heading"><div><h2>Fresh from Miraculous</h2><p>Your latest available episodes</p></div><a class="see" href="../episodes.html">View all episodes →</a></div><div class="rail" id="episodeRail"><div class="empty">Loading your episodes…</div></div></section>
 <section class="feature-grid"><a class="feature" href="../episodes.html"><span class="emoji">🐞</span><h3>All 7 seasons</h3><p>Every Miraculous adventure, organised in one place →</p></a><a class="feature" href="../monthly-animes.html"><span class="emoji">✦</span><h3>Monthly anime</h3><p>Explore the anime collections →</p></a></section>
 <section class="section"><div class="section-heading"><div><h2>Trailers & previews</h2><p>Smaller, cleaner rows so trailers don't take over the homepage</p></div><a href="../episodes.html" class="see">Explore more →</a></div><div class="trailer-list" id="trailerList"><div class="empty">Checking the latest trailers…</div></div></section>
+<section class="compact-spotlight"><div class="spotlight-tile"><span class="eyebrow">✦ The adventure continues</span><h3>Season 7 updates</h3><p>Catch up on announcements, the episode schedule and everything coming next.</p><a href="../season7.html">Explore Season 7 →</a></div><div class="spotlight-tile"><span class="eyebrow">✦ Your watchlist</span><h3>Keep watching</h3><p>Continue from your saved episode using the same MiraculousHub player.</p><a href="../episodes.html">Pick an episode →</a></div></section>
 <section class="section"><div class="section-heading"><div><h2>Recently released</h2><p>More episodes from the catalogue</p></div><a class="see" href="../episodes.html">See all →</a></div><div class="rail" id="moreRail"></div></section>
 </main><footer class="wrap footer"><span>✦ MiraculousHub Beta · Designed for your feedback</span><span>Preview only — your live homepage remains unchanged</span></footer>
 <script src="../site-config.js"></script><script src="../data.js"></script><script src="../catalog.js"></script>
@@ -63,6 +78,22 @@ function renderLocalProgress(){
  for(const x of items){const ep=(window.MH_EPISODES||[]).find(e=>Number(e.season)===Number(x.season)&&Number(e.episode)===Number(x.episode));if(ep){const card=makeCard(ep);card.querySelector("small").textContent="RESUME · "+Math.floor(Number(x.position)/60)+" min";rail.append(card)}}
  section.hidden=!rail.children.length;
 }
+function setupBetaSearch(){
+ const input=document.getElementById("betaEpisodeSearch"),section=document.getElementById("searchResults"),rail=document.getElementById("searchRail");
+ const summary=document.getElementById("searchSummary");
+ const update=()=>{
+  const q=input.value.trim().toLocaleLowerCase();section.hidden=!q;
+  rail.replaceChildren();
+  if(!q)return;
+  const all=(window.MH_EPISODES||[]).filter(e=>e.available!==false&&Number(e.season)>0);
+  const found=all.filter(e=>[e.title,e.code,`s${String(e.season).padStart(2,"0")}e${String(e.episode).padStart(2,"0")}`,`season ${e.season}`].some(x=>String(x||"").toLocaleLowerCase().includes(q))).slice(0,18);
+  summary.textContent=found.length?"Showing up to 18 matching episodes":"No matching episodes yet";
+  if(!found.length){const empty=document.createElement("div");empty.className="empty";empty.textContent="Try a different title, episode code or season.";rail.append(empty);}
+  for(const e of found)rail.append(makeCard(e));
+ };
+ input.addEventListener("input",update);document.getElementById("clearBetaSearch").addEventListener("click",()=>{input.value="";update();input.focus()});
+}
+setupBetaSearch();
 renderEpisodes();
 const ready=window.MH_CATALOG_READY;
 Promise.resolve(ready).then(()=>{renderEpisodes();renderTrailers();renderLocalProgress()}).catch(()=>renderTrailers());
