@@ -514,7 +514,7 @@ body .simple-player .quick-overlay{display:none}
  <nav class="nav"><a href="index.html">Home</a><a class="active" href="episodes.html">Episodes</a><a href="index.html#upcoming-releases">Upcoming Releases</a><a href="monthly-animes.html">Monthly Animes</a></nav>
  <div class="actions"><button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button><button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button><button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false"><span></span><span></span><span></span></button></div>
 </header>
-<div class="beta-watch-badge"><span><strong>✦ BETA PLAYER</strong> · Testing a refreshed watching experience</span><a href="watch.html">Original player ↗</a></div>
+<div class="beta-watch-badge"><span><strong>✦ BETA PLAYER</strong> · Testing a refreshed watching experience</span><a id="betaClassicPlayer" href="watch.html">Original player ↗</a></div>
 <div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
 <aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation">
   <div class="mobile-drawer-head">
@@ -1394,5 +1394,6 @@ partySync=window.MHWatchTogether.create({video:v,worker:VIDEO_WORKER,media:{path
 
 })();
 </script>
+<script>const classic=document.getElementById("betaClassicPlayer");if(classic)classic.href="watch.html"+location.search;</script>
 </body>
 </html>
