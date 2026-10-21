@@ -113,7 +113,7 @@ async function catalog(request,env){
   for(let i=0;i<page.objects.length;i+=20){const rows=await Promise.all(page.objects.slice(i,i+20).map(async o=>{const obj=await env.VIDEOS.get(o.key);return obj?obj.json():null}));entries.push(...rows.filter(Boolean));}
   cursor=page.truncated?page.cursor:null;
  }while(cursor);
- return json(request,{entries});
+ return json(request,{entries,capabilities:{timers:true},catalogVersion:2});
 }
 async function trailer(request,env,url){
  const id=url.searchParams.get("id");if(!/^[a-z0-9][a-z0-9-]{0,79}$/.test(id||""))return json(request,{error:"Invalid trailer."},400);
