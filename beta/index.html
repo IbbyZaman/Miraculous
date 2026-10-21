@@ -53,11 +53,27 @@
 .episode .copy{min-height:66px}.episode .copy strong{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-clamp:2;overflow:hidden}
 @media(max-width:740px){.anime-showcase{grid-template-columns:1fr}.anime-showcase a{min-height:145px}.beta-library{padding:17px}.beta-season-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
 @media(max-width:430px){.beta-season-grid{grid-template-columns:1fr 1fr}.beta-season-grid .copy{padding:10px}.beta-season-grid .copy strong{font-size:12px}.beta-library .season-chips button{padding:9px 12px}}
+/* Custom countdowns: actual timers from the R2 catalogue, not made-up release dates. */
+.beta-countdowns{margin:24px 0 30px;padding:22px;border:1px solid #ff669347;border-radius:23px;background:linear-gradient(125deg,#31172d,#191526 54%,#111a2e);box-shadow:0 13px 38px #0004}
+.beta-countdowns[hidden]{display:none!important}
+.beta-countdowns .section-heading{margin-bottom:17px}
+.beta-countdown-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:13px}
+.beta-countdown-grid .custom-timer-card{min-width:0;background:#0c1023bf;border:1px solid #ffffff23;border-radius:16px;padding:17px 19px;display:flex;flex-direction:column;gap:8px}
+.beta-countdown-grid .custom-timer-card h3{margin:0;font-size:clamp(15px,2vw,19px);line-height:1.35}
+.beta-countdown-grid .custom-timer-card .s7-countdown{font-size:clamp(20px,3.6vw,32px);letter-spacing:.5px;line-height:1.4;color:#ffa3c3;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.beta-countdown-grid .countdown-information{color:#c9c4d5}
+.beta-countdown-grid .countdown-information summary{cursor:pointer;font-size:13px;font-weight:800;color:#ff92b5;padding:6px 0}
+.beta-countdown-grid .countdown-information p{font-size:13px;white-space:pre-wrap;margin:7px 0;color:#cfcbd9}
+@media(max-width:600px){.beta-countdowns{padding:16px;border-radius:18px;margin:18px 0}.beta-countdown-grid{grid-template-columns:1fr}.beta-countdown-grid .custom-timer-card{padding:15px}}
 </style></head><body>
 <header class="top"><div class="wrap topin"><a class="brand" href="./"><span class="brandmark">M</span>Miraculous<b>Hub</b></a><nav class="nav" aria-label="Beta navigation"><a class="active" href="./">Home</a><a href="episodes.html">Seasons</a><a href="anime.html">Anime</a><a href="trailers.html">Trailers</a><a href="episodes.html?season=7">Season 7</a><a href="../app.html">Apps</a></nav><div class="actions"><a class="pill" href="../index.html">Live website ↗</a></div></div></header>
 <main class="wrap">
 <div class="beta"><span><strong>✦ BETA PREVIEW</strong> · Experimental design: browse, watch and explore inside beta</span><a href="../index.html">Return to original</a></div>
 <section class="hero"><img src="../main-season7-poster.png" alt="Miraculous Ladybug Season 7 feature artwork"><div class="hero-content"><div class="eyebrow">✦ A new era of MiraculousHub</div><h1>Every story.<br><em>One universe.</em></h1><p>Your Miraculous universe, all in one place. Pick up where you left off and discover what’s next.</p><div class="herobuttons"><a class="pill primary" href="episodes.html?season=7">▶ Explore Season 7</a><a class="pill" href="episodes.html">Browse all seasons ↗</a></div></div></section>
+<section class="beta-countdowns" id="custom-countdowns" hidden aria-labelledby="betaCountTitle">
+ <div class="section-heading"><div><div class="eyebrow">✦ UPCOMING</div><h2 id="betaCountTitle">Countdowns</h2><p>Live timers created in the MiraculousHub Upload Centre</p></div></div>
+ <div id="customTimerGrid" class="beta-countdown-grid"></div>
+</section>
 <section class="discovery" aria-label="Discover episodes"><div><label for="betaEpisodeSearch">Find your next adventure</label><input id="betaEpisodeSearch" type="search" placeholder="Search episode name or code, e.g. S06E26" autocomplete="off"><p>Search all published Miraculous episodes without leaving the beta.</p></div><a class="pill" href="episodes.html">Full episode library ↗</a></section>
 <section id="searchResults" hidden><div class="section-heading"><div><h2>Search results</h2><p id="searchSummary">Matching episodes</p></div><button class="pill" type="button" id="clearBetaSearch">Clear</button></div><div class="rail" id="searchRail"></div></section>
 <section class="section" id="continue" hidden><div class="section-heading"><div><h2>Continue watching</h2><p>Return to your latest episodes</p></div><a href="episodes.html" class="see">Browse episodes →</a></div><div class="rail" id="continueRail"></div></section>
@@ -117,4 +133,5 @@ const ready=window.MH_CATALOG_READY;
 Promise.resolve(ready).then(()=>{renderEpisodes();renderTrailers();renderLocalProgress()}).catch(error=>{console.warn("Beta catalogue sync unavailable",error);renderEpisodes();renderTrailers()});
 renderLocalProgress();
 })();
-</script></body></html>
+</script>
+<script src="../custom-timers.js?v=beta-countdowns-2"></script></body></html>
