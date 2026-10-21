@@ -4,7 +4,7 @@
  const owner=()=>{const u=window.MH_AUTH?.user();return u?.emailVerified&&!u?.isAnonymous&&u?.email?.toLowerCase()==='ibbyzaman4@gmail.com'};
  function auth(){$('timerAdmin').hidden=!owner();window.mhUploaderView?.refresh()}
  async function load(selected=''){
-  const response=await fetch(window.MH_SITE_CONFIG.uploaderWorker+'/catalog',{signal:AbortSignal.timeout(15000)});if(!response.ok)throw new Error('Could not load saved timers.');const result=await response.json();rows=(result.entries||[]).filter(r=>r.kind==='timer');const selector=$('timerEdit');selector.replaceChildren();const option=document.createElement('option');option.value='';option.textContent='New timer';selector.append(option);
+  const response=await fetch(window.MH_SITE_CONFIG.uploaderWorker+'/catalog',{signal:AbortSignal.timeout(15000)});if(!response.ok)throw new Error('Could not load saved timers.');const result=await response.json();if(result.capabilities?.timers!==true){$('timerStatus').textContent='⚠ The live Cloudflare upload Worker has not confirmed countdown support. If saving asks for a season, deploy the latest cloudflare-uploader-worker.js from GitHub to upload.miraculoushub.co.uk (keep your existing bindings and secrets).';}rows=(result.entries||[]).filter(r=>r.kind==='timer');const selector=$('timerEdit');selector.replaceChildren();const option=document.createElement('option');option.value='';option.textContent='New timer';selector.append(option);
   for(const row of rows){const option=document.createElement('option');option.value=row.id;option.textContent=row.title+(row.enabled===false?' (hidden)':'');selector.append(option)}selector.value=selected;
  }
  $('timerEdit').onchange=()=>{const row=rows.find(r=>r.id===$('timerEdit').value);$('timerTitle').value=row?.title||'';$('timerId').value=row?.id||'';$('timerId').readOnly=!!row;$('timerDescription').value=row?.description||'';$('timerTarget').value=toLocalInput(row?.targetAt);$('timerEnabled').checked=row?.enabled!==false;$('timerStatus').textContent=''};
@@ -39,6 +39,7 @@
    let result={};try{result=await response.json()}catch{}
    if(!response.ok){
     const msg=result.error||('HTTP '+response.status);
+    if(/Choose a season from 1[–-]7 and a title/.test(msg))throw new Error('The live upload Worker is treating this countdown as an episode. Your timer details are fine. Deploy the latest cloudflare-uploader-worker.js from GitHub to the upload.miraculoushub.co.uk Cloudflare Worker, keeping the existing R2 binding and upload password secret.');
     throw new Error('Save failed: '+msg+(response.status===404||response.status===405?' The Cloudflare uploader Worker may need redeploying with countdown support.':''));
    }
    // A save is successful as soon as the Worker confirms it; a follow-up GET is optional.
