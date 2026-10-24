@@ -18,7 +18,8 @@
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
      crossorigin="anonymous"></script>
-<link rel="stylesheet" href="season7-update.css?v=countdown-neat-1"></head>
+<link rel="stylesheet" href="season7-update.css?v=countdown-neat-1"><link rel="stylesheet" href="cinema-edition.css?v=2026-10-cinema-1">
+</head>
 <body>
 
 <header class="topbar">
@@ -68,40 +69,9 @@
 </aside>
 
 
-<section class="home-intro" aria-label="Welcome and upcoming releases"><div class="home-banner"><img class="main-poster" src="main-season7-poster.png" alt="Ladybug and Cat Noir above Paris at sunset" width="1280" height="720" fetchpriority="high"><div class="home-banner-copy"><p class="kicker">THE MIRACULOUS UNIVERSE</p><h1>Welcome to<br><span>MiraculousHub</span></h1><h2>Season 7</h2><p class="home-banner-synopsis" data-s7-synopsis></p><div class="hero-actions"><a class="primary" href="episodes.html?season=7">Explore Season 7 →</a><a class="secondary" href="#trailers">Watch trailers ▶</a></div></div></div><aside class="home-timer-panel" id="upcoming-releases" aria-labelledby="sidebarCountdownTitle"><div class="home-timer-heading"><p class="kicker">COMING UP NEXT</p><h2 id="sidebarCountdownTitle">Your countdowns</h2></div><section id="custom-countdowns" hidden><div class="s7-release-grid" id="customTimerGrid"></div></section><p class="home-timer-note" id="noCustomCountdowns">Countdowns you create in Upload Centre will appear here.</p></aside></section>
+<section class="home-intro" aria-label="Welcome and upcoming releases"><div class="home-banner"><img class="main-poster" src="main-season7-poster.png" alt="Ladybug and Cat Noir above Paris at sunset" width="1280" height="720" fetchpriority="high"><div class="home-banner-copy"><p class="kicker">THE MIRACULOUS UNIVERSE</p><h1>Welcome to<br><span>MiraculousHub</span></h1><h2>Season 7</h2><p class="home-banner-synopsis" data-s7-synopsis></p><div class="hero-actions"><a class="primary" href="episodes.html?season=7">Explore Season 7 →</a><a class="secondary" href="#trailers">Watch trailers ▶</a></div></div></div><aside class="home-timer-panel" id="upcoming-releases" aria-labelledby="sidebarCountdownTitle"><div class="home-timer-heading"><p class="kicker">COMING UP NEXT</p><h2 id="sidebarCountdownTitle">Your countdowns</h2></div><section id="custom-countdowns" hidden><div class="s7-release-grid" id="customTimerGrid"></div></section><p class="home-timer-note" id="noCustomCountdowns">Countdowns you create in Upload Centre will appear here.</p><h3 class="release-rail-heading">Season 7 premieres</h3><div class="s7-release-grid" id="s7HomeReleaseGrid" aria-label="Season 7 episode release countdowns"></div></aside></section>
 
 <main class="container">
-  <section class="live-section" id="live">
-    <div class="section-heading">
-      <div>
-        <span class="live-badge">● LIVE</span>
-        <h2>MiraculousHub Live</h2>
-        <p>Watch MiraculousHubTV live on Twitch.</p>
-      </div>
-    </div>
-
-    <div class="live-player-card twitch-card">
-      <div class="twitch-frame">
-        <iframe
-          src="https://player.twitch.tv/?channel=miraculoushubtv&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false"
-          title="MiraculousHubTV live stream"
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowfullscreen>
-        </iframe>
-      </div>
-
-      <div class="live-player-info">
-        <div>
-          <strong>MiraculousHub Live</strong>
-          <span>Live on Twitch · @miraculoushubtv</span>
-        </div>
-        <a class="live-action live-twitch-link"
-           href="https://www.twitch.tv/miraculoushubtv"
-           target="_blank" rel="noopener">Open Twitch</a>
-      </div>
-    </div>
-  </section>
-
   <section class="section" id="continueSection" hidden>
     <div class="section-head">
       <div>
@@ -151,6 +121,17 @@
   #trailerGrid .trailer-card{flex-basis:83vw;grid-template-columns:42% minmax(0,1fr)}
 }
 </style>
+  <section class="section" id="latest">
+    <div class="section-head">
+      <div>
+        <p class="kicker">FRESH FROM THE LIBRARY</p>
+        <h2>Latest Episodes</h2>
+      </div>
+      <a class="show-all" href="episodes.html">Show all →</a>
+    </div>
+    <div class="grid" id="latestGrid"></div>
+  </section>
+
   <section class="section" id="trailers">
     <div class="section-head"><div><p class="kicker">FIRST LOOK</p><h2>Trailers</h2></div></div>
     <div class="grid" id="trailerGrid" aria-label="Trailers"></div>
@@ -167,16 +148,40 @@
     </div>
   </section>
 
-  <section class="section" id="latest">
-    <div class="section-head">
+
+
+
+  <section class="live-section" id="live">
+    <div class="section-heading">
       <div>
-        <p class="kicker">FRESH FROM THE LIBRARY</p>
-        <h2>Latest Episodes</h2>
+        <span class="live-badge">● LIVE</span>
+        <h2>MiraculousHub Live</h2>
+        <p>Watch MiraculousHubTV live on Twitch.</p>
       </div>
-      <a class="show-all" href="episodes.html">Show all →</a>
     </div>
-    <div class="grid" id="latestGrid"></div>
+
+    <div class="live-player-card twitch-card">
+      <div class="twitch-frame">
+        <iframe
+          src="https://player.twitch.tv/?channel=miraculoushubtv&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false"
+          title="MiraculousHubTV live stream"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <div class="live-player-info">
+        <div>
+          <strong>MiraculousHub Live</strong>
+          <span>Live on Twitch · @miraculoushubtv</span>
+        </div>
+        <a class="live-action live-twitch-link"
+           href="https://www.twitch.tv/miraculoushubtv"
+           target="_blank" rel="noopener">Open Twitch</a>
+      </div>
+    </div>
   </section>
+
 
 </main>
 
@@ -186,7 +191,7 @@
       <span class="brand-mark">M</span>
       <span class="brand-text">MIRACULOUS<span>HUB</span></span>
     </div>
-    <p style="color:var(--muted);font-size:9px;line-height:1.6;max-width:340px">A fan-made watch hub with a liquid-glass interface.</p>
+    <p style="color:var(--muted);font-size:9px;line-height:1.6;max-width:340px">A fan-made episode library with a cinematic viewing experience.</p>
   </div>
 
   <div class="footer-links">
