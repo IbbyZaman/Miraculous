@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05070c">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>MiraculousHub — Episodes</title>
+<link rel="stylesheet" href="season7-update.css?v=countdown-neat-1"><link rel="stylesheet" href="styles.css?v=account-v4-1">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6K9W3X96EY');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
+     crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/beta2/cinema-edition.css?v=2026-10-ref-2">
+<base href="/">
+<script>
+/* Beta 2 routing: reuse production media/data assets without changing the live site. */
+(function(){
+  const pages=new Set(["index.html","episodes.html","watch.html","season7.html","monthly-animes.html","attack-on-titan.html","black-clover.html","death-note.html","trailer.html","app.html","upload.html"]);
+  document.addEventListener("click",function(event){
+    const link=event.target.closest&&event.target.closest("a[href]");
+    if(!link||event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||link.hasAttribute("download")||link.target==="_blank")return;
+    const dest=new URL(link.getAttribute("href"),document.baseURI);
+    if(dest.origin!==location.origin||!pages.has(dest.pathname.split("/").pop()))return;
+    event.preventDefault();
+    location.assign("/beta2/"+dest.pathname.split("/").pop()+dest.search+dest.hash);
+  },true);
+})();
+</script>
+</head>
+<body>
+
+<div class="mh-notice-bar"><span class="mh-notice-star" aria-hidden="true">✦</span><span>New adventures, episodes and countdowns on Miraculous Hub</span><a href="season7.html">Season 7 updates</a></div>
+<header class="topbar">
+  <a class="brand" href="index.html" aria-label="MiraculousHub home">
+    <span class="brand-mark">M</span>
+    <span class="brand-text">MIRACULOUS<span>HUB</span></span>
+  </a>
+
+  <nav class="nav" aria-label="Main navigation">
+    <a href="index.html">Home</a>
+    <a class="active" href="episodes.html">Episodes</a>
+    <a href="index.html#upcoming-releases">Upcoming Releases</a>
+    <a href="monthly-animes.html">Monthly Animes</a>
+    <a href="app.html">Apps</a>
+  </nav>
+
+  <div class="actions">
+    <button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button>
+    <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button>
+    <button class="lang-btn" id="languageButton">EN⌄</button>
+    <button class="signin">Sign in</button>
+    <button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
+<aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation">
+  <div class="mobile-drawer-head">
+    <div>
+      <span class="mobile-drawer-kicker">MIRACULOUSHUB</span>
+      <strong>Navigation</strong>
+    </div>
+    <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close navigation">×</button>
+  </div>
+  <nav class="mobile-nav-links" aria-label="Mobile navigation links">
+    <a href="index.html"><span>01</span><b>Home</b><i>→</i></a>
+    <a class="active" href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a>
+    <a href="index.html#upcoming-releases"><span>03</span><b>Upcoming Releases</b><i>→</i></a>
+    <a href="monthly-animes.html"><span>04</span><b>Monthly Animes</b><i>→</i></a>
+    <a href="app.html"><span>05</span><b>Download Apps</b><i>→</i></a>
+  </nav>
+  <div class="mobile-drawer-foot">
+    <p>Your Miraculous watch space.</p>
+    <button class="signin mobile-drawer-signin">Sign in</button>
+  </div>
+</aside>
+
+
+<main class="container">
+  <section class="mh-featured-section" aria-labelledby="mhFeaturedHeading">
+    <div class="section-head"><div><p class="kicker">HANDPICKED FROM THE LIBRARY</p><h2 id="mhFeaturedHeading">Featured Episodes</h2></div></div>
+    <div class="mh-featured-grid" id="mhFeaturedGrid"></div>
+  </section>
+  <section class="mh-library-continue" id="mhLibraryContinue" hidden aria-labelledby="mhLibraryContinueTitle">
+    <div class="section-head"><div><h2 id="mhLibraryContinueTitle">Continue Watching</h2></div></div>
+    <div class="mh-featured-grid" id="mhLibraryProgressGrid"></div>
+  </section>
+  <div class="page-head mh-library-heading">
+    <div class="page-head-copy">
+      <p class="kicker">ALL SEASONS & SPECIALS</p>
+      <h1>Full Episodes</h1>
+      <p>Choose a season or find an episode by its title.</p>
+    </div>
+  </div>
+
+  <section class="library-shell">
+    <div class="episodes-toolbar">
+      <div class="toolbar-top">
+        <div class="search-wrap">
+          <input class="searchbar" id="episodeSearch" placeholder="Search by title or episode code" autocomplete="off">
+        </div>
+
+        <div class="filters" aria-label="Episode filters">
+          <button class="filter active" data-filter="all">ALL</button>
+          <button class="filter" data-filter="sub">SUBTITLED</button>
+          <button class="filter" data-filter="new">NEW</button>
+        </div>
+      </div>
+
+      <div class="season-window">
+        <div class="season-tabs" id="seasonTabs">
+          <span class="season-glider" id="seasonGlider" aria-hidden="true"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="episode-grid-shell">
+      <div class="grid" id="episodeGrid"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div>
+    <div class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-text">MIRACULOUS<span>HUB</span></span>
+    </div>
+  </div>
+
+  <div class="footer-links">
+    <div>
+      <b>EXPLORE</b>
+      <a href="index.html">Home</a>
+      <a href="episodes.html">Episodes</a>
+    </div>
+    <div>
+      <b>SUPPORT</b>
+      <a href="#">Help</a>
+    </div>
+  </div>
+
+  <p class="copyright">© 2026 MiraculousHub. Fan project.</p>
+</footer>
+
+<div class="modal" id="searchModal" hidden>
+  <div class="modal-box">
+    <div class="modal-top">
+      <h2>Search episodes</h2>
+      <button class="close" id="searchCloseBtn" aria-label="Close search">×</button>
+    </div>
+    <input id="searchInput" placeholder="Title, description, or episode code">
+    <div class="results" id="searchResults"></div>
+  </div>
+  <div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div>
+</div>
+
+<div class="lang-pop" id="languagePopover" hidden>
+  <button>ENGLISH</button>
+  <button>FRANÇAIS</button>
+  <button>ESPAÑOL</button>
+  <button>DEUTSCH</button>
+  <button>ITALIANO</button>
+  <button>PORTUGUÊS</button>
+</div>
+
+<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="season7-data.js?v=banner-fix-1"></script><script src="catalog.js?v=banner-fix-1"></script>
+<script src="firebase.js?v=account-v4-1"></script>
+<script src="common.js?v=trailer-cards-1"></script>
+<script src="motion.js?v=nav-alignment-v4-1"></script>
+<script>
+(async()=>{await window.MH_CATALOG_READY;
+// Populate the featured and continue-watching rails using our own episode metadata.
+const featuredGrid=document.querySelector("#mhFeaturedGrid");
+const previewEpisodes=(window.MH_EPISODES||[])
+ .filter(e=>e&&e.available!==false&&e.thumbnail&&Number.isFinite(Number(e.season))&&Number.isFinite(Number(e.episode)))
+ .sort((a,b)=>Number(b.season)-Number(a.season)||Number(b.episode)-Number(a.episode))
+ .slice(0,4);
+function mhPreviewCard(entry,href,eyebrow){
+ const card=document.createElement("a");card.className="mh-featured-card";card.href=href;
+ const frame=document.createElement("div");frame.className="mh-featured-art";
+ if(entry.thumbnail){const image=document.createElement("img");image.loading="lazy";image.decoding="async";image.alt="";image.src=entry.thumbnail;frame.append(image)}
+ const copy=document.createElement("div");copy.className="mh-featured-copy";
+ const detail=document.createElement("small");detail.textContent=eyebrow||("SEASON "+entry.season+" · EPISODE "+entry.episode);
+ const title=document.createElement("h3");title.textContent=entry.title||"Episode";
+ copy.append(detail,title);card.append(frame,copy);
+ return card;
+}
+for(const ep of previewEpisodes)featuredGrid.append(mhPreviewCard(ep,"watch.html?season="+ep.season+"&episode="+ep.episode));
+if(!previewEpisodes.length)document.querySelector(".mh-featured-section").hidden=true;
+function mhRenderLibraryContinue(){
+ const section=document.getElementById("mhLibraryContinue"),grid=document.getElementById("mhLibraryProgressGrid");
+ const items=(window.mhGetProgress?.()||[]).filter(item=>Number(item.position||0)>0 && Number(item.progress||0)<99.5).slice(0,4);
+ grid.replaceChildren();
+ for(const item of items){
+  const ep=(window.MH_EPISODES||[]).find(x=>Number(x.season)===Number(item.season)&&Number(x.episode)===Number(item.episode));
+  if(!ep)continue;
+  grid.append(mhPreviewCard(ep,"watch.html?season="+ep.season+"&episode="+ep.episode,Math.round(Number(item.progress)||0)+"% watched"));
+ }
+ section.hidden=!grid.children.length;
+}
+mhRenderLibraryContinue();
+window.addEventListener("mh-progress-synced",mhRenderLibraryContinue);
+window.addEventListener("mh-cloud-save-ok",mhRenderLibraryContinue);
+
+const requestedSeason=new URLSearchParams(location.search).get("season");
+let season=["0","1","2","3","4","5","6","7","specials"].includes(requestedSeason)?requestedSeason:"0", mode="all", q="";
+const tabs=document.querySelector("#seasonTabs");
+const glider=document.querySelector("#seasonGlider");
+const grid=document.querySelector("#episodeGrid");
+const seasonOrder=["0","1","2","3","4","5","6","7","specials"];
+
+const seasonButtons=[
+  ["0","All"],
+  ["1","Season 1"],
+  ["2","Season 2"],
+  ["3","Season 3"],
+  ["4","Season 4"],
+  ["5","Season 5"],
+  ["6","Season 6"],
+  ["7","Season 7"],
+  ["specials","Specials"]
+];
+
+tabs.insertAdjacentHTML("beforeend",seasonButtons.map(([value,label],i)=>
+  `<button class="season-tab ${value===season?"active":""}" data-season="${value}">${label}</button>`
+).join(""));
+
+function moveSeasonGlider(button, smooth=true){
+  if(!button)return;
+  if(!smooth) glider.style.transition="none";
+  glider.style.transform=`translate3d(${button.offsetLeft}px,0,0)`;
+  glider.style.width=`${button.offsetWidth}px`;
+  if(!smooth){
+    glider.getBoundingClientRect();
+    glider.style.removeProperty("transition");
+  }
+}
+
+function currentSeasonButton(){
+  return tabs.querySelector(`.season-tab[data-season="${season}"]`);
+}
+
+requestAnimationFrame(()=>moveSeasonGlider(currentSeasonButton(),false));
+window.addEventListener("resize",()=>moveSeasonGlider(currentSeasonButton(),false));
+
+function getEpisodes(){
+  let arr=season==="specials"
+    ? MH_SPECIALS.map((t,i)=>({
+        season:"Special",
+        episode:i+1,
+        title:t,
+        code:`SPECIAL ${i+1}`,
+        special:true,
+        specialSlug:["new-york","shanghai","awakening","paris","london","tokyo"][i],
+        thumbnail:(window.MH_SPECIAL_THUMBNAILS||[])[i]
+      }))
+    : (season==="7"?(window.MH_SEASON7||[]).filter(e=>e.available===true):MH_EPISODES.filter(e=>season==="0"||e.season==season));
+
+  // Kept compatible with the existing data: "sub" becomes useful
+  // automatically when an episode later receives a subtitle flag.
+  if(mode==="sub"){
+    const flagged=arr.filter(e=>e.subtitled||e.subtitles);
+    if(flagged.length) arr=flagged;
+  }
+
+  if(mode==="new") arr=arr.filter(e=>e.new);
+  if(q) arr=arr.filter(e=>`${e.title} ${e.code}`.toLowerCase().includes(q));
+  return arr;
+}
+
+function render(){
+  const arr=getEpisodes();
+
+  grid.innerHTML=arr.length
+    ? arr.map(e=>{
+        const href=e.special
+          ? `watch.html?special=${e.episode}`
+          : e.available===false?`season7.html#s7e${e.episode}`:`watch.html?season=${e.season}&episode=${e.episode}`;
+
+        const saved=e.special?null:(window.mhGetProgress?.()||[]).find(x=>
+          Number(x.season)===Number(e.season) && Number(x.episode)===Number(e.episode)
+        );
+        const progress=Math.max(0,Math.min(100,Number(saved?.progress)||0));
+
+        return `
+          <a class="card episode-library-card ${e.available===false?'is-upcoming':''}" href="${href}">
+            <div class="art ${e.thumbnail?'has-thumb':''}">
+              ${e.thumbnail?`<img class="episode-thumb" src="${e.thumbnail}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:""}
+              ${e.new?'<span class="new">NEW</span>':''}
+              ${progress>0?`<div class="episode-card-progress" aria-label="${Math.round(progress)}% watched"><span style="width:${progress}%"></span></div>`:""}
+            </div>
+            <div class="card-info">
+              <span class="epno">${e.special?`SPECIALS · EPISODE ${e.episode}`:`SEASON ${e.season} · EPISODE ${e.episode}`}</span>
+              <h3>${window.mhEscapeHTML(e.title)}</h3>${e.available===false?'<p class="upcoming-label">Coming soon · see release date</p>':''}
+              ${progress>0?`<p class="episode-progress-copy">${Math.round(progress)}% watched</p>`:""}
+            </div>
+          </a>`;
+      }).join("")
+    : season==="7"
+      ? '<div class="empty season7-empty"><strong>Season 7 is coming.</strong><span>Episodes will appear here as they release and are added to MiraculousHub.</span><a href="season7.html">See Season 7 news →</a></div>'
+      : '<div class="empty">No episodes match your search.</div>';
+}
+
+function glideSeason(nextSeason){
+  if(nextSeason===season)return;
+
+  const oldIndex=seasonOrder.indexOf(String(season));
+  const newIndex=seasonOrder.indexOf(String(nextSeason));
+  const direction=newIndex>=oldIndex?"forward":"back";
+  const leaveClass=direction==="forward"?"grid-leave-forward":"grid-leave-back";
+  const enterClass=direction==="forward"?"grid-enter-forward":"grid-enter-back";
+
+  grid.classList.remove("grid-enter-forward","grid-enter-back");
+  grid.classList.add(leaveClass);
+
+  setTimeout(()=>{
+    season=String(nextSeason);
+
+    tabs.querySelectorAll(".season-tab").forEach(x=>
+      x.classList.toggle("active",x.dataset.season===season)
+    );
+
+    const button=currentSeasonButton();
+    moveSeasonGlider(button,true);
+    if(button){
+      const br=button.getBoundingClientRect();
+      const tr=tabs.getBoundingClientRect();
+      if(br.left<tr.left || br.right>tr.right){
+        button.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
+      }
+    }
+
+    render();
+
+    grid.classList.remove("grid-leave-forward","grid-leave-back");
+    grid.classList.add(enterClass);
+    setTimeout(()=>grid.classList.remove(enterClass),420);
+  },145);
+}
+
+tabs.addEventListener("click",e=>{
+  const button=e.target.closest(".season-tab");
+  if(!button)return;
+  glideSeason(button.dataset.season);
+});
+
+document.querySelectorAll(".filter").forEach(button=>{
+  button.onclick=()=>{
+    document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));
+    button.classList.add("active");
+    mode=button.dataset.filter;
+    render();
+    grid.classList.remove("grid-enter-forward","grid-enter-back");
+    void grid.offsetWidth;
+    grid.classList.add("grid-enter-forward");
+    setTimeout(()=>grid.classList.remove("grid-enter-forward"),420);
+  };
+});
+
+document.querySelector("#episodeSearch").oninput=e=>{
+  q=e.target.value.toLowerCase();
+  render();
+};
+
+render();
+
+// Keep the little watch-progress line in sync with Firebase playback data.
+window.addEventListener("mh-progress-synced",render);
+window.addEventListener("mh-cloud-save-ok",render);
+
+
+})();
+</script>
+</body>
+</html>
