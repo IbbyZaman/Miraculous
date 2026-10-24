@@ -179,6 +179,21 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 }
 .home-timer-note{color:var(--muted);font-size:13px;line-height:1.65}
 
+
+/* Release calendar inside the homepage countdown rail */
+.release-rail-heading{
+  margin:18px 5px 12px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+  font-size:13px;
+  font-weight:850;
+  letter-spacing:.01em;
+  color:var(--text);
+}
+.home-timer-panel #s7HomeReleaseGrid{display:flex;flex-direction:column;gap:10px}
+.home-timer-panel #s7HomeReleaseGrid .countdown-information summary{cursor:pointer}
+.home-timer-panel #s7HomeReleaseGrid .s7-countdown{display:block;white-space:nowrap}
+
 /* Modern streaming rails and thumbnail cards */
 .live-section{padding-top:42px}
 section{scroll-margin-top:90px}
