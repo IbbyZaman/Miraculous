@@ -759,3 +759,195 @@ main.container>.section,main.container>.live-section{margin-top:36px}
   .mh-featured-card{transition:none}
   .mh-featured-card:hover{transform:none}
 }
+
+
+/* BETA2 VISUAL RESET v3
+ * The original Liquid Prism stylesheet still supplies several heavyweight
+ * effects. Neutralise those explicitly instead of assuming the old
+ * stylesheet has been removed. This layer is deliberately beta2-only. */
+html{background:#10131d!important}
+body{
+  background:#10131d!important;
+  background-image:none!important;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif!important;
+}
+body::before,body::after{display:none!important}
+.topbar{
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  top:0!important;
+  border-radius:0!important;
+  border:0!important;
+  border-bottom:1px solid #2a3040!important;
+  background:#171b28!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  padding:8px max(16px,calc((100vw - 1220px)/2))!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+}
+.topbar::before,.topbar::after,.nav::before,.nav::after{display:none!important}
+.topbar .nav{
+  margin:auto!important;
+  padding:0!important;
+  width:auto!important;
+  background:none!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  gap:5px!important;
+}
+.topbar .nav .nav-glider{display:none!important}
+.topbar .nav a{
+  color:#c2c6d4!important;
+  padding:10px 15px!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:7px!important;
+  box-shadow:none!important;
+  font-size:13px!important;
+  font-weight:700!important;
+}
+.topbar .nav a.active,.topbar .nav a:hover{
+  color:#fff!important;
+  background:#303546!important;
+}
+.topbar .brand{margin:0!important;transform:none!important}
+.topbar .brand-mark{
+  width:37px!important;height:37px!important;
+  border-radius:8px!important;
+  background:#e63770!important;
+  box-shadow:none!important;
+}
+.topbar .brand-text{font-size:14px!important;letter-spacing:-.02em!important}
+.topbar .actions{gap:8px!important}
+.topbar .actions .signin{
+  border:0!important;
+  background:#e63770!important;
+  border-radius:7px!important;
+  color:#fff!important;
+  padding:9px 14px!important;
+  box-shadow:none!important;
+}
+.topbar .actions .icon-btn,.topbar .actions .theme-btn,.topbar .actions .lang-btn{
+  background:transparent!important;
+  box-shadow:none!important;
+  border:0!important;
+  border-radius:7px!important;
+}
+.mh-notice-bar{background:#c42e64!important;color:white!important;min-height:30px!important}
+main.container{width:min(1200px,calc(100% - 32px))!important;margin:0 auto!important}
+main.container>.section{padding:0!important}
+.section-head,.section-heading{margin-bottom:15px!important}
+.section-head h2,.section-heading h2{
+  color:#f6f7fb!important;
+  font-size:22px!important;
+  font-weight:800!important;
+  letter-spacing:-.02em!important;
+}
+.section-head h2::after,.section-heading h2::after{display:none!important}
+.show-all{color:#ff6796!important}
+#continueSection,#latest,#trailers,#monthly-anime-shelf,#live{margin-top:32px!important}
+#latestGrid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important}
+#latestGrid .card,.episode-grid-shell .card,.mh-featured-card{
+  background:#1a2030!important;
+  border:1px solid #2a3041!important;
+  border-radius:9px!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+#latestGrid .card:hover,.episode-grid-shell .card:hover,.mh-featured-card:hover{
+  border-color:#ef5b8c!important;
+  transform:translateY(-2px)!important;
+}
+#latestGrid .card .art,.episode-grid-shell .card .art{
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:16/9!important;
+  padding:0!important;
+  background:#121621!important;
+}
+#latestGrid .card .art::after,.episode-grid-shell .card .art::after{display:none!important}
+#latestGrid .card .art img,.episode-grid-shell .card .art img{
+  position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;
+  object-fit:cover!important;
+}
+#latestGrid .card-info,.episode-grid-shell .card-info{padding:12px!important}
+#latestGrid .card-info h3,.episode-grid-shell .card-info h3{
+  color:#f7f7fb!important;
+  font-size:14px!important;
+  font-weight:800!important;
+  line-height:1.35!important;
+}
+#latestGrid .card-info p,.episode-grid-shell .card-info p{color:#abb2c4!important;font-size:11px!important}
+#latestGrid .card .art .epno{background:#10131dcc!important;border-radius:5px!important}
+
+/* The reference home has a release shelf, not a large marketing poster. */
+.mh-upcoming-section .home-intro{
+  display:block!important;
+  width:100%!important;
+  margin:0!important;
+}
+.mh-upcoming-section .home-banner{display:none!important}
+.mh-upcoming-section .home-timer-panel{
+  width:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  display:block!important;
+  padding:14px!important;
+  border-radius:10px!important;
+  background:#171d2b!important;
+  border:1px solid #2a3041!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+.mh-upcoming-section .home-timer-heading h2{
+  font-size:14px!important;
+  margin:0 0 12px!important;
+  color:#dce1ed!important;
+}
+.mh-upcoming-section .home-timer-panel .s7-release-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+}
+.mh-upcoming-section .home-timer-panel .s7-release-card{
+  background:#222a3a!important;
+  border:1px solid #333b4e!important;
+  border-radius:8px!important;
+  padding:13px!important;
+}
+.mh-upcoming-section .release-rail-heading{
+  border-top:1px solid #333b4e!important;
+  color:#fff!important;
+  padding-top:14px!important;
+}
+.mh-upcoming-section .home-timer-note{font-size:12px!important;color:#aeb8ca!important}
+#latest{margin-top:34px!important}
+#latestGrid .card .art .episode-thumb{border-radius:0!important}
+.mh-library-heading{margin-top:32px!important}
+.mh-library-heading h1{font-size:25px!important}
+.library-shell{background:none!important;border:0!important;box-shadow:none!important}
+.episodes-toolbar{border-radius:10px!important;background:#191f2d!important;box-shadow:none!important}
+.episode-grid-shell .grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.episode-library-card .card-info .epno{background:none!important;color:#ff719b!important}
+.watch-shell{width:min(1200px,calc(100% - 28px))!important}
+.watch-shell .player{border-radius:9px!important}
+.watch-meta{background:transparent!important;border-radius:0!important;box-shadow:none!important}
+.footer{border-radius:0!important;background:#151a27!important;box-shadow:none!important}
+@media(max-width:840px){
+  .topbar .nav{display:none!important}
+  .topbar .menu-toggle{display:flex!important}
+  .mh-upcoming-section .home-timer-panel .s7-release-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .episode-grid-shell .grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:600px){
+  #latestGrid,.episode-grid-shell .grid,.mh-featured-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .mh-upcoming-section .home-timer-panel .s7-release-grid{grid-template-columns:1fr!important}
+  .topbar{padding:8px 12px!important}
+  .topbar .brand-text{font-size:12px!important}
+  .section-head h2,.section-heading h2{font-size:20px!important}
+  #latestGrid .card-info h3{font-size:12px!important}
+}
