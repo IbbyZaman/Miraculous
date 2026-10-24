@@ -18,9 +18,11 @@
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
      crossorigin="anonymous"></script>
-<link rel="stylesheet" href="season7-update.css?v=countdown-neat-1"></head>
+<link rel="stylesheet" href="season7-update.css?v=countdown-neat-1"><link rel="stylesheet" href="cinema-edition.css?v=2026-10-cinema-1">
+</head>
 <body>
 
+<div class="mh-notice-bar"><span class="mh-notice-star" aria-hidden="true">✦</span><span>New adventures, episodes and countdowns on Miraculous Hub</span><a href="season7.html">Season 7 updates</a></div>
 <header class="topbar">
   <a class="brand" href="index.html" aria-label="MiraculousHub home">
     <span class="brand-mark">M</span>
@@ -68,40 +70,9 @@
 </aside>
 
 
-<section class="home-intro" aria-label="Welcome and upcoming releases"><div class="home-banner"><img class="main-poster" src="main-season7-poster.png" alt="Ladybug and Cat Noir above Paris at sunset" width="1280" height="720" fetchpriority="high"><div class="home-banner-copy"><p class="kicker">THE MIRACULOUS UNIVERSE</p><h1>Welcome to<br><span>MiraculousHub</span></h1><h2>Season 7</h2><p class="home-banner-synopsis" data-s7-synopsis></p><div class="hero-actions"><a class="primary" href="episodes.html?season=7">Explore Season 7 →</a><a class="secondary" href="#trailers">Watch trailers ▶</a></div></div></div><aside class="home-timer-panel" id="upcoming-releases" aria-labelledby="sidebarCountdownTitle"><div class="home-timer-heading"><p class="kicker">COMING UP NEXT</p><h2 id="sidebarCountdownTitle">Your countdowns</h2></div><section id="custom-countdowns" hidden><div class="s7-release-grid" id="customTimerGrid"></div></section><p class="home-timer-note" id="noCustomCountdowns">Countdowns you create in Upload Centre will appear here.</p></aside></section>
+
 
 <main class="container">
-  <section class="live-section" id="live">
-    <div class="section-heading">
-      <div>
-        <span class="live-badge">● LIVE</span>
-        <h2>MiraculousHub Live</h2>
-        <p>Watch MiraculousHubTV live on Twitch.</p>
-      </div>
-    </div>
-
-    <div class="live-player-card twitch-card">
-      <div class="twitch-frame">
-        <iframe
-          src="https://player.twitch.tv/?channel=miraculoushubtv&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false"
-          title="MiraculousHubTV live stream"
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowfullscreen>
-        </iframe>
-      </div>
-
-      <div class="live-player-info">
-        <div>
-          <strong>MiraculousHub Live</strong>
-          <span>Live on Twitch · @miraculoushubtv</span>
-        </div>
-        <a class="live-action live-twitch-link"
-           href="https://www.twitch.tv/miraculoushubtv"
-           target="_blank" rel="noopener">Open Twitch</a>
-      </div>
-    </div>
-  </section>
-
   <section class="section" id="continueSection" hidden>
     <div class="section-head">
       <div>
@@ -112,6 +83,14 @@
     </div>
     <div class="continue-row" id="continueRow"></div>
   </section>
+  <section class="section mh-upcoming-section" id="upcoming-episodes" aria-labelledby="mhUpcomingHeading">
+    <div class="section-head">
+      <div><p class="kicker">PREMIERES & RELEASES</p><h2 id="mhUpcomingHeading">Upcoming Episodes</h2></div>
+      <a class="show-all" href="season7.html">All release dates →</a>
+    </div>
+    <section class="home-intro mh-reference-feature" aria-label="Welcome and upcoming releases"><div class="home-banner"><img class="main-poster" src="main-season7-poster.png" alt="Ladybug and Cat Noir above Paris at sunset" width="1280" height="720" fetchpriority="high"><div class="home-banner-copy"><p class="kicker">THE MIRACULOUS UNIVERSE</p><h1>Miraculous<br><span>Hub</span></h1><h2>Season 7</h2><p class="home-banner-synopsis" data-s7-synopsis></p><div class="hero-actions"><a class="primary" href="episodes.html?season=7">View Season 7 →</a><a class="secondary" href="#trailers">Watch trailers ▶</a></div></div></div><aside class="home-timer-panel" id="upcoming-releases" aria-labelledby="sidebarCountdownTitle"><div class="home-timer-heading"><p class="kicker">COMING UP NEXT</p><h2 id="sidebarCountdownTitle">Your countdowns</h2></div><section id="custom-countdowns" hidden><div class="s7-release-grid" id="customTimerGrid"></div></section><p class="home-timer-note" id="noCustomCountdowns">Countdowns you create in Upload Centre will appear here.</p><h3 class="release-rail-heading">Season 7 premieres</h3><div class="s7-release-grid" id="s7HomeReleaseGrid" aria-label="Season 7 episode release countdowns"></div></aside></section>
+  </section>
+
 
 <style id="home-compact-trailers">
 /* Compact trailer rail: thumbnails stay visible without tall grid cards. */
@@ -151,6 +130,17 @@
   #trailerGrid .trailer-card{flex-basis:83vw;grid-template-columns:42% minmax(0,1fr)}
 }
 </style>
+  <section class="section" id="latest">
+    <div class="section-head">
+      <div>
+        <p class="kicker">RECENTLY ADDED</p>
+        <h2>Latest Episodes</h2>
+      </div>
+      <a class="show-all" href="episodes.html">Show all →</a>
+    </div>
+    <div class="grid" id="latestGrid"></div>
+  </section>
+
   <section class="section" id="trailers">
     <div class="section-head"><div><p class="kicker">FIRST LOOK</p><h2>Trailers</h2></div></div>
     <div class="grid" id="trailerGrid" aria-label="Trailers"></div>
@@ -160,23 +150,47 @@
 
 
   <section class="section" id="monthly-anime-shelf">
-    <div class="section-head"><div><p class="kicker">MONTHLY ANIMES</p><h2>Choose your next series</h2></div><a class="show-all" href="monthly-animes.html">All animes →</a></div>
+    <div class="section-head"><div><p class="kicker">MONTHLY ANIMES</p><h2>More to watch</h2></div><a class="show-all" href="monthly-animes.html">All animes →</a></div>
     <div class="release-stack">
       <a class="upcoming release-card" href="attack-on-titan.html"><div class="datebox"><strong>AOT</strong></div><div class="upcoming-copy"><small>EVERY SEASON · FINAL CHAPTERS · BONUS OADS</small><h3>Attack on Titan</h3><p>Explore the complete episode list and watch with friends using Watch Together.</p></div><div class="badge">ANIME</div></a>
       <a class="upcoming release-card release-card-secondary" href="death-note.html"><div class="datebox"><strong>DN</strong></div><div class="upcoming-copy"><small>37 EPISODES</small><h3>Death Note</h3><p>Return to your episode or invite friends to a shared party room.</p></div><div class="badge">ANIME</div></a>
     </div>
   </section>
 
-  <section class="section" id="latest">
-    <div class="section-head">
+
+
+
+  <section class="live-section" id="live">
+    <div class="section-heading">
       <div>
-        <p class="kicker">FRESH FROM THE LIBRARY</p>
-        <h2>Latest Episodes</h2>
+        <span class="live-badge">● LIVE</span>
+        <h2>MiraculousHub Live</h2>
+        <p>Watch MiraculousHubTV live on Twitch.</p>
       </div>
-      <a class="show-all" href="episodes.html">Show all →</a>
     </div>
-    <div class="grid" id="latestGrid"></div>
+
+    <div class="live-player-card twitch-card">
+      <div class="twitch-frame">
+        <iframe
+          src="https://player.twitch.tv/?channel=miraculoushubtv&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false"
+          title="MiraculousHubTV live stream"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <div class="live-player-info">
+        <div>
+          <strong>MiraculousHub Live</strong>
+          <span>Live on Twitch · @miraculoushubtv</span>
+        </div>
+        <a class="live-action live-twitch-link"
+           href="https://www.twitch.tv/miraculoushubtv"
+           target="_blank" rel="noopener">Open Twitch</a>
+      </div>
+    </div>
   </section>
+
 
 </main>
 
@@ -186,7 +200,7 @@
       <span class="brand-mark">M</span>
       <span class="brand-text">MIRACULOUS<span>HUB</span></span>
     </div>
-    <p style="color:var(--muted);font-size:9px;line-height:1.6;max-width:340px">A fan-made watch hub with a liquid-glass interface.</p>
+    <p style="color:var(--muted);font-size:9px;line-height:1.6;max-width:340px">Your home for episodes, upcoming releases, and watch parties. An independent fan project.</p>
   </div>
 
   <div class="footer-links">
@@ -237,7 +251,7 @@
 <script>
 (async()=>{await window.MH_CATALOG_READY;
 
-const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
+const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,3);
 document.querySelector("#latestGrid").innerHTML=latest.map(e=>`
   <a class="card" href="watch.html?season=${e.season}&episode=${e.episode}">
     <div class="art ${e.thumbnail?'has-thumb':''}">

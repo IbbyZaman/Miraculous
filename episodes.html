@@ -18,9 +18,11 @@
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
      crossorigin="anonymous"></script>
+<link rel="stylesheet" href="cinema-edition.css?v=2026-10-cinema-1">
 </head>
 <body>
 
+<div class="mh-notice-bar"><span class="mh-notice-star" aria-hidden="true">✦</span><span>New adventures, episodes and countdowns on Miraculous Hub</span><a href="season7.html">Season 7 updates</a></div>
 <header class="topbar">
   <a class="brand" href="index.html" aria-label="MiraculousHub home">
     <span class="brand-mark">M</span>
@@ -69,13 +71,20 @@
 
 
 <main class="container">
-  <div class="page-head">
+  <section class="mh-featured-section" aria-labelledby="mhFeaturedHeading">
+    <div class="section-head"><div><p class="kicker">HANDPICKED FROM THE LIBRARY</p><h2 id="mhFeaturedHeading">Featured Episodes</h2></div></div>
+    <div class="mh-featured-grid" id="mhFeaturedGrid"></div>
+  </section>
+  <section class="mh-library-continue" id="mhLibraryContinue" hidden aria-labelledby="mhLibraryContinueTitle">
+    <div class="section-head"><div><h2 id="mhLibraryContinueTitle">Continue Watching</h2></div></div>
+    <div class="mh-featured-grid" id="mhLibraryProgressGrid"></div>
+  </section>
+  <div class="page-head mh-library-heading">
     <div class="page-head-copy">
-      <p class="kicker">YOUR MIRACULOUS LIBRARY</p>
-      <h1>Every story.<br>One glass shelf.</h1>
-      <p>Glide through seasons, find an episode instantly and jump straight into your watch page.</p>
+      <p class="kicker">ALL SEASONS & SPECIALS</p>
+      <h1>Full Episodes</h1>
+      <p>Choose a season or find an episode by its title.</p>
     </div>
-    <div class="page-head-orb" aria-hidden="true"></div>
   </div>
 
   <section class="library-shell">
@@ -155,6 +164,38 @@
 <script src="motion.js?v=nav-alignment-v4-1"></script>
 <script>
 (async()=>{await window.MH_CATALOG_READY;
+// Populate the featured and continue-watching rails using our own episode metadata.
+const featuredGrid=document.querySelector("#mhFeaturedGrid");
+const previewEpisodes=(window.MH_EPISODES||[])
+ .filter(e=>e&&e.available!==false&&e.thumbnail&&Number.isFinite(Number(e.season))&&Number.isFinite(Number(e.episode)))
+ .sort((a,b)=>Number(b.season)-Number(a.season)||Number(b.episode)-Number(a.episode))
+ .slice(0,4);
+function mhPreviewCard(entry,href,eyebrow){
+ const card=document.createElement("a");card.className="mh-featured-card";card.href=href;
+ const frame=document.createElement("div");frame.className="mh-featured-art";
+ if(entry.thumbnail){const image=document.createElement("img");image.loading="lazy";image.decoding="async";image.alt="";image.src=entry.thumbnail;frame.append(image)}
+ const copy=document.createElement("div");copy.className="mh-featured-copy";
+ const detail=document.createElement("small");detail.textContent=eyebrow||("SEASON "+entry.season+" · EPISODE "+entry.episode);
+ const title=document.createElement("h3");title.textContent=entry.title||"Episode";
+ copy.append(detail,title);card.append(frame,copy);
+ return card;
+}
+for(const ep of previewEpisodes)featuredGrid.append(mhPreviewCard(ep,"watch.html?season="+ep.season+"&episode="+ep.episode));
+if(!previewEpisodes.length)document.querySelector(".mh-featured-section").hidden=true;
+function mhRenderLibraryContinue(){
+ const section=document.getElementById("mhLibraryContinue"),grid=document.getElementById("mhLibraryProgressGrid");
+ const items=(window.mhGetProgress?.()||[]).filter(item=>Number(item.position||0)>0 && Number(item.progress||0)<99.5).slice(0,4);
+ grid.replaceChildren();
+ for(const item of items){
+  const ep=(window.MH_EPISODES||[]).find(x=>Number(x.season)===Number(item.season)&&Number(x.episode)===Number(item.episode));
+  if(!ep)continue;
+  grid.append(mhPreviewCard(ep,"watch.html?season="+ep.season+"&episode="+ep.episode,Math.round(Number(item.progress)||0)+"% watched"));
+ }
+ section.hidden=!grid.children.length;
+}
+mhRenderLibraryContinue();
+window.addEventListener("mh-progress-synced",mhRenderLibraryContinue);
+window.addEventListener("mh-cloud-save-ok",mhRenderLibraryContinue);
 
 const requestedSeason=new URLSearchParams(location.search).get("season");
 let season=["0","1","2","3","4","5","6","7","specials"].includes(requestedSeason)?requestedSeason:"0", mode="all", q="";
