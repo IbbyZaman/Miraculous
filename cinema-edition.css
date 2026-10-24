@@ -1,0 +1,402 @@
+/*
+ * Miraculous Hub — Cinema Edition (original design)
+ * Inspired by the usability of modern streaming libraries, not copied assets/CSS.
+ * Presentation only: auth, R2 URLs, playback, countdowns and upload logic unchanged.
+ */
+:root {
+  --bg:#080b13;
+  --bg2:#0a0e18;
+  --panel:#111827;
+  --panel-strong:#111827;
+  --panel-soft:#192233;
+  --glass:#172234;
+  --glass2:#202b3f;
+  --line:rgba(191,205,232,.13);
+  --line-strong:rgba(191,205,232,.26);
+  --text:#f4f7ff;
+  --muted:#a9b4c9;
+  --muted2:#7e8ca4;
+  --pink:#ff467d;
+  --rose:#ff729d;
+  --violet:#8f79ff;
+  --blue:#72c5ff;
+  --mint:#6fd9b3;
+  --shadow:0 24px 60px rgba(0,0,0,.25);
+  --shadow-soft:0 12px 30px rgba(0,0,0,.18);
+  --radius:18px;
+}
+:root.light{
+  --bg:#f3f5fa;--bg2:#f7f9fc;--panel:#fff;--panel-strong:#fff;
+  --panel-soft:#f0f3f9;--glass:#fff;--glass2:#edf1f8;
+  --line:rgba(35,51,83,.14);--line-strong:rgba(35,51,83,.25);
+  --text:#142039;--muted:#53617a;--muted2:#758199;
+  --shadow:0 18px 50px rgba(30,48,82,.09);--shadow-soft:0 10px 25px rgba(30,48,82,.07);
+}
+html{scroll-padding-top:90px}
+body{
+  background:linear-gradient(180deg,var(--bg2),var(--bg) 390px,var(--bg));
+  color:var(--text);
+}
+body::before,body::after{display:none}
+.container{width:min(1320px,calc(100% - 48px))}
+h1,h2,h3{letter-spacing:-.035em}
+a,button{-webkit-tap-highlight-color:transparent}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{
+  outline:2px solid var(--blue);outline-offset:3px
+}
+[hidden]{display:none!important}
+
+/* Flat, cinematic navigation instead of the old floating liquid-glass bar */
+.topbar{
+  width:100%;
+  max-width:none;
+  margin:0;
+  top:0;
+  min-height:70px;
+  padding:10px max(24px,calc((100vw - 1360px)/2));
+  border:0;
+  border-bottom:1px solid var(--line);
+  border-radius:0;
+  background:rgba(9,13,23,.97);
+  box-shadow:0 4px 28px rgba(0,0,0,.15);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+  gap:24px;
+}
+:root.light .topbar{background:rgba(255,255,255,.96)}
+.topbar::before,.topbar::after{display:none}
+.brand{gap:11px;text-decoration:none}
+.brand-mark{
+  width:38px;height:38px;border-radius:12px;
+  background:linear-gradient(145deg,#ff5d91,#e83068);
+  box-shadow:0 7px 20px rgba(255,70,125,.16);
+  letter-spacing:-.06em;
+}
+.brand-text{font-size:15px;font-weight:900;letter-spacing:.045em}
+.nav{display:flex;align-items:center;gap:5px;justify-content:center}
+.nav a{
+  padding:11px 14px;
+  border-radius:10px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:750;
+  letter-spacing:.005em;
+  transition:background .2s,color .2s;
+}
+.nav a::before,.nav a::after{display:none}
+.nav a:hover,.nav a.active{
+  color:var(--text);
+  background:rgba(167,182,212,.095);
+  box-shadow:none;
+}
+.nav a.active{color:var(--rose)}
+.actions{gap:8px}
+.actions .icon-btn,.actions .theme-btn,.actions .lang-btn,
+.actions .signin,.actions .primary{
+  border-radius:11px;
+  box-shadow:none;
+  min-height:39px;
+}
+.actions .signin,.actions .primary{
+  border:0;color:#fff;
+  background:linear-gradient(125deg,#f5477d,#d93271);
+}
+.actions .signin:hover,.actions .primary:hover{filter:brightness(1.08)}
+.menu-toggle{border-radius:11px;background:var(--panel-soft);border:1px solid var(--line)}
+.mobile-drawer{
+  background:#0e1523;
+  border-color:var(--line);
+  box-shadow:-18px 0 70px rgba(0,0,0,.45);
+}
+:root.light .mobile-drawer{background:#fff}
+.mobile-nav-links a{border-radius:12px}
+.mobile-nav-links a.active{color:var(--rose)}
+
+/* Hero: editorial episode artwork + distinct release rail */
+.home-intro{
+  width:min(1360px,calc(100% - 48px));
+  margin:25px auto 0;
+  grid-template-columns:minmax(0,1.78fr) minmax(285px,.73fr);
+  gap:18px;
+  align-items:stretch;
+}
+.home-banner{
+  min-height:480px;
+  border-radius:22px;
+  border:1px solid var(--line);
+  box-shadow:0 20px 52px rgba(0,0,0,.18);
+}
+.home-banner .main-poster{object-position:center 36%}
+.home-banner::after{
+  background:linear-gradient(90deg,rgba(3,6,12,.94) 0%,rgba(3,6,12,.72) 38%,rgba(3,6,12,.22) 85%),
+             linear-gradient(0deg,rgba(3,6,12,.8),transparent 70%);
+}
+.home-banner-copy{
+  min-height:480px;
+  max-width:770px;
+  padding:62px clamp(24px,4vw,64px) 46px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  align-items:flex-start;
+}
+.home-banner-copy .kicker{
+  color:#ff9cb8;
+  font-size:11px;letter-spacing:.16em;
+  font-weight:900;
+}
+.home-banner h1{font-size:clamp(36px,4.8vw,65px);line-height:1.02;max-width:650px;margin-bottom:13px}
+.home-banner h1 span{color:#ff8eae}
+.home-banner h2{font-size:17px;font-weight:750;margin:0 0 10px}
+.home-banner-synopsis{max-width:560px;color:#e2e9f3;line-height:1.65;font-size:13px}
+.home-banner .hero-actions{display:flex;flex-wrap:wrap;gap:11px;margin-top:23px}
+.home-banner .hero-actions a{border-radius:11px;min-height:44px;padding:11px 18px;font-weight:800}
+.home-banner .hero-actions .primary{background:#ff467d;color:#fff;border-color:#ff467d}
+.home-banner .hero-actions .secondary{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:white}
+.home-banner .hero-actions .primary:hover{background:#fc6591}
+.home-timer-panel{
+  max-height:480px;
+  border-radius:22px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  padding:24px 18px;
+  box-shadow:var(--shadow-soft);
+}
+.home-timer-heading{padding:0 5px}
+.home-timer-heading .kicker{color:var(--rose);font-size:10px;letter-spacing:.16em}
+.home-timer-heading h2{font-size:23px;margin:6px 0 18px;letter-spacing:-.045em}
+.home-timer-panel .s7-release-card,
+.s7-release-card{
+  border-radius:13px;
+  background:var(--panel-soft);
+  border:1px solid var(--line);
+  box-shadow:none;
+}
+.home-timer-panel .s7-release-card{padding:14px 15px;margin-bottom:0}
+.home-timer-panel .s7-release-card h3{font-size:15px;margin:7px 0}
+.home-timer-panel .s7-release-card .s7-countdown{
+  color:var(--text);font-size:18px;letter-spacing:.015em;font-variant-numeric:tabular-nums;
+}
+.home-timer-note{color:var(--muted);font-size:13px;line-height:1.65}
+
+/* Modern streaming rails and thumbnail cards */
+.live-section{padding-top:42px}
+section{scroll-margin-top:90px}
+.section,.anime-section{scroll-margin-top:90px}
+.section-head,.section-heading{margin-bottom:20px}
+.section-head h2,.section-heading h2{font-size:clamp(22px,2.8vw,29px);font-weight:850}
+.section-head h2::after,.section-heading h2::after{display:none}
+.kicker{color:var(--rose);font-size:10px;font-weight:850;letter-spacing:.16em}
+.show-all{
+  border-radius:9px;border:1px solid var(--line);
+  background:var(--panel-soft);
+  color:var(--text);
+  font-size:11px;font-weight:750;
+  min-height:35px;
+}
+.show-all:hover{background:var(--glass2);border-color:var(--line-strong)}
+.grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}
+.card,.episode-library-card{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--panel);
+  overflow:hidden;
+  box-shadow:none;
+  transform:none;
+}
+.card:hover,.episode-grid-shell .episode-library-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(255,114,157,.42);
+  box-shadow:0 12px 36px rgba(0,0,0,.19);
+}
+.card .art,.episode-library-card .art{
+  min-height:0;
+  height:auto;
+  aspect-ratio:16/9;
+  padding:12px;
+  border-radius:0;
+  background:#172033;
+}
+.card .art::before,.card .art::after{display:none}
+.episode-thumb,.continue-thumb-img{object-fit:cover}
+.art .epno,.thumb-label{
+  border-radius:6px;
+  padding:6px 9px;
+  background:rgba(6,10,19,.84);
+  color:#fff;
+  font-size:10px;
+  letter-spacing:.03em;
+}
+.new{border-radius:6px;background:#ff467d;color:#fff;font-size:10px}
+.card-info{padding:14px 14px 16px;background:transparent}
+.card-info h3{font-size:15px;font-weight:850;line-height:1.4;margin:0 0 7px}
+.card-info p{color:var(--muted);font-size:11px}
+.continue-card,.trailer-card,.trailer-line-card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:15px;
+  box-shadow:none;
+}
+.continue-card:hover,.trailer-card:hover{border-color:rgba(255,114,157,.45)}
+.continue-card .thumb{background:#161f2e}
+.continue-info strong{font-size:13px}
+.continue-info p{color:var(--muted);font-size:11px}
+.watch-progress,.progress-current{background:var(--pink)}
+.twitch-card,.live-player-card{
+  border-radius:17px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  overflow:hidden;
+  box-shadow:none;
+}
+.twitch-frame{border-radius:0}
+.anime-title-card,.anime-card-aot,.anime-card-bc{
+  border-radius:17px;
+  border:1px solid var(--line);
+  box-shadow:none;
+}
+.anime-title-card:hover{transform:translateY(-3px);border-color:rgba(255,114,157,.4)}
+/* Catalog / browse page */
+.page-head{padding:47px 0 20px;gap:24px}
+.page-head h1{font-size:clamp(39px,5vw,64px);letter-spacing:-.052em}
+.page-head p{font-size:13px;line-height:1.7}
+.page-head-orb{background:var(--panel-soft);box-shadow:none;border-radius:20px}
+.library-shell,.episodes-toolbar,.season-window,.episode-grid-shell{
+  border-color:var(--line);
+  box-shadow:none;
+}
+.library-shell{border-radius:19px;background:var(--panel)}
+.episodes-toolbar{background:var(--panel)}
+.searchbar,input[type="search"],.search-wrap input{
+  background:var(--panel-soft);
+  border:1px solid var(--line);
+  border-radius:11px;
+  min-height:45px;
+  box-shadow:none;
+}
+.searchbar:focus,input[type="search"]:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(255,70,125,.12)}
+.filter,.season-tab{
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:var(--panel-soft);
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+}
+.season-tab.active,.filter.active,.season-tab[aria-selected="true"]{
+  background:var(--pink);
+  border-color:var(--pink);
+  color:#fff;
+  box-shadow:none;
+}
+.season-glider{background:transparent;box-shadow:none}
+.episode-grid-shell .episode-library-card .art{aspect-ratio:16/9}
+.episode-grid-shell .episode-library-card{background:var(--panel);border-radius:15px}
+
+/* Player / trailer: cinematic frame without changing controls or events */
+.watch-shell{width:min(1320px,calc(100% - 48px));padding-top:29px}
+.watch-shell::before{display:none}
+.player,.trailer-screen{
+  border-radius:17px;
+  border:1px solid var(--line);
+  box-shadow:0 22px 55px rgba(0,0,0,.24);
+  background:#000;
+}
+.player-stage{background:#000}
+.player-overlay{background:linear-gradient(180deg,rgba(0,0,0,.65),transparent 28%,transparent 50%,rgba(0,0,0,.8))}
+.player-top{color:#fff}
+.watch-meta,.episode-comments,.trailer-comments{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:none;
+}
+.watch-meta h1,.trailer-heading h1{font-size:clamp(28px,4vw,42px);letter-spacing:-.045em}
+.watch-meta .sub{color:var(--muted)}
+.watch-action,.watch-actions a,.prevnext a,.party-small{
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:var(--panel-soft);
+  box-shadow:none;
+}
+.watch-action:hover,.prevnext a:hover{border-color:rgba(255,114,157,.5)}
+.trailer-page{padding-top:30px}
+.trailer-watch{border-radius:18px}
+.trailer-back{color:var(--rose)}
+
+/* Secondary pages, account popovers, footer */
+.anime-hero,.dn-hero{border-radius:20px}
+.anime-page,.dn-page{padding-top:40px}
+.anime-library,.dn-grid{gap:16px}
+.dn-episode,.apps-card{border-radius:16px;box-shadow:none;border:1px solid var(--line)}
+.apps-page{background:transparent;color:var(--text)}
+.apps-download,.primary{border-radius:10px}
+.modal-box,.lang-pop,.settings-menu{
+  border-radius:16px;background:var(--panel-strong);border:1px solid var(--line);
+  box-shadow:0 22px 60px rgba(0,0,0,.32);
+}
+.footer{
+  width:100%;
+  max-width:none;
+  margin:64px auto 0;
+  padding:40px max(24px,calc((100vw - 1300px)/2));
+  border-radius:0;
+  border:0;
+  border-top:1px solid var(--line);
+  background:var(--panel);
+  box-shadow:none;
+}
+.footer .brand-mark{width:34px;height:34px}
+.footer-links b{color:var(--text);font-size:11px;letter-spacing:.09em}
+.footer-links a{color:var(--muted);font-size:12px}
+.copyright{color:var(--muted2);font-size:10px}
+
+/* Tablet and smaller screens */
+@media(max-width:1100px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .home-intro{grid-template-columns:minmax(0,1fr) minmax(260px,.65fr)}
+  .home-banner{min-height:445px}
+  .home-banner-copy{min-height:445px;padding:40px 28px}
+  .home-timer-panel{max-height:445px}
+  .nav a{padding:9px 10px}
+}
+@media(max-width:800px){
+  .container{width:min(100% - 30px,1320px)}
+  .topbar{padding:10px 15px;min-height:64px}
+  .home-intro{width:calc(100% - 30px);grid-template-columns:1fr;gap:14px}
+  .home-banner{min-height:440px}
+  .home-banner-copy{min-height:440px;padding:38px 24px}
+  .home-banner::after{background:linear-gradient(0deg,rgba(2,5,13,.95),rgba(2,5,13,.38) 80%,rgba(2,5,13,.1))}
+  .home-timer-panel{max-height:360px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .page-head{padding-top:37px}
+  .watch-shell{width:calc(100% - 24px)}
+  .footer{padding:32px 18px}
+}
+@media(max-width:520px){
+  .brand-text{font-size:13px}
+  .brand-mark{width:34px;height:34px;border-radius:10px}
+  .home-banner{min-height:420px;border-radius:16px}
+  .home-banner-copy{min-height:420px;padding:26px 20px}
+  .home-banner h1{font-size:36px}
+  .home-banner-synopsis{font-size:12px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  .home-banner .hero-actions a{font-size:12px;padding:11px 13px}
+  .home-timer-panel{border-radius:16px;padding:19px 15px}
+  .section-head h2,.section-heading h2{font-size:22px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .card,.episode-library-card{border-radius:11px}
+  .card-info{padding:10px}
+  .card-info h3{font-size:12px}
+  .card-info p{font-size:10px}
+  .card .art,.episode-library-card .art{padding:8px}
+  .art .epno{font-size:8px;padding:5px 6px}
+  .watch-meta{padding:18px}
+  .player,.trailer-screen{border-radius:12px}
+  .page-head h1{font-size:38px}
+  .footer{grid-template-columns:1fr;gap:22px}
+  .footer-links{justify-content:flex-start;gap:32px}
+}
+@media(prefers-reduced-motion:reduce){
+  .card,.episode-library-card,.anime-title-card{transition:none}
+  .card:hover,.episode-grid-shell .episode-library-card:hover,.anime-title-card:hover{transform:none}
+}
