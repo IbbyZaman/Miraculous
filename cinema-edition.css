@@ -415,3 +415,347 @@ section{scroll-margin-top:90px}
   .card,.episode-library-card,.anime-title-card{transition:none}
   .card:hover,.episode-grid-shell .episode-library-card:hover,.anime-title-card:hover{transform:none}
 }
+
+
+/* ======================================================================
+ * Reference-style homepage & catalogue composition (original CSS)
+ * The visual hierarchy follows the contemporary episode-browser pattern.
+ * No copied third-party CSS, images, embeds or advertising scripts.
+ * ====================================================================== */
+:root{
+  --bg:#0d1019;
+  --bg2:#101420;
+  --panel:#171d2b;
+  --panel-strong:#171d2b;
+  --panel-soft:#20283a;
+  --line:rgba(199,211,234,.13);
+  --line-strong:rgba(199,211,234,.24);
+}
+:root.light{
+  --bg:#f5f6fa;--bg2:#eef1f7;--panel:#fff;--panel-strong:#fff;
+  --panel-soft:#f2f4f9;--line:rgba(45,60,91,.13);--line-strong:rgba(45,60,91,.24);
+}
+.mh-notice-bar{
+  min-height:33px;
+  padding:7px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  background:#ee4179;
+  color:#fff;
+  font-size:11px;
+  font-weight:750;
+  letter-spacing:.01em;
+  text-align:center;
+}
+.mh-notice-bar a{color:#fff;border-bottom:1px solid rgba(255,255,255,.8);text-underline-offset:3px}
+.mh-notice-star{font-size:13px;line-height:1}
+.mh-notice-bar a:hover{border-bottom-color:transparent}
+.topbar{
+  padding-top:8px;padding-bottom:8px;
+  min-height:62px;
+  background:rgba(13,16,25,.97);
+}
+:root.light .topbar{background:rgba(255,255,255,.96)}
+.brand-mark{width:35px;height:35px;border-radius:10px}
+.brand-text{font-size:16px;font-weight:900;letter-spacing:-.025em}
+.nav a{font-size:12px;border-radius:9px;padding:10px 15px}
+.actions .signin{background:#ec3e77;color:#fff;font-weight:850;min-height:35px}
+.actions .lang-btn{font-size:11px}
+.actions .icon-btn{border:1px solid var(--line);background:var(--panel-soft)}
+.container{width:min(1200px,calc(100% - 36px))}
+main.container>.section,main.container>.live-section{margin-top:36px}
+.section-head,.section-heading{align-items:center;margin-bottom:16px}
+.section-head h2,.section-heading h2{font-size:23px;letter-spacing:-.035em}
+.section-head .kicker,.section-heading .kicker{display:none}
+.section-head .show-all,.section-heading .show-all{background:none;border:0;padding:8px 0;color:var(--rose)}
+.section-head .show-all:hover{text-decoration:underline;background:none}
+.card,.episode-library-card{
+  background:var(--panel);
+  border-radius:10px;
+  border:1px solid var(--line);
+  overflow:hidden;
+  box-shadow:0 5px 17px rgba(0,0,0,.11);
+}
+.card:hover,.episode-grid-shell .episode-library-card:hover{
+  transform:translateY(-2px);
+  border-color:var(--line-strong);
+  box-shadow:0 11px 28px rgba(0,0,0,.19);
+}
+.card .art,.episode-library-card .art{aspect-ratio:16/9;border-radius:0;padding:0}
+.card .art .episode-thumb,.episode-library-card .art .episode-thumb{object-fit:cover}
+.card .art .epno{left:10px;bottom:10px}
+.card-info{padding:10px 13px 14px}
+.card-info h3{font-size:14px;margin:3px 0 0;font-weight:800}
+.card-info p{font-size:11px;color:var(--muted);margin:5px 0 0}
+#latestGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#latestGrid .card .art{aspect-ratio:16/9}
+#latestGrid .card-info{min-height:73px}
+#latestGrid .card-info h3{font-size:16px}
+#latestGrid .card-info p{letter-spacing:.03em}
+#continueSection{margin-top:30px}
+.continue-row{gap:14px}
+.continue-card{
+  border-radius:10px;background:var(--panel);
+  box-shadow:none;border:1px solid var(--line);
+}
+.continue-card .thumb{border-radius:0}
+.continue-info{padding:11px}
+.continue-info strong{font-size:13px}
+.continue-info p{font-size:11px}
+
+/* Reference-style Upcoming Episodes: a restrained featured card + release list */
+.mh-upcoming-section{margin-top:28px!important}
+.mh-upcoming-section .home-intro{
+  width:100%;
+  margin:0;
+  grid-template-columns:minmax(0,1.16fr) minmax(300px,.86fr);
+  gap:16px;
+  align-items:stretch;
+}
+.mh-upcoming-section .home-banner{
+  border-radius:12px;
+  min-height:340px;
+  box-shadow:none;
+}
+.mh-upcoming-section .home-banner::after{
+  background:linear-gradient(90deg,rgba(3,5,10,.87),rgba(3,5,10,.45) 65%,rgba(3,5,10,.05)),
+             linear-gradient(0deg,rgba(3,5,10,.65),transparent);
+}
+.mh-upcoming-section .home-banner .main-poster{object-position:50% 37%}
+.mh-upcoming-section .home-banner-copy{
+  min-height:340px;
+  max-width:510px;
+  padding:33px 31px;
+}
+.mh-upcoming-section .home-banner h1{
+  font-size:clamp(35px,4.3vw,53px);
+  margin:0 0 6px;
+  letter-spacing:-.055em;
+}
+.mh-upcoming-section .home-banner h2{font-size:16px;margin:0 0 9px}
+.mh-upcoming-section .home-banner-synopsis{
+  font-size:12px;line-height:1.55;
+  max-height:82px;overflow:hidden;
+}
+.mh-upcoming-section .home-banner .hero-actions{margin-top:14px}
+.mh-upcoming-section .home-banner .hero-actions a{
+  font-size:12px;min-height:36px;
+  padding:9px 14px;border-radius:8px;
+}
+.mh-upcoming-section .home-timer-panel{
+  max-height:340px;min-height:340px;
+  border-radius:12px;
+  padding:17px 15px;
+  background:var(--panel);
+  box-shadow:none;
+}
+.mh-upcoming-section .home-timer-heading .kicker{display:none}
+.mh-upcoming-section .home-timer-heading h2{font-size:17px;margin:0 0 13px}
+.mh-upcoming-section .home-timer-panel .s7-release-grid{gap:8px}
+.mh-upcoming-section .home-timer-panel .s7-release-card{
+  border-radius:8px;padding:10px 13px;
+  background:var(--panel-soft);
+}
+.mh-upcoming-section .home-timer-panel .s7-release-card h3{font-size:13px;margin:3px 0 5px}
+.mh-upcoming-section .home-timer-panel .s7-release-card .s7-countdown{
+  font-size:14px;margin-top:6px;padding-top:6px;
+}
+.mh-upcoming-section .release-rail-heading{
+  padding-top:11px;margin:11px 5px 9px;font-size:12px;
+}
+#latest{margin-top:30px}
+#monthly-anime-shelf .release-stack{gap:12px}
+#monthly-anime-shelf .release-card{border-radius:10px}
+#trailers .trailer-card{border-radius:10px}
+#trailerGrid .trailer-card .art{padding:0}
+#trailerGrid .trailer-card .card-info{padding:10px}
+#live{margin-top:35px}
+.live-player-card{border-radius:10px}
+
+/* Episodes library, with cards and season-strip matching the reference flow */
+.mh-featured-section{margin-top:31px}
+.mh-featured-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+}
+.mh-featured-card{
+  border:1px solid var(--line);
+  border-radius:10px;
+  overflow:hidden;
+  background:var(--panel);
+  min-width:0;
+  box-shadow:0 5px 16px rgba(0,0,0,.1);
+  transition:transform .2s ease,border-color .2s ease;
+}
+.mh-featured-card:hover{
+  transform:translateY(-3px);
+  border-color:var(--line-strong);
+}
+.mh-featured-art{
+  aspect-ratio:16/9;
+  background:var(--panel-soft);
+  overflow:hidden;
+}
+.mh-featured-art img{width:100%;height:100%;display:block;object-fit:cover}
+.mh-featured-copy{padding:11px 12px 14px}
+.mh-featured-copy small{font-size:10px;font-weight:850;letter-spacing:.02em;color:var(--rose)}
+.mh-featured-copy h3{
+  margin:5px 0 0;
+  font-size:14px;
+  line-height:1.35;
+  font-weight:850;
+  overflow-wrap:anywhere;
+}
+.mh-library-continue{margin-top:34px}
+.mh-library-heading{display:block;margin-top:37px;padding:0 0 15px}
+.mh-library-heading .page-head-copy{max-width:none}
+.mh-library-heading .page-head-copy .kicker{display:none}
+.mh-library-heading h1{
+  font-size:26px;
+  font-weight:850;
+  letter-spacing:-.035em;
+  line-height:1.15;
+}
+.mh-library-heading p{margin:7px 0 0;font-size:12px}
+.library-shell{
+  border:0;border-radius:0;
+  padding:0;background:none;box-shadow:none;
+}
+.episodes-toolbar{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:15px 15px 0;
+}
+.toolbar-top{align-items:center;gap:10px}
+.search-wrap{min-width:0}
+.searchbar{border-radius:8px;height:42px;min-height:42px;font-size:12px}
+.filters{gap:7px}
+.filters .filter{min-height:38px;border-radius:8px;font-size:10px;font-weight:850}
+.season-window{border:0;background:none;box-shadow:none;margin-top:15px}
+.season-tabs{display:flex;gap:6px}
+.season-tab{
+  font-size:11px;
+  padding:11px 15px;
+  font-weight:800;
+  border-radius:8px 8px 0 0;
+  border-bottom:0;
+}
+.season-tab.active{
+  color:#fff;background:var(--pink);
+}
+.season-glider{display:none!important}
+.episode-grid-shell{border:0;background:none;box-shadow:none;padding:20px 0}
+.episode-grid-shell .grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+}
+.episode-grid-shell .episode-library-card .art{aspect-ratio:16/9}
+.episode-library-card .card-info{padding:10px 12px 14px}
+.episode-library-card .card-info .epno{
+  position:static;
+  display:block;
+  background:none;
+  border:0;
+  padding:0;
+  color:var(--rose);
+  font-size:9px;
+  line-height:1.45;
+  letter-spacing:.06em;
+  font-weight:900;
+}
+.episode-library-card .card-info h3{margin:5px 0;font-size:14px}
+.episode-library-card .card-info p{font-size:10px}
+.page-head-orb{display:none}
+
+/* Watch page: light framing, full-width player, clear episode information */
+.watch-shell{width:min(1200px,calc(100% - 36px));padding-top:24px}
+.player{border-radius:10px}
+.player-stage{aspect-ratio:16/9}
+.watch-meta{
+  margin:17px 0 0;
+  padding:17px 0 23px;
+  width:100%;
+  max-width:none;
+  border:0;
+  border-bottom:1px solid var(--line);
+  border-radius:0;
+  background:none;
+  box-shadow:none;
+}
+.watch-meta .kicker{font-size:12px;letter-spacing:.015em;font-weight:650;color:var(--muted)}
+.watch-meta h1{font-size:clamp(26px,3vw,39px);margin:4px 0 7px}
+.watch-meta .sub{font-size:12px;margin:0 0 14px}
+.watch-actions{gap:9px;flex-wrap:wrap}
+.watch-action{
+  border-radius:8px;
+  background:var(--panel);
+  padding:10px 14px;
+  font-size:12px;
+  min-height:40px;
+}
+.watch-action:hover{border-color:var(--rose)}
+.watch-meta .description{margin-top:23px;font-size:13px;line-height:1.65}
+.watch-meta .prevnext{margin-top:19px}
+.watch-meta .prevnext a{border-radius:8px}
+.episode-comments{
+  border-radius:11px;
+  background:var(--panel);
+}
+.footer{
+  margin-top:52px;
+  padding-top:34px;padding-bottom:34px;
+}
+
+/* Responsive: show two episode cards on phones without clipping titles */
+@media(max-width:950px){
+  .mh-upcoming-section .home-intro{grid-template-columns:1fr}
+  .mh-upcoming-section .home-banner{min-height:300px}
+  .mh-upcoming-section .home-banner-copy{min-height:300px}
+  .mh-upcoming-section .home-timer-panel{max-height:290px;min-height:0}
+  .mh-featured-grid,.episode-grid-shell .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .mh-notice-bar{font-size:10px;padding:8px 12px;gap:7px;flex-wrap:wrap}
+  .topbar{min-height:60px}
+  .container{width:calc(100% - 28px)}
+  main.container>.section,main.container>.live-section{margin-top:27px}
+  .section-head h2,.section-heading h2{font-size:20px}
+  #latestGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mh-featured-grid,.episode-grid-shell .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mh-upcoming-section .home-banner{min-height:280px}
+  .mh-upcoming-section .home-banner-copy{min-height:280px;padding:26px 21px}
+  .mh-upcoming-section .home-banner h1{font-size:38px}
+  .mh-upcoming-section .home-banner-synopsis{font-size:11px}
+  .mh-upcoming-section .home-timer-panel{max-height:310px}
+  .mh-library-heading{margin-top:27px}
+  .toolbar-top{flex-direction:column;align-items:stretch}
+  .filters{justify-content:space-between}
+  .filters .filter{flex:1}
+  .episodes-toolbar{padding:12px 12px 0}
+  .season-tab{padding:10px 12px}
+  .episode-grid-shell{padding-top:15px}
+  .watch-shell{width:calc(100% - 18px);padding-top:15px}
+  .watch-meta{padding:16px 4px 20px}
+}
+@media(max-width:420px){
+  .mh-featured-grid,.episode-grid-shell .grid,#latestGrid{gap:10px}
+  .mh-featured-copy{padding:9px 10px 12px}
+  .mh-featured-copy h3{font-size:12px}
+  .mh-featured-copy small{font-size:9px}
+  .episode-library-card .card-info h3{font-size:12px}
+  .episode-library-card .card-info .epno{font-size:8px}
+  .mh-upcoming-section .home-banner{min-height:300px}
+  .mh-upcoming-section .home-banner-copy{min-height:300px}
+  .mh-upcoming-section .home-banner h1{font-size:34px}
+  .mh-upcoming-section .home-timer-panel{max-height:285px}
+  #latestGrid .card-info h3{font-size:13px}
+  .watch-action{font-size:11px;padding:9px 11px}
+}
+@media(prefers-reduced-motion:reduce){
+  .mh-featured-card{transition:none}
+  .mh-featured-card:hover{transform:none}
+}
