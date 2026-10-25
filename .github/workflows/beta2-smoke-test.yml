@@ -28,3 +28,14 @@ jobs:
           exit 1
       - name: Browser test each page and four viewport sizes
         run: node scripts/beta2-smoke-test.cjs
+      - name: Verify the real public Beta2 deployment (HTTPS, HTML, CSS)
+        run: |
+          set -e
+          curl --fail --show-error --location --max-time 25 --retry 2 --retry-delay 3 \
+            https://miraculoushub.co.uk/beta2/ -o /tmp/mh-beta2-live.html
+          grep -q '/beta2/style.css?v=standalone-20261025-1' /tmp/mh-beta2-live.html
+          curl --fail --show-error --location --max-time 25 --retry 2 --retry-delay 3 \
+            'https://miraculoushub.co.uk/beta2/style.css?v=standalone-20261025-1' -o /tmp/mh-beta2-live.css
+          grep -q 'MiraculousHub Beta 2' /tmp/mh-beta2-live.css
+          test $(wc -c < /tmp/mh-beta2-live.css) -gt 120000
+          echo 'Live Beta 2 HTML and independent stylesheet both available over verified HTTPS.'
