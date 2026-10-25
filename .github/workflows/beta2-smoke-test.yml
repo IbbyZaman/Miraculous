@@ -1,0 +1,30 @@
+name: Beta2 standalone stylesheet and iPad layout tests
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'beta2/**'
+      - 'scripts/beta2-smoke-test.cjs'
+      - '.github/workflows/beta2-smoke-test.yml'
+jobs:
+  beta2-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium for actual layout rendering
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Serve exact website repository locally
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/mh-beta2.log 2>&1 &
+          for i in $(seq 1 25); do curl -sf http://127.0.0.1:8765/beta2/style.css >/dev/null && exit 0; sleep 1; done
+          cat /tmp/mh-beta2.log
+          exit 1
+      - name: Browser test each page and four viewport sizes
+        run: node scripts/beta2-smoke-test.cjs
