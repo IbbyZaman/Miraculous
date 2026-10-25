@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
  private static final String HOST="https://video.miraculoushub.co.uk";
  private static final String CATALOG="https://upload.miraculoushub.co.uk/catalog";
  private static final String POSTER="https://miraculoushub.co.uk/main-season7-poster.png";
- private static final int BG=0xff090b12, PANEL=0xff171c28, PINK=0xffff376f, MUTED=0xffb3bdcf;
+ private static final int BG=0xff090d14, PANEL=0xff171d29, PINK=0xffef2d69, MUTED=0xffb3bdcf;
  private final Handler handler=new Handler(Looper.getMainLooper());
  private final ArrayList<JSONObject> bundled=new ArrayList<>(), episodes=new ArrayList<>(), trailers=new ArrayList<>();
  private LinearLayout menu, content;
@@ -150,48 +150,42 @@ public class MainActivity extends Activity {
    }).start();
  }
  private void render(){
-   LinearLayout shell=new LinearLayout(this);shell.setOrientation(LinearLayout.HORIZONTAL);shell.setBackgroundColor(BG);setContentView(shell);
-   menu=vertical();menu.setBackground(blend(0xff191c2a,0xff0a0d16,0));menu.setPadding(dp(17),dp(25),dp(12),dp(14));
-   shell.addView(menu,new LinearLayout.LayoutParams(dp(220),-1));
-   TextView mark=text("M",43,true,PINK);mark.setTypeface(Typeface.SERIF,Typeface.BOLD);
-   menu.addView(mark);TextView brand=text("MIRACULOUS",17,true);menu.addView(brand);
-   TextView small=text("HUB  •  TV",14,true,PINK);menu.addView(small);space(menu,32);
-   for(String[] entry:new String[][]{{"⌂","Home"},{"▦","Episodes"},{"✦","Anime"},{"▷","Trailers"},{"◷","Continue"},{"◉","Account"},{"↻","Refresh"}}){
-     TextView nav=text(entry[0]+"    "+entry[1],18,true);
-     nav.setGravity(Gravity.CENTER_VERTICAL);nav.setPadding(dp(15),0,dp(8),0);
-     nav.setFocusable(true);nav.setClickable(true);
-     boolean selected=entry[1].equals(page)||("Episodes".equals(entry[1])&&"Seasons".equals(page));
-     nav.setTextColor(selected?Color.WHITE:MUTED);
-     nav.setBackground(bg(selected?0xff743046:0x00000000,12));
-     LinearLayout.LayoutParams np=new LinearLayout.LayoutParams(-1,dp(53));np.bottomMargin=dp(7);menu.addView(nav,np);
-     nav.setOnFocusChangeListener((v,focused)->{
-       nav.setBackground(bg(focused?PINK:selected?0xff743046:0x00000000,12));
-       nav.setTextColor(focused||selected?Color.WHITE:MUTED);
-       nav.animate().scaleX(focused?1.04f:1).scaleY(focused?1.04f:1).setDuration(120).start();
+   LinearLayout shell=vertical();shell.setBackgroundColor(BG);setContentView(shell);
+   LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);
+   top.setPadding(dp(32),dp(9),dp(28),dp(9));top.setBackgroundColor(0xff0e121a);
+   shell.addView(top,new LinearLayout.LayoutParams(-1,dp(76)));
+   TextView brand=text("◉ MIRACULOUS",23,true,Color.WHITE);
+   top.addView(brand);TextView hub=text("HUB",23,true,PINK);top.addView(hub);
+   View gap=new View(this);top.addView(gap,new LinearLayout.LayoutParams(dp(35),dp(1)));
+   for(String[] entry:new String[][]{{"Home","Home"},{"Episodes","Episodes"},{"Upcoming","Upcoming"},{"Anime","Anime"},{"Trailers","Trailers"},{"Continue","Continue"}}){
+     final String target=entry[1];
+     TextView nav=text(entry[0],15,true,target.equals(page)?Color.WHITE:MUTED);
+     nav.setGravity(Gravity.CENTER);nav.setFocusable(true);nav.setClickable(true);
+     nav.setBackground(bg(target.equals(page)?0xff75233f:0x00000000,10));
+     LinearLayout.LayoutParams np=new LinearLayout.LayoutParams(-2,dp(45));np.rightMargin=dp(7);top.addView(nav,np);
+     nav.setPadding(dp(13),0,dp(13),0);
+     nav.setOnFocusChangeListener((v,f)->{
+       nav.setBackground(bg(f?PINK:target.equals(page)?0xff75233f:0x00000000,10));
+       nav.setTextColor(f||target.equals(page)?Color.WHITE:MUTED);
+       nav.animate().scaleX(f?1.06f:1).scaleY(f?1.06f:1).setDuration(120).start();
      });
-     nav.setOnClickListener(v->{
-       if(entry[1].equals("Refresh")){refresh();Toast.makeText(this,"Checking the website for updates…",Toast.LENGTH_SHORT).show();}
-       else if(entry[1].equals("Account"))startActivity(new Intent(this,AccountActivity.class));
-       else {page=entry[1];if(!"Anime".equals(page))selectedAnime="";render();}
-     });
+     nav.setOnClickListener(v->{page=target;if(!"Anime".equals(page))selectedAnime="";render();});
    }
-   space(menu,10);
-   networkStatus=text(catalogError.isEmpty()?"● WEBSITE LIBRARY LIVE":"● SYNC PARTIAL • CHECK WORKER",11,false,MUTED);menu.addView(networkStatus);
-   com.google.firebase.auth.FirebaseUser signedIn=TvFirebase.auth(this).getCurrentUser();
-   TextView accountLabel=text(signedIn==null?"GUEST • SIGN IN FROM ACCOUNT":"SIGNED IN • "+(signedIn.getEmail()==null?"ACCOUNT":signedIn.getEmail()),11,false,0xffc7ceda);
-   space(menu,7);menu.addView(accountLabel);
-   int buildVersion=0;try{buildVersion=getPackageManager().getPackageInfo(getPackageName(),0).versionCode;}catch(Exception ignored){}
-   TextView version=text("TV  •  BUILD "+buildVersion,11,false,0xff8592a7);space(menu,15);menu.addView(version);
-   TextView check=text("CHECK FOR APP UPDATE ↗",11,true,0xffff96b5);
-   check.setFocusable(true);check.setPadding(dp(5),dp(12),0,dp(12));menu.addView(check);
-   check.setOnClickListener(v->checkAppUpdates(true));
+   View flex=new View(this);top.addView(flex,new LinearLayout.LayoutParams(0,dp(1),1));
+   TextView account=text("●  "+(TvFirebase.auth(this).getCurrentUser()==null?"Sign in":"Account"),14,true);
+   account.setGravity(Gravity.CENTER);account.setFocusable(true);account.setClickable(true);
+   account.setPadding(dp(15),0,dp(15),0);account.setBackground(bg(PINK,9));
+   top.addView(account,new LinearLayout.LayoutParams(-2,dp(42)));
+   account.setOnFocusChangeListener((v,f)->focus(account,f,PINK,0xffa72d54));
+   account.setOnClickListener(v->startActivity(new Intent(this,AccountActivity.class)));
    mainScroll=new ScrollView(this);mainScroll.setFillViewport(true);mainScroll.setVerticalScrollBarEnabled(false);
-   shell.addView(mainScroll,new LinearLayout.LayoutParams(0,-1,1));
-   content=vertical();content.setPadding(dp(36),dp(24),dp(32),dp(50));mainScroll.addView(content);
+   shell.addView(mainScroll,new LinearLayout.LayoutParams(-1,0,1));
+   content=vertical();content.setPadding(dp(35),dp(24),dp(35),dp(48));mainScroll.addView(content);
+   networkStatus=null;
    if("Home".equals(page))home();else if("Episodes".equals(page))allEpisodes();
+   else if("Upcoming".equals(page))upcoming();
    else if("Anime".equals(page))anime();else if("Trailers".equals(page))trailers();
-   else if("Continue".equals(page))continueWatching();
-   else home();
+   else if("Continue".equals(page))continueWatching();else home();
    immersive();
  }
  private void title(String heading,String subtitle){
@@ -199,27 +193,34 @@ public class MainActivity extends Activity {
    if(subtitle!=null){TextView s=text(subtitle,15,false,MUTED);space(content,7);content.addView(s);}
  }
  private void home(){
-   FrameLayout hero=new FrameLayout(this);hero.setBackground(blend(0xff4f1c45,0xff0a0c15,22));hero.setClipToOutline(true);
-   LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(-1,dp(310));content.addView(hero,hp);
-   ImageView poster=new ImageView(this);poster.setScaleType(ImageView.ScaleType.CENTER_CROP);
-   hero.addView(poster,new FrameLayout.LayoutParams(-1,-1));artwork(poster,POSTER);
-   View shade=new View(this);
-   shade.setBackground(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[]{0xfb070a11,0xd3070a11,0x40070a11,0x00070a11}));
-   hero.addView(shade,new FrameLayout.LayoutParams(-1,-1));
-   LinearLayout info=vertical();info.setPadding(dp(32),dp(28),dp(15),dp(27));
-   FrameLayout.LayoutParams infoP=new FrameLayout.LayoutParams(dp(570),-1,Gravity.LEFT|Gravity.BOTTOM);hero.addView(info,infoP);
-   TextView kicker=text("✦  FEATURED SERIES  •  SEASON 7",13,true,0xffff94b9);info.addView(kicker);
-   space(info,20);TextView title=text("The Miraculous Universe",35,true);info.addView(title);
-   space(info,8);TextView sub=text("Welcome to MiraculousHub. Explore seasons, new episodes and previews.",16,false,0xffd9d8e2);
-   sub.setMaxLines(2);info.addView(sub);space(info,19);
-   TextView action=text("▶  Explore Seasons",15,true);action.setGravity(Gravity.CENTER);action.setFocusable(true);
-   action.setBackground(bg(PINK,12));LinearLayout.LayoutParams ap=new LinearLayout.LayoutParams(dp(216),dp(47));info.addView(action,ap);
-   action.setOnFocusChangeListener((v,f)->focus(action,f,PINK,0xffa72d54));
-   action.setOnClickListener(v->{page="Episodes";render();});
-   space(content,25);
-   rows("Recently added",new ArrayList<>(latest(16)));
-   animeStrip();rows("Trailers & Previews",new ArrayList<>(trailers));
-   for(int season=7;season>=4;season--)rows("Season "+season,bySeason(season));
+   rows("Upcoming Episodes",bySeason(7));
+   TextView resume=text("Continue Watching  ›",23,true);resume.setFocusable(true);
+   resume.setPadding(0,dp(10),0,dp(10));content.addView(resume);
+   resume.setOnFocusChangeListener((v,f)->resume.setTextColor(f?PINK:Color.WHITE));
+   resume.setOnClickListener(v->{page="Continue";render();});
+   String recent=getPreferences(0).getString("recentTitle","");
+   if(!recent.isEmpty()){
+     TextView last=text("▶  Resume "+recent,16,true);
+     last.setBackground(bg(PANEL,11));last.setPadding(dp(20),dp(18),dp(20),dp(18));
+     last.setFocusable(true);content.addView(last);
+     last.setOnFocusChangeListener((v,f)->focus(last,f,PINK,PANEL));
+     last.setOnClickListener(v->{
+       String url=getPreferences(0).getString("recentUrl","");
+       if(url.startsWith("https://"))launch(url,recent);
+     });
+   }else{
+     content.addView(text("Select Continue to see your synced watch history.",13,false,MUTED));
+   }
+   space(content,24);
+   rows("Latest Episodes",latest(18));
+   animeStrip();
+   rows("Trailers & Previews",new ArrayList<>(trailers));
+ }
+ private void upcoming(){
+   title("Upcoming Episodes","Season 7 episodes and the newest available releases.");
+   space(content,18);
+   rows("Season 7",bySeason(7));
+   rows("Recently Added",latest(12));
  }
  private ArrayList<JSONObject> latest(int count){
    ArrayList<JSONObject> all=new ArrayList<>(episodes);Collections.reverse(all);
@@ -315,7 +316,7 @@ public class MainActivity extends Activity {
    return null;
  }
  private void rows(String heading,ArrayList<JSONObject> items){
-   TextView title=text(heading,22,true);content.addView(title);space(content,12);
+   TextView title=text(heading+"  ›",23,true);content.addView(title);space(content,12);
    if(items.isEmpty()){
      TextView empty=text(catalogError.isEmpty()?"No uploads here yet.":"Live catalogue unavailable; retry after updating the uploader Worker.",14,false,MUTED);
      content.addView(empty);space(content,20);return;
@@ -331,10 +332,10 @@ public class MainActivity extends Activity {
  private View episodeCard(JSONObject item,HorizontalScrollView scroll){
    String title=item.optString("title","Episode"),code=item.optString("code","");
    boolean trailer="trailer".equals(item.optString("kind"));
-   LinearLayout card=vertical();card.setBackground(bg(PANEL,14));card.setClipToOutline(true);
+   LinearLayout card=vertical();card.setBackground(bg(PANEL,9));card.setClipToOutline(true);
    card.setFocusable(true);card.setClickable(true);
-   LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(242),dp(194));cp.rightMargin=dp(17);card.setLayoutParams(cp);
-   FrameLayout art=new FrameLayout(this);card.addView(art,new LinearLayout.LayoutParams(-1,dp(130)));
+   LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(258),dp(196));cp.rightMargin=dp(17);card.setLayoutParams(cp);
+   FrameLayout art=new FrameLayout(this);card.addView(art,new LinearLayout.LayoutParams(-1,dp(137)));
    ImageView img=new ImageView(this);img.setScaleType(ImageView.ScaleType.CENTER_CROP);
    art.addView(img,new FrameLayout.LayoutParams(-1,-1));
    String thumb=item.optString("thumbnail","");
@@ -347,7 +348,7 @@ public class MainActivity extends Activity {
    TextView name=text(title,15,true);name.setMaxLines(1);name.setEllipsize(TextUtils.TruncateAt.END);info.addView(name);
    TextView meta=text(trailer?"TRAILER":code,11,true,0xffff94b9);space(info,2);info.addView(meta);
    card.setOnFocusChangeListener((v,f)->{
-     card.setBackground(bg(f?0xff912d55:PANEL,14));card.animate().scaleX(f?1.055f:1).scaleY(f?1.055f:1).setDuration(130).start();
+     card.setBackground(bg(f?0xff82294c:PANEL,9));card.animate().scaleX(f?1.055f:1).scaleY(f?1.055f:1).setDuration(130).start();
      card.setElevation(f?dp(13):0);
      if(f)scroll.smoothScrollTo(Math.max(0,card.getLeft()-dp(32)),0);
    });
@@ -367,7 +368,7 @@ public class MainActivity extends Activity {
    return "https://cdn.myanimelist.net/images/anime/2/88336.jpg";
  }
  private void animeStrip(){
-   TextView title=text("Monthly Anime",22,true);content.addView(title);space(content,13);
+   TextView title=text("Popular Animes  ›",23,true);content.addView(title);space(content,13);
    HorizontalScrollView hs=new HorizontalScrollView(this);hs.setHorizontalScrollBarEnabled(false);content.addView(hs);
    LinearLayout strip=new LinearLayout(this);strip.setClipChildren(false);hs.addView(strip);
    for(String[] show:shows())strip.addView(animeCard(show,hs));
@@ -376,7 +377,7 @@ public class MainActivity extends Activity {
  private View animeCard(String[] show,HorizontalScrollView scroll){
    FrameLayout card=new FrameLayout(this);card.setBackground(bg(PANEL,16));card.setClipToOutline(true);
    card.setFocusable(true);card.setClickable(true);
-   LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(300),dp(174));p.rightMargin=dp(19);card.setLayoutParams(p);
+   LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(325),dp(179));p.rightMargin=dp(19);card.setLayoutParams(p);
    ImageView image=new ImageView(this);image.setScaleType(ImageView.ScaleType.CENTER_CROP);
    card.addView(image,new FrameLayout.LayoutParams(-1,-1));artwork(image,cover(show[1]));
    View fade=new View(this);fade.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0x20030a12,0xf9070a10}));
