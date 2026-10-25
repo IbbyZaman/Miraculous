@@ -43,6 +43,9 @@ function check(ok, label, detail = '') {
     try {
       await page.goto(base+'/beta2/index.html',{waitUntil:'domcontentloaded',timeout:12000});
       await page.locator('link[rel="stylesheet"][href^="/beta2/style.css"]').first().evaluate(e=>e.sheet?.cssRules.length);
+      // The existing 480ms page-glide animates the whole body +34px on entry.
+      // Measure the settled layout, not a transient transform during navigation.
+      await page.waitForTimeout(800);
       const state=await page.evaluate(()=>{
         const rect=s=>{const el=document.querySelector(s);if(!el)return null;const r=el.getBoundingClientRect(),cs=getComputedStyle(el);return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,display:cs.display,visible:cs.visibility};};
         const img=document.querySelector('#upcoming-episodes .home-banner .main-poster');
