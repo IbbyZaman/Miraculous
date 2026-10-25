@@ -141,3 +141,19 @@ main.container{width:min(1440px,calc(100% - 48px))!important;max-width:1440px!im
  .section-head h2{font-size:19px!important}
  #continueRow .continue-card{flex-basis:74%!important}
 }
+
+/* Hotfix: prevent the existing Season 7 poster from occupying the entire iPad viewport.
+   season7-update.css sets 650/680px heights and uses a negative-z poster. */
+body #upcoming-episodes,body #upcoming-episodes .home-intro{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
+body #upcoming-episodes .home-intro{display:grid!important;align-items:start!important}
+body #upcoming-episodes .home-banner{height:360px!important;min-height:360px!important;max-height:360px!important;isolation:isolate!important;overflow:hidden!important;position:relative!important;display:block!important}
+body #upcoming-episodes .home-banner .main-poster{position:absolute!important;display:block!important;inset:0!important;z-index:0!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;object-position:center 38%!important}
+body #upcoming-episodes .home-banner:after{z-index:1!important}
+body #upcoming-episodes .home-banner-copy{z-index:2!important;display:block!important;height:auto!important;min-height:0!important;max-height:100%!important;overflow:hidden!important}
+body #upcoming-episodes .home-timer-panel{min-width:0!important}
+@media(max-width:780px){
+ body #upcoming-episodes .home-banner{height:300px!important;min-height:300px!important;max-height:300px!important}
+}
+@media(max-width:520px){
+ body #upcoming-episodes .home-banner{height:260px!important;min-height:260px!important;max-height:260px!important}
+}
