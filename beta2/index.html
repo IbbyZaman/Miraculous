@@ -18,7 +18,7 @@
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
      crossorigin="anonymous"></script>
-<link rel="stylesheet" href="season7-update.css?v=countdown-neat-1"><link rel="stylesheet" href="/beta2/cinema-edition.css?v=2026-10-fix-3"><link rel="stylesheet" href="/beta2/tv-inspired.css?v=1">
+<link rel="stylesheet" href="season7-update.css?v=countdown-neat-1"><link rel="stylesheet" href="/beta2/cinema-edition.css?v=2026-10-fix-3">
 <base href="/">
 <script>
 /* Beta 2 routing: reuse production media/data assets without changing the live site. */
@@ -36,6 +36,7 @@
   },true);
 })();
 </script>
+<link rel="stylesheet" href="/beta2/approved-mockup.css?v=20261025-1">
 </head>
 <body>
 
@@ -102,10 +103,10 @@
   </section>
   <section class="section mh-upcoming-section" id="upcoming-episodes" aria-labelledby="mhUpcomingHeading">
     <div class="section-head">
-      <div><p class="kicker">PREMIERES & RELEASES</p><h2 id="mhUpcomingHeading">Upcoming Episodes</h2></div>
+      <div><p class="kicker">PREMIERES & RELEASES</p><h2 id="mhUpcomingHeading">Season 7</h2></div>
       <a class="show-all" href="season7.html">View more ›</a>
     </div>
-    <section class="home-intro mh-reference-feature" aria-label="Welcome and upcoming releases"><div class="home-banner"><img class="main-poster" src="main-season7-poster.png" alt="Ladybug and Cat Noir above Paris at sunset" width="1280" height="720" fetchpriority="high"><div class="home-banner-copy"><p class="kicker">THE MIRACULOUS UNIVERSE</p><h1>Miraculous<br><span>Hub</span></h1><h2>Season 7</h2><p class="home-banner-synopsis" data-s7-synopsis></p><div class="hero-actions"><a class="primary" href="episodes.html?season=7">View Season 7 →</a><a class="secondary" href="#trailers">Watch trailers ▶</a></div></div></div><aside class="home-timer-panel" id="upcoming-releases" aria-labelledby="sidebarCountdownTitle"><div class="home-timer-heading"><p class="kicker">COMING UP NEXT</p><h2 id="sidebarCountdownTitle">Your countdowns</h2></div><section id="custom-countdowns" hidden><div class="s7-release-grid" id="customTimerGrid"></div></section><p class="home-timer-note" id="noCustomCountdowns">Countdowns you create in Upload Centre will appear here.</p><h3 class="release-rail-heading">Season 7 premieres</h3><div class="s7-release-grid" id="s7HomeReleaseGrid" aria-label="Season 7 episode release countdowns"></div></aside></section>
+    <section class="home-intro mh-reference-feature" aria-label="Welcome and upcoming releases"><div class="home-banner"><img class="main-poster" src="main-season7-poster.png" alt="Ladybug and Cat Noir above Paris at sunset" width="1280" height="720" fetchpriority="high"><div class="home-banner-copy"><p class="kicker">THE MIRACULOUS UNIVERSE</p><h1>Miraculous<br><span>Hub</span></h1><h2>Season 7</h2><p class="home-banner-synopsis" data-s7-synopsis></p><div class="hero-actions"><a class="primary" href="episodes.html?season=7">View Season 7 →</a><a class="secondary" href="#trailers">Watch trailers ▶</a></div></div></div><aside class="home-timer-panel" id="upcoming-releases" aria-labelledby="sidebarCountdownTitle"><div class="home-timer-heading"><p class="kicker">COMING UP NEXT</p><h2 id="sidebarCountdownTitle">Season 7 Countdown</h2></div><section id="custom-countdowns" hidden><div class="s7-release-grid" id="customTimerGrid"></div></section><p class="home-timer-note" id="noCustomCountdowns">Countdowns you create in Upload Centre will appear here.</p><h3 class="release-rail-heading">Season 7 premieres</h3><div class="s7-release-grid" id="s7HomeReleaseGrid" aria-label="Season 7 episode release countdowns"></div></aside></section>
   </section>
 
 
@@ -151,7 +152,7 @@
     <div class="section-head">
       <div>
         <p class="kicker">RECENTLY ADDED</p>
-        <h2>Latest Episodes</h2>
+        <h2>Recently Released</h2>
       </div>
       <a class="show-all" href="episodes.html">Show all →</a>
     </div>
@@ -269,7 +270,7 @@
 <script>
 (async()=>{await window.MH_CATALOG_READY;
 
-const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,12);
+const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,3);
 document.querySelector("#latestGrid").innerHTML=latest.map(e=>`
   <a class="card" href="watch.html?season=${e.season}&episode=${e.episode}">
     <div class="art ${e.thumbnail?'has-thumb':''}">
