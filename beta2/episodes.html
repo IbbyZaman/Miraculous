@@ -36,10 +36,11 @@
   },true);
 })();
 </script>
+<link rel="stylesheet" href="/beta2/approved-mockup.css?v=20261025-1">
 </head>
 <body>
 
-<div class="mh-notice-bar"><span class="mh-notice-star" aria-hidden="true">✦</span><span>New adventures, episodes and countdowns on Miraculous Hub</span><a href="season7.html">Season 7 updates</a></div>
+<div class="mh-notice-bar" hidden><span class="mh-notice-star" aria-hidden="true">✦</span><span>New adventures, episodes and countdowns on Miraculous Hub</span><a href="season7.html">Season 7 updates</a></div>
 <header class="topbar">
   <a class="brand" href="index.html" aria-label="MiraculousHub home">
     <span class="brand-mark">M</span>
@@ -89,17 +90,17 @@
 
 <main class="container">
   <section class="mh-featured-section" aria-labelledby="mhFeaturedHeading">
-    <div class="section-head"><div><p class="kicker">HANDPICKED FROM THE LIBRARY</p><h2 id="mhFeaturedHeading">Featured Episodes</h2></div></div>
+    <div class="section-head"><div><p class="kicker">HANDPICKED FROM THE LIBRARY</p><h2 id="mhFeaturedHeading">Latest Episodes</h2></div></div>
     <div class="mh-featured-grid" id="mhFeaturedGrid"></div>
   </section>
   <section class="mh-library-continue" id="mhLibraryContinue" hidden aria-labelledby="mhLibraryContinueTitle">
-    <div class="section-head"><div><h2 id="mhLibraryContinueTitle">Continue Watching</h2></div></div>
+    <div class="section-head"><div><h2 id="mhLibraryContinueTitle">Watched Episodes</h2></div></div>
     <div class="mh-featured-grid" id="mhLibraryProgressGrid"></div>
   </section>
   <div class="page-head mh-library-heading">
     <div class="page-head-copy">
       <p class="kicker">ALL SEASONS & SPECIALS</p>
-      <h1>Full Episodes</h1>
+      <h1>Seasons & Episodes</h1>
       <p>Choose a season or find an episode by its title.</p>
     </div>
   </div>
@@ -186,7 +187,7 @@ const featuredGrid=document.querySelector("#mhFeaturedGrid");
 const previewEpisodes=(window.MH_EPISODES||[])
  .filter(e=>e&&e.available!==false&&e.thumbnail&&Number.isFinite(Number(e.season))&&Number.isFinite(Number(e.episode)))
  .sort((a,b)=>Number(b.season)-Number(a.season)||Number(b.episode)-Number(a.episode))
- .slice(0,4);
+ .slice(0,3);
 function mhPreviewCard(entry,href,eyebrow){
  const card=document.createElement("a");card.className="mh-featured-card";card.href=href;
  const frame=document.createElement("div");frame.className="mh-featured-art";
