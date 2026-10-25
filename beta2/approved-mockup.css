@@ -1,0 +1,143 @@
+/* Approved MiraculousHub Beta2 mockup, 25 Oct 2026.
+   Design layer only. Existing media, catalogue, thumbnails, Firebase and player JS stay intact. */
+:root{--bg:#070b13!important;--bg2:#0b101a!important;--panel:#101723!important;--panel-strong:#151d2b!important;--pink:#ef2c70!important;--rose:#ff5b9a!important;--text:#f7f8fc!important;--muted:#aeb8ca!important;--radius:12px!important}
+html{background:#070b13!important}
+body{background:#070b13!important;background-image:none!important;color:#f7f8fc!important;font-family:Inter,"Segoe UI",Arial,sans-serif!important}
+body:before,body:after{content:none!important;display:none!important}
+.mh-notice-bar[hidden]{display:none!important}
+.topbar{width:100%!important;max-width:none!important;margin:0!important;top:0!important;position:relative!important;left:auto!important;transform:none!important;background:#090d16!important;border:0!important;border-bottom:1px solid #1b2332!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important;min-height:72px!important;padding:12px clamp(16px,2.6vw,44px)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:15px!important}
+.topbar .brand{display:flex!important;align-items:center!important;flex-shrink:0!important;text-decoration:none!important}
+.topbar .brand-mark{display:grid!important;place-items:center!important;width:34px!important;height:34px!important;background:#ed2c70!important;color:#fff!important;border-radius:50%!important;box-shadow:none!important}
+.topbar .brand-text{font-size:19px!important;font-weight:900!important;letter-spacing:-.04em!important;color:#fff!important;text-shadow:none!important}
+.topbar .brand-text span{color:#f22f77!important}
+.topbar .nav{display:flex!important;align-items:center!important;justify-content:center!important;flex:1!important;gap:5px!important;position:static!important;background:transparent!important;box-shadow:none!important;border:0!important;padding:0!important;margin:0!important}
+.topbar .nav a{color:#c4cad7!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:8px!important;font-size:13px!important;font-weight:700!important;text-decoration:none!important;padding:11px 13px!important;white-space:nowrap!important}
+.topbar .nav a.active,.topbar .nav a:hover{color:#fff!important;background:#a21d53!important;box-shadow:0 0 19px #ef2c7044!important}
+.topbar .actions{display:flex!important;align-items:center!important;gap:8px!important;flex-shrink:0!important}
+.topbar .actions .signin{border-radius:50%!important;width:40px!important;height:40px!important;min-width:40px!important;overflow:hidden!important;font-size:0!important;display:grid!important;place-items:center!important;background:#ee2d71!important;border:0!important;padding:0!important;color:#fff!important}
+.topbar .actions .signin:before{content:"●"!important;font-size:21px!important;color:#fff!important}
+.topbar .actions #searchOpen{display:grid!important;place-items:center!important;width:40px!important;height:40px!important;background:#161e2b!important;border-radius:50%!important;color:#fff!important;font-size:24px!important;border:0!important}
+.topbar .actions .theme-btn,.topbar .actions .lang-btn{display:none!important}
+.mobile-drawer{position:fixed!important;z-index:300!important;transform:translateX(-110%)!important;visibility:hidden!important;pointer-events:none!important}
+.mobile-drawer.open,.mobile-drawer.is-open,.mobile-drawer[aria-hidden="false"]{transform:translateX(0)!important;visibility:visible!important;pointer-events:auto!important}
+.mobile-nav-backdrop{visibility:hidden!important;pointer-events:none!important}
+.mobile-nav-backdrop.open,.mobile-nav-backdrop.is-open{visibility:visible!important;pointer-events:auto!important}
+main.container{width:min(1440px,calc(100% - 48px))!important;max-width:1440px!important;margin:0 auto!important;padding:25px 0 65px!important}
+.section,.mh-featured-section,.mh-library-continue{margin-bottom:28px!important}
+.section-head{display:flex!important;align-items:center!important;justify-content:space-between!important;margin-bottom:13px!important}
+.section-head .kicker{display:none!important}
+.section-head h2,.section-heading h2{font-size:22px!important;font-weight:850!important;letter-spacing:-.025em!important;color:#fff!important;line-height:1.25!important}
+.section-head .show-all{color:#c9d0dc!important;font-size:13px!important;text-decoration:none!important}
+.card,.mh-featured-card,.continue-card{background:#111825!important;border:1px solid #252d40!important;border-radius:10px!important;box-shadow:none!important;overflow:hidden!important;transition:transform .18s,border-color .18s!important}
+.card:hover,.mh-featured-card:hover,.continue-card:hover{transform:translateY(-3px)!important;border-color:#ed2c70!important}
+.card .art,.mh-featured-art,.continue-card .thumb{overflow:hidden!important;aspect-ratio:16/9!important;background:#101722!important}
+.card .art img,.mh-featured-art img,.continue-card .thumb img{width:100%!important;height:100%!important;object-fit:cover!important}
+.card-info{padding:10px 11px!important}
+.card-info h3{font-size:14px!important;color:#fff!important;font-weight:800!important}
+.card-info p{color:#9faabd!important;font-size:11px!important}
+#latestGrid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:15px!important;overflow:visible!important}
+#latestGrid .card{flex:auto!important;width:auto!important;min-width:0!important}
+#latestGrid .card .art{aspect-ratio:16/9!important;height:auto!important}
+#latestGrid .card-info{padding:10px 0!important}
+#latestGrid .card{background:transparent!important;border:0!important}
+#latestGrid .card .art{border-radius:9px!important}
+#continueRow{display:flex!important;gap:14px!important;overflow-x:auto!important}
+#continueSection[hidden]{display:none!important}
+#continueRow .continue-card{flex:0 0 min(30%,280px)!important}
+#upcoming-episodes{margin-top:0!important}
+#upcoming-episodes .home-intro{display:grid!important;grid-template-columns:minmax(0,2.1fr) minmax(250px,.92fr)!important;gap:17px!important;align-items:stretch!important;width:100%!important;margin:0!important}
+#upcoming-episodes .home-banner{display:block!important;position:relative!important;min-height:360px!important;height:100%!important;border-radius:13px!important;overflow:hidden!important;background:#171322!important;box-shadow:none!important;border:1px solid #322339!important}
+#upcoming-episodes .home-banner:after{content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;background:linear-gradient(90deg,#060713c9 0%,#090b176e 48%,transparent 80%)!important}
+#upcoming-episodes .home-banner .main-poster{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+#upcoming-episodes .home-banner-copy{position:absolute!important;z-index:2!important;left:5%!important;bottom:7%!important;top:auto!important;width:min(65%,480px)!important;padding:0!important;background:none!important;text-align:left!important}
+#upcoming-episodes .home-banner-copy .kicker{font-size:10px!important;letter-spacing:.14em!important;color:#ffafcd!important}
+#upcoming-episodes .home-banner-copy h1{font-size:clamp(26px,3.5vw,50px)!important;line-height:1!important;color:#fff!important;text-shadow:0 3px 18px #000!important}
+#upcoming-episodes .home-banner-copy h2{font-size:25px!important;margin:8px 0!important;color:#fff!important}
+#upcoming-episodes .home-banner-synopsis{font-size:13px!important;line-height:1.5!important;color:#f0e8f0!important;display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+#upcoming-episodes .hero-actions{display:flex!important;gap:9px!important;flex-wrap:wrap!important}
+#upcoming-episodes .hero-actions .primary{background:#ec2c70!important;color:#fff!important;border:0!important;border-radius:7px!important;font-size:12px!important;padding:12px 16px!important;text-decoration:none!important}
+#upcoming-episodes .hero-actions .secondary{background:#131923c9!important;color:#fff!important;border-radius:7px!important;font-size:12px!important;padding:12px 16px!important;text-decoration:none!important}
+#upcoming-episodes .home-timer-panel{display:flex!important;flex-direction:column!important;gap:8px!important;background:transparent!important;border:0!important;padding:0!important;min-height:0!important;max-height:none!important;overflow:visible!important;box-shadow:none!important}
+#upcoming-episodes .home-timer-heading{display:block!important;margin:0 0 4px!important}
+#upcoming-episodes .home-timer-heading .kicker{display:none!important}
+#upcoming-episodes .home-timer-heading h2{font-size:18px!important;color:#fff!important}
+#upcoming-episodes .release-rail-heading{display:none!important}
+#upcoming-episodes .s7-release-grid{display:grid!important;grid-template-columns:1fr!important;gap:9px!important;max-height:365px!important;overflow-y:auto!important}
+#upcoming-episodes .s7-release-card{min-height:93px!important;height:auto!important;display:flex!important;flex-direction:column!important;justify-content:center!important;padding:13px!important;border:1px solid #273047!important;border-radius:9px!important;background:#141b29!important;box-shadow:none!important}
+#upcoming-episodes .s7-release-card h3{font-size:14px!important;color:#fff!important}
+#upcoming-episodes .s7-release-card .s7-countdown{font-size:14px!important;color:#ff619a!important;font-weight:800!important}
+#upcoming-episodes .s7-release-card p,#upcoming-episodes .s7-release-card small{font-size:11px!important;color:#bbc4d2!important}
+#upcoming-episodes #noCustomCountdowns{display:none!important}
+#monthly-anime-shelf .release-stack{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:13px!important}
+#monthly-anime-shelf .release-card{min-height:125px!important;background:#171c2a!important;border-radius:10px!important;border:1px solid #283146!important;padding:16px!important}
+#monthly-anime-shelf .release-card h3{color:#fff!important;font-size:17px!important}
+#monthly-anime-shelf .release-card .badge{background:#ef2c70!important;color:#fff!important}
+#trailerGrid{display:flex!important;gap:12px!important;overflow-x:auto!important}
+#trailerGrid .trailer-card{background:#141b29!important;border-radius:10px!important;border:1px solid #273146!important}
+.mh-featured-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important}
+.mh-featured-card{min-width:0!important}
+.mh-featured-card .mh-featured-art{aspect-ratio:16/9!important}
+.mh-featured-copy{padding:10px!important}
+.mh-featured-copy strong{color:#fff!important}
+.mh-library-heading{margin-top:28px!important}
+.mh-library-heading h1,.page-head h1{color:#fff!important;font-size:25px!important}
+.library-shell{display:grid!important;grid-template-columns:1fr!important;gap:18px!important}
+.episodes-toolbar{background:#111724!important;border:1px solid #273043!important;border-radius:12px!important;padding:14px!important}
+.season-tabs{display:flex!important;gap:9px!important;overflow-x:auto!important}
+.season-tabs button,.season-tabs a{background:#1a2232!important;color:#d9deea!important;border-radius:7px!important}
+.season-tabs button.active,.season-tabs a.active{background:#ec2c70!important;color:#fff!important}
+#episodeGrid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:15px!important}
+.watch-shell{width:min(1250px,calc(100% - 48px))!important;max-width:1250px!important}
+.watch-shell .player{border:1px solid #283045!important;border-radius:13px!important;overflow:hidden!important;background:#000!important;box-shadow:0 20px 60px #0008!important}
+.watch-shell .player-stage{background:#000!important}
+.watch-shell .progress-current,.watch-shell .progress-knob{background:#ef2c70!important}
+.watch-shell .settings-menu{background:#141b29!important;border:1px solid #343e53!important;border-radius:10px!important}
+.watch-shell .pbtn:hover{color:#ff5b9a!important}
+.watch-shell .player-caption-note{font-size:12px!important;color:#9ca8ba!important}
+.anime-page{width:min(1350px,calc(100% - 48px))!important;max-width:1350px!important;margin:auto!important;padding-top:25px!important}
+.anime-hero{background:none!important;border:0!important;box-shadow:none!important;padding:8px 0 25px!important}
+.anime-hero h1{font-size:28px!important;color:#fff!important}
+.anime-hero p{color:#aeb8ca!important}
+.anime-library{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:18px!important}
+.anime-title-card{min-height:340px!important;border-radius:11px!important;overflow:hidden!important;border:1px solid #2b3449!important;box-shadow:none!important;transition:transform .2s!important}
+.anime-title-card:hover{transform:translateY(-4px)!important;border-color:#ef2c70!important}
+.anime-title-card .anime-card-body{position:relative!important;z-index:2!important}
+.anime-title-card h2{color:#fff!important}
+.trailer-page .trailer-screen{background:#000!important;border-radius:12px!important;overflow:hidden!important;border:1px solid #283045!important}
+.trailer-page .trailer-seek{accent-color:#ef2c70!important}
+.trailer-page .trailer-heading h1{color:#fff!important}
+.trailer-page .trailer-tools .secondary{background:#151c29!important;border:1px solid #30394b!important;color:#fff!important;border-radius:8px!important}
+.footer{background:#090e17!important;border-top:1px solid #232b3c!important}
+@media(max-width:1000px){
+ .topbar .nav a{font-size:11px!important;padding:9px!important}
+ .topbar .brand-text{font-size:16px!important}
+ #upcoming-episodes .home-intro{grid-template-columns:minmax(0,1.6fr) minmax(225px,.9fr)!important}
+}
+@media(max-width:780px){
+ .topbar .nav{display:none!important}
+ .topbar .actions .menu-toggle{display:flex!important}
+ main.container,.anime-page,.watch-shell{width:calc(100% - 28px)!important}
+ #upcoming-episodes .home-intro{grid-template-columns:1fr!important}
+ #upcoming-episodes .home-banner{min-height:330px!important}
+ #upcoming-episodes .s7-release-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;max-height:none!important}
+ .mh-featured-grid,#episodeGrid,.anime-library{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:520px){
+ .topbar{min-height:62px!important;padding:9px 13px!important}
+ .topbar .brand-text{font-size:14px!important}
+ .topbar .brand-mark{width:28px!important;height:28px!important}
+ .topbar .actions{gap:6px!important}
+ .topbar .actions #searchOpen,.topbar .actions .signin{width:34px!important;height:34px!important;min-width:34px!important}
+ #upcoming-episodes .home-banner{min-height:285px!important}
+ #upcoming-episodes .home-banner-copy{width:84%!important}
+ #upcoming-episodes .home-banner-copy h1{font-size:27px!important}
+ #upcoming-episodes .home-banner-copy h2{font-size:20px!important}
+ #upcoming-episodes .home-banner-synopsis{font-size:11px!important;-webkit-line-clamp:2!important}
+ #upcoming-episodes .s7-release-grid{grid-template-columns:1fr!important}
+ #latestGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #latestGrid .card:last-child{display:none!important}
+ #monthly-anime-shelf .release-stack{grid-template-columns:1fr!important}
+ .mh-featured-grid,#episodeGrid,.anime-library{grid-template-columns:1fr 1fr!important}
+ .section-head h2{font-size:19px!important}
+ #continueRow .continue-card{flex-basis:74%!important}
+}
