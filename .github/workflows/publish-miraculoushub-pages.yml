@@ -11,6 +11,7 @@ on:
       - '*.webp'
       - '*.json'
       - 'assets/**'
+      - 'beta2/**'
       - '.github/workflows/publish-miraculoushub-pages.yml'
   workflow_run:
     workflows:
