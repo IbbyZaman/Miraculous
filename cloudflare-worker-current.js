@@ -126,13 +126,9 @@ function isAllowedOrigin(request) {
   const origin=request.headers.get("Origin");
   const referer=request.headers.get("Referer");
   const dest=request.headers.get("Sec-Fetch-Dest");
-  if(dest==="iframe"||dest==="frame") return false;
-  if(origin&&!ALLOWED_ORIGINS.has(origin)) return false;
-  if(referer){
-    try { if(!ALLOWED_ORIGINS.has(new URL(referer).origin)) return false; }
-    catch { return false; }
-  }
-  return !!origin || !!referer;
+  // Streaming is public; do not use Origin/Referer as authentication.
+  // Browser embedding is controlled by frame-ancestors, not a referrer allowlist.
+  return true;
 }
 function redirectToWebsite(){
   return new Response(null,{status:302,headers:{
@@ -152,7 +148,7 @@ function corsHeaders(request) {
     "Content-Security-Policy":"frame-ancestors 'none'",
     "X-Content-Type-Options":"nosniff"
   };
-  if(origin && ALLOWED_ORIGINS.has(origin)) h["Access-Control-Allow-Origin"]=origin;
+  h["Access-Control-Allow-Origin"]="*";
   return h;
 }
 function textResponse(request,text,status=200){
@@ -232,7 +228,7 @@ async function verifyFirebaseUser(request,env){
   }catch{return unauthenticated}
 }
 async function issueDownloadTicket(request,env,url){
-  if(!ALLOWED_ORIGINS.has(request.headers.get("Origin"))||!isAllowedOrigin(request))return downloadJSON(request,{error:"Downloads are only available from MiraculousHub."},403);
+  // Firebase ID token + short-lived signed ticket protect downloads, not the caller's domain.
   if(request.method==="OPTIONS")return new Response(null,{status:204,headers:corsHeaders(request)});
   if(request.method!=="POST")return downloadJSON(request,{error:"Method Not Allowed"},405);
   if(!(request.headers.get("Content-Type")||"").toLowerCase().startsWith("application/json"))return downloadJSON(request,{error:"Use a JSON request."},415);
@@ -262,7 +258,7 @@ async function verifyDownloadTicket(request,env,url){
     if(!valid)return false;
     const claims=JSON.parse(new TextDecoder().decode(decodeBase64URL(match[1])));
     const now=Math.floor(Date.now()/1000);
-    return claims.p===url.pathname&&claims.h===url.origin&&claims.o===getRequestOrigin(request)&&
+    return claims.p===url.pathname&&claims.h===url.origin&&
       Number.isInteger(claims.exp)&&claims.exp>now&&claims.exp<=now+DOWNLOAD_TTL;
   }catch{return false}
 }
@@ -446,7 +442,6 @@ export default {
     if(url.pathname==="/download-ticket") return issueDownloadTicket(request,env,url);
     const downloadFile=parseMediaPath(url.pathname);
     if(downloadFile?.download){
-      if(!isAllowedOrigin(request)) return textResponse(request,"Downloads are only available from MiraculousHub.",403);
       if(request.method==="OPTIONS") return new Response(null,{status:204,headers:corsHeaders(request)});
       if(!readable) return textResponse(request,"Method Not Allowed",405);
       if(!await verifyDownloadTicket(request,env,url)) return textResponse(request,"Sign in on MiraculousHub and press Download Episode for a new download link.",401);
@@ -474,7 +469,7 @@ function partyHeaders(request){
   return {"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store",
     "Vary":"Origin","Access-Control-Allow-Methods":"GET, POST, OPTIONS",
     "Access-Control-Allow-Headers":"Content-Type",
-    ...(ALLOWED_ORIGINS.has(origin)?{"Access-Control-Allow-Origin":origin}:{})};
+    "Access-Control-Allow-Origin":"*"};
 }
 function partyJSON(request,data,status=200){return new Response(JSON.stringify(data),{status,headers:partyHeaders(request)})}
 function partyToken(){return crypto.randomUUID().replace(/-/g,"")+crypto.randomUUID().replace(/-/g,"")}
@@ -510,7 +505,6 @@ function projectedPartyPosition(state,now=Date.now()){
   return state.duration>0?Math.min(position,state.duration):position;
 }
 async function handleParty(request,env){
-  if(!ALLOWED_ORIGINS.has(request.headers.get("Origin")))return partyJSON(request,{error:"Forbidden"},403);
   if(request.method==="OPTIONS")return new Response(null,{status:204,headers:partyHeaders(request)});
   if(!env.WATCH_PARTIES)return partyJSON(request,{error:"Watch Together is not available on this server yet."},503);
   const url=new URL(request.url);
@@ -569,7 +563,6 @@ export class WatchPartyRoom {
       this.room=await request.json();await this.persist();await this.schedule();return new Response('Created',{status:201});
     }
     if(!this.room||Date.now()>=this.room.expiresAt)return new Response('Party expired or not found',{status:404});
-    if(!ALLOWED_ORIGINS.has(request.headers.get('Origin')))return new Response('Forbidden',{status:403});
     if(request.headers.get('Upgrade')?.toLowerCase()!=='websocket')return new Response('WebSocket required',{status:426});
     const protocols=(request.headers.get('Sec-WebSocket-Protocol')||'').split(',').map(x=>x.trim());
     const credential=prefix=>protocols.find(x=>x.startsWith(prefix))?.slice(prefix.length)||'';
