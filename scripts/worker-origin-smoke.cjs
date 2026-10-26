@@ -12,6 +12,7 @@ async function probe(name,url,opts,check){
   const details={status:r.status,origin:r.headers.get('access-control-allow-origin'),contentType:r.headers.get('content-type'),preview:body.slice(0,110)};
   console.log(name,JSON.stringify(details));
   assert.ok(check(r,body),name+' unexpected response: '+JSON.stringify(details));
+  return {response:r,body};
 }
 async function main(){
   for(const p of ['android-phone/app/src/main/java/uk/co/miraculoushub/phone/PlayerActivity.java',
@@ -30,7 +31,13 @@ async function main(){
   await probe('video APK Referer allowed',VIDEO+'/video/__mh_access_probe__',{method:'OPTIONS',headers:{Referer:SITE+'/'}},r=>r.status===204);
   await probe('video foreign Origin denied',VIDEO+'/video/__mh_access_probe__',{method:'OPTIONS',headers:{Origin:'https://example.org'}},r=>r.status===403&&!r.headers.has('access-control-allow-origin'));
   await probe('uploader website allowed',UPLOAD+'/catalog',{method:'OPTIONS',headers:{Origin:SITE,'Access-Control-Request-Method':'GET'}},r=>r.status===204&&r.headers.get('access-control-allow-origin')===SITE);
-  await probe('uploader native catalog allowed',UPLOAD+'/catalog',{method:'GET'},(r,body)=>r.status===200&&(()=>{try{return Array.isArray(JSON.parse(body).entries)}catch{return false}})());
+  const nativeCatalogue=await probe('uploader native catalog allowed',UPLOAD+'/catalog',{method:'GET'},(r,body)=>r.status===200&&(()=>{try{return Array.isArray(JSON.parse(body).entries)}catch{return false}})());
+  // HEAD reads only metadata, never downloads video content. This confirms the
+  // video Worker can retrieve at least one object published by the uploader.
+  const rows=JSON.parse(nativeCatalogue.body).entries;
+  const candidate=rows.find(e=>e&&e.available!==false&&e.kind==='episode'&&typeof e.videoPath==='string'&&e.videoPath.startsWith('/video/'));
+  assert.ok(candidate,'No uploaded watchable episode in uploader catalogue to verify');
+  await probe('native playback HEAD of uploaded '+candidate.code,VIDEO+candidate.videoPath,{method:'HEAD',headers:{Referer:SITE+'/'}},r=>r.status===200&&r.headers.get('accept-ranges')==='bytes');
   await probe('uploader foreign origin rejected',UPLOAD+'/catalog',{method:'GET',headers:{Origin:'https://example.org'}},r=>r.status===403&&!r.headers.has('access-control-allow-origin'));
   await probe('uploader mutation needs password',UPLOAD+'/catalog',{method:'POST',headers:{Origin:SITE,'Content-Type':'application/json'},body:'{}'},r=>r.status===401);
   console.log('PASS all first-party website / native app Worker access checks.');
