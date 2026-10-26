@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
  private static final String HOST="https://video.miraculoushub.co.uk";
  private static final String CATALOG="https://upload.miraculoushub.co.uk/catalog";
  private static final String POSTER="https://miraculoushub.co.uk/main-season7-poster.png";
- private static final int BG=0xff090d14, PANEL=0xff171d29, PINK=0xffef2d69, MUTED=0xffb3bdcf;
+ private static final int BG=0xff080808, PANEL=0xff181818, PINK=0xffe50914, MUTED=0xffb3b3b3;
  private final Handler handler=new Handler(Looper.getMainLooper());
  private final ArrayList<JSONObject> bundled=new ArrayList<>(), episodes=new ArrayList<>(), trailers=new ArrayList<>();
  private LinearLayout menu, content;
@@ -152,20 +152,20 @@ public class MainActivity extends Activity {
  private void render(){
    LinearLayout shell=vertical();shell.setBackgroundColor(BG);setContentView(shell);
    LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);
-   top.setPadding(dp(32),dp(9),dp(28),dp(9));top.setBackgroundColor(0xff0e121a);
-   shell.addView(top,new LinearLayout.LayoutParams(-1,dp(76)));
-   TextView brand=text("◉ MIRACULOUS",23,true,Color.WHITE);
-   top.addView(brand);TextView hub=text("HUB",23,true,PINK);top.addView(hub);
+   top.setPadding(dp(36),dp(9),dp(30),dp(9));top.setBackgroundColor(0xff101010);
+   shell.addView(top,new LinearLayout.LayoutParams(-1,dp(70)));
+   TextView brand=text("MIRACULOUS",25,true,PINK);
+   top.addView(brand);TextView hub=text(" HUB",25,true,Color.WHITE);top.addView(hub);
    View gap=new View(this);top.addView(gap,new LinearLayout.LayoutParams(dp(35),dp(1)));
-   for(String[] entry:new String[][]{{"Home","Home"},{"Episodes","Episodes"},{"Upcoming","Upcoming"},{"Anime","Anime"},{"Trailers","Trailers"},{"Continue","Continue"}}){
+   for(String[] entry:new String[][]{{"Home","Home"},{"Series","Episodes"},{"Anime","Anime"},{"New & Upcoming","Upcoming"},{"Trailers","Trailers"},{"My List","Continue"}}){
      final String target=entry[1];
      TextView nav=text(entry[0],15,true,target.equals(page)?Color.WHITE:MUTED);
      nav.setGravity(Gravity.CENTER);nav.setFocusable(true);nav.setClickable(true);
-     nav.setBackground(bg(target.equals(page)?0xff75233f:0x00000000,10));
+     nav.setBackground(bg(target.equals(page)?0xff303030:0x00000000,10));
      LinearLayout.LayoutParams np=new LinearLayout.LayoutParams(-2,dp(45));np.rightMargin=dp(7);top.addView(nav,np);
      nav.setPadding(dp(13),0,dp(13),0);
      nav.setOnFocusChangeListener((v,f)->{
-       nav.setBackground(bg(f?PINK:target.equals(page)?0xff75233f:0x00000000,10));
+       nav.setBackground(bg(f?0xff454545:target.equals(page)?0xff303030:0x00000000,10));
        nav.setTextColor(f||target.equals(page)?Color.WHITE:MUTED);
        nav.animate().scaleX(f?1.06f:1).scaleY(f?1.06f:1).setDuration(120).start();
      });
@@ -180,7 +180,7 @@ public class MainActivity extends Activity {
    account.setOnClickListener(v->startActivity(new Intent(this,AccountActivity.class)));
    mainScroll=new ScrollView(this);mainScroll.setFillViewport(true);mainScroll.setVerticalScrollBarEnabled(false);
    shell.addView(mainScroll,new LinearLayout.LayoutParams(-1,0,1));
-   content=vertical();content.setPadding(dp(35),dp(24),dp(35),dp(48));mainScroll.addView(content);
+   content=vertical();content.setPadding(dp(38),dp(0),dp(38),dp(52));mainScroll.addView(content);
    networkStatus=null;
    if("Home".equals(page))home();else if("Episodes".equals(page))allEpisodes();
    else if("Upcoming".equals(page))upcoming();
@@ -193,7 +193,8 @@ public class MainActivity extends Activity {
    if(subtitle!=null){TextView s=text(subtitle,15,false,MUTED);space(content,7);content.addView(s);}
  }
  private void home(){
-   rows("Upcoming Episodes",bySeason(7));
+   featuredHero();
+   rows("New & Upcoming • Season 7",bySeason(7));
    TextView resume=text("Continue Watching  ›",23,true);resume.setFocusable(true);
    resume.setPadding(0,dp(10),0,dp(10));content.addView(resume);
    resume.setOnFocusChangeListener((v,f)->resume.setTextColor(f?PINK:Color.WHITE));
@@ -212,9 +213,47 @@ public class MainActivity extends Activity {
      content.addView(text("Select Continue to see your synced watch history.",13,false,MUTED));
    }
    space(content,24);
-   rows("Latest Episodes",latest(18));
+   rows("Recently Added",latest(18));
    animeStrip();
    rows("Trailers & Previews",new ArrayList<>(trailers));
+ }
+ private void featuredHero(){
+   FrameLayout hero=new FrameLayout(this);
+   LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(-1,dp(350));hp.bottomMargin=dp(24);
+   content.addView(hero,hp);
+   ImageView backdrop=new ImageView(this);backdrop.setScaleType(ImageView.ScaleType.CENTER_CROP);
+   hero.addView(backdrop,new FrameLayout.LayoutParams(-1,-1));artwork(backdrop,POSTER);
+   View shade=new View(this);
+   shade.setBackground(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
+     new int[]{0xff080808,0xf0080808,0x55080808,0x11080808}));
+   hero.addView(shade,new FrameLayout.LayoutParams(-1,-1));
+   View bottomShade=new View(this);
+   bottomShade.setBackground(new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP,
+     new int[]{0xff080808,0x00080808}));
+   hero.addView(bottomShade,new FrameLayout.LayoutParams(-1,-1));
+   LinearLayout details=vertical();details.setPadding(dp(25),dp(40),dp(20),dp(25));
+   FrameLayout.LayoutParams detailParams=new FrameLayout.LayoutParams(dp(540),-2,Gravity.BOTTOM|Gravity.LEFT);
+   hero.addView(details,detailParams);
+   TextView eyebrow=text("MIRACULOUS HUB  •  FEATURED SERIES",13,true,0xffff7777);
+   details.addView(eyebrow);space(details,11);
+   TextView name=text("MIRACULOUS",48,true,Color.WHITE);details.addView(name);
+   TextView subtitle=text("TALES OF LADYBUG & CAT NOIR",17,true,0xffdddddd);details.addView(subtitle);
+   space(details,15);
+   TextView description=text("Explore every season, pick up where you left off and discover the latest adventures.",16,false,0xffe4e4e4);
+   description.setMaxLines(3);details.addView(description);space(details,19);
+   LinearLayout buttons=new LinearLayout(this);details.addView(buttons);
+   TextView play=text("▶  Play Latest",17,true,0xff101010);
+   play.setGravity(Gravity.CENTER);play.setBackground(bg(0xfff5f5f5,5));
+   play.setPadding(dp(22),dp(12),dp(22),dp(12));play.setFocusable(true);
+   buttons.addView(play);play.setOnFocusChangeListener((v,f)->focus(play,f,0xffcccccc,0xfff5f5f5));
+   play.setOnClickListener(v->{ArrayList<JSONObject> available=latest(1);if(!available.isEmpty()){
+     JSONObject e=available.get(0);launch(HOST+e.optString("videoPath"),e.optString("title","Episode"),e);
+   }else{page="Episodes";render();}});
+   TextView browse=text("  Browse Episodes  ",17,true,Color.WHITE);
+   browse.setGravity(Gravity.CENTER);browse.setBackground(bg(0xff444444,5));browse.setFocusable(true);
+   LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-2,-1);bp.leftMargin=dp(12);buttons.addView(browse,bp);
+   browse.setOnFocusChangeListener((v,f)->focus(browse,f,0xff666666,0xff444444));
+   browse.setOnClickListener(v->{page="Episodes";render();});
  }
  private void upcoming(){
    title("Upcoming Episodes","Season 7 episodes and the newest available releases.");
@@ -316,7 +355,7 @@ public class MainActivity extends Activity {
    return null;
  }
  private void rows(String heading,ArrayList<JSONObject> items){
-   TextView title=text(heading+"  ›",23,true);content.addView(title);space(content,12);
+   TextView title=text(heading+"  ›",24,true);content.addView(title);space(content,14);
    if(items.isEmpty()){
      TextView empty=text(catalogError.isEmpty()?"No uploads here yet.":"Live catalogue unavailable; retry after updating the uploader Worker.",14,false,MUTED);
      content.addView(empty);space(content,20);return;
@@ -332,23 +371,23 @@ public class MainActivity extends Activity {
  private View episodeCard(JSONObject item,HorizontalScrollView scroll){
    String title=item.optString("title","Episode"),code=item.optString("code","");
    boolean trailer="trailer".equals(item.optString("kind"));
-   LinearLayout card=vertical();card.setBackground(bg(PANEL,9));card.setClipToOutline(true);
+   LinearLayout card=vertical();card.setBackground(bg(PANEL,5));card.setClipToOutline(false);
    card.setFocusable(true);card.setClickable(true);
-   LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(258),dp(196));cp.rightMargin=dp(17);card.setLayoutParams(cp);
-   FrameLayout art=new FrameLayout(this);card.addView(art,new LinearLayout.LayoutParams(-1,dp(137)));
+   LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(286),dp(215));cp.rightMargin=dp(17);card.setLayoutParams(cp);
+   FrameLayout art=new FrameLayout(this);card.addView(art,new LinearLayout.LayoutParams(-1,dp(158)));
    ImageView img=new ImageView(this);img.setScaleType(ImageView.ScaleType.CENTER_CROP);
    art.addView(img,new FrameLayout.LayoutParams(-1,-1));
    String thumb=item.optString("thumbnail","");
    if(thumb.isEmpty()&&item.optInt("season")==7)thumb=POSTER;
    artwork(img,thumb);
-   TextView play=text("▶",17,true);play.setGravity(Gravity.CENTER);play.setBackground(bg(0xcc0a0f19,30));
+   TextView play=text("▶",19,true);play.setGravity(Gravity.CENTER);play.setBackground(bg(0xcc0a0f19,30));
    FrameLayout.LayoutParams playP=new FrameLayout.LayoutParams(dp(38),dp(38),Gravity.RIGHT|Gravity.BOTTOM);
    playP.setMargins(0,0,dp(9),dp(9));art.addView(play,playP);
    LinearLayout info=vertical();info.setPadding(dp(11),dp(5),dp(8),dp(8));card.addView(info);
-   TextView name=text(title,15,true);name.setMaxLines(1);name.setEllipsize(TextUtils.TruncateAt.END);info.addView(name);
-   TextView meta=text(trailer?"TRAILER":code,11,true,0xffff94b9);space(info,2);info.addView(meta);
+   TextView name=text(title,16,true);name.setMaxLines(1);name.setEllipsize(TextUtils.TruncateAt.END);info.addView(name);
+   TextView meta=text(trailer?"TRAILER":code,11,true,MUTED);space(info,2);info.addView(meta);
    card.setOnFocusChangeListener((v,f)->{
-     card.setBackground(bg(f?0xff82294c:PANEL,9));card.animate().scaleX(f?1.055f:1).scaleY(f?1.055f:1).setDuration(130).start();
+     card.setBackground(bg(f?0xff333333:PANEL,5));card.animate().scaleX(f?1.09f:1).scaleY(f?1.09f:1).setDuration(160).start();
      card.setElevation(f?dp(13):0);
      if(f)scroll.smoothScrollTo(Math.max(0,card.getLeft()-dp(32)),0);
    });
