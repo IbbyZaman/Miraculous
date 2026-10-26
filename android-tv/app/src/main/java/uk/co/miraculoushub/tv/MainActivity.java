@@ -194,8 +194,9 @@ public class MainActivity extends Activity {
  }
  private void home(){
    featuredHero();
+   homeContinueRail();
    rows("New & Upcoming • Season 7",bySeason(7));
-   TextView resume=text("Continue Watching  ›",23,true);resume.setFocusable(true);
+   TextView resume=text("Your Watch History  ›",23,true);resume.setFocusable(true);
    resume.setPadding(0,dp(10),0,dp(10));content.addView(resume);
    resume.setOnFocusChangeListener((v,f)->resume.setTextColor(f?PINK:Color.WHITE));
    resume.setOnClickListener(v->{page="Continue";render();});
@@ -239,7 +240,7 @@ public class MainActivity extends Activity {
    TextView name=text("MIRACULOUS",48,true,Color.WHITE);details.addView(name);
    TextView subtitle=text("TALES OF LADYBUG & CAT NOIR",17,true,0xffdddddd);details.addView(subtitle);
    space(details,15);
-   TextView description=text("Explore every season, pick up where you left off and discover the latest adventures.",16,false,0xffe4e4e4);
+   TextView description=text("Stream the adventures of Ladybug and Cat Noir. New episodes, every season and your favourites in one place.",16,false,0xffe4e4e4);
    description.setMaxLines(3);details.addView(description);space(details,19);
    LinearLayout buttons=new LinearLayout(this);details.addView(buttons);
    TextView play=text("▶  Play Latest",17,true,0xff101010);
@@ -270,10 +271,59 @@ public class MainActivity extends Activity {
    for(JSONObject x:episodes)if(x.optInt("season")==season)all.add(x);
    return all;
  }
+ private void seasonSelector(){
+   HorizontalScrollView scroller=new HorizontalScrollView(this);scroller.setHorizontalScrollBarEnabled(false);
+   scroller.setClipChildren(false);scroller.setClipToPadding(false);content.addView(scroller);
+   LinearLayout strip=new LinearLayout(this);strip.setClipChildren(false);strip.setPadding(dp(6),dp(8),dp(12),dp(8));scroller.addView(strip);
+   for(int season=7;season>=1;season--){
+     final int chosen=season;
+     TextView chip=text("Season "+season,16,true,chosen==selectedSeason?Color.WHITE:MUTED);
+     chip.setGravity(Gravity.CENTER);chip.setPadding(dp(22),dp(13),dp(22),dp(13));
+     chip.setBackground(bg(chosen==selectedSeason?0xff494949:0xff242424,6));
+     chip.setFocusable(true);chip.setClickable(true);
+     LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-2,dp(52));cp.rightMargin=dp(12);strip.addView(chip,cp);
+     chip.setOnFocusChangeListener((v,focused)->{
+       chip.setBackground(bg(focused?0xffe50914:chosen==selectedSeason?0xff494949:0xff242424,6));
+       chip.setTextColor(focused||chosen==selectedSeason?Color.WHITE:MUTED);
+       chip.animate().scaleX(focused?1.06f:1).scaleY(focused?1.06f:1).setDuration(150).start();
+       if(focused)scroller.smoothScrollTo(Math.max(0,chip.getLeft()-dp(25)),0);
+     });
+     chip.setOnClickListener(v->{selectedSeason=chosen;page="Episodes";render();});
+   }
+ }
+ private void homeContinueRail(){
+   FirebaseUser user=TvFirebase.auth(this).getCurrentUser();
+   if(user==null)return;
+   LinearLayout holder=vertical();content.addView(holder);
+   String uid=user.getUid();
+   TvFirebase.database(this).collection("users").document(uid).collection("playback")
+     .orderBy("updatedAt",Query.Direction.DESCENDING).limit(15).get(Source.SERVER)
+     .addOnCompleteListener(this,result->{
+       if(!"Home".equals(page)||holder.getParent()==null||!result.isSuccessful())return;
+       ArrayList<JSONObject> history=new ArrayList<>();
+       for(DocumentSnapshot snap:result.getResult().getDocuments()){
+         JSONObject item=findCloudEpisode(snap);
+         if(item!=null)history.add(item);
+       }
+       if(history.isEmpty())return;
+       holder.removeAllViews();
+       TextView heading=text("Continue Watching  ›",24,true);holder.addView(heading);
+       space(holder,14);
+       HorizontalScrollView railScroll=new HorizontalScrollView(this);railScroll.setHorizontalScrollBarEnabled(false);
+       railScroll.setClipChildren(false);railScroll.setClipToPadding(false);holder.addView(railScroll);
+       LinearLayout rail=new LinearLayout(this);rail.setPadding(dp(6),dp(7),dp(20),dp(10));
+       rail.setClipChildren(false);railScroll.addView(rail);
+       for(JSONObject item:history)rail.addView(episodeCard(item,railScroll));
+       space(holder,24);
+     });
+ }
  private void allEpisodes(){
-   title("Episode Library","Every season, in one place. Select an episode to start watching.");
-   space(content,25);
-   for(int season=7;season>=1;season--)rows("Season "+season,bySeason(season));
+   title("Miraculous • Episodes","Choose a season, then press OK on any episode to watch.");
+   space(content,22);
+   seasonSelector();
+   space(content,20);
+   rows("Season "+selectedSeason+" • Episodes",bySeason(selectedSeason));
+   if(selectedSeason==7)rows("Recently Added",latest(14));
  }
  private void trailers(){
    title("Trailers & Previews","First looks and uploaded trailers on the big screen.");space(content,22);
@@ -379,6 +429,10 @@ public class MainActivity extends Activity {
    art.addView(img,new FrameLayout.LayoutParams(-1,-1));
    String thumb=item.optString("thumbnail","");
    if(thumb.isEmpty()&&item.optInt("season")==7)thumb=POSTER;
+   if(thumb.isEmpty()&&item.optString("videoPath","").contains("/anime/")){
+     String[] segments=item.optString("videoPath").split("/");
+     if(segments.length>3)thumb=cover(segments[3]);
+   }
    artwork(img,thumb);
    TextView play=text("▶",19,true);play.setGravity(Gravity.CENTER);play.setBackground(bg(0xcc0a0f19,30));
    FrameLayout.LayoutParams playP=new FrameLayout.LayoutParams(dp(38),dp(38),Gravity.RIGHT|Gravity.BOTTOM);
