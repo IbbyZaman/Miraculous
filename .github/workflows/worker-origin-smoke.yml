@@ -1,0 +1,22 @@
+name: Verify MiraculousHub Worker access from website and Android
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare-worker-current.js'
+      - 'cloudflare-uploader-worker.js'
+      - 'site-config.js'
+      - 'scripts/worker-origin-smoke.cjs'
+      - '.github/workflows/worker-origin-smoke.yml'
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test deployed Workers, security checks and app headers
+        run: node scripts/worker-origin-smoke.cjs
