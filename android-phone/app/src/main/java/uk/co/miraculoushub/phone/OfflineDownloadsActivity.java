@@ -113,7 +113,11 @@ public class OfflineDownloadsActivity extends Activity {
   private void download(String id,String title,int season,int episode){if(!id.matches("s[0-9]{2}e[0-9]{2}"))return;
     message("Downloading securely: "+title);new Thread(()->{File tmp=new File(folder(),id+".partial");File dest=new File(folder(),id+".bin");
       try{SecretKey secret=key();Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");cipher.init(Cipher.ENCRYPT_MODE,secret);
-        HttpURLConnection conn=(HttpURLConnection)new URL(BASE+"/video/"+id).openConnection();conn.setConnectTimeout(16000);conn.setReadTimeout(30000);
+        HttpURLConnection conn=(HttpURLConnection)new URL(BASE+"/video/"+id).openConnection();
+        // Match the site's playback request policy for first-party Android offline saves.
+        // A Referer is not an authentication credential; protected endpoints use tokens.
+        conn.setRequestProperty("Referer","https://miraculoushub.co.uk/");
+        conn.setConnectTimeout(16000);conn.setReadTimeout(30000);
         if(conn.getResponseCode()!=200)throw new IOException("Video download unavailable: HTTP "+conn.getResponseCode());
         long size=conn.getContentLengthLong();if(size>0&&size>folder().getUsableSpace()-64L*1024*1024)throw new IOException("Not enough free space for this video");
         try(InputStream in=conn.getInputStream();OutputStream raw=new FileOutputStream(tmp)){
