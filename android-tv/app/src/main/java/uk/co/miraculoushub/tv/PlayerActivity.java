@@ -40,7 +40,17 @@ public class PlayerActivity extends Activity {
   private final Handler handler=new Handler(Looper.getMainLooper());
   private ExoPlayer player;
   private PlayerView video;
-  private TextView status,heading;
+  private TextView status,heading,timeLabel,playPauseLabel;
+  private ProgressBar timeline;
+  private boolean completed=false;
+  private final Runnable updateTimeline=new Runnable(){@Override public void run(){
+    if(player!=null){long duration=player.getDuration(),position=player.getCurrentPosition();
+      if(duration>0){timeline.setMax(1000);timeline.setProgress((int)Math.min(1000,position*1000/duration));}
+      timeLabel.setText(clock(position)+"  /  "+(duration>0?clock(duration):"--:--"));
+      playPauseLabel.setText(player.isPlaying()?"Ⅱ  Pause":"▶  Play");
+      handler.postDelayed(this,1000);
+    }
+  }};
   private ProgressBar loading;
   private DocumentReference cloudDocument;
   private String cloudKey;
@@ -51,6 +61,7 @@ public class PlayerActivity extends Activity {
   private String episodeLibrary="";
   private long lastCloudWrite=0;
   private final Runnable cloudSave=new Runnable(){@Override public void run(){savePlayback(false);if(player!=null)handler.postDelayed(this,8000);}};
+  private String clock(long ms){long sec=Math.max(0,ms/1000);return String.format(java.util.Locale.US,"%02d:%02d:%02d",sec/3600,(sec/60)%60,sec%60);}
   private int dp(int n){return (int)(getResources().getDisplayMetrics().density*n+.5f);}
   private void immersive(){
     getWindow().getDecorView().setSystemUiVisibility(
@@ -74,21 +85,42 @@ public class PlayerActivity extends Activity {
     root.addView(video,new FrameLayout.LayoutParams(-1,-1));
     LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);
     top.setPadding(dp(26),dp(10),dp(26),dp(18));
-    top.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0xe8080b12,0x00080b12}));
+    top.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0xee080808,0x00080808}));
     FrameLayout.LayoutParams tp=new FrameLayout.LayoutParams(-1,dp(86),Gravity.TOP);root.addView(top,tp);
     TextView back=new TextView(this);back.setText("‹");back.setTextSize(38);back.setTextColor(-1);
     back.setGravity(Gravity.CENTER);back.setFocusable(true);top.addView(back,new LinearLayout.LayoutParams(dp(64),-1));
     back.setOnClickListener(v->finish());
     LinearLayout names=new LinearLayout(this);names.setOrientation(LinearLayout.VERTICAL);
     names.setPadding(dp(14),0,0,0);top.addView(names,new LinearLayout.LayoutParams(0,-2,1));
-    TextView tag=new TextView(this);tag.setText("MIRACULOUSHUB TV  •  NOW PLAYING");
-    tag.setTextColor(0xffff84aa);tag.setTextSize(11);tag.setTypeface(null,Typeface.BOLD);
+    TextView tag=new TextView(this);tag.setText("MIRACULOUS HUB  •  NOW PLAYING");
+    tag.setTextColor(0xffe50914);tag.setTextSize(11);tag.setTypeface(null,Typeface.BOLD);
     names.addView(tag);
     heading=new TextView(this);heading.setText(title==null?"Episode":title);heading.setTextColor(-1);
     heading.setTextSize(23);heading.setTypeface(null,Typeface.BOLD);heading.setSingleLine(true);
     heading.setEllipsize(TextUtils.TruncateAt.END);names.addView(heading);
-    TextView browse=new TextView(this);browse.setText("☷  Episodes");browse.setTextColor(-1);browse.setTextSize(17);browse.setGravity(Gravity.CENTER);browse.setPadding(dp(18),dp(12),dp(18),dp(12));browse.setBackgroundColor(0xff9b2458);browse.setFocusable(true);top.addView(browse);browse.setOnClickListener(v->chooseEpisode());
+    TextView browse=new TextView(this);browse.setText("☷  Episodes");browse.setTextColor(-1);browse.setTextSize(17);browse.setGravity(Gravity.CENTER);browse.setPadding(dp(18),dp(12),dp(18),dp(12));browse.setBackgroundColor(0xff383838);browse.setFocusable(true);top.addView(browse);browse.setOnClickListener(v->chooseEpisode());
     TextView next=new TextView(this);next.setText("Next ❯");next.setTextColor(-1);next.setTextSize(17);next.setGravity(Gravity.CENTER);next.setPadding(dp(18),dp(12),dp(18),dp(12));next.setFocusable(true);top.addView(next);next.setOnClickListener(v->nextEpisode());
+    // Netflix-inspired cinematic playback toolbar. The built-in Media3 controller
+    // remains available for accessibility and reliable D-pad seeking.
+    LinearLayout bottom=new LinearLayout(this);bottom.setOrientation(LinearLayout.VERTICAL);
+    bottom.setPadding(dp(40),dp(25),dp(40),dp(25));
+    bottom.setBackground(new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP,
+      new int[]{0xf5080808,0xd0080808,0x00080808}));
+    FrameLayout.LayoutParams bottomParams=new FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM);
+    root.addView(bottom,bottomParams);
+    timeLabel=new TextView(this);timeLabel.setTextColor(Color.WHITE);timeLabel.setTextSize(15);
+    timeLabel.setText("00:00:00  /  --:--");bottom.addView(timeLabel);
+    timeline=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);
+    timeline.setProgressTintList(android.content.res.ColorStateList.valueOf(0xffe50914));
+    timeline.setProgressBackgroundTintList(android.content.res.ColorStateList.valueOf(0xff555555));
+    LinearLayout.LayoutParams timelineParams=new LinearLayout.LayoutParams(-1,dp(5));
+    timelineParams.topMargin=dp(11);timelineParams.bottomMargin=dp(16);bottom.addView(timeline,timelineParams);
+    LinearLayout controls=new LinearLayout(this);controls.setGravity(Gravity.CENTER_VERTICAL);bottom.addView(controls);
+    playPauseLabel=control("Ⅱ  Pause",controls,()->{if(player!=null){if(player.isPlaying())player.pause();else player.play();}});
+    control("↶  10 sec",controls,()->seekRelative(-10000));
+    control("10 sec  ↷",controls,()->seekRelative(10000));
+    control("☷  Episodes",controls,this::chooseEpisode);
+    control("Next Episode  ❯",controls,this::nextEpisode);
     LinearLayout center=new LinearLayout(this);center.setGravity(Gravity.CENTER);
     FrameLayout.LayoutParams cp=new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER);root.addView(center,cp);
     loading=new ProgressBar(this);loading.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(0xffff376f));
@@ -113,6 +145,7 @@ public class PlayerActivity extends Activity {
     player.addListener(new Player.Listener(){
       @Override public void onPlaybackStateChanged(int state){
         loading.setVisibility(state==Player.STATE_BUFFERING||state==Player.STATE_IDLE?View.VISIBLE:View.GONE);
+        if(state==Player.STATE_ENDED&&!completed){completed=true;savePlayback(true);status.setVisibility(View.VISIBLE);status.setText("Episode finished  •  Select Next Episode to continue");}
       }
       @Override public void onPlayerError(PlaybackException error){
         loading.setVisibility(View.GONE);status.setVisibility(View.VISIBLE);
@@ -141,10 +174,29 @@ public class PlayerActivity extends Activity {
       });
       handler.postDelayed(cloudSave,8000);
     }
+    handler.post(updateTimeline);
     video.requestFocus();
     // Keep TV navigation actions visible and discoverable for D-pad users.
     video.setOnClickListener(v->top.animate().alpha(1f).setDuration(170));
   }
+  private TextView control(String label,LinearLayout parent,Runnable action){
+    TextView button=new TextView(this);button.setText(label);button.setTextSize(16);
+    button.setTypeface(null,Typeface.BOLD);button.setTextColor(Color.WHITE);
+    button.setGravity(Gravity.CENTER);button.setFocusable(true);button.setClickable(true);
+    button.setPadding(dp(17),dp(12),dp(17),dp(12));
+    GradientDrawable normal=new GradientDrawable();normal.setColor(0xff333333);normal.setCornerRadius(dp(6));
+    button.setBackground(normal);
+    LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-2,dp(51));params.rightMargin=dp(12);
+    parent.addView(button,params);
+    button.setOnFocusChangeListener((v,focused)->{
+      GradientDrawable background=new GradientDrawable();
+      background.setColor(focused?0xffeeeeee:0xff333333);background.setCornerRadius(dp(6));
+      button.setBackground(background);button.setTextColor(focused?Color.BLACK:Color.WHITE);
+      button.animate().scaleX(focused?1.06f:1f).scaleY(focused?1.06f:1f).setDuration(130).start();
+    });
+    button.setOnClickListener(v->action.run());return button;
+  }
+  private void seekRelative(long ms){if(player!=null){userNavigated=true;player.seekTo(Math.max(0,player.getCurrentPosition()+ms));}}
   private JSONArray catalogue(){try{return new JSONArray(episodeLibrary==null?"[]":episodeLibrary);}catch(Exception e){return new JSONArray();}}
   private void openEntry(JSONObject entry){
     String path=entry.optString("path","");if(!path.startsWith("/video/"))return;
@@ -184,8 +236,8 @@ public class PlayerActivity extends Activity {
   }
   @Override public boolean dispatchKeyEvent(KeyEvent event){
     if(event.getAction()==KeyEvent.ACTION_DOWN&&player!=null){
-      if(event.getKeyCode()==KeyEvent.KEYCODE_MEDIA_FAST_FORWARD){userNavigated=true;player.seekTo(player.getCurrentPosition()+10000);return true;}
-      if(event.getKeyCode()==KeyEvent.KEYCODE_MEDIA_REWIND){userNavigated=true;player.seekTo(Math.max(0,player.getCurrentPosition()-10000));return true;}
+      if(event.getKeyCode()==KeyEvent.KEYCODE_MEDIA_FAST_FORWARD){seekRelative(10000);return true;}
+      if(event.getKeyCode()==KeyEvent.KEYCODE_MEDIA_REWIND){seekRelative(-10000);return true;}
     }
     return super.dispatchKeyEvent(event);
   }
