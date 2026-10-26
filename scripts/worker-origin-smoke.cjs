@@ -40,6 +40,19 @@ async function main(){
   await probe('native playback HEAD of uploaded '+candidate.code,VIDEO+candidate.videoPath,{method:'HEAD',headers:{Referer:SITE+'/'}},r=>r.status===200&&r.headers.get('accept-ranges')==='bytes');
   await probe('uploader foreign origin rejected',UPLOAD+'/catalog',{method:'GET',headers:{Origin:'https://example.org'}},r=>r.status===403&&!r.headers.has('access-control-allow-origin'));
   await probe('uploader mutation needs password',UPLOAD+'/catalog',{method:'POST',headers:{Origin:SITE,'Content-Type':'application/json'},body:'{}'},r=>r.status===401);
-  console.log('PASS all first-party website / native app Worker access checks.');
+  // The app update feeds must point to the rebuilt, public first-party APKs.
+  for(const type of ['phone','tv']){
+    const manifest=await probe(type+' published update manifest',SITE+'/downloads/'+type+'.json',{method:'GET'},(r,body)=>{
+      if(r.status!==200)return false;
+      try{const v=JSON.parse(body);return Number.isInteger(v.versionCode)&&v.versionCode>0&&
+        typeof v.url==='string'&&v.url.startsWith(SITE+'/downloads/')&&v.url.endsWith('.apk')&&
+        /^[0-9a-f]{64}$/.test(v.sha256);}catch{return false}
+    });
+    const entry=JSON.parse(manifest.body);
+    await probe(type+' APK download reachable',entry.url,{method:'HEAD'},r=>r.status===200&&
+      Number(r.headers.get('content-length'))>1000000);
+    console.log('PASS public '+type+' APK version '+entry.versionCode);
+  }
+  console.log('PASS all first-party website / native app Worker access and APK availability checks.');
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
