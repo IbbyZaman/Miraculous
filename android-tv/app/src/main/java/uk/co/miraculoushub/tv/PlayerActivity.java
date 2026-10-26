@@ -25,6 +25,9 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.datasource.DefaultDataSource;
+import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.ui.PlayerView;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -94,7 +97,19 @@ public class PlayerActivity extends Activity {
     status.setBackgroundColor(0xaa0a0e16);status.setPadding(dp(16),dp(13),dp(16),dp(13));
     FrameLayout.LayoutParams sp=new FrameLayout.LayoutParams(-2,-2,Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL);
     sp.bottomMargin=dp(120);root.addView(status,sp);status.setVisibility(View.GONE);
-    player=new ExoPlayer.Builder(this).build();video.setPlayer(player);
+    // Native ExoPlayer requests do not automatically include a browser Referer.
+    // The video Worker accepts streams initiated from our canonical website.
+    // This header is compatibility metadata, NOT proof that a caller is our APK.
+    DefaultHttpDataSource.Factory videoHttp=new DefaultHttpDataSource.Factory();
+    if(uri.startsWith("https://video.miraculoushub.co.uk/") ||
+       uri.startsWith("https://upload.miraculoushub.co.uk/")){
+      Map<String,String> requestHeaders=new HashMap<>();
+      requestHeaders.put("Referer","https://miraculoushub.co.uk/");
+      videoHttp.setDefaultRequestProperties(requestHeaders);
+    }
+    player=new ExoPlayer.Builder(this)
+      .setMediaSourceFactory(new DefaultMediaSourceFactory(new DefaultDataSource.Factory(this,videoHttp)))
+      .build();video.setPlayer(player);
     player.addListener(new Player.Listener(){
       @Override public void onPlaybackStateChanged(int state){
         loading.setVisibility(state==Player.STATE_BUFFERING||state==Player.STATE_IDLE?View.VISIBLE:View.GONE);
