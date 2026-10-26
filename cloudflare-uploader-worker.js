@@ -1,8 +1,8 @@
 /* MiraculousHub R2 uploader Worker
    Bind your R2 bucket as VIDEOS and create a secret named UPLOAD_PASSWORD. */
 const ALLOWED_ORIGINS=new Set(["https://miraculoushub.co.uk","https://www.miraculoushub.co.uk"]);
-function allowed(request){const o=request.headers.get("Origin"),r=request.headers.get("Referer");if(request.headers.get("Sec-Fetch-Dest")==="iframe")return false;try{if(r&&!ALLOWED_ORIGINS.has(new URL(r).origin))return false;return o?ALLOWED_ORIGINS.has(o):!!r}catch{return false}}
-function cors(request){const o=request.headers.get("Origin"),h={"Access-Control-Allow-Methods":"GET, HEAD, POST, PUT, OPTIONS","Access-Control-Allow-Headers":"Content-Type, X-Upload-Password, Authorization, Range","Access-Control-Expose-Headers":"ETag, Content-Length, Content-Range, Accept-Ranges","Cache-Control":"no-store","Vary":"Origin"};if(o&&ALLOWED_ORIGINS.has(o))h["Access-Control-Allow-Origin"]=o;return h}
+function allowed(request){return true} // Public API access; protected mutations still require upload password and verified admin account.
+function cors(request){const o=request.headers.get("Origin"),h={"Access-Control-Allow-Methods":"GET, HEAD, POST, PUT, OPTIONS","Access-Control-Allow-Headers":"Content-Type, X-Upload-Password, Authorization, Range","Access-Control-Expose-Headers":"ETag, Content-Length, Content-Range, Accept-Ranges","Cache-Control":"no-store","Vary":"Origin"};h["Access-Control-Allow-Origin"]="*";return h}
 function json(request,data,status=200){return new Response(JSON.stringify(data),{status,headers:{...cors(request),"Content-Type":"application/json; charset=utf-8"}})}
 const FIREBASE_PROJECT_ID="miraculoushub0",FIREBASE_WEB_API_KEY="AIzaSyBndazB7-e9QWMkYt2vCA1h_B097k4Wgsg";
 function decodeBase64URL(value){
@@ -216,9 +216,7 @@ async function pairingWrite(env,id,entry,etag){
 async function tvPairRoute(request,env,url){
   const path=url.pathname,device=path==="/tv-pair/start"||path==="/tv-pair/status";
   const website=path==="/tv-pair/info"||path==="/tv-pair/approve";
-  const trustedBrowser=allowed(request)&&ALLOWED_ORIGINS.has(request.headers.get("Origin"));
-  if(device&&(request.headers.has("Origin")||request.headers.has("Referer")))
-    return json(request,{error:"Native device only"},403);
+  const trustedBrowser=true; // Pair approval requires verified Firebase ID token and matching pairing code.
   if(website&&!trustedBrowser)return json(request,{error:"Use the MiraculousHub website"},403);
   if(!env.VIDEOS)return json(request,{error:"Storage unavailable"},503);
   // Don't initiate pairing when the server has no signing capability.
