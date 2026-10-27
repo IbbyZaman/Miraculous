@@ -236,23 +236,23 @@ public class MainActivity extends Activity {
    LinearLayout details=vertical();details.setPadding(dp(32),dp(42),dp(22),dp(30));
    FrameLayout.LayoutParams detailParams=new FrameLayout.LayoutParams(dp(610),-2,Gravity.BOTTOM|Gravity.LEFT);
    hero.addView(details,detailParams);
-   TextView eyebrow=text("MIRACULOUS HUB  •  FEATURED SERIES",13,true,0xffff7777);
+   TextView eyebrow=text("M I R A C U L O U S   H U B     •     FEATURED SERIES",12,true,0xffff7777);
    details.addView(eyebrow);space(details,11);
    TextView name=text("MIRACULOUS",52,true,Color.WHITE);details.addView(name);
-   TextView subtitle=text("TALES OF LADYBUG & CAT NOIR",17,true,0xffdddddd);details.addView(subtitle);
+   TextView subtitle=text("TALES OF LADYBUG & CAT NOIR",19,true,0xffeeeeee);details.addView(subtitle);
    space(details,15);
    TextView description=text("Join Ladybug and Cat Noir for their biggest adventures. Explore episodes, discover new releases and pick up where you left off.",16,false,0xffe8e8ed);
-   description.setMaxLines(3);details.addView(description);space(details,19);
+   description.setMaxLines(3);description.setLineSpacing(dp(2),1.0f);details.addView(description);space(details,22);
    LinearLayout buttons=new LinearLayout(this);details.addView(buttons);
    TextView play=text("▶  Play Latest",17,true,0xff101010);
    play.setGravity(Gravity.CENTER);play.setBackground(bg(0xfff5f5f5,5));
-   play.setPadding(dp(22),dp(12),dp(22),dp(12));play.setFocusable(true);
+   play.setPadding(dp(26),dp(14),dp(26),dp(14));play.setFocusable(true);
    buttons.addView(play);play.setOnFocusChangeListener((v,f)->focus(play,f,0xffcccccc,0xfff5f5f5));
    play.setOnClickListener(v->{ArrayList<JSONObject> available=latest(1);if(!available.isEmpty()){
      JSONObject e=available.get(0);launch(HOST+e.optString("videoPath"),e.optString("title","Episode"),e);
    }else{page="Episodes";render();}});
    TextView browse=text("  Browse Episodes  ",17,true,Color.WHITE);
-   browse.setGravity(Gravity.CENTER);browse.setBackground(bg(0xff444444,5));browse.setFocusable(true);
+   browse.setGravity(Gravity.CENTER);browse.setBackground(bg(0xff3a3a3a,5));browse.setPadding(dp(10),0,dp(10),0);browse.setFocusable(true);
    LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-2,-1);bp.leftMargin=dp(12);buttons.addView(browse,bp);
    browse.setOnFocusChangeListener((v,f)->focus(browse,f,0xff666666,0xff444444));
    browse.setOnClickListener(v->{page="Episodes";render();});
@@ -424,8 +424,8 @@ public class MainActivity extends Activity {
    boolean trailer="trailer".equals(item.optString("kind"));
    LinearLayout card=vertical();card.setBackground(bg(PANEL,5));card.setClipToOutline(false);
    card.setFocusable(true);card.setClickable(true);
-   LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(320),dp(232));cp.rightMargin=dp(19);card.setLayoutParams(cp);
-   FrameLayout art=new FrameLayout(this);card.addView(art,new LinearLayout.LayoutParams(-1,dp(178)));
+   LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(350),dp(258));cp.rightMargin=dp(22);card.setLayoutParams(cp);
+   FrameLayout art=new FrameLayout(this);card.addView(art,new LinearLayout.LayoutParams(-1,dp(195)));
    ImageView img=new ImageView(this);img.setScaleType(ImageView.ScaleType.CENTER_CROP);
    art.addView(img,new FrameLayout.LayoutParams(-1,-1));
    String thumb=item.optString("thumbnail","");
@@ -438,8 +438,8 @@ public class MainActivity extends Activity {
    TextView play=text("▶",19,true);play.setGravity(Gravity.CENTER);play.setBackground(bg(0xcc0a0f19,30));
    FrameLayout.LayoutParams playP=new FrameLayout.LayoutParams(dp(38),dp(38),Gravity.RIGHT|Gravity.BOTTOM);
    playP.setMargins(0,0,dp(9),dp(9));art.addView(play,playP);
-   LinearLayout info=vertical();info.setPadding(dp(11),dp(5),dp(8),dp(8));card.addView(info);
-   TextView name=text(title,16,true);name.setMaxLines(1);name.setEllipsize(TextUtils.TruncateAt.END);info.addView(name);
+   LinearLayout info=vertical();info.setPadding(dp(14),dp(8),dp(11),dp(10));card.addView(info);
+   TextView name=text(title,17,true);name.setMaxLines(1);name.setEllipsize(TextUtils.TruncateAt.END);info.addView(name);
    TextView meta=text(trailer?"TRAILER  •  PREVIEW":code,11,true,0xffc4c6d0);space(info,3);info.addView(meta);
    card.setOnFocusChangeListener((v,f)->{
      GradientDrawable focusedBg=bg(f?0xff24262d:PANEL,8);if(f)focusedBg.setStroke(dp(2),0xfff5f5f5);card.setBackground(focusedBg);card.animate().scaleX(f?1.075f:1).scaleY(f?1.075f:1).setDuration(160).start();
