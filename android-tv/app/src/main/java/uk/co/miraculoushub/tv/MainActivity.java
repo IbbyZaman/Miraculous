@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
  private static final String HOST="https://video.miraculoushub.co.uk";
  private static final String CATALOG="https://upload.miraculoushub.co.uk/catalog";
  private static final String POSTER="https://miraculoushub.co.uk/main-season7-poster.png";
- private static final int BG=0xff080808, PANEL=0xff181818, PINK=0xffe50914, MUTED=0xffb3b3b3;
+ private static final int BG=0xff08090d, PANEL=0xff17191f, PINK=0xffe50914, MUTED=0xffb8bac3;
  private final Handler handler=new Handler(Looper.getMainLooper());
  private final ArrayList<JSONObject> bundled=new ArrayList<>(), episodes=new ArrayList<>(), trailers=new ArrayList<>();
  private LinearLayout menu, content;
@@ -152,20 +152,21 @@ public class MainActivity extends Activity {
  private void render(){
    LinearLayout shell=vertical();shell.setBackgroundColor(BG);setContentView(shell);
    LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);
-   top.setPadding(dp(36),dp(9),dp(30),dp(9));top.setBackgroundColor(0xff101010);
-   shell.addView(top,new LinearLayout.LayoutParams(-1,dp(70)));
-   TextView brand=text("MIRACULOUS",25,true,PINK);
-   top.addView(brand);TextView hub=text(" HUB",25,true,Color.WHITE);top.addView(hub);
-   View gap=new View(this);top.addView(gap,new LinearLayout.LayoutParams(dp(35),dp(1)));
+   top.setPadding(dp(46),dp(10),dp(38),dp(10));
+   top.setBackground(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[]{0xff08090d,0xff111218}));
+   shell.addView(top,new LinearLayout.LayoutParams(-1,dp(76)));
+   TextView brand=text("MIRACULOUS",27,true,PINK);
+   top.addView(brand);TextView hub=text(" HUB",27,true,Color.WHITE);top.addView(hub);
+   View gap=new View(this);top.addView(gap,new LinearLayout.LayoutParams(dp(26),dp(1)));
    for(String[] entry:new String[][]{{"Home","Home"},{"Series","Episodes"},{"Anime","Anime"},{"New & Upcoming","Upcoming"},{"Trailers","Trailers"},{"My List","Continue"}}){
      final String target=entry[1];
-     TextView nav=text(entry[0],15,true,target.equals(page)?Color.WHITE:MUTED);
+     TextView nav=text(entry[0],15,true,target.equals(page)?Color.WHITE:0xffc5c6ce);
      nav.setGravity(Gravity.CENTER);nav.setFocusable(true);nav.setClickable(true);
-     nav.setBackground(bg(target.equals(page)?0xff303030:0x00000000,10));
+     nav.setBackground(bg(target.equals(page)?0xff2b2d34:0x00000000,8));
      LinearLayout.LayoutParams np=new LinearLayout.LayoutParams(-2,dp(45));np.rightMargin=dp(7);top.addView(nav,np);
      nav.setPadding(dp(13),0,dp(13),0);
      nav.setOnFocusChangeListener((v,f)->{
-       nav.setBackground(bg(f?0xff454545:target.equals(page)?0xff303030:0x00000000,10));
+       nav.setBackground(bg(f?0xff3b3d46:target.equals(page)?0xff2b2d34:0x00000000,8));
        nav.setTextColor(f||target.equals(page)?Color.WHITE:MUTED);
        nav.animate().scaleX(f?1.06f:1).scaleY(f?1.06f:1).setDuration(120).start();
      });
@@ -220,7 +221,7 @@ public class MainActivity extends Activity {
  }
  private void featuredHero(){
    FrameLayout hero=new FrameLayout(this);
-   LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(-1,dp(350));hp.bottomMargin=dp(24);
+   LinearLayout.LayoutParams hp=new LinearLayout.LayoutParams(-1,dp(410));hp.bottomMargin=dp(28);
    content.addView(hero,hp);
    ImageView backdrop=new ImageView(this);backdrop.setScaleType(ImageView.ScaleType.CENTER_CROP);
    hero.addView(backdrop,new FrameLayout.LayoutParams(-1,-1));artwork(backdrop,POSTER);
@@ -232,15 +233,15 @@ public class MainActivity extends Activity {
    bottomShade.setBackground(new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP,
      new int[]{0xff080808,0x00080808}));
    hero.addView(bottomShade,new FrameLayout.LayoutParams(-1,-1));
-   LinearLayout details=vertical();details.setPadding(dp(25),dp(40),dp(20),dp(25));
-   FrameLayout.LayoutParams detailParams=new FrameLayout.LayoutParams(dp(540),-2,Gravity.BOTTOM|Gravity.LEFT);
+   LinearLayout details=vertical();details.setPadding(dp(32),dp(42),dp(22),dp(30));
+   FrameLayout.LayoutParams detailParams=new FrameLayout.LayoutParams(dp(610),-2,Gravity.BOTTOM|Gravity.LEFT);
    hero.addView(details,detailParams);
    TextView eyebrow=text("MIRACULOUS HUB  •  FEATURED SERIES",13,true,0xffff7777);
    details.addView(eyebrow);space(details,11);
-   TextView name=text("MIRACULOUS",48,true,Color.WHITE);details.addView(name);
+   TextView name=text("MIRACULOUS",52,true,Color.WHITE);details.addView(name);
    TextView subtitle=text("TALES OF LADYBUG & CAT NOIR",17,true,0xffdddddd);details.addView(subtitle);
    space(details,15);
-   TextView description=text("Stream the adventures of Ladybug and Cat Noir. New episodes, every season and your favourites in one place.",16,false,0xffe4e4e4);
+   TextView description=text("Join Ladybug and Cat Noir for their biggest adventures. Explore episodes, discover new releases and pick up where you left off.",16,false,0xffe8e8ed);
    description.setMaxLines(3);details.addView(description);space(details,19);
    LinearLayout buttons=new LinearLayout(this);details.addView(buttons);
    TextView play=text("▶  Play Latest",17,true,0xff101010);
@@ -423,8 +424,8 @@ public class MainActivity extends Activity {
    boolean trailer="trailer".equals(item.optString("kind"));
    LinearLayout card=vertical();card.setBackground(bg(PANEL,5));card.setClipToOutline(false);
    card.setFocusable(true);card.setClickable(true);
-   LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(286),dp(215));cp.rightMargin=dp(17);card.setLayoutParams(cp);
-   FrameLayout art=new FrameLayout(this);card.addView(art,new LinearLayout.LayoutParams(-1,dp(158)));
+   LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(320),dp(232));cp.rightMargin=dp(19);card.setLayoutParams(cp);
+   FrameLayout art=new FrameLayout(this);card.addView(art,new LinearLayout.LayoutParams(-1,dp(178)));
    ImageView img=new ImageView(this);img.setScaleType(ImageView.ScaleType.CENTER_CROP);
    art.addView(img,new FrameLayout.LayoutParams(-1,-1));
    String thumb=item.optString("thumbnail","");
@@ -439,9 +440,9 @@ public class MainActivity extends Activity {
    playP.setMargins(0,0,dp(9),dp(9));art.addView(play,playP);
    LinearLayout info=vertical();info.setPadding(dp(11),dp(5),dp(8),dp(8));card.addView(info);
    TextView name=text(title,16,true);name.setMaxLines(1);name.setEllipsize(TextUtils.TruncateAt.END);info.addView(name);
-   TextView meta=text(trailer?"TRAILER":code,11,true,MUTED);space(info,2);info.addView(meta);
+   TextView meta=text(trailer?"TRAILER  •  PREVIEW":code,11,true,0xffc4c6d0);space(info,3);info.addView(meta);
    card.setOnFocusChangeListener((v,f)->{
-     card.setBackground(bg(f?0xff333333:PANEL,5));card.animate().scaleX(f?1.09f:1).scaleY(f?1.09f:1).setDuration(160).start();
+     GradientDrawable focusedBg=bg(f?0xff24262d:PANEL,8);if(f)focusedBg.setStroke(dp(2),0xfff5f5f5);card.setBackground(focusedBg);card.animate().scaleX(f?1.075f:1).scaleY(f?1.075f:1).setDuration(160).start();
      card.setElevation(f?dp(13):0);
      if(f)scroll.smoothScrollTo(Math.max(0,card.getLeft()-dp(32)),0);
    });
@@ -470,7 +471,7 @@ public class MainActivity extends Activity {
  private View animeCard(String[] show,HorizontalScrollView scroll){
    FrameLayout card=new FrameLayout(this);card.setBackground(bg(PANEL,16));card.setClipToOutline(true);
    card.setFocusable(true);card.setClickable(true);
-   LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(325),dp(179));p.rightMargin=dp(19);card.setLayoutParams(p);
+   LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(dp(350),dp(196));p.rightMargin=dp(21);card.setLayoutParams(p);
    ImageView image=new ImageView(this);image.setScaleType(ImageView.ScaleType.CENTER_CROP);
    card.addView(image,new FrameLayout.LayoutParams(-1,-1));artwork(image,cover(show[1]));
    View fade=new View(this);fade.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0x20030a12,0xf9070a10}));
@@ -481,7 +482,7 @@ public class MainActivity extends Activity {
    TextView title=text(show[0],22,true);info.addView(title);
    TextView count=text(show[2]+"    →",12,false,MUTED);info.addView(count);
    card.setOnFocusChangeListener((v,f)->{
-     card.setElevation(f?dp(14):0);card.animate().scaleX(f?1.055f:1).scaleY(f?1.055f:1).setDuration(125).start();
+     GradientDrawable selectedBg=bg(f?0xff252831:PANEL,12);if(f)selectedBg.setStroke(dp(2),0xfff5f5f5);card.setBackground(selectedBg);card.setElevation(f?dp(14):0);card.animate().scaleX(f?1.045f:1).scaleY(f?1.045f:1).setDuration(125).start();
      if(f)scroll.smoothScrollTo(Math.max(0,card.getLeft()-dp(32)),0);
    });
    card.setOnClickListener(v->{selectedAnime=show[1];page="Anime";render();});return card;
