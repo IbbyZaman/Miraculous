@@ -422,7 +422,7 @@ public final class AppUpdater {
     dialog.show();
     if(dialog.getWindow()!=null){
       dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-      dialog.getWindow().setLayout((int)(a.getResources().getDisplayMetrics().widthPixels*0.72f),-2);
+      dialog.getWindow().setLayout(Math.min(dp(a,620),(int)(a.getResources().getDisplayMetrics().widthPixels*0.86f)),-2);
     }
     install.requestFocus();
   }
