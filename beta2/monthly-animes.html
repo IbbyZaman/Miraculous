@@ -105,7 +105,7 @@
   const API='https://reanime.to/api/search';
   function pick(obj,keys){for(const key of keys){const value=obj&&obj[key];if(value!==undefined&&value!==null&&value!=='')return value;}return '';}
   function getList(payload){if(Array.isArray(payload))return payload;for(const key of ['results','data','anime','items'])if(Array.isArray(payload&&payload[key]))return payload[key];if(payload&&payload.data&&Array.isArray(payload.data.results))return payload.data.results;return [];}
-  function safeImage(value){if(!value)return '';try{const u=new URL(value, 'https://reanime.to');return u.protocol==='https:'?u.href:'';}catch(_){return '';}}
+  function safeImage(value){if(!value)return '';if(typeof value==='object')value=value.extra_large||value.large||value.medium||value.url||value.src||'';if(!value)return '';try{const u=new URL(value, 'https://reanime.to');return u.protocol==='https:'?u.href:'';}catch(_){return '';}}
   function render(items){results.replaceChildren();if(!items.length){results.innerHTML='<div class="rean-search-empty">No anime found. Try another title.</div>';return;}
     items.forEach(item=>{
       const title=pick(item,['title','name','english_title','romaji','englishTitle'])||'Untitled anime';
