@@ -42,12 +42,17 @@ public class PlayerActivity extends Activity {
   private PlayerView video;
   private TextView status,heading,timeLabel,playPauseLabel;
   private ProgressBar timeline;
+  private View topControls,bottomControls;
+  private boolean controlsVisible=true;
   private boolean completed=false;
+  private final Runnable hideControls=new Runnable(){@Override public void run(){
+    if(player!=null&&player.isPlaying())setControlsVisible(false);
+  }};
   private final Runnable updateTimeline=new Runnable(){@Override public void run(){
     if(player!=null){long duration=player.getDuration(),position=player.getCurrentPosition();
       if(duration>0){timeline.setMax(1000);timeline.setProgress((int)Math.min(1000,position*1000/duration));}
       timeLabel.setText(clock(position)+"  /  "+(duration>0?clock(duration):"--:--"));
-      playPauseLabel.setText(player.isPlaying()?"Ⅱ  Pause":"▶  Play");
+      playPauseLabel.setText(player.isPlaying()?"Ⅱ":"▶");
       handler.postDelayed(this,1000);
     }
   }};
@@ -86,6 +91,7 @@ public class PlayerActivity extends Activity {
     LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);
     top.setPadding(dp(26),dp(10),dp(26),dp(18));
     top.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{0xee080808,0x00080808}));
+    topControls=top;
     FrameLayout.LayoutParams tp=new FrameLayout.LayoutParams(-1,dp(86),Gravity.TOP);root.addView(top,tp);
     TextView back=new TextView(this);back.setText("‹");back.setTextSize(38);back.setTextColor(-1);
     back.setGravity(Gravity.CENTER);back.setFocusable(true);top.addView(back,new LinearLayout.LayoutParams(dp(64),-1));
@@ -104,6 +110,7 @@ public class PlayerActivity extends Activity {
     bottom.setPadding(dp(40),dp(25),dp(40),dp(25));
     bottom.setBackground(new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP,
       new int[]{0xf5080808,0xd0080808,0x00080808}));
+    bottomControls=bottom;
     FrameLayout.LayoutParams bottomParams=new FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM);
     root.addView(bottom,bottomParams);
     timeLabel=new TextView(this);timeLabel.setTextColor(Color.WHITE);timeLabel.setTextSize(15);
@@ -114,11 +121,11 @@ public class PlayerActivity extends Activity {
     LinearLayout.LayoutParams timelineParams=new LinearLayout.LayoutParams(-1,dp(5));
     timelineParams.topMargin=dp(11);timelineParams.bottomMargin=dp(16);bottom.addView(timeline,timelineParams);
     LinearLayout controls=new LinearLayout(this);controls.setGravity(Gravity.CENTER_VERTICAL);bottom.addView(controls);
-    playPauseLabel=control("Ⅱ  Pause",controls,()->{if(player!=null){if(player.isPlaying())player.pause();else player.play();}});
-    control("↶  10 sec",controls,()->seekRelative(-10000));
-    control("10 sec  ↷",controls,()->seekRelative(10000));
-    control("☷  Episodes",controls,this::chooseEpisode);
-    control("Next Episode  ❯",controls,this::nextEpisode);
+    playPauseLabel=control("Ⅱ",controls,()->{if(player!=null){if(player.isPlaying())player.pause();else player.play();}});
+    control("↺  10s",controls,()->seekRelative(-10000));
+    control("10s  ↻",controls,()->seekRelative(10000));
+    control("Episodes  ▤",controls,this::chooseEpisode);
+    control("Next  ❯",controls,this::nextEpisode);
     LinearLayout center=new LinearLayout(this);center.setGravity(Gravity.CENTER);
     FrameLayout.LayoutParams cp=new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER);root.addView(center,cp);
     loading=new ProgressBar(this);loading.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(0xffff376f));
@@ -174,25 +181,47 @@ public class PlayerActivity extends Activity {
     }
     handler.post(updateTimeline);
     video.requestFocus();
-    // Keep TV navigation actions visible and discoverable for D-pad users.
-    video.setOnClickListener(v->top.animate().alpha(1f).setDuration(170));
+    setControlsVisible(true);
+    scheduleControlsHide();
+    // Clicking/tapping the picture toggles the overlay; TV remote keys do the same.
+    video.setOnClickListener(v->{if(controlsVisible){if(player!=null&&player.isPlaying())setControlsVisible(false);}else{setControlsVisible(true);scheduleControlsHide();}});
+    root.setOnClickListener(v->{if(controlsVisible){if(player!=null&&player.isPlaying())setControlsVisible(false);}else{setControlsVisible(true);scheduleControlsHide();}});
   }
   private TextView control(String label,LinearLayout parent,Runnable action){
-    TextView button=new TextView(this);button.setText(label);button.setTextSize(16);
+    TextView button=new TextView(this);button.setText(label);button.setTextSize(15);
     button.setTypeface(null,Typeface.BOLD);button.setTextColor(Color.WHITE);
     button.setGravity(Gravity.CENTER);button.setFocusable(true);button.setClickable(true);
-    button.setPadding(dp(17),dp(12),dp(17),dp(12));
-    GradientDrawable normal=new GradientDrawable();normal.setColor(0xff333333);normal.setCornerRadius(dp(6));
+    button.setPadding(dp(20),dp(10),dp(20),dp(10));
+    boolean primary=label.equals("Ⅱ")||label.equals("▶");
+    GradientDrawable normal=new GradientDrawable();
+    normal.setColor(primary?0xfff5f5f5:0xdd202126);
+    normal.setCornerRadius(dp(primary?32:24));
+    normal.setStroke(dp(1),primary?0xfff5f5f5:0xff55565d);
     button.setBackground(normal);
-    LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-2,dp(51));params.rightMargin=dp(12);
-    parent.addView(button,params);
+    if(primary)button.setTextColor(0xff111111);
+    LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-2,dp(48));
+    params.rightMargin=dp(12);parent.addView(button,params);
     button.setOnFocusChangeListener((v,focused)->{
       GradientDrawable background=new GradientDrawable();
-      background.setColor(focused?0xffeeeeee:0xff333333);background.setCornerRadius(dp(6));
-      button.setBackground(background);button.setTextColor(focused?Color.BLACK:Color.WHITE);
-      button.animate().scaleX(focused?1.06f:1f).scaleY(focused?1.06f:1f).setDuration(130).start();
+      background.setColor(focused?0xffe50914:(primary?0xfff5f5f5:0xdd202126));
+      background.setCornerRadius(dp(primary?32:24));
+      background.setStroke(dp(2),focused?0xffffffff:(primary?0xfff5f5f5:0xff55565d));
+      button.setBackground(background);
+      button.setTextColor(focused?Color.WHITE:(primary?0xff111111:Color.WHITE));
+      button.animate().scaleX(focused?1.07f:1f).scaleY(focused?1.07f:1f).setDuration(140).start();
     });
-    button.setOnClickListener(v->action.run());return button;
+    button.setOnClickListener(v->{action.run();scheduleControlsHide();});return button;
+  }
+  private void setControlsVisible(boolean visible){
+    controlsVisible=visible;
+    handler.removeCallbacks(hideControls);
+    if(topControls!=null){topControls.setVisibility(visible?View.VISIBLE:View.GONE);topControls.setAlpha(visible?1f:0f);}
+    if(bottomControls!=null){bottomControls.setVisibility(visible?View.VISIBLE:View.GONE);bottomControls.setAlpha(visible?1f:0f);}
+    if(!visible&&video!=null)video.requestFocus();
+  }
+  private void scheduleControlsHide(){
+    handler.removeCallbacks(hideControls);
+    if(player!=null&&player.isPlaying()&&controlsVisible)handler.postDelayed(hideControls,5000);
   }
   private void seekRelative(long ms){if(player!=null){userNavigated=true;player.seekTo(Math.max(0,player.getCurrentPosition()+ms));}}
   private JSONArray catalogue(){try{return new JSONArray(episodeLibrary==null?"[]":episodeLibrary);}catch(Exception e){return new JSONArray();}}
@@ -234,8 +263,19 @@ public class PlayerActivity extends Activity {
   }
   @Override public boolean dispatchKeyEvent(KeyEvent event){
     if(event.getAction()==KeyEvent.ACTION_DOWN&&player!=null){
-      if(event.getKeyCode()==KeyEvent.KEYCODE_MEDIA_FAST_FORWARD){seekRelative(10000);return true;}
-      if(event.getKeyCode()==KeyEvent.KEYCODE_MEDIA_REWIND){seekRelative(-10000);return true;}
+      int key=event.getKeyCode();
+      if(key==KeyEvent.KEYCODE_MEDIA_FAST_FORWARD){setControlsVisible(true);seekRelative(10000);scheduleControlsHide();return true;}
+      if(key==KeyEvent.KEYCODE_MEDIA_REWIND){setControlsVisible(true);seekRelative(-10000);scheduleControlsHide();return true;}
+      if(!controlsVisible&&(key==KeyEvent.KEYCODE_DPAD_CENTER||key==KeyEvent.KEYCODE_ENTER||
+          key==KeyEvent.KEYCODE_DPAD_UP||key==KeyEvent.KEYCODE_DPAD_DOWN||
+          key==KeyEvent.KEYCODE_DPAD_LEFT||key==KeyEvent.KEYCODE_DPAD_RIGHT||
+          key==KeyEvent.KEYCODE_MENU)){
+        setControlsVisible(true);
+        if(playPauseLabel!=null)playPauseLabel.requestFocus();
+        scheduleControlsHide();
+        return true;
+      }
+      if(controlsVisible)scheduleControlsHide();
     }
     return super.dispatchKeyEvent(event);
   }
