@@ -2,7 +2,7 @@ package uk.co.miraculoushub.tv;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DownloadManager;
+import android.app.DownloadManager;\nimport android.app.Dialog;
 import android.content.ClipboardManager;
 import android.content.ClipData;
 import android.content.Context;
@@ -16,7 +16,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.widget.Toast;
+import android.widget.Toast;\nimport android.widget.LinearLayout;\nimport android.widget.TextView;\nimport android.view.Gravity;\nimport android.view.View;\nimport android.graphics.Color;\nimport android.graphics.Typeface;\nimport android.graphics.drawable.GradientDrawable;
 import androidx.core.content.FileProvider;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -151,17 +151,69 @@ public final class AppUpdater {
         main.post(()->{
           if(activity.isFinishing()||activity.isDestroyed()||prompting)return;
           prompting=true;
-          new AlertDialog.Builder(activity)
-            .setTitle("MiraculousHub update • Build "+release.version)
-            .setMessage("Download and prepare this update inside the app? Your account and watch history stay intact if its signing certificate matches. Android will ask you to confirm installation.")
-            .setNegativeButton("Later",(d,w)->prompting=false)
-            .setOnCancelListener(d->prompting=false)
-            .setPositiveButton("Download update",(d,w)->{prompting=false;startDownload(activity,release);})
-            .show();
+          showUpdatePrompt(activity,release);
         });
       }catch(Exception e){if(manual)notify(activity,"Couldn't check updates: "+e.getMessage());}
       finally{checking.set(false);}
     }).start();
+  }
+  private static int dp(Activity a,float value){
+    return (int)(a.getResources().getDisplayMetrics().density*value+0.5f);
+  }
+  private static GradientDrawable panel(int color,int radius,Activity a){
+    GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(a,radius));return d;
+  }
+  private static TextView label(Activity a,String value,int size,int color,boolean bold){
+    TextView t=new TextView(a);t.setText(value);t.setTextSize(size);t.setTextColor(color);
+    if(bold)t.setTypeface(Typeface.DEFAULT,Typeface.BOLD);
+    return t;
+  }
+  /** A remote-friendly branded update sheet with large focus targets for Android TV. */
+  private static void showUpdatePrompt(Activity a,Release release){
+    Dialog dialog=new Dialog(a);
+    LinearLayout card=new LinearLayout(a);card.setOrientation(LinearLayout.VERTICAL);
+    card.setPadding(dp(a,34),dp(a,30),dp(a,34),dp(a,28));
+    card.setBackground(panel(0xff17181f,20,a));
+    card.setFocusable(true);
+    TextView brand=label(a,"MIRACULOUS HUB     •     SYSTEM UPDATE",13,0xffff5364,true);
+    card.addView(brand);
+    TextView heading=label(a,"A new version is ready",29,Color.WHITE,true);
+    LinearLayout.LayoutParams headingP=new LinearLayout.LayoutParams(-1,-2);headingP.topMargin=dp(a,13);card.addView(heading,headingP);
+    TextView badge=label(a,"  NEW UPDATE  •  BUILD "+release.version+"  ",13,Color.WHITE,true);
+    badge.setGravity(Gravity.CENTER);badge.setPadding(dp(a,12),dp(a,9),dp(a,12),dp(a,9));
+    badge.setBackground(panel(0xffb20718,8,a));
+    LinearLayout.LayoutParams badgeP=new LinearLayout.LayoutParams(-2,-2);badgeP.topMargin=dp(a,16);card.addView(badge,badgeP);
+    TextView body=label(a,"Your MiraculousHub TV experience has an update waiting. Download it now, then Android will guide you through installation.",17,0xffd1d2d9,false);
+    body.setLineSpacing(dp(a,3),1f);
+    LinearLayout.LayoutParams bodyP=new LinearLayout.LayoutParams(-1,-2);bodyP.topMargin=dp(a,20);card.addView(body,bodyP);
+    TextView note=label(a,"Your account and watch history are not intentionally cleared by an update. Android will still ask you to confirm installation.",14,0xffa9abb6,false);
+    note.setLineSpacing(dp(a,2),1f);
+    LinearLayout.LayoutParams noteP=new LinearLayout.LayoutParams(-1,-2);noteP.topMargin=dp(a,14);card.addView(note,noteP);
+    LinearLayout actions=new LinearLayout(a);actions.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
+    LinearLayout.LayoutParams actionsP=new LinearLayout.LayoutParams(-1,dp(a,58));actionsP.topMargin=dp(a,25);card.addView(actions,actionsP);
+    TextView later=label(a,"Later",16,Color.WHITE,true);later.setGravity(Gravity.CENTER);
+    later.setFocusable(true);later.setClickable(true);later.setPadding(dp(a,24),0,dp(a,24),0);later.setBackground(panel(0xff30313a,9,a));
+    LinearLayout.LayoutParams laterP=new LinearLayout.LayoutParams(-2,-1);laterP.rightMargin=dp(a,12);actions.addView(later,laterP);
+    TextView download=label(a,"⬇   Download update",16,Color.WHITE,true);download.setGravity(Gravity.CENTER);
+    download.setFocusable(true);download.setClickable(true);download.setPadding(dp(a,24),0,dp(a,24),0);download.setBackground(panel(0xffe50914,9,a));
+    actions.addView(download,new LinearLayout.LayoutParams(-2,-1));
+    View.OnFocusChangeListener focus=(v,on)->{
+      TextView b=(TextView)v;b.setScaleX(on?1.045f:1f);b.setScaleY(on?1.045f:1f);
+      b.setBackground(panel(on?0xffb20718:(b==download?0xffe50914:0xff30313a),9,a));
+    };
+    later.setOnFocusChangeListener(focus);download.setOnFocusChangeListener(focus);
+    later.setOnClickListener(v->{prompting=false;dialog.dismiss();});
+    download.setOnClickListener(v->{prompting=false;dialog.dismiss();startDownload(a,release);});
+    dialog.setContentView(card);dialog.setOnCancelListener(d->prompting=false);
+    if(a.isFinishing()||a.isDestroyed()){prompting=false;return;}
+    dialog.show();
+    if(dialog.getWindow()!=null){
+      dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+      android.view.WindowManager.LayoutParams lp=dialog.getWindow().getAttributes();
+      lp.width=Math.min(dp(a,820),a.getResources().getDisplayMetrics().widthPixels-dp(a,48));
+      lp.height=-2;dialog.getWindow().setAttributes(lp);
+    }
+    download.requestFocus();
   }
   private static File target(Activity activity,int version){
     return new File(activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
