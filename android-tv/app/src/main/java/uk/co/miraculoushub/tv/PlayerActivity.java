@@ -80,8 +80,8 @@ public class PlayerActivity extends Activity {
       cloudDocument=TvFirebase.database(this).collection("users").document(account.getUid()).collection("playback").document(cloudKey);
     if(uri==null||!uri.startsWith("https://")){finish();return;}
     FrameLayout root=new FrameLayout(this);root.setBackgroundColor(Color.BLACK);setContentView(root);
-    video=new PlayerView(this);video.setUseController(true);video.setControllerShowTimeoutMs(5500);
-    video.setControllerAutoShow(true);video.setKeepScreenOn(true);video.setFocusable(true);
+    video=new PlayerView(this);video.setUseController(false);
+    video.setKeepScreenOn(true);video.setFocusable(true);
     root.addView(video,new FrameLayout.LayoutParams(-1,-1));
     LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);
     top.setPadding(dp(26),dp(10),dp(26),dp(18));
@@ -98,10 +98,8 @@ public class PlayerActivity extends Activity {
     heading=new TextView(this);heading.setText(title==null?"Episode":title);heading.setTextColor(-1);
     heading.setTextSize(23);heading.setTypeface(null,Typeface.BOLD);heading.setSingleLine(true);
     heading.setEllipsize(TextUtils.TruncateAt.END);names.addView(heading);
-    TextView browse=new TextView(this);browse.setText("☷  Episodes");browse.setTextColor(-1);browse.setTextSize(17);browse.setGravity(Gravity.CENTER);browse.setPadding(dp(18),dp(12),dp(18),dp(12));browse.setBackgroundColor(0xff383838);browse.setFocusable(true);top.addView(browse);browse.setOnClickListener(v->chooseEpisode());
-    TextView next=new TextView(this);next.setText("Next ❯");next.setTextColor(-1);next.setTextSize(17);next.setGravity(Gravity.CENTER);next.setPadding(dp(18),dp(12),dp(18),dp(12));next.setFocusable(true);top.addView(next);next.setOnClickListener(v->nextEpisode());
-    // Netflix-inspired cinematic playback toolbar. The built-in Media3 controller
-    // remains available for accessibility and reliable D-pad seeking.
+    // Keep the header clean; all playback actions live in one consistent control bar.
+    // This avoids stacking the default Media3 controller over custom TV controls.
     LinearLayout bottom=new LinearLayout(this);bottom.setOrientation(LinearLayout.VERTICAL);
     bottom.setPadding(dp(40),dp(25),dp(40),dp(25));
     bottom.setBackground(new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP,
