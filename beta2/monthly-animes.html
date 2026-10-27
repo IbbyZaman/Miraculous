@@ -73,11 +73,11 @@
 </aside>
 <main class="anime-page">
   <section class="anime-hero"><p class="kicker">MONTHLY COLLECTION</p><h1>Popular Animes</h1><p>A rotating anime shelf alongside MiraculousHub. Choose Death Note, Attack on Titan or Black Clover. Resume your episodes, use fullscreen and AirPlay, or invite friends to a Watch Together party.</p></section>
-  <section class="rean-search-section" aria-label="Search the Re:ANIME catalogue">
+  <section class="rean-search-section" aria-label="Search English-dub anime">
     <form class="rean-search-form" id="reanAnimeSearchForm">
-      <label class="rean-search-label" for="reanAnimeSearch">Search the Re:ANIME library</label>
-      <div class="rean-search-controls"><span class="rean-search-icon" aria-hidden="true">⌕</span><input id="reanAnimeSearch" name="q" type="search" placeholder="Search any anime title…" autocomplete="off" required><button type="submit">Search anime</button></div>
-      <p class="rean-search-note">Results are loaded from the Re:ANIME API. Choose a title to open its Re:ANIME page.</p>
+      <label class="rean-search-label" for="reanAnimeSearch">Search English-dub anime</label>
+      <div class="rean-search-controls"><span class="rean-search-icon" aria-hidden="true">⌕</span><input id="reanAnimeSearch" name="q" type="search" placeholder="Search anime title…" autocomplete="off" required><button type="submit">Search anime</button></div>
+      <p class="rean-search-note">Search results include English-dub status and open the anime details page.</p>
       <div id="reanAnimeStatus" class="rean-search-status" role="status" aria-live="polite"></div>
       <div id="reanAnimeResults" class="rean-search-results" aria-live="polite"></div>
     </form>
@@ -102,29 +102,46 @@
   const input=document.getElementById('reanAnimeSearch');
   const status=document.getElementById('reanAnimeStatus');
   const results=document.getElementById('reanAnimeResults');
-  const API='https://reanime.to/api/search';
-  function pick(obj,keys){for(const key of keys){const value=obj&&obj[key];if(value!==undefined&&value!==null&&value!=='')return value;}return '';}
-  function getList(payload){if(Array.isArray(payload))return payload;for(const key of ['results','data','anime','items'])if(Array.isArray(payload&&payload[key]))return payload[key];if(payload&&payload.data&&Array.isArray(payload.data.results))return payload.data.results;return [];}
-  function safeImage(value){if(!value)return '';if(typeof value==='object')value=value.extra_large||value.large||value.medium||value.url||value.src||'';if(!value)return '';try{const u=new URL(value, 'https://reanime.to');return u.protocol==='https:'?u.href:'';}catch(_){return '';}}
-  function render(items){results.replaceChildren();if(!items.length){results.innerHTML='<div class="rean-search-empty">No anime found. Try another title.</div>';return;}
+  const API='https://api.anidub.moe/v1/anime/search';
+  function render(items){
+    results.replaceChildren();
+    if(!items.length){results.innerHTML='<div class="rean-search-empty">No English-dub matches found for that title. Try another search.</div>';return;}
     items.forEach(item=>{
-      const title=pick(item,['title','name','english_title','romaji','englishTitle'])||'Untitled anime';
-      const slug=pick(item,['slug','id','anime_id','animeId']);
-      const rawUrl=pick(item,['url','link','href']);let href='https://reanime.to/search';
-      if(rawUrl){try{const u=new URL(rawUrl,'https://reanime.to');if(u.hostname==='reanime.to'||u.hostname.endsWith('.reanime.to'))href=u.href;}catch(_){}}
-      else if(slug)href='https://reanime.to/'+String(slug).replace(/^\/+/, '');
-      const card=document.createElement('a');card.className='rean-result-card';card.href=href;card.target='_blank';card.rel='noopener noreferrer';
-      const image=safeImage(pick(item,['cover_image','coverImage','image','poster','poster_url','posterUrl','thumbnail']));
-      if(image){const img=document.createElement('img');img.className='rean-result-poster';img.src=image;img.alt='';img.loading='lazy';card.appendChild(img);}
-      const copy=document.createElement('div');copy.className='rean-result-copy';const name=document.createElement('strong');name.textContent=title;copy.appendChild(name);
-      const meta=pick(item,['type','format','year','status']);if(meta){const sub=document.createElement('span');sub.textContent=String(meta);copy.appendChild(sub);}
-      const action=document.createElement('span');action.textContent='View on Re:ANIME ↗';copy.appendChild(action);card.appendChild(copy);results.appendChild(card);
+      const title=item.titleEnglish||item.titleRomaji||item.titleNative||'Untitled anime';
+      const card=document.createElement('a');
+      card.className='rean-result-card';card.href='https://anilist.co/anime/'+encodeURIComponent(item.anilistId);card.target='_blank';card.rel='noopener noreferrer';
+      if(item.coverImage){const img=document.createElement('img');img.className='rean-result-poster';img.src=item.coverImage;img.alt='';img.loading='lazy';card.appendChild(img);}
+      const copy=document.createElement('div');copy.className='rean-result-copy';
+      const name=document.createElement('strong');name.textContent=title;copy.appendChild(name);
+      const badge=document.createElement('span');
+      const dubStatus=item.dubStatus||'unknown';
+      if(dubStatus==='dubbed'){
+        const total=item.episodes, dubbed=item.dubbedEpisodes;
+        badge.textContent=(dubbed!=null&&total!=null&&dubbed<total)?'English dub · '+dubbed+'/'+total+' episodes':'English dub available';
+      }else if(dubStatus==='in_production')badge.textContent='English dub in production';
+      else if(dubStatus==='announced')badge.textContent='English dub announced';
+      else badge.textContent='English dub status unconfirmed';
+      copy.appendChild(badge);
+      const meta=document.createElement('span');meta.textContent=[item.seasonYear,item.format,item.studio].filter(Boolean).join(' · ');if(meta.textContent)copy.appendChild(meta);
+      const action=document.createElement('span');action.textContent='View anime details ↗';copy.appendChild(action);
+      card.appendChild(copy);results.appendChild(card);
     });
   }
-  form.addEventListener('submit',async function(event){event.preventDefault();const query=input.value.trim();if(!query)return;status.textContent='Searching Re:ANIME…';results.replaceChildren();const button=form.querySelector('button[type="submit"]');button.disabled=true;
-    try{const response=await fetch(API+'?q='+encodeURIComponent(query)+'&limit=24&offset=0',{headers:{Accept:'application/json'}});if(!response.ok)throw new Error('API returned '+response.status);const payload=await response.json();render(getList(payload));status.textContent='';}
-    catch(error){status.textContent='Could not load results directly from the Re:ANIME API (it may block cross-site requests). You can still search on Re:ANIME.';const fallback=document.createElement('a');fallback.href='https://reanime.to/search';fallback.target='_blank';fallback.rel='noopener noreferrer';fallback.textContent='Open Re:ANIME search ↗';fallback.style.display='inline-block';fallback.style.marginTop='8px';fallback.style.color='var(--pink)';status.appendChild(document.createElement('br'));status.appendChild(fallback);}
-    finally{button.disabled=false;}
+  form.addEventListener('submit',async function(event){
+    event.preventDefault();
+    const query=input.value.trim();if(query.length<2){status.textContent='Enter at least 2 characters.';return;}
+    status.textContent='Searching anime and checking English-dub status…';results.replaceChildren();
+    const button=form.querySelector('button[type="submit"]');button.disabled=true;
+    try{
+      const url=API+'?q='+encodeURIComponent(query)+'&limit=24&language=en&dubbed=any&adult=hide';
+      const response=await fetch(url,{headers:{Accept:'application/json'}});
+      if(!response.ok)throw new Error('API returned '+response.status);
+      const payload=await response.json();
+      const items=Array.isArray(payload.results)?payload.results:[];
+      render(items);status.textContent=items.length?'Showing English-dub matches. Dub completeness can vary by title.':'';
+    }catch(error){
+      status.textContent='The anime API could not be reached from this browser. Please try again later.';
+    }finally{button.disabled=false;}
   });
 })();
 </script>
