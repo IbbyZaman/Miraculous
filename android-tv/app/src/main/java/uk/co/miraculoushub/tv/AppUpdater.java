@@ -2,7 +2,8 @@ package uk.co.miraculoushub.tv;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DownloadManager;\nimport android.app.Dialog;
+import android.app.DownloadManager;
+import android.app.Dialog;
 import android.content.ClipboardManager;
 import android.content.ClipData;
 import android.content.Context;
@@ -16,7 +17,14 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.widget.Toast;\nimport android.widget.LinearLayout;\nimport android.widget.TextView;\nimport android.view.Gravity;\nimport android.view.View;\nimport android.graphics.Color;\nimport android.graphics.Typeface;\nimport android.graphics.drawable.GradientDrawable;
+import android.widget.Toast;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.view.Gravity;
+import android.view.View;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import androidx.core.content.FileProvider;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -312,35 +320,55 @@ public final class AppUpdater {
     PackageInfo incoming=pm.getPackageArchiveInfo(file.getAbsolutePath(),flags);
     PackageInfo installed=pm.getPackageInfo(activity.getPackageName(),flags);
     if(incoming==null)return new CheckResult(false,false,
-      "Android couldn't read the downloaded APK metadata. Try downloading it again.\n\nFile: "+file.getName());
+      "Android couldn't read the downloaded APK metadata. Try downloading it again.
+
+File: "+file.getName());
     if(!activity.getPackageName().equals(incoming.packageName))
       return new CheckResult(false,false,
-      "Wrong app package!\nInstalled: "+activity.getPackageName()+"\nDownloaded: "+incoming.packageName);
+      "Wrong app package!
+Installed: "+activity.getPackageName()+"
+Downloaded: "+incoming.packageName);
     long newVersion=Build.VERSION.SDK_INT>=28?incoming.getLongVersionCode():incoming.versionCode;
     long oldVersion=Build.VERSION.SDK_INT>=28?installed.getLongVersionCode():installed.versionCode;
     if(newVersion<=oldVersion||newVersion!=expected)
-      return new CheckResult(false,false,"Version mismatch.\nInstalled build: "+oldVersion+
-        "\nDownloaded build: "+newVersion+"\nExpected build: "+expected+
-        "\nPlease try checking for updates again.");
+      return new CheckResult(false,false,"Version mismatch.
+Installed build: "+oldVersion+
+        "
+Downloaded build: "+newVersion+"
+Expected build: "+expected+
+        "
+Please try checking for updates again.");
     Signature[] archiveCert=signers(incoming),installedCert=signers(installed);
     if(archiveCert==null||archiveCert.length==0||installedCert==null||installedCert.length==0)
       // Archive signature info can be absent on some Android/TV firmware.
       // Android's own installer MUST still validate the APK certificate.
       return new CheckResult(true,true,"Android's package inspector didn't return both certificates."+
-        "\nInstalled cert: "+fingerprint(installedCert)+
-        "\nDownloaded cert: "+fingerprint(archiveCert)+
-        "\n\nAndroid's system installer will verify the signature before installing.");
+        "
+Installed cert: "+fingerprint(installedCert)+
+        "
+Downloaded cert: "+fingerprint(archiveCert)+
+        "
+
+Android's system installer will verify the signature before installing.");
     if(!Arrays.equals(archiveCert,installedCert))
       return new CheckResult(false,false,
-        "The downloaded APK is signed with a different certificate.\n\n"+
+        "The downloaded APK is signed with a different certificate.
+
+"+
         "Installed build: "+oldVersion+"  •  Certificate: "+fingerprint(installedCert)+
-        "\nDownloaded build: "+newVersion+"  •  Certificate: "+fingerprint(archiveCert)+
-        "\n\nAndroid will not replace an app signed by a different key. "+
+        "
+Downloaded build: "+newVersion+"  •  Certificate: "+fingerprint(archiveCert)+
+        "
+
+Android will not replace an app signed by a different key. "+
         "Do not uninstall until your account and watch progress are synced. "+
         "Send a screenshot of this message so we can investigate the installed build.");
     return new CheckResult(true,false,
-      "Signing certificates match.\nInstalled build: "+oldVersion+
-      "\nDownloaded build: "+newVersion+"\nCertificate: "+fingerprint(installedCert));
+      "Signing certificates match.
+Installed build: "+oldVersion+
+      "
+Downloaded build: "+newVersion+"
+Certificate: "+fingerprint(installedCert));
   }
   private static void verifyAndPresent(Activity a,long id){
     try{
@@ -356,9 +384,15 @@ public final class AppUpdater {
           actual.getBytes(java.nio.charset.StandardCharsets.US_ASCII))){
           clear(a);
           showIssue(a,"Update file didn't match",
-            "The download failed its security check, so it was not installed.\n\n"+
-            "Build: "+version+"\nExpected SHA-256: "+expected+"\nReceived SHA-256: "+actual+
-            "\n\nThis can happen when an older APK is served from a cache. "+
+            "The download failed its security check, so it was not installed.
+
+"+
+            "Build: "+version+"
+Expected SHA-256: "+expected+"
+Received SHA-256: "+actual+
+            "
+
+This can happen when an older APK is served from a cache. "+
             "Please check for updates again. Future builds use version-specific APK links.");
           return;
         }
@@ -384,7 +418,9 @@ public final class AppUpdater {
         new AlertDialog.Builder(a)
           .setTitle("Update downloaded ✓")
           .setMessage("Build "+version+" is downloaded and verified. Install it over your current app? Android will ask for confirmation."+
-            (check.installerMustVerify?"\n\n"+check.message:""))
+            (check.installerMustVerify?"
+
+"+check.message:""))
           .setNegativeButton("Later",(d,w)->{
             a.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().putBoolean("staged",false).apply();
           })
@@ -393,7 +429,9 @@ public final class AppUpdater {
       });
     }catch(Exception e){
       showIssue(a,"Update couldn't be prepared","Reason: "+e.getMessage()+
-        "\n\nThe current app is still installed and your data hasn't been changed.");
+        "
+
+The current app is still installed and your data hasn't been changed.");
     }
   }
   private static void install(Activity activity,File file){
