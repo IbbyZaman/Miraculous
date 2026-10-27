@@ -34,7 +34,8 @@
 .anime-coming{min-height:350px;border-radius:28px;border:1px dashed rgba(255,255,255,.10);display:grid;place-items:center;color:#676d79;text-align:center;padding:30px}
 @media(max-width:900px){.anime-library{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.anime-page{padding-top:24px}.anime-library{grid-template-columns:1fr}.anime-title-card{min-height:310px}}
-.anime-card-aot{background:radial-gradient(circle at 70% 15%,rgba(200,171,111,.17),transparent 32%),linear-gradient(145deg,#20281f,#0b100d 45%,#2d261c)}.anime-card-aot .anime-card-badge{color:#e0c891;background:rgba(186,158,97,.12);border-color:rgba(186,158,97,.3)}.anime-card-aot:hover{border-color:#bba471}.anime-card-bc{background:radial-gradient(circle at 70% 15%,rgba(100,205,126,.17),transparent 32%),linear-gradient(145deg,#17251b,#0a100c 45%,#10291a)}.anime-card-bc .anime-card-badge{color:#8de7a2;background:rgba(80,190,105,.12);border-color:rgba(80,190,105,.3)}.anime-card-bc:hover{border-color:#67c77e}</style>
+.anime-card-aot{background:radial-gradient(circle at 70% 15%,rgba(200,171,111,.17),transparent 32%),linear-gradient(145deg,#20281f,#0b100d 45%,#2d261c)}.anime-card-aot .anime-card-badge{color:#e0c891;background:rgba(186,158,97,.12);border-color:rgba(186,158,97,.3)}.anime-card-aot:hover{border-color:#bba471}.anime-card-bc{background:radial-gradient(circle at 70% 15%,rgba(100,205,126,.17),transparent 32%),linear-gradient(145deg,#17251b,#0a100c 45%,#10291a)}.anime-card-bc .anime-card-badge{color:#8de7a2;background:rgba(80,190,105,.12);border-color:rgba(80,190,105,.3)}.anime-card-bc:hover{border-color:#67c77e}
+.rean-search-status{font-size:13px;color:var(--muted);margin-top:14px}.rean-search-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.rean-result-card{display:flex;gap:12px;min-width:0;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--text);text-decoration:none;transition:transform .18s ease,border-color .18s ease}.rean-result-card:hover{transform:translateY(-2px);border-color:var(--pink)}.rean-result-poster{width:76px;min-width:76px;height:108px;object-fit:cover;border-radius:10px;background:rgba(128,128,128,.12)}.rean-result-copy{min-width:0;align-self:center}.rean-result-copy strong{display:block;font-size:14px;line-height:1.35;overflow-wrap:anywhere}.rean-result-copy span{display:block;color:var(--muted);font-size:12px;line-height:1.5;margin-top:6px}.rean-search-empty{grid-column:1/-1;padding:18px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:13px}@media(max-width:700px){.rean-search-results{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){.rean-search-results{grid-template-columns:1fr}.rean-result-poster{width:68px;min-width:68px;height:96px}}</style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
      crossorigin="anonymous"></script>
 </head>
@@ -55,10 +56,12 @@
 <main class="anime-page">
   <section class="anime-hero"><p class="kicker">MONTHLY COLLECTION</p><h1>Monthly Animes</h1><p>A rotating anime shelf alongside MiraculousHub. Choose Death Note, Attack on Titan or Black Clover. Resume your episodes, use fullscreen and AirPlay, or invite friends to a Watch Together party.</p></section>
   <section class="rean-search-section" aria-label="Search the Re:ANIME catalogue">
-    <form class="rean-search-form" action="https://reanime.to/search" method="get" target="_blank">
+    <form class="rean-search-form" id="reanAnimeSearchForm">
       <label class="rean-search-label" for="reanAnimeSearch">Search the Re:ANIME library</label>
-      <div class="rean-search-controls"><span class="rean-search-icon" aria-hidden="true">⌕</span><input id="reanAnimeSearch" name="q" type="search" placeholder="Search any anime title…" autocomplete="off" required><button type="submit">Search anime ↗</button></div>
-      <p class="rean-search-note">Search opens Re:ANIME in a new tab. Your existing MiraculousHub anime collection stays below.</p>
+      <div class="rean-search-controls"><span class="rean-search-icon" aria-hidden="true">⌕</span><input id="reanAnimeSearch" name="q" type="search" placeholder="Search any anime title…" autocomplete="off" required><button type="submit">Search anime</button></div>
+      <p class="rean-search-note">Results are loaded from the Re:ANIME API. Choose a title to open its Re:ANIME page.</p>
+      <div id="reanAnimeStatus" class="rean-search-status" role="status" aria-live="polite"></div>
+      <div id="reanAnimeResults" class="rean-search-results" aria-live="polite"></div>
     </form>
   </section>
   <section><div class="section-head"><div><p class="kicker">FEATURED THIS MONTH</p><h2>Choose a title</h2></div></div>
@@ -73,4 +76,38 @@
 <div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
 <div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button></div>
 <script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="season7-data.js?v=banner-fix-1"></script><script src="catalog.js?v=banner-fix-1"></script><script src="anime-data.js?v=aot-party-1"></script><script src="firebase.js?v=account-v4-1"></script><script src="common.js?v=trailer-cards-1"></script><script src="motion.js?v=nav-alignment-v4-1"></script>
+
+<script>
+(function(){
+  const form=document.getElementById('reanAnimeSearchForm');
+  if(!form)return;
+  const input=document.getElementById('reanAnimeSearch');
+  const status=document.getElementById('reanAnimeStatus');
+  const results=document.getElementById('reanAnimeResults');
+  const API='https://reanime.to/api/search';
+  function pick(obj,keys){for(const key of keys){const value=obj&&obj[key];if(value!==undefined&&value!==null&&value!=='')return value;}return '';}
+  function getList(payload){if(Array.isArray(payload))return payload;for(const key of ['results','data','anime','items'])if(Array.isArray(payload&&payload[key]))return payload[key];if(payload&&payload.data&&Array.isArray(payload.data.results))return payload.data.results;return [];}
+  function safeImage(value){if(!value)return '';try{const u=new URL(value, 'https://reanime.to');return u.protocol==='https:'?u.href:'';}catch(_){return '';}}
+  function render(items){results.replaceChildren();if(!items.length){results.innerHTML='<div class="rean-search-empty">No anime found. Try another title.</div>';return;}
+    items.forEach(item=>{
+      const title=pick(item,['title','name','english_title','romaji','englishTitle'])||'Untitled anime';
+      const slug=pick(item,['slug','id','anime_id','animeId']);
+      const rawUrl=pick(item,['url','link','href']);let href='https://reanime.to/search';
+      if(rawUrl){try{const u=new URL(rawUrl,'https://reanime.to');if(u.hostname==='reanime.to'||u.hostname.endsWith('.reanime.to'))href=u.href;}catch(_){}}
+      else if(slug)href='https://reanime.to/'+String(slug).replace(/^\/+/, '');
+      const card=document.createElement('a');card.className='rean-result-card';card.href=href;card.target='_blank';card.rel='noopener noreferrer';
+      const image=safeImage(pick(item,['cover_image','coverImage','image','poster','poster_url','posterUrl','thumbnail']));
+      if(image){const img=document.createElement('img');img.className='rean-result-poster';img.src=image;img.alt='';img.loading='lazy';card.appendChild(img);}
+      const copy=document.createElement('div');copy.className='rean-result-copy';const name=document.createElement('strong');name.textContent=title;copy.appendChild(name);
+      const meta=pick(item,['type','format','year','status']);if(meta){const sub=document.createElement('span');sub.textContent=String(meta);copy.appendChild(sub);}
+      const action=document.createElement('span');action.textContent='View on Re:ANIME ↗';copy.appendChild(action);card.appendChild(copy);results.appendChild(card);
+    });
+  }
+  form.addEventListener('submit',async function(event){event.preventDefault();const query=input.value.trim();if(!query)return;status.textContent='Searching Re:ANIME…';results.replaceChildren();const button=form.querySelector('button[type="submit"]');button.disabled=true;
+    try{const response=await fetch(API+'?q='+encodeURIComponent(query)+'&limit=24&offset=0',{headers:{Accept:'application/json'}});if(!response.ok)throw new Error('API returned '+response.status);const payload=await response.json();render(getList(payload));status.textContent='';}
+    catch(error){status.textContent='Could not load results directly from the Re:ANIME API (it may block cross-site requests). You can still search on Re:ANIME.';const fallback=document.createElement('a');fallback.href='https://reanime.to/search';fallback.target='_blank';fallback.rel='noopener noreferrer';fallback.textContent='Open Re:ANIME search ↗';fallback.style.display='inline-block';fallback.style.marginTop='8px';fallback.style.color='var(--pink)';status.appendChild(document.createElement('br'));status.appendChild(fallback);}
+    finally{button.disabled=false;}
+  });
+})();
+</script>
 </body></html>
