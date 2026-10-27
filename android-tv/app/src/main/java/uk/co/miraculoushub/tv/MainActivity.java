@@ -156,7 +156,8 @@ public class MainActivity extends Activity {
    top.setBackground(new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[]{0xff08090d,0xff111218}));
    shell.addView(top,new LinearLayout.LayoutParams(-1,dp(82)));
    TextView brand=text("M",31,true,PINK);
-   top.addView(brand);TextView hub=text("IRACULOUS",25,true,Color.WHITE);top.addView(hub);\n   TextView hubLabel=text("HUB",11,true,0xffb7b7c0);hubLabel.setGravity(Gravity.BOTTOM);LinearLayout.LayoutParams hlp=new LinearLayout.LayoutParams(-2,dp(28));hlp.leftMargin=dp(4);top.addView(hubLabel,hlp);
+   top.addView(brand);TextView hub=text("IRACULOUS",25,true,Color.WHITE);top.addView(hub);
+   TextView hubLabel=text("HUB",11,true,0xffb7b7c0);hubLabel.setGravity(Gravity.BOTTOM);LinearLayout.LayoutParams hlp=new LinearLayout.LayoutParams(-2,dp(28));hlp.leftMargin=dp(4);top.addView(hubLabel,hlp);
    View gap=new View(this);top.addView(gap,new LinearLayout.LayoutParams(dp(35),dp(1)));
    for(String[] entry:new String[][]{{"Home","Home"},{"Series","Episodes"},{"Anime","Anime"},{"New & Upcoming","Upcoming"},{"Trailers","Trailers"},{"My List","Continue"}}){
      final String target=entry[1];
