@@ -148,6 +148,10 @@ public class PlayerActivity extends Activity {
       .setMediaSourceFactory(new DefaultMediaSourceFactory(new DefaultDataSource.Factory(this,videoHttp)))
       .build();video.setPlayer(player);
     player.addListener(new Player.Listener(){
+      @Override public void onIsPlayingChanged(boolean isPlaying){
+        if(isPlaying)scheduleControlsHide();
+        else setControlsVisible(true);
+      }
       @Override public void onPlaybackStateChanged(int state){
         loading.setVisibility(state==Player.STATE_BUFFERING||state==Player.STATE_IDLE?View.VISIBLE:View.GONE);
         if(state==Player.STATE_ENDED&&!completed){completed=true;savePlayback(true);status.setVisibility(View.VISIBLE);status.setText("Episode finished  •  Select Next Episode to continue");}
