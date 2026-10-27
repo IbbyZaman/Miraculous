@@ -3,6 +3,7 @@ package uk.co.miraculoushub.tv;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
+import android.app.Dialog;
 import android.content.ClipboardManager;
 import android.content.ClipData;
 import android.content.Context;
@@ -15,6 +16,13 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.provider.Settings;
 import android.widget.Toast;
 import androidx.core.content.FileProvider;
@@ -329,21 +337,96 @@ public final class AppUpdater {
       }
       main.post(()->{
         if(a.isFinishing()||a.isDestroyed())return;
-        new AlertDialog.Builder(a)
-          .setTitle("Update downloaded ✓")
-          .setMessage("Build "+version+" is downloaded and verified. Install it over your current app? Android will ask for confirmation."+
-            (check.installerMustVerify?"\n\n"+check.message:""))
-          .setNegativeButton("Later",(d,w)->{
-            a.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().putBoolean("staged",false).apply();
-          })
-          .setPositiveButton("Install update",(d,w)->install(a,file))
-          .show();
+        showUpdatePrompt(a,version,file,check);
       });
     }catch(Exception e){
       showIssue(a,"Update couldn't be prepared","Reason: "+e.getMessage()+
         "\n\nThe current app is still installed and your data hasn't been changed.");
     }
   }
+
+  private static int dp(Activity a,int value){
+    return (int)(a.getResources().getDisplayMetrics().density*value+0.5f);
+  }
+  private static GradientDrawable shape(int color,int radius,int strokeColor){
+    GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(radius);
+    if(strokeColor!=0)d.setStroke(1,strokeColor);
+    return d;
+  }
+  private static TextView promptText(Activity a,String value,int size,int color,boolean bold){
+    TextView t=new TextView(a);t.setText(value);t.setTextSize(size);t.setTextColor(color);
+    if(bold)t.setTypeface(null,Typeface.BOLD);
+    return t;
+  }
+  private static void showUpdatePrompt(Activity a,int version,File file,CheckResult check){
+    Dialog dialog=new Dialog(a);
+    LinearLayout card=new LinearLayout(a);card.setOrientation(LinearLayout.VERTICAL);
+    card.setPadding(dp(a,30),dp(a,28),dp(a,30),dp(a,26));
+    card.setBackground(shape(0xff17181d,dp(a,22),0xff383a42));
+    card.setElevation(dp(a,14));
+    card.setFocusable(true);
+    TextView brand=promptText(a,"MIRACULOUS HUB",13,0xfff04452,true);
+    brand.setLetterSpacing(0.12f);card.addView(brand);
+    TextView title=promptText(a,"A new version is ready",27,Color.WHITE,true);
+    LinearLayout.LayoutParams titleParams=new LinearLayout.LayoutParams(-1,-2);
+    titleParams.topMargin=dp(a,12);card.addView(title,titleParams);
+    TextView subtitle=promptText(a,"Your TV experience is getting an upgrade.",15,0xffc4c5cc,false);
+    LinearLayout.LayoutParams subParams=new LinearLayout.LayoutParams(-1,-2);
+    subParams.topMargin=dp(a,7);card.addView(subtitle,subParams);
+    TextView badge=promptText(a,"  BUILD "+version+"  •  VERIFIED APK  ",12,0xffffb9bf,true);
+    badge.setPadding(dp(a,11),dp(a,8),dp(a,11),dp(a,8));
+    badge.setBackground(shape(0xff352126,dp(a,8),0xff6d3038));
+    LinearLayout.LayoutParams badgeParams=new LinearLayout.LayoutParams(-2,-2);
+    badgeParams.topMargin=dp(a,18);card.addView(badge,badgeParams);
+    TextView info=promptText(a,"Install over your current app. Your account and watch history stay in place.",14,0xffd5d6dc,false);
+    info.setLineSpacing(dp(a,3),1f);
+    LinearLayout.LayoutParams infoParams=new LinearLayout.LayoutParams(-1,-2);
+    infoParams.topMargin=dp(a,16);card.addView(info,infoParams);
+    if(check.installerMustVerify){
+      TextView note=promptText(a,check.message,11,0xffaeb0b8,false);
+      LinearLayout.LayoutParams noteParams=new LinearLayout.LayoutParams(-1,-2);
+      noteParams.topMargin=dp(a,10);card.addView(note,noteParams);
+    }
+    LinearLayout actions=new LinearLayout(a);actions.setGravity(Gravity.CENTER_VERTICAL);
+    actions.setOrientation(LinearLayout.HORIZONTAL);
+    LinearLayout.LayoutParams actionsParams=new LinearLayout.LayoutParams(-1,-2);
+    actionsParams.topMargin=dp(a,24);card.addView(actions,actionsParams);
+    TextView later=promptText(a,"Later",15,Color.WHITE,true);
+    later.setGravity(Gravity.CENTER);later.setFocusable(true);later.setClickable(true);
+    later.setPadding(dp(a,22),dp(a,13),dp(a,22),dp(a,13));
+    later.setBackground(shape(0xff292a31,dp(a,10),0xff4b4d55));
+    actions.addView(later,new LinearLayout.LayoutParams(0,dp(a,50),1));
+    TextView install=promptText(a,"Install update",15,Color.WHITE,true);
+    install.setGravity(Gravity.CENTER);install.setFocusable(true);install.setClickable(true);
+    install.setPadding(dp(a,22),dp(a,13),dp(a,22),dp(a,13));
+    install.setBackground(shape(0xffe50914,dp(a,10),0xffe50914));
+    LinearLayout.LayoutParams installParams=new LinearLayout.LayoutParams(0,dp(a,50),1);
+    installParams.leftMargin=dp(a,12);actions.addView(install,installParams);
+    View.OnFocusChangeListener focus=(view,focused)->{
+      view.animate().scaleX(focused?1.04f:1f).scaleY(focused?1.04f:1f).setDuration(120).start();
+      if(view==install)install.setBackground(shape(focused?0xffff2632:0xffe50914,dp(a,10),Color.WHITE));
+      else later.setBackground(shape(focused?0xff41434b:0xff292a31,dp(a,10),focused?Color.WHITE:0xff4b4d55));
+    };
+    later.setOnFocusChangeListener(focus);install.setOnFocusChangeListener(focus);
+    later.setOnClickListener(v->{
+      a.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().putBoolean("staged",false).apply();
+      dialog.dismiss();
+    });
+    install.setOnClickListener(v->{dialog.dismiss();install(a,file);});
+    dialog.setContentView(card);
+    if(dialog.getWindow()!=null){
+      dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+      dialog.getWindow().setDimAmount(0.72f);
+    }
+    dialog.setOnCancelListener(d->a.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit().putBoolean("staged",false).apply());
+    dialog.show();
+    if(dialog.getWindow()!=null){
+      dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+      dialog.getWindow().setLayout((int)(a.getResources().getDisplayMetrics().widthPixels*0.72f),-2);
+    }
+    install.requestFocus();
+  }
+
   private static void install(Activity activity,File file){
     if(Build.VERSION.SDK_INT>=26&&!activity.getPackageManager().canRequestPackageInstalls()){
       activity.getSharedPreferences(PREFS,Context.MODE_PRIVATE).edit()
