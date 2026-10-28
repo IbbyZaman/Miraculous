@@ -43,7 +43,46 @@ public class MainActivity extends Activity {
  private final Runnable liveRefresh=new Runnable(){@Override public void run(){refresh();handler.postDelayed(this,120000);}};
 
  @Override public void onCreate(Bundle saved){
-   super.onCreate(saved);immersive();loadBundled();render();refresh();checkAppUpdates();
+   super.onCreate(saved);immersive();loadBundled();showStartupSplash();
+ }
+ private void showStartupSplash(){
+   FrameLayout root=new FrameLayout(this);root.setBackgroundColor(0xff08090d);setContentView(root);
+   ImageView heroes=new ImageView(this);heroes.setScaleType(ImageView.ScaleType.CENTER_CROP);
+   root.addView(heroes,new FrameLayout.LayoutParams(-1,-1));
+   Glide.with(this).load(POSTER).centerCrop().into(heroes);
+   View shade=new View(this);shade.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+     new int[]{0x6608090d,0xff08090d}));root.addView(shade,new FrameLayout.LayoutParams(-1,-1));
+   LinearLayout panel=vertical();panel.setGravity(Gravity.CENTER);panel.setPadding(dp(40),dp(30),dp(40),dp(30));
+   root.addView(panel,new FrameLayout.LayoutParams(-1,-1));
+   TextView logo=text("MIRACULOUS HUB",28,true,Color.WHITE);logo.setGravity(Gravity.CENTER);panel.addView(logo);
+   space(panel,12);
+   ProgressBar spinner=new ProgressBar(this);panel.addView(spinner,new LinearLayout.LayoutParams(dp(42),dp(42)));
+   space(panel,12);
+   TextView status=text("Connecting to MiraculousHub…",17,false,0xffe0e0e8);status.setGravity(Gravity.CENTER);panel.addView(status);
+   TextView error=text("The MiraculousHub server could not be reached.",17,true,Color.WHITE);
+   error.setGravity(Gravity.CENTER);error.setVisibility(View.GONE);panel.addView(error);
+   TextView retry=text("↻  Restart / Try Again",16,true,Color.WHITE);retry.setGravity(Gravity.CENTER);
+   retry.setPadding(dp(24),dp(14),dp(24),dp(14));retry.setBackground(bg(PINK,10));retry.setFocusable(true);retry.setVisibility(View.GONE);
+   LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(-2,-2);rp.topMargin=dp(18);panel.addView(retry,rp);
+   retry.setOnClickListener(v->showStartupSplash());
+   new Thread(()->{
+     boolean online=false;String issue="Server is offline or not responding.";
+     try{
+       HttpURLConnection conn=(HttpURLConnection)new URL(HOST).openConnection();
+       conn.setConnectTimeout(7000);conn.setReadTimeout(7000);conn.setRequestMethod("GET");
+       int code=conn.getResponseCode();online=code>=200&&code<500;conn.disconnect();
+       if(!online)issue="Server returned HTTP "+code+".";
+     }catch(Exception ex){issue="Check your internet connection and try again.";}
+     final boolean connected=online;final String message=issue;
+     runOnUiThread(()->{
+       if(isFinishing())return;
+       if(connected){render();refresh();checkAppUpdates();}
+       else{
+         spinner.setVisibility(View.GONE);status.setText(message);error.setVisibility(View.VISIBLE);
+         retry.setVisibility(View.VISIBLE);retry.requestFocus();
+       }
+     });
+   }).start();
  }
  private void immersive(){getWindow().getDecorView().setSystemUiVisibility(
    View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY|
