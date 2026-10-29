@@ -41,6 +41,6 @@
   }
   tick();
  }
- function tick(){if(document.hidden)return;for(const el of document.querySelectorAll('.s7-countdown[data-episode]')){const entry=window.MH_SEASON7?.find(e=>e.episode===Number(el.dataset.episode));if(entry)el.textContent=countdown(entry)}}
+ function tick(){if(document.hidden)return;for(const el of document.querySelectorAll('.s7-countdown[data-episode]')){const entry=window.MH_SEASON7?.find(e=>e.episode===Number(el.dataset.episode));if(!entry)continue;el.textContent=countdown(entry);if(hasEnded(entry)){const card=el.closest('.s7-release-card');if(card&&!card.querySelector('.s7-live-now')){const link=document.createElement('a');link.className='s7-live-now';link.href='live.html?episode='+entry.episode;link.textContent='● Live now';link.setAttribute('aria-label','Open live Twitch stream for '+entry.title);el.insertAdjacentElement('afterend',link)}}}}
  render();const timer=setInterval(tick,1000);document.addEventListener('visibilitychange',tick);window.addEventListener('pagehide',()=>clearInterval(timer),{once:true});
 })();
