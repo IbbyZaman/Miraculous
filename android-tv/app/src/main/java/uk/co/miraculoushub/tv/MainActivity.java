@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
      try{
        HttpURLConnection conn=(HttpURLConnection)new URL(HOST).openConnection();
        conn.setConnectTimeout(7000);conn.setReadTimeout(7000);conn.setRequestMethod("GET");
-       int code=conn.getResponseCode();online=code>=200&&code<500;conn.disconnect();
+       int code=conn.getResponseCode();online=code>=200&&code<400;conn.disconnect();
        if(!online)issue="Server returned HTTP "+code+".";
      }catch(Exception ex){issue="Check your internet connection and try again.";}
      final boolean connected=online;final String message=issue;
