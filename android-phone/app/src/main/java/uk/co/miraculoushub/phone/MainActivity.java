@@ -235,10 +235,11 @@ public class MainActivity extends Activity {
     TextView kicker=text("●  MIRACULOUSHUB LIVE",11,true,0xffff77a6);card.addView(kicker);
     TextView title=text("Live stream & release countdowns",18,true,Color.WHITE);addTop(card,title,6);
     TextView note=text("Open the live page for the latest stream and countdown-triggered Live now links.",12,false,MUTED);addTop(card,note,5);
-    TextView action=text("Open Live  →",14,true,Color.WHITE);action.setGravity(Gravity.CENTER);
-    action.setPadding(dp(14),dp(11),dp(14),dp(11));action.setBackground(gradient(0xffff2f68,0xffa72eff,12));addTop(card,action,12);
-    View.OnClickListener openLive=v->startActivity(new Intent(this,LiveActivity.class));
-    card.setOnClickListener(openLive);action.setOnClickListener(openLive);
+    LinearLayout actions=new LinearLayout(this);actions.setGravity(Gravity.CENTER_VERTICAL);addTop(card,actions,12);
+    TextView action=text("▶  Open Live",13,true,Color.WHITE);action.setGravity(Gravity.CENTER);action.setPadding(dp(14),dp(11),dp(14),dp(11));action.setBackground(gradient(0xffff2f68,0xffa72eff,12));actions.addView(action,new LinearLayout.LayoutParams(0,-2,1));
+    TextView countdowns=text("View countdowns",12,true,0xffffb3ce);countdowns.setGravity(Gravity.CENTER);countdowns.setPadding(dp(10),dp(11),dp(10),dp(11));LinearLayout.LayoutParams cdp=new LinearLayout.LayoutParams(0,-2,1);cdp.leftMargin=dp(8);actions.addView(countdowns,cdp);
+    action.setOnClickListener(v->startActivity(new Intent(this,LiveActivity.class)));
+    countdowns.setOnClickListener(v->{Intent i=new Intent(this,LiveActivity.class);i.putExtra("pageUrl","https://miraculoushub.co.uk/#upcoming-releases");startActivity(i);});
     addTop(content,card,14);
   }
 
