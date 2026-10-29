@@ -1,0 +1,20 @@
+package uk.co.miraculoushub.phone;
+import android.app.Activity;import android.graphics.Color;import android.os.Bundle;import android.view.Gravity;import android.view.View;import android.webkit.*;import android.widget.*;
+public class LiveActivity extends Activity {
+ private static final String LIVE_URL="https://miraculoushub.co.uk/live.html";private WebView web;private TextView message;private ProgressBar progress;private Button retry;private View overlay;
+ private int dp(float n){return (int)(n*getResources().getDisplayMetrics().density+.5f);}
+ @Override protected void onCreate(Bundle saved){super.onCreate(saved);getWindow().setStatusBarColor(Color.rgb(5,7,12));getWindow().setNavigationBarColor(Color.rgb(5,7,12));FrameLayout root=new FrameLayout(this);root.setBackgroundColor(Color.rgb(5,7,12));setContentView(root);
+ web=new WebView(this);WebSettings settings=web.getSettings();settings.setJavaScriptEnabled(true);settings.setDomStorageEnabled(true);settings.setMediaPlaybackRequiresUserGesture(true);settings.setLoadsImagesAutomatically(true);settings.setSupportMultipleWindows(false);web.setWebChromeClient(new WebChromeClient());
+ web.setWebViewClient(new WebViewClient(){@Override public void onPageStarted(WebView v,String url,android.graphics.Bitmap icon){progress.setVisibility(View.VISIBLE);retry.setVisibility(View.GONE);message.setText("Connecting to MiraculousHub Live…");message.setVisibility(View.VISIBLE);overlay.setVisibility(View.VISIBLE);}
+ @Override public void onPageFinished(WebView v,String url){if(url.startsWith(LIVE_URL)){progress.setVisibility(View.GONE);overlay.setVisibility(View.GONE);}}
+ @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest req){String u=req.getUrl().toString();return !(u.startsWith("https://miraculoushub.co.uk/")||u.startsWith("https://www.miraculoushub.co.uk/")||u.startsWith("https://www.twitch.tv/")||u.startsWith("https://player.twitch.tv/"));}
+ @Override public void onReceivedError(WebView v,WebResourceRequest req,WebResourceError err){if(req.isForMainFrame())showError("Live page couldn't load. Check your connection and try again.");}});
+ root.addView(web,new FrameLayout.LayoutParams(-1,-1));LinearLayout loading=new LinearLayout(this);loading.setOrientation(LinearLayout.VERTICAL);loading.setGravity(Gravity.CENTER);loading.setPadding(dp(24),dp(24),dp(24),dp(24));loading.setBackgroundColor(Color.rgb(5,7,12));overlay=loading;
+ message=new TextView(this);message.setText("Connecting to MiraculousHub Live…");message.setTextColor(Color.WHITE);message.setTextSize(16);message.setGravity(Gravity.CENTER);loading.addView(message);
+ progress=new ProgressBar(this);LinearLayout.LayoutParams pp=new LinearLayout.LayoutParams(dp(36),dp(36));pp.topMargin=dp(18);pp.gravity=Gravity.CENTER;loading.addView(progress,pp);
+ retry=new Button(this);retry.setText("Retry");retry.setVisibility(View.GONE);retry.setOnClickListener(v->loadLive());LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(-2,-2);rp.topMargin=dp(16);rp.gravity=Gravity.CENTER;loading.addView(retry,rp);root.addView(loading,new FrameLayout.LayoutParams(-1,-1));loadLive();}
+ private void loadLive(){progress.setVisibility(View.VISIBLE);retry.setVisibility(View.GONE);message.setText("Connecting to MiraculousHub Live…");message.setVisibility(View.VISIBLE);overlay.setVisibility(View.VISIBLE);web.loadUrl(LIVE_URL);}
+ private void showError(String text){progress.setVisibility(View.GONE);message.setText(text);message.setVisibility(View.VISIBLE);retry.setVisibility(View.VISIBLE);overlay.setVisibility(View.VISIBLE);}
+ @Override public void onBackPressed(){if(web!=null&&web.canGoBack())web.goBack();else super.onBackPressed();}
+ @Override protected void onDestroy(){if(web!=null){web.stopLoading();web.destroy();web=null;}super.onDestroy();}
+}
