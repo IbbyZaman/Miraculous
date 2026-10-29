@@ -7,6 +7,7 @@ on:
     paths:
       - 'android-tv/**'
       - 'MiraculousHubTV-redesign-source (1).zip'
+      - 'MiraculousHubTV-redesign-source (2).zip'
       - '.github/workflows/build-miraculoushub-tv.yml'
 
 jobs:
@@ -20,9 +21,12 @@ jobs:
       - name: Extract the exact uploaded TV source ZIP
         run: |
           set -euo pipefail
-          test -f "MiraculousHubTV-redesign-source (1).zip"
+          ZIP="MiraculousHubTV-redesign-source (2).zip"
+          if [ ! -f "$ZIP" ]; then ZIP="MiraculousHubTV-redesign-source (1).zip"; fi
+          test -f "$ZIP"
+          echo "Building source archive: $ZIP"
           mkdir -p uploaded-tv-source
-          unzip -q "MiraculousHubTV-redesign-source (1).zip" -d uploaded-tv-source
+          unzip -q "$ZIP" -d uploaded-tv-source
           if [ -f uploaded-tv-source/android-tv/build.gradle ]; then
             echo "TV_PROJECT_DIR=uploaded-tv-source/android-tv" >> "$GITHUB_ENV"
           elif [ -f uploaded-tv-source/build.gradle ]; then
