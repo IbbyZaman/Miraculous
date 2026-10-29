@@ -25,3 +25,5 @@ dependencies {
 
 // Build trigger: publish the next TV OTA release and website mirror.
 // TV build 69: startup connectivity validation fix
+
+// TV build 71: apply the latest uploaded redesign theme
