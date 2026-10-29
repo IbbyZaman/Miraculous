@@ -198,7 +198,7 @@ public class MainActivity extends Activity {
    top.addView(brand);TextView hub=text("IRACULOUS",25,true,Color.WHITE);top.addView(hub);
    TextView hubLabel=text("HUB",11,true,0xffb7b7c0);hubLabel.setGravity(Gravity.BOTTOM);LinearLayout.LayoutParams hlp=new LinearLayout.LayoutParams(-2,dp(28));hlp.leftMargin=dp(4);top.addView(hubLabel,hlp);
    View gap=new View(this);top.addView(gap,new LinearLayout.LayoutParams(dp(35),dp(1)));
-   for(String[] entry:new String[][]{{"Home","Home"},{"Series","Episodes"},{"Anime","Anime"},{"New & Upcoming","Upcoming"},{"Trailers","Trailers"},{"My List","Continue"}}){
+   for(String[] entry:new String[][]{{"Home","Home"},{"Series","Episodes"},{"Anime","Anime"},{"New & Upcoming","Upcoming"},{"Trailers","Trailers"},{"Live","Live"},{"My List","Continue"}}){
      final String target=entry[1];
      TextView nav=text(entry[0],16,target.equals(page),target.equals(page)?Color.WHITE:0xffc5c6ce);
      nav.setGravity(Gravity.CENTER);nav.setFocusable(true);nav.setClickable(true);
@@ -226,7 +226,7 @@ public class MainActivity extends Activity {
    if("Home".equals(page))home();else if("Episodes".equals(page))allEpisodes();
    else if("Upcoming".equals(page))upcoming();
    else if("Anime".equals(page))anime();else if("Trailers".equals(page))trailers();
-   else if("Continue".equals(page))continueWatching();else home();
+   else if("Continue".equals(page))continueWatching();else if("Live".equals(page))livePage();else home();
    immersive();
  }
  private void title(String heading,String subtitle){
@@ -235,6 +235,7 @@ public class MainActivity extends Activity {
  }
  private void home(){
    featuredHero();
+   liveCard();
    homeContinueRail();
    rows("New & Upcoming • Season 7",bySeason(7));
    TextView resume=text("Your Watch History  ›",23,true);resume.setFocusable(true);
@@ -258,6 +259,26 @@ public class MainActivity extends Activity {
    rows("Recently Added",latest(18));
    animeStrip();
    rows("Trailers & Previews",new ArrayList<>(trailers));
+ }
+ private void liveCard(){
+   LinearLayout card=vertical();card.setPadding(dp(24),dp(20),dp(24),dp(20));card.setBackground(bg(0xff241525,14));card.setFocusable(true);
+   TextView kicker=text("●  MIRACULOUSHUB LIVE",13,true,0xffff739d);card.addView(kicker);
+   TextView title=text("Live stream & release countdowns",23,true);title.setPadding(0,dp(7),0,dp(5));card.addView(title);
+   TextView subtitle=text("Open the live stream page for the current Twitch player and countdown-triggered Live now links.",15,false,MUTED);card.addView(subtitle);
+   TextView action=text("▶  Open Live",17,true,Color.WHITE);action.setGravity(Gravity.CENTER);action.setPadding(dp(20),dp(13),dp(20),dp(13));action.setBackground(bg(PINK,9));action.setFocusable(true);
+   LinearLayout.LayoutParams ap=new LinearLayout.LayoutParams(-2,-2);ap.topMargin=dp(15);card.addView(action,ap);
+   View.OnClickListener openLive=v->startActivity(new Intent(this,LiveActivity.class));
+   card.setOnClickListener(openLive);action.setOnClickListener(openLive);
+   card.setOnFocusChangeListener((v,f)->focus(card,f,PINK,0xff241525));
+   LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2);cp.setMargins(dp(54),dp(16),dp(54),dp(20));content.addView(card,cp);
+ }
+ private void livePage(){
+   title("MiraculousHub Live","Open the shared live page and Twitch stream.");
+   TextView open=text("▶  Open Live Stream",22,true,Color.WHITE);open.setGravity(Gravity.CENTER);open.setFocusable(true);open.setPadding(dp(28),dp(20),dp(28),dp(20));open.setBackground(bg(PINK,12));
+   LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.setMargins(dp(54),dp(20),dp(54),0);content.addView(open,p);
+   open.setOnFocusChangeListener((v,f)->focus(open,f,PINK,0xff17191f));
+   open.setOnClickListener(v->startActivity(new Intent(this,LiveActivity.class)));
+   TextView info=text("The live page is hosted on MiraculousHub, so stream and countdown behaviour can be fixed centrally without waiting for a new app release.",15,false,MUTED);info.setPadding(dp(54),dp(14),dp(54),0);content.addView(info);
  }
  private void featuredHero(){
    FrameLayout hero=new FrameLayout(this);
