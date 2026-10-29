@@ -6,6 +6,7 @@ on:
     branches: [main, master]
     paths:
       - 'android-tv/**'
+      - 'MiraculousHubTV-redesign-source (1).zip'
       - '.github/workflows/build-miraculoushub-tv.yml'
 
 jobs:
@@ -13,12 +14,24 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    defaults:
-      run:
-        working-directory: android-tv
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Extract the exact uploaded TV source ZIP
+        run: |
+          set -euo pipefail
+          test -f "MiraculousHubTV-redesign-source (1).zip"
+          mkdir -p uploaded-tv-source
+          unzip -q "MiraculousHubTV-redesign-source (1).zip" -d uploaded-tv-source
+          if [ -f uploaded-tv-source/android-tv/build.gradle ]; then
+            echo "TV_PROJECT_DIR=uploaded-tv-source/android-tv" >> "$GITHUB_ENV"
+          elif [ -f uploaded-tv-source/build.gradle ]; then
+            echo "TV_PROJECT_DIR=uploaded-tv-source" >> "$GITHUB_ENV"
+          else
+            echo "Could not find build.gradle in the uploaded ZIP:"
+            find uploaded-tv-source -maxdepth 4 -type f | head -80
+            exit 1
+          fi
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -43,41 +56,35 @@ jobs:
           if [ ! -f "$HOME/.android/debug.keystore" ]; then
             keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           fi
-      - name: Build Android TV APK
-        run: gradle --no-daemon :app:assembleDebug
+      - name: Build Android TV APK from uploaded ZIP
+        run: gradle --no-daemon -p "$TV_PROJECT_DIR" :app:assembleDebug
       - name: Verify TV APK signer
         run: |
           set -euo pipefail
           keytool -list -v -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey -storepass android -keypass android | grep 'SHA256:'
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$TV_PROJECT_DIR/app/build/outputs/apk/debug/app-debug.apk"
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: MiraculousHubTV-APK
-          path: android-tv/app/build/outputs/apk/debug/app-debug.apk
+          path: uploaded-tv-source/**/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-
       - name: Prepare TV download
-        run: cp app/build/outputs/apk/debug/app-debug.apk MiraculousHubTV.apk
+        run: cp "$TV_PROJECT_DIR/app/build/outputs/apk/debug/app-debug.apk" MiraculousHubTV.apk
       - name: Publish TV APK release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: tv-build-${{ github.run_number }}
           name: MiraculousHub TV build ${{ github.run_number }}
-          files: android-tv/MiraculousHubTV.apk
+          files: MiraculousHubTV.apk
           generate_release_notes: false
-
-      # The website download buttons point to these first-party APK mirrors.
-      # The package + JSON are committed together, so SHA256 and version match.
-      # A separate Pages deployment workflow publishes the site afterward.
-      - name: Mirror verified tv APK to website downloads
-        working-directory: .
+      - name: Mirror verified TV APK to website downloads
         env:
           APK_BUILD: ${{ github.run_number }}
         run: |
           set -euo pipefail
           mkdir -p /tmp/mh-apk-mirror
-          cp "android-tv/MiraculousHubTV.apk" "/tmp/mh-apk-mirror/MiraculousHubTV.apk"
+          cp "MiraculousHubTV.apk" "/tmp/mh-apk-mirror/MiraculousHubTV.apk"
           SHA256=$(sha256sum "/tmp/mh-apk-mirror/MiraculousHubTV.apk" | cut -d ' ' -f1)
           cat > "/tmp/mh-apk-mirror/tv.json" <<JSON
           {"versionCode":${APK_BUILD},"versionName":"1.0.${APK_BUILD}","url":"https://miraculoushub.co.uk/downloads/MiraculousHubTV-${APK_BUILD}.apk","sha256":"${SHA256}"}
@@ -94,17 +101,13 @@ jobs:
               exit 0
             fi
             cp "/tmp/mh-apk-mirror/MiraculousHubTV.apk" "downloads/MiraculousHubTV-${APK_BUILD}.apk"
-            # Keep a stable latest alias for old links; versioned URLs are
-            # immutable to avoid cached APK / newer checksum mismatches.
             cp "/tmp/mh-apk-mirror/MiraculousHubTV.apk" "downloads/MiraculousHubTV.apk"
-            # Retain the five newest versioned APKs for ongoing downloads.
             find downloads -maxdepth 1 -type f -name 'MiraculousHubTV-*.apk' | sort -Vr | tail -n +6 | xargs -r rm --
             cp "/tmp/mh-apk-mirror/tv.json" "downloads/tv.json"
             git add -A downloads/
-            # Ensures versioned APKs and the manifest are committed together.
             git commit -m "Mirror tv APK build ${APK_BUILD} for direct website downloads"
             if git push origin HEAD:main; then
-              echo "Published tv APK build ${APK_BUILD} to first-party mirror branch."
+              echo "Published TV APK build ${APK_BUILD} to first-party mirror branch."
               exit 0
             fi
             sleep 3
