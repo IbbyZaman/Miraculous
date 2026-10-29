@@ -1,8 +1,15 @@
 (()=>{
+ function hasEnded(entry,now=Date.now()){
+  if(entry.available)return false;
+  if(entry.releaseAt)return Date.parse(entry.releaseAt)<=now;
+  if(entry.releaseDate)return Date.parse(entry.releaseDate+'T23:59:59Z')<=now;
+  return false;
+ }
  function countdown(entry,now=Date.now()){
   if(entry.available)return 'Ready to watch';
-  if(entry.releaseAt){const left=Date.parse(entry.releaseAt)-now;if(left<=0)return 'Premiere time passed · awaiting upload';const seconds=Math.floor(left/1000);return `${Math.floor(seconds/86400)}d ${String(Math.floor(seconds%86400/3600)).padStart(2,'0')}h ${String(Math.floor(seconds%3600/60)).padStart(2,'0')}m ${String(seconds%60).padStart(2,'0')}s`;}
-  if(entry.releaseDate){const days=Math.ceil((Date.parse(entry.releaseDate+'T23:59:59Z')-now)/86400000);return days>0?`About ${days} days · time TBA`:'Scheduled date passed · awaiting upload';}
+  if(hasEnded(entry,now))return 'Live now';
+  if(entry.releaseAt){const left=Date.parse(entry.releaseAt)-now;const seconds=Math.floor(left/1000);return `${Math.floor(seconds/86400)}d ${String(Math.floor(seconds%86400/3600)).padStart(2,'0')}h ${String(Math.floor(seconds%3600/60)).padStart(2,'0')}m ${String(seconds%60).padStart(2,'0')}s`;}
+  if(entry.releaseDate){const days=Math.ceil((Date.parse(entry.releaseDate+'T23:59:59Z')-now)/86400000);return days>0?`About ${days} days · time TBA`:'Live now';}
   return 'Date to be announced';
  }
  window.MH_S7_COUNTDOWN=countdown;
@@ -19,12 +26,15 @@
     const date=document.createElement('p');date.textContent=entry.releaseAt?new Date(entry.releaseAt).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})+' · your local time':entry.releaseDate?new Date(entry.releaseDate+'T12:00:00Z').toLocaleDateString([], {dateStyle:'medium',timeZone:'UTC'})+' · exact time TBA':'Release date not announced';
     const region=document.createElement('p');region.className='s7-region';region.textContent=entry.releaseRegion||'Date will appear when announced';
     const clock=document.createElement('strong');clock.className='s7-countdown';clock.dataset.episode=entry.episode;clock.setAttribute('aria-label','Release countdown');clock.textContent=countdown(entry);
+    if(hasEnded(entry)){
+     const liveLink=document.createElement('a');liveLink.className='s7-live-now';liveLink.href='live.html?episode='+entry.episode;liveLink.textContent='● Live now';liveLink.setAttribute('aria-label','Open live Twitch stream for '+entry.title);card.append(title,clock,liveLink);
+    }
     const compact=id!=='s7ReleaseGrid';
     const information=document.createElement('div');information.append(code);
     if(entry.description){const description=document.createElement('p');description.textContent=entry.description;description.style.whiteSpace='pre-wrap';information.append(description)}information.append(date,region);
     if(entry.available){const link=document.createElement('a');link.href=`watch.html?season=7&episode=${entry.episode}`;link.textContent='Watch episode →';information.append(link)}
     if(!compact&&entry.releaseSource){const source=document.createElement('a');source.href=entry.releaseSource;source.target='_blank';source.rel='noopener';source.textContent='Schedule source ↗';information.append(source)}
-    card.append(title,clock);
+    if(!hasEnded(entry))card.append(title,clock);
     if(compact){const details=document.createElement('details'),summary=document.createElement('summary');details.className='countdown-information';summary.textContent='View more';details.addEventListener('toggle',()=>summary.textContent=details.open?'View less':'View more');details.append(summary,information);card.append(details)}else card.append(information);
     grid.append(card);
    }
