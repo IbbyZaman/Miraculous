@@ -217,6 +217,7 @@ public class MainActivity extends Activity {
   }
   private void home(){
     hero();
+    liveCard();
     LinearLayout quick=new LinearLayout(this);quick.setGravity(Gravity.CENTER_VERTICAL);
     TextView greeting=text("EXPLORE YOUR UNIVERSE",11,true,0xfffd82a3);
     quick.addView(greeting,new LinearLayout.LayoutParams(0,-2,1));
@@ -228,6 +229,19 @@ public class MainActivity extends Activity {
     section("Trailers & Previews","Trailers",trailers,true);
 
   }
+  private void liveCard(){
+    LinearLayout card=vertical();card.setPadding(dp(16),dp(15),dp(16),dp(15));
+    card.setBackground(gradient(0xff32152f,0xff171322,18));
+    TextView kicker=text("●  MIRACULOUSHUB LIVE",11,true,0xffff77a6);card.addView(kicker);
+    TextView title=text("Live stream & release countdowns",18,true,Color.WHITE);addTop(card,title,6);
+    TextView note=text("Open the live page for the latest stream and countdown-triggered Live now links.",12,false,MUTED);addTop(card,note,5);
+    TextView action=text("Open Live  →",14,true,Color.WHITE);action.setGravity(Gravity.CENTER);
+    action.setPadding(dp(14),dp(11),dp(14),dp(11));action.setBackground(gradient(0xffff2f68,0xffa72eff,12));addTop(card,action,12);
+    View.OnClickListener openLive=v->startActivity(new Intent(this,LiveActivity.class));
+    card.setOnClickListener(openLive);action.setOnClickListener(openLive);
+    addTop(content,card,14);
+  }
+
   private void homeContinueWatching(){
     heading("Continue Watching","Continue");
     FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
