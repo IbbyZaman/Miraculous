@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
  private static final String HOST="https://video.miraculoushub.co.uk";
  private static final String CATALOG="https://upload.miraculoushub.co.uk/catalog";
  private static final String POSTER="https://miraculoushub.co.uk/main-season7-poster.png";
- private static final int BG=0xff08090d, PANEL=0xff17191f, PINK=0xffe50914, MUTED=0xffb8bac3;
+ private static final int BG=0xff0a0712, PANEL=0xff181328, PINK=0xffff2d55, MUTED=0xffa9a6bd;
  private final Handler handler=new Handler(Looper.getMainLooper());
  private final ArrayList<JSONObject> bundled=new ArrayList<>(), episodes=new ArrayList<>(), trailers=new ArrayList<>();
  private LinearLayout menu, content;
@@ -46,12 +46,12 @@ public class MainActivity extends Activity {
    super.onCreate(saved);immersive();loadBundled();showStartupSplash();
  }
  private void showStartupSplash(){
-   FrameLayout root=new FrameLayout(this);root.setBackgroundColor(0xff08090d);setContentView(root);
+   FrameLayout root=new FrameLayout(this);root.setBackgroundColor(0xff0a0712);setContentView(root);
    ImageView heroes=new ImageView(this);heroes.setScaleType(ImageView.ScaleType.CENTER_CROP);
    root.addView(heroes,new FrameLayout.LayoutParams(-1,-1));
    Glide.with(this).load(POSTER).centerCrop().into(heroes);
    View shade=new View(this);shade.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-     new int[]{0x6608090d,0xff08090d}));root.addView(shade,new FrameLayout.LayoutParams(-1,-1));
+     new int[]{0x660a0712,0xff0a0712}));root.addView(shade,new FrameLayout.LayoutParams(-1,-1));
    LinearLayout panel=vertical();panel.setGravity(Gravity.CENTER);panel.setPadding(dp(40),dp(30),dp(40),dp(30));
    root.addView(panel,new FrameLayout.LayoutParams(-1,-1));
    TextView logo=text("MIRACULOUS HUB",28,true,Color.WHITE);logo.setGravity(Gravity.CENTER);panel.addView(logo);
