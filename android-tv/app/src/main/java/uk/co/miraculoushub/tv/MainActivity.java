@@ -265,10 +265,11 @@ public class MainActivity extends Activity {
    TextView kicker=text("●  MIRACULOUSHUB LIVE",13,true,0xffff739d);card.addView(kicker);
    TextView title=text("Live stream & release countdowns",23,true);title.setPadding(0,dp(7),0,dp(5));card.addView(title);
    TextView subtitle=text("Open the live stream page for the current Twitch player and countdown-triggered Live now links.",15,false,MUTED);card.addView(subtitle);
-   TextView action=text("▶  Open Live",17,true,Color.WHITE);action.setGravity(Gravity.CENTER);action.setPadding(dp(20),dp(13),dp(20),dp(13));action.setBackground(bg(PINK,9));action.setFocusable(true);
-   LinearLayout.LayoutParams ap=new LinearLayout.LayoutParams(-2,-2);ap.topMargin=dp(15);card.addView(action,ap);
-   View.OnClickListener openLive=v->startActivity(new Intent(this,LiveActivity.class));
-   card.setOnClickListener(openLive);action.setOnClickListener(openLive);
+   LinearLayout actions=new LinearLayout(this);actions.setGravity(Gravity.CENTER_VERTICAL);LinearLayout.LayoutParams actionsP=new LinearLayout.LayoutParams(-1,-2);actionsP.topMargin=dp(15);card.addView(actions,actionsP);
+   TextView action=text("▶  Open Live",17,true,Color.WHITE);action.setGravity(Gravity.CENTER);action.setPadding(dp(20),dp(13),dp(20),dp(13));action.setBackground(bg(PINK,9));action.setFocusable(true);actions.addView(action,new LinearLayout.LayoutParams(0,-2,1));
+   TextView countdowns=text("View countdowns",15,true,0xffffb3ce);countdowns.setGravity(Gravity.CENTER);countdowns.setFocusable(true);countdowns.setPadding(dp(14),dp(13),dp(14),dp(13));LinearLayout.LayoutParams cdp=new LinearLayout.LayoutParams(0,-2,1);cdp.leftMargin=dp(10);actions.addView(countdowns,cdp);
+   action.setOnClickListener(v->startActivity(new Intent(this,LiveActivity.class)));
+   countdowns.setOnClickListener(v->{Intent i=new Intent(this,LiveActivity.class);i.putExtra("pageUrl","https://miraculoushub.co.uk/#upcoming-releases");startActivity(i);});
    card.setOnFocusChangeListener((v,f)->focus(card,f,PINK,0xff241525));
    LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2);cp.setMargins(dp(54),dp(16),dp(54),dp(20));content.addView(card,cp);
  }
@@ -278,6 +279,7 @@ public class MainActivity extends Activity {
    LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.setMargins(dp(54),dp(20),dp(54),0);content.addView(open,p);
    open.setOnFocusChangeListener((v,f)->focus(open,f,PINK,0xff17191f));
    open.setOnClickListener(v->startActivity(new Intent(this,LiveActivity.class)));
+   TextView countdowns=text("View release countdowns  →",19,true,0xffffb3ce);countdowns.setGravity(Gravity.CENTER);countdowns.setFocusable(true);countdowns.setPadding(dp(20),dp(16),dp(20),dp(16));countdowns.setBackground(bg(0xff292a31,10));LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(-1,-2);cp.setMargins(dp(54),dp(12),dp(54),0);content.addView(countdowns,cp);countdowns.setOnFocusChangeListener((v,f)->focus(countdowns,f,PINK,0xff292a31));countdowns.setOnClickListener(v->{Intent i=new Intent(this,LiveActivity.class);i.putExtra("pageUrl","https://miraculoushub.co.uk/#upcoming-releases");startActivity(i);});
    TextView info=text("The live page is hosted on MiraculousHub, so stream and countdown behaviour can be fixed centrally without waiting for a new app release.",15,false,MUTED);info.setPadding(dp(54),dp(14),dp(54),0);content.addView(info);
  }
  private void featuredHero(){
