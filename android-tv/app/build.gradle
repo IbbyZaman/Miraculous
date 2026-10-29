@@ -24,3 +24,4 @@ dependencies {
 }
 
 // Build trigger: publish the next TV OTA release and website mirror.
+// TV build 69: startup connectivity validation fix
