@@ -10,7 +10,8 @@ window.MH_SITE_CONFIG={
  */
 (function () {
   const pagePath = location.pathname.toLowerCase();
-  if (pagePath === "/upload.html" || pagePath.endsWith("/upload.html")) return;
+  const pageHost = location.hostname.toLowerCase();
+  if (pageHost === "upload.miraculoushub.co.uk" || pagePath === "/upload.html" || pagePath.endsWith("/upload.html")) return;
   if (location.hostname === "miraculous.to" || location.hostname.endsWith(".miraculous.to")) return;
 
   const css = document.createElement("style");
