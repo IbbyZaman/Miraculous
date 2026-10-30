@@ -72,15 +72,15 @@ export default {
         return await createSession(user.id, user.email, env, respond);
       }
 
-      if (url.pathname === "/me" && request.method === "GET") {
-        if(url.pathname==="/v1/comments" && request.method==="GET"){
-        const episodeKey=String(url.searchParams.get("episodeKey")||"");
-        if(!validKey(episodeKey)) return respond({error:"Invalid episode key"},400);
-        const rows=await env.DB.prepare("SELECT id,user_id,nickname,content,created_at FROM comments WHERE episode_key=? ORDER BY created_at ASC LIMIT 100").bind(episodeKey).all();
-        return respond({items:rows.results.map(row=>({id:row.id,authorUid:row.user_id,authorNickname:row.nickname,text:row.content,createdAt:row.created_at}))});
+      if (url.pathname === "/v1/comments" && request.method === "GET") {
+        const episodeKey = String(url.searchParams.get("episodeKey") || "");
+        if (!validKey(episodeKey)) return respond({ error: "Invalid episode key" }, 400);
+        const rows = await env.DB.prepare("SELECT id,user_id,nickname,content,created_at FROM comments WHERE episode_key=? ORDER BY created_at ASC LIMIT 100").bind(episodeKey).all();
+        return respond({ items: rows.results.map(row => ({ id: row.id, authorUid: row.user_id, authorNickname: row.nickname, text: row.content, createdAt: row.created_at })) });
       }
 
-      const user = await getSessionUser(request, env);
+      if (url.pathname === "/me" && request.method === "GET") {
+        const user = await getSessionUser(request, env);
         return respond({ user: user ? { id: user.id, uid: user.id, email: user.email } : null });
       }
 
@@ -226,7 +226,7 @@ async function getSessionUser(request,env){
     .bind(await sha256(token),Date.now()).first();
 }
 function sessionCookie(token){return COOKIE_NAME+"="+token+"; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age="+(SESSION_DAYS*86400);}
-function expiredCookie(){return COOKIE_NAME+"=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0;}
+function expiredCookie(){return COOKIE_NAME+"=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0";}
 async function hashPassword(password,salt){
   const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveBits"]);
   const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations:310000,hash:"SHA-256"},key,256);
