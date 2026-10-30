@@ -73,7 +73,14 @@ export default {
       }
 
       if (url.pathname === "/me" && request.method === "GET") {
-        const user = await getSessionUser(request, env);
+        if(url.pathname==="/v1/comments" && request.method==="GET"){
+        const episodeKey=String(url.searchParams.get("episodeKey")||"");
+        if(!validKey(episodeKey)) return respond({error:"Invalid episode key"},400);
+        const rows=await env.DB.prepare("SELECT id,user_id,nickname,content,created_at FROM comments WHERE episode_key=? ORDER BY created_at ASC LIMIT 100").bind(episodeKey).all();
+        return respond({items:rows.results.map(row=>({id:row.id,authorUid:row.user_id,authorNickname:row.nickname,text:row.content,createdAt:row.created_at}))});
+      }
+
+      const user = await getSessionUser(request, env);
         return respond({ user: user ? { id: user.id, uid: user.id, email: user.email } : null });
       }
 
@@ -163,12 +170,6 @@ export default {
         return respond({nickname});
       }
 
-      if(url.pathname==="/v1/comments" && request.method==="GET"){
-        const episodeKey=String(url.searchParams.get("episodeKey")||"");
-        if(!validKey(episodeKey)) return respond({error:"Invalid episode key"},400);
-        const rows=await env.DB.prepare("SELECT id,user_id,nickname,content,created_at FROM comments WHERE episode_key=? ORDER BY created_at ASC LIMIT 100").bind(episodeKey).all();
-        return respond({items:rows.results.map(row=>({id:row.id,authorUid:row.user_id,authorNickname:row.nickname,text:row.content,createdAt:row.created_at}))});
-      }
       if(url.pathname==="/v1/comments" && request.method==="POST"){
         const body=await request.json();
         const episodeKey=String(body.episodeKey||"");
