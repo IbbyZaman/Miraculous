@@ -352,7 +352,7 @@
         <p id="authSubtitle">
           Save watch progress, favourites and history across devices.
         </p>
-        <button class="google-auth" id="googleAuth">
+        <button class="google-auth" id="googleAuth" hidden>
           Continue with Google
         </button>
         <div class="auth-divider"><span>or</span></div>
@@ -411,18 +411,18 @@
     }
 
     if (!window.MH_FIREBASE_READY) {
-      return Promise.reject(new Error("Firebase did not start loading. Refresh the page and try again."));
+      return Promise.reject(new Error("Cloudflare account service did not start. Refresh the page and try again."));
     }
 
     return Promise.race([
       window.MH_FIREBASE_READY.then(() => {
         if (!window.MH_AUTH || typeof window.MH_AUTH.signIn !== "function") {
-          throw new Error("Firebase loaded, but Authentication is unavailable.");
+          throw new Error("Cloudflare account service is unavailable.");
         }
         return window.MH_AUTH;
       }),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Firebase is taking too long to load. Check your internet connection and try again.")), timeout)
+        setTimeout(() => reject(new Error("Account service is taking too long to respond. Check your connection and try again.")), timeout)
       )
     ]);
   }
@@ -520,7 +520,7 @@
   };
 
   function updateAuthButton(user){
-    const adminLink=document.querySelector("#adminContentLink");if(adminLink)adminLink.hidden=!(user?.emailVerified&&!user?.isAnonymous&&user?.email?.toLowerCase()==="ibbyzaman4@gmail.com");
+    const adminLink=document.querySelector("#adminContentLink");if(adminLink)adminLink.hidden=!(user&&!user?.isAnonymous&&user?.email?.toLowerCase()==="ibbyzaman4@gmail.com");
     document.querySelectorAll(".signin").forEach(b => {
       b.textContent = user ? "Account" : "Sign in";
       b.onclick = () =>
@@ -652,7 +652,7 @@
         }
       })
       .catch(error => {
-        console.error("MiraculousHub Firebase Auth initialization failed:", error);
+        console.error("MiraculousHub account initialization failed:", error);
       });
   }
 
