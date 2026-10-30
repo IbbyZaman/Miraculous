@@ -26,7 +26,17 @@
   <span><strong>Friday 6 November · 3:00pm–5:00pm GMT</strong></span><br>
   We’ll be working on account and playback issues and making improvements to the video player. MiraculousHub may be temporarily unavailable during this window, and some videos may not be accessible or play as expected. Thank you for your patience.
 </div>
+<div id="systemErrorPopup" role="dialog" aria-modal="true" aria-labelledby="systemErrorTitle" style="position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:20px;background:rgba(3,4,12,.78);backdrop-filter:blur(9px)">
+ <section style="position:relative;width:min(480px,100%);padding:28px;border:1px solid rgba(255,255,255,.18);border-radius:24px;background:linear-gradient(145deg,#191a2b,#10111b);box-shadow:0 24px 90px #000a;color:#fff;font:15px/1.55 system-ui,sans-serif">
+  <span style="display:inline-block;padding:5px 10px;border-radius:999px;background:#54213b;color:#ffb5ce;font-size:11px;font-weight:800;letter-spacing:.1em">SERVICE INTERRUPTION</span>
+  <h2 id="systemErrorTitle" style="margin:14px 0 8px;font-size:25px">Today's episode update</h2>
+  <p style="margin:0 0 12px;color:#d0cfdb">We’re currently experiencing a system error, so MiraculousHub won’t be ready to provide today’s episode. Please watch it at <a href="https://miraculous.to/" target="_blank" rel="noopener noreferrer" style="color:#ff9fc3;font-weight:800">miraculous.to</a> instead.</p>
+  <p style="margin:0 0 18px;color:#aaa;font-size:12px">Reference: <strong>MH-SYS-001</strong></p>
+  <button id="systemErrorClose" type="button" style="width:100%;padding:12px;border:0;border-radius:13px;background:linear-gradient(100deg,#ff376f,#a535ef);color:white;font-weight:800;cursor:pointer">Continue to MiraculousHub</button>
+ </section>
+</div>
 
+<script>document.getElementById("systemErrorClose")?.addEventListener("click",()=>{document.getElementById("systemErrorPopup")?.remove()});</script>
 <header class="topbar">
   <a class="brand" href="index.html" aria-label="MiraculousHub home">
     <span class="brand-mark">M</span>
