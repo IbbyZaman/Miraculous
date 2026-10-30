@@ -360,8 +360,8 @@
           <input id="authEmail" type="email" autocomplete="email"
                  placeholder="Email" required>
           <input id="authPassword" type="password"
-                 autocomplete="current-password" minlength="6"
-                 placeholder="Password (6+ characters)" required>
+                 autocomplete="current-password" minlength="8"
+                 placeholder="Password (8+ characters)" required>
           <button class="auth-submit" id="authSubmit" type="submit">
             Sign in
           </button>
@@ -485,7 +485,7 @@
         "auth/user-not-found": "No account exists with that email.",
         "auth/wrong-password": "Email or password is incorrect.",
         "auth/email-already-in-use": "That email already has an account.",
-        "auth/weak-password": "Use a password with at least 6 characters.",
+        "auth/weak-password": "Use a password with at least 8 characters.",
         "auth/invalid-email": "Please enter a valid email address.",
         "auth/operation-not-allowed": "Email/password sign-in is not enabled in this Firebase project.",
         "auth/network-request-failed": "Firebase could not connect. Check your internet connection.",
