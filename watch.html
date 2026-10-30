@@ -808,8 +808,8 @@ document.addEventListener("keydown",event=>{ if(event.key==="Escape" && !$("repo
   }[ch]));
 
   function formatCommentTime(value){
-    const date=value?.toDate?.() || (Number.isFinite(Number(value)) && Number(value)>0 ? new Date(Number(value)) : null);
-    if(!date || Number.isNaN(date.getTime())) return "just now";
+    const date=value?.toDate?.();
+    if(!date) return "just now";
     return date.toLocaleString([], {month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
   }
 
