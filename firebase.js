@@ -1,8 +1,6 @@
 (function(){
   const API="https://auth.miraculoushub.co.uk";
   let currentUser=null;
-  let playbackTimer=null;
-  const subscriptions=new Set();
 
   function api(path,options={}){
     return fetch(API+path,{...options,credentials:"include",headers:{"Content-Type":"application/json",...(options.headers||{})}})
@@ -22,16 +20,11 @@
     emitAuth(result.user);
     return currentUser;
   }
-  function pollPlayback(){
-    if(playbackTimer)clearInterval(playbackTimer);
-    if(!currentUser){playbackTimer=null;return;}
-    playbackTimer=setInterval(()=>{for(const fn of subscriptions)fn();},10000);
-  }
   window.MH_AUTH={
-    signIn:async(email,password)=>{const result=await api("/login",{method:"POST",body:JSON.stringify({email,password})});emitAuth(result.user);pollPlayback();return result.user;},
+    signIn:async(email,password)=>{const result=await api("/login",{method:"POST",body:JSON.stringify({email,password})});emitAuth(result.user);return result.user;},
     signUp:async(email,password)=>{const result=await api("/register",{method:"POST",body:JSON.stringify({email,password})});emitAuth(result.user);pollPlayback();return result.user;},
     google:async()=>{const error=new Error("Google sign-in is coming in a later update.");error.code="auth/operation-not-allowed";throw error;},
-    signOut:async()=>{await api("/logout",{method:"POST"});emitAuth(null);pollPlayback();},
+    signOut:async()=>{await api("/logout",{method:"POST"});emitAuth(null);},
     user:()=>currentUser
   };
   window.MH_AUTH_READY=new Promise(resolve=>{window.MH_FIREBASE_READY.then(async()=>resolve(await refreshUser())).catch(()=>resolve(null));});
@@ -51,9 +44,8 @@
     subscribePlayback(callback){
       let active=true,last="";
       const load=async()=>{if(!active||!currentUser)return;try{const rows=await cloud.getAllPlayback();const signature=JSON.stringify(rows);if(signature!==last){last=signature;callback(rows);}}catch(error){callback(null,error);}};
-      load();const tick=()=>{subscriptions.add(load);};tick();
-      const timer=setInterval(load,10000);
-      return ()=>{active=false;clearInterval(timer);subscriptions.delete(load);};
+      load();const timer=setInterval(load,10000);
+      return ()=>{active=false;clearInterval(timer);};
     },
     async getAllWatched(){return (await item("/v1/watched")).items||[];},
     async getAllFavourites(){return (await item("/v1/favourites")).items||[];},
