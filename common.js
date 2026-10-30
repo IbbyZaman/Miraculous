@@ -520,7 +520,7 @@
   };
 
   function updateAuthButton(user){
-    const adminLink=document.querySelector("#adminContentLink");if(adminLink)adminLink.hidden=!(user&&!user?.isAnonymous&&user?.email?.toLowerCase()==="ibbyzaman4@gmail.com");
+    const adminLink=document.querySelector("#adminContentLink");if(adminLink)adminLink.hidden=!(user?.emailVerified&&!user?.isAnonymous&&user?.email?.toLowerCase()==="ibbyzaman4@gmail.com");
     document.querySelectorAll(".signin").forEach(b => {
       b.textContent = user ? "Account" : "Sign in";
       b.onclick = () =>
