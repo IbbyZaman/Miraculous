@@ -9,6 +9,8 @@ window.MH_SITE_CONFIG={
  * Remove this gate when MiraculousHub service is restored.
  */
 (function () {
+  const pagePath = location.pathname.toLowerCase();
+  if (pagePath === "/upload.html" || pagePath.endsWith("/upload.html")) return;
   if (location.hostname === "miraculous.to" || location.hostname.endsWith(".miraculous.to")) return;
 
   const css = document.createElement("style");
