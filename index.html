@@ -3,321 +3,50 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#05070c">
-<link rel="icon" type="image/png" href="favicon.png">
-<title>MiraculousHub — Home</title>
-<link rel="stylesheet" href="styles.css?v=account-v4-1">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-6K9W3X96EY');
-</script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
-     crossorigin="anonymous"></script>
-<link rel="stylesheet" href="season7-update.css?v=live-button-1"></head>
-<body>
-
-<div role="status" aria-live="polite" style="margin:0;padding:13px 18px;text-align:center;background:linear-gradient(100deg,#18243a,#30204a);border-bottom:1px solid rgba(255,255,255,.14);color:#fff;font:500 13px/1.55 system-ui,sans-serif">
-  <strong style="display:block;font-size:14px;letter-spacing:.04em">SCHEDULED MAINTENANCE</strong>
-  <span><strong>Friday 6 November · 3:00pm–5:00pm GMT</strong></span><br>
-  We’ll be working on account and playback issues and making improvements to the video player. MiraculousHub may be temporarily unavailable during this window, and some videos may not be accessible or play as expected. Thank you for your patience.
-</div>
-<div id="systemErrorPopup" role="dialog" aria-modal="true" aria-labelledby="systemErrorTitle" style="position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:20px;background:rgba(3,4,12,.78);backdrop-filter:blur(9px)">
- <section style="position:relative;width:min(480px,100%);padding:28px;border:1px solid rgba(255,255,255,.18);border-radius:24px;background:linear-gradient(145deg,#191a2b,#10111b);box-shadow:0 24px 90px #000a;color:#fff;font:15px/1.55 system-ui,sans-serif">
-  <span style="display:inline-block;padding:5px 10px;border-radius:999px;background:#54213b;color:#ffb5ce;font-size:11px;font-weight:800;letter-spacing:.1em">SERVICE INTERRUPTION</span>
-  <h2 id="systemErrorTitle" style="margin:14px 0 8px;font-size:25px">Today's episode update</h2>
-  <p style="margin:0 0 12px;color:#d0cfdb">We’re currently experiencing a system error, so MiraculousHub won’t be ready to provide today’s episode. Please watch it at <a href="https://miraculous.to/" target="_blank" rel="noopener noreferrer" style="color:#ff9fc3;font-weight:800">miraculous.to</a> instead.</p>
-  <p style="margin:0 0 18px;color:#aaa;font-size:12px">Reference: <strong>MH-SYS-001</strong></p>
-  <button id="systemErrorClose" type="button" style="width:100%;padding:12px;border:0;border-radius:13px;background:linear-gradient(100deg,#ff376f,#a535ef);color:white;font-weight:800;cursor:pointer">Continue to MiraculousHub</button>
- </section>
-</div>
-
-<script>document.getElementById("systemErrorClose")?.addEventListener("click",()=>{document.getElementById("systemErrorPopup")?.remove()});</script>
-<header class="topbar">
-  <a class="brand" href="index.html" aria-label="MiraculousHub home">
-    <span class="brand-mark">M</span>
-    <span class="brand-text">MIRACULOUS<span>HUB</span></span>
-  </a>
-
-  <nav class="nav" aria-label="Main navigation">
-    <a class="active" href="index.html">Home</a>
-    <a href="episodes.html">Episodes</a>
-    <a href="index.html#upcoming-releases">Upcoming Releases</a>
-    <a href="monthly-animes.html">Monthly Animes</a>
-    <a href="app.html">Apps</a>
-  </nav>
-
-  <div class="actions">
-    <button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button>
-    <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button>
-    <button class="lang-btn" id="languageButton">EN⌄</button>
-    <button class="signin">Sign in</button>
-    <button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-</header>
-<div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
-<aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation">
-  <div class="mobile-drawer-head">
-    <div>
-      <span class="mobile-drawer-kicker">MIRACULOUSHUB</span>
-      <strong>Navigation</strong>
-    </div>
-    <button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close navigation">×</button>
-  </div>
-  <nav class="mobile-nav-links" aria-label="Mobile navigation links">
-    <a class="active" href="index.html"><span>01</span><b>Home</b><i>→</i></a>
-    <a href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a>
-    <a href="index.html#upcoming-releases"><span>03</span><b>Upcoming Releases</b><i>→</i></a>
-    <a href="monthly-animes.html"><span>04</span><b>Monthly Animes</b><i>→</i></a>
-    <a href="app.html"><span>05</span><b>Download Apps</b><i>→</i></a>
-  </nav>
-  <div class="mobile-drawer-foot">
-    <p>Your Miraculous watch space.</p>
-    <button class="signin mobile-drawer-signin">Sign in</button>
-  </div>
-</aside>
-
-
-<section class="home-intro" aria-label="Welcome and upcoming releases"><div class="home-banner"><img class="main-poster" src="main-season7-poster.png" alt="Ladybug and Cat Noir above Paris at sunset" width="1280" height="720" fetchpriority="high"><div class="home-banner-copy"><p class="kicker">THE MIRACULOUS UNIVERSE</p><h1>Welcome to<br><span>MiraculousHub</span></h1><h2>Season 7</h2><p class="home-banner-synopsis" data-s7-synopsis></p><div class="hero-actions"><a class="primary" href="episodes.html?season=7">Explore Season 7 →</a><a class="secondary" href="#trailers">Watch trailers ▶</a></div></div></div><aside class="home-timer-panel" id="upcoming-releases" aria-labelledby="sidebarCountdownTitle"><div class="home-timer-heading"><p class="kicker">COMING UP NEXT</p><h2 id="sidebarCountdownTitle">Your countdowns</h2></div><section id="custom-countdowns" hidden><div class="s7-release-grid" id="customTimerGrid"></div></section><p class="home-timer-note" id="noCustomCountdowns">Countdowns you create in Upload Centre will appear here.</p></aside></section>
-
-<main class="container">
-  <section class="section" id="continueSection" hidden>
-    <div class="section-head">
-      <div>
-        <p class="kicker">PICK UP WHERE YOU LEFT OFF</p>
-        <h2>Continue Watching</h2>
-      </div>
-      <a class="show-all" href="episodes.html">Show all →</a>
-    </div>
-    <div class="continue-row" id="continueRow"></div>
-  </section>
-
-<style id="home-compact-trailers">
-/* Compact trailer rail: thumbnails stay visible without tall grid cards. */
-#trailerGrid{
-  display:flex;
-  gap:12px;
-  overflow-x:auto;
-  overflow-y:hidden;
-  scroll-snap-type:x proximity;
-  padding:3px 3px 14px;
-  -webkit-overflow-scrolling:touch;
-}
-#trailerGrid .trailer-card{
-  display:grid;
-  grid-template-columns:136px minmax(0,1fr);
-  flex:0 0 clamp(278px,31vw,380px);
-  min-width:0;
-  min-height:92px;
-  border-radius:15px;
-  scroll-snap-align:start;
-  text-decoration:none;
-}
-#trailerGrid .trailer-card .art{height:100%;min-height:92px;padding:8px}
-#trailerGrid .trailer-card .episode-thumb{object-fit:contain;background:#0c1019}
-#trailerGrid .trailer-card .art::after{display:none}
-#trailerGrid .trailer-card .epno{font-size:8px;line-height:1.25}
-#trailerGrid .trailer-card .card-info{
-  min-width:0;display:flex;flex-direction:column;justify-content:center;
-  padding:10px 12px;
-}
-#trailerGrid .trailer-card .card-info h3{
-  font-size:14px;line-height:1.3;margin:0 0 5px;
-  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
-}
-#trailerGrid .trailer-card .card-info p{font-size:11px;margin:0}
-@media(max-width:580px){
-  #trailerGrid .trailer-card{flex-basis:83vw;grid-template-columns:42% minmax(0,1fr)}
-}
+<meta name="theme-color" content="#080a12">
+<title>MiraculousHub — Live</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#080a12;color:#fff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#30204a 0,transparent 48%),#080a12}
+.wrap{width:min(1100px,calc(100% - 32px));margin:0 auto;padding:28px 0 48px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 0 28px}
+.brand{display:flex;align-items:center;gap:11px;color:#fff;text-decoration:none;font-weight:900;letter-spacing:.12em}
+.mark{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#ff376f,#a535ef);font-size:21px}
+.brand span:last-child{font-size:14px}.brand em{font-style:normal;color:#ff83b0}
+.status{font-size:12px;color:#b8b5c8;border:1px solid #ffffff20;border-radius:999px;padding:8px 12px}
+h1{font-size:clamp(30px,6vw,54px);line-height:1.04;margin:18px 0 10px;letter-spacing:-.04em}
+.lead{color:#c4c0d2;line-height:1.6;margin:0 0 24px}
+.player{overflow:hidden;border:1px solid #ffffff24;border-radius:20px;background:#000;box-shadow:0 24px 80px #0008}
+.player iframe{display:block;width:100%;aspect-ratio:16/9;border:0}
+.below{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:18px 2px}
+.note{font-size:13px;color:#aaa6ba;line-height:1.5}
+.link{display:inline-flex;align-items:center;justify-content:center;padding:11px 16px;border-radius:12px;background:linear-gradient(100deg,#ff376f,#a535ef);color:white;text-decoration:none;font-weight:800;font-size:13px}
+footer{border-top:1px solid #ffffff18;margin-top:34px;padding-top:18px;color:#777487;font-size:12px}
+@media(max-width:560px){.wrap{width:min(100% - 22px,1100px);padding-top:16px}.status{font-size:10px}.player{border-radius:13px}}
 </style>
-  <section class="section" id="trailers">
-    <div class="section-head"><div><p class="kicker">FIRST LOOK</p><h2>Trailers</h2></div></div>
-    <div class="grid" id="trailerGrid" aria-label="Trailers"></div>
-  </section>
-
-
-
-
-  <section class="section" id="monthly-anime-shelf">
-    <div class="section-head"><div><p class="kicker">MONTHLY ANIMES</p><h2>Choose your next series</h2></div><a class="show-all" href="monthly-animes.html">All animes →</a></div>
-    <div class="release-stack">
-      <a class="upcoming release-card" href="attack-on-titan.html"><div class="datebox"><strong>AOT</strong></div><div class="upcoming-copy"><small>EVERY SEASON · FINAL CHAPTERS · BONUS OADS</small><h3>Attack on Titan</h3><p>Explore the complete episode list and watch with friends using Watch Together.</p></div><div class="badge">ANIME</div></a>
-      <a class="upcoming release-card release-card-secondary" href="death-note.html"><div class="datebox"><strong>DN</strong></div><div class="upcoming-copy"><small>37 EPISODES</small><h3>Death Note</h3><p>Return to your episode or invite friends to a shared party room.</p></div><div class="badge">ANIME</div></a>
-    </div>
-  </section>
-
-  <section class="section" id="latest">
-    <div class="section-head">
-      <div>
-        <p class="kicker">FRESH FROM THE LIBRARY</p>
-        <h2>Latest Episodes</h2>
-      </div>
-      <a class="show-all" href="episodes.html">Show all →</a>
-    </div>
-    <div class="grid" id="latestGrid"></div>
-  </section>
-
+</head>
+<body>
+<div class="wrap">
+<header>
+<a class="brand" href="/" aria-label="MiraculousHub"><span class="mark">M</span><span>MIRACULOUS<em>HUB</em></span></a>
+<span class="status">Temporary homepage · Service update</span>
+</header>
+<main>
+<h1>MiraculousHub is temporarily offline</h1>
+<p class="lead">We're working to restore the main website. In the meantime, you can view the Miraculoust0 Twitch channel here.</p>
+<section class="player" aria-label="Twitch live player">
+<iframe
+src="https://player.twitch.tv/?channel=miraculoust0&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false&muted=true"
+allowfullscreen
+allow="autoplay; fullscreen"
+title="Miraculoust0 Twitch stream"></iframe>
+</section>
+<div class="below">
+<span class="note">If the player is offline or unavailable, check the channel directly on Twitch.</span>
+<a class="link" href="https://www.twitch.tv/miraculoust0" target="_blank" rel="noopener noreferrer">Open Twitch channel ↗</a>
+</div>
 </main>
-
-<footer class="footer">
-  <div>
-    <div class="brand">
-      <span class="brand-mark">M</span>
-      <span class="brand-text">MIRACULOUS<span>HUB</span></span>
-    </div>
-    <p style="color:var(--muted);font-size:9px;line-height:1.6;max-width:340px">A fan-made watch hub with a liquid-glass interface.</p>
-  </div>
-
-  <div class="footer-links">
-    <div>
-      <b>EXPLORE</b>
-      <a href="index.html">Home</a>
-      <a href="episodes.html">Episodes</a>
-      <a href="index.html#upcoming-releases">Upcoming Releases</a>
-      <a href="monthly-animes.html">Monthly Animes</a>
-    </div>
-    <div>
-      <b>COMMUNITY & SUPPORT</b>
-      <a href="https://discord.gg/WB5deSz93G" target="_blank" rel="noopener noreferrer">Join our Discord ↗</a>
-      <a href="#">Contact</a>
-      <a href="#">Help</a>
-    </div>
-  </div>
-
-  <p class="copyright">© 2026 MiraculousHub. Fan project. Not affiliated with the official Miraculous brand.</p>
-</footer>
-
-<div class="modal" id="searchModal" hidden>
-  <div class="modal-box">
-    <div class="modal-top">
-      <h2>Search episodes</h2>
-      <button class="close" id="searchCloseBtn" aria-label="Close search">×</button>
-    </div>
-    <input id="searchInput" placeholder="Title, description, or episode code">
-    <div class="results" id="searchResults"></div>
-  </div>
-  <div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div>
+<footer>© 2026 MiraculousHub · Temporary service page. The normal homepage can be restored when maintenance is complete.</footer>
 </div>
-
-<div class="lang-pop" id="languagePopover" hidden>
-  <button>ENGLISH</button>
-  <button>FRANÇAIS</button>
-  <button>ESPAÑOL</button>
-  <button>DEUTSCH</button>
-  <button>ITALIANO</button>
-  <button>PORTUGUÊS</button>
-</div>
-
-<script src="anime-data.js?v=aot-party-1"></script>
-<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=custom-domains-v4-1"></script><script src="season7-data.js?v=banner-fix-1"></script><script src="catalog.js?v=banner-fix-1"></script>
-<script src="trailers.js?v=banner-fix-1"></script>
-<script src="firebase.js?v=account-v4-1"></script>
-<script src="common.js?v=trailer-cards-1"></script>
-<script src="motion.js?v=nav-alignment-v4-1"></script>
-<script>
-(async()=>{await window.MH_CATALOG_READY;
-
-const latest=MH_EPISODES.slice().sort((a,b)=>b.season-a.season||b.episode-a.episode).slice(0,6);
-document.querySelector("#latestGrid").innerHTML=latest.map(e=>`
-  <a class="card" href="watch.html?season=${e.season}&episode=${e.episode}">
-    <div class="art ${e.thumbnail?'has-thumb':''}">
-      ${e.thumbnail?`<img class="episode-thumb" src="${e.thumbnail}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:""}
-      ${e.new?'<span class="new">NEW</span>':''}
-      <span class="epno">SEASON ${e.season} · EPISODE ${e.episode}</span>
-    </div>
-    <div class="card-info">
-      <h3>${window.mhEscapeHTML(e.title)}</h3>
-      <p>${e.code}</p>
-    </div>
-  </a>`).join("");
-
-function renderCW(){
-  const box=document.querySelector("#continueSection");
-  const row=document.querySelector("#continueRow");
-  const items=(window.mhGetProgress?.()||[])
-    .filter(x=>(Number(x.position||0)>0 || Number(x.progress||0)>0) && Number(x.progress||0)<99.5)
-    .slice(0,12);
-
-  if(!items.length){
-    box.hidden=!window.MH_USER;
-    row.innerHTML=window.MH_USER?'<p class="playback-sync-status">No unfinished episodes found. New device checkpoints will appear here while cloud sync is unavailable.</p>':"";
-    return;
-  }
-
-  box.hidden=false;
-  row.innerHTML=items.map(x=>{
-    const isAnime=x.type==="anime"||!!x.animeSlug;
-    const meta=isAnime
-      ? (window.MH_ANIME_SHOWS||[]).find(a=>a.slug===x.animeSlug)?.episodes?.find(e=>Number(e.episode)===Number(x.episode))
-      : (window.MH_EPISODES||[]).find(e=>Number(e.season)===Number(x.season)&&Number(e.episode)===Number(x.episode));
-    const thumbnail=!isAnime?(meta?.thumbnail||""):"";
-    const special=x.type==="special" || x.season==="Special";
-    const href=isAnime?`watch.html?anime=${x.animeSlug}&episode=${x.episode}`:special?`watch.html?special=${x.episode}`:`watch.html?season=${x.season}&episode=${x.episode}`;
-    const label=isAnime?`${x.animeTitle||"Anime"} · ${meta?.label||"E"+x.episode}`:special?`Special ${x.episode}`:`S${x.season} · E${x.episode}`;
-    return `
-    <a class="continue-card" href="${href}">
-      <div class="thumb ${thumbnail?"has-thumb":""}">
-        ${thumbnail?`<img class="continue-thumb-img" src="${thumbnail}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:""}
-        <span class="thumb-label">${label}</span>
-        <div class="watch-progress" style="width:${Math.max(1,Math.min(100,Math.round(x.progress||0)))}%"></div>
-      </div>
-      <div class="continue-info">
-        <strong>${x.title||meta?.title||"Episode"}</strong>
-        <p>${Number(x.duration)>0?`${Math.round(x.progress||0)}% watched · `:""}resume ${formatResumeTime(x.position)}${x.pendingCloud?" · saved on this device":""}</p>
-      </div>
-    </a>`;
-  }).join("");
-}
-
-function formatResumeTime(seconds){
-  seconds=Math.max(0,Math.floor(Number(seconds)||0));
-  const m=Math.floor(seconds/60), s=seconds%60;
-  return `${m}:${String(s).padStart(2,"0")}`;
-}
-
-let cwSyncRunning=false;
-async function syncContinueWatching(){
-  if(cwSyncRunning) return;
-  cwSyncRunning=true;
-  try{
-    if(window.MH_FIREBASE_READY){
-      try{ await window.MH_FIREBASE_READY; }catch{}
-    }
-    if(window.MH_AUTH_READY){
-      try{ await window.MH_AUTH_READY; }catch{}
-    }
-    if(window.MH_USER && window.mhSyncCloudProgress){
-      await window.mhSyncCloudProgress();
-    }
-  }finally{
-    cwSyncRunning=false;
-    renderCW();
-  }
-}
-
-// Render immediately, then explicitly pull Firestore once Firebase/Auth has
-// restored. This avoids the old event-order race where the sync could finish
-// before the homepage registered its listener.
-renderCW();
-syncContinueWatching();
-window.addEventListener("mh-progress-synced",renderCW);
-window.addEventListener("mh-cloud-playback-status",renderCW);
-window.addEventListener("mh-playback-local-saved",renderCW);
-window.addEventListener("mh-account-ready",renderCW);
-window.addEventListener("mh-cloud-save-ok",()=>syncContinueWatching());
-window.addEventListener("mh-auth-changed",()=>syncContinueWatching());
-window.addEventListener("pageshow",()=>syncContinueWatching());
-document.addEventListener("visibilitychange",()=>{
-  if(document.visibilityState==="visible") syncContinueWatching();
-});
-
-})();
-</script>
-<script src="season7-release.js?v=live-button-1"></script><script src="custom-timers.js?v=live-button-1"></script></body>
+</body>
 </html>
