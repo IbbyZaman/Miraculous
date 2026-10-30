@@ -352,7 +352,7 @@
         <p id="authSubtitle">
           Save watch progress, favourites and history across devices.
         </p>
-        <button class="google-auth" id="googleAuth">
+        <button class="google-auth" id="googleAuth" hidden>
           Continue with Google
         </button>
         <div class="auth-divider"><span>or</span></div>
@@ -360,8 +360,8 @@
           <input id="authEmail" type="email" autocomplete="email"
                  placeholder="Email" required>
           <input id="authPassword" type="password"
-                 autocomplete="current-password" minlength="6"
-                 placeholder="Password (6+ characters)" required>
+                 autocomplete="current-password" minlength="8"
+                 placeholder="Password (8+ characters)" required>
           <button class="auth-submit" id="authSubmit" type="submit">
             Sign in
           </button>
@@ -411,18 +411,18 @@
     }
 
     if (!window.MH_FIREBASE_READY) {
-      return Promise.reject(new Error("Firebase did not start loading. Refresh the page and try again."));
+      return Promise.reject(new Error("Cloudflare account service did not start. Refresh the page and try again."));
     }
 
     return Promise.race([
       window.MH_FIREBASE_READY.then(() => {
         if (!window.MH_AUTH || typeof window.MH_AUTH.signIn !== "function") {
-          throw new Error("Firebase loaded, but Authentication is unavailable.");
+          throw new Error("Cloudflare account service is unavailable.");
         }
         return window.MH_AUTH;
       }),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Firebase is taking too long to load. Check your internet connection and try again.")), timeout)
+        setTimeout(() => reject(new Error("Account service is taking too long to respond. Check your connection and try again.")), timeout)
       )
     ]);
   }
@@ -485,7 +485,7 @@
         "auth/user-not-found": "No account exists with that email.",
         "auth/wrong-password": "Email or password is incorrect.",
         "auth/email-already-in-use": "That email already has an account.",
-        "auth/weak-password": "Use a password with at least 6 characters.",
+        "auth/weak-password": "Use a password with at least 8 characters.",
         "auth/invalid-email": "Please enter a valid email address.",
         "auth/operation-not-allowed": "Email/password sign-in is not enabled in this Firebase project.",
         "auth/network-request-failed": "Firebase could not connect. Check your internet connection.",
@@ -652,7 +652,7 @@
         }
       })
       .catch(error => {
-        console.error("MiraculousHub Firebase Auth initialization failed:", error);
+        console.error("MiraculousHub account initialization failed:", error);
       });
   }
 
