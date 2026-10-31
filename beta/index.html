@@ -39,19 +39,9 @@
 @media(max-width:760px){.discovery{grid-template-columns:1fr}.compact-spotlight,.trailer-list{grid-template-columns:1fr}}
 @media(max-width:420px){.trailer-thumb{width:100px}.discovery{padding:16px}}
 
-/* Full beta: built-in season browser, anime showcase and quick access */
-.beta-library{border:1px solid #ffffff20;background:linear-gradient(140deg,#161a2a,#100f1d);border-radius:24px;padding:24px;margin:28px 0}
-.beta-library .section-heading{margin-bottom:19px}.beta-library .season-chips{flex-wrap:wrap;overflow:visible}
-.beta-library .season-chips button{color:#e1ddea;border:1px solid #ffffff25;border-radius:999px;padding:11px 18px;font-size:13px;font-weight:800;background:#272338;cursor:pointer}
-.beta-library .season-chips button[aria-pressed="true"]{color:white;border-color:#ff81b2;background:linear-gradient(135deg,#fb3474,#8f367f);box-shadow:0 6px 24px #ff357536}
-.beta-season-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-top:10px}
-.beta-season-grid .episode{width:100%;min-width:0;flex:none}
-.beta-library .library-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:20px;color:var(--mute);font-size:13px}
-.beta-library .library-footer button{border:1px solid #ffffff2d;background:#262237;border-radius:12px;padding:11px 19px;color:white;font-weight:800}
-.anime-showcase{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.anime-showcase a{min-height:188px;position:relative;display:flex;flex-direction:column;justify-content:end;overflow:hidden;padding:22px;border:1px solid #ffffff26;border-radius:22px;background:linear-gradient(135deg,#2b2540,#101b2a)}.anime-showcase a:nth-child(2){background:linear-gradient(125deg,#26343b,#22182d)}.anime-showcase a:nth-child(3){background:linear-gradient(125deg,#283627,#19162d)}.anime-showcase a:hover,.anime-showcase a:focus-visible{border-color:#ff80a9;transform:translateY(-2px)}.anime-showcase strong{font-size:21px}.anime-showcase small{color:#e5b6cb;font-size:11px;font-weight:850;letter-spacing:1px;margin-top:7px}.anime-showcase .emblem{font-size:30px;margin-bottom:16px}
 .quick-links{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0}.quick-links a{flex:1 1 175px;min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#171929;border:1px solid #ffffff22;border-radius:15px;padding:15px 18px;font-weight:800}.quick-links a:hover{border-color:#ff6c9c}.quick-links span{color:#ff83ab}
 .episode .copy{min-height:66px}.episode .copy strong{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-clamp:2;overflow:hidden}
-@media(max-width:740px){.anime-showcase{grid-template-columns:1fr}.anime-showcase a{min-height:145px}.beta-library{padding:17px}.beta-season-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+@media(max-width:740px){.beta-library{padding:17px}.beta-season-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
 @media(max-width:430px){.beta-season-grid{grid-template-columns:1fr 1fr}.beta-season-grid .copy{padding:10px}.beta-season-grid .copy strong{font-size:12px}.beta-library .season-chips button{padding:9px 12px}}
 /* Custom countdowns: actual timers from the R2 catalogue, not made-up release dates. */
 .beta-countdowns{margin:24px 0 30px;padding:22px;border:1px solid #ff669347;border-radius:23px;background:linear-gradient(125deg,#31172d,#191526 54%,#111a2e);box-shadow:0 13px 38px #0004}
