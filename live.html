@@ -59,13 +59,13 @@ body{background:radial-gradient(ellipse at 50% 0%,rgba(167,46,255,.13),transpare
   <div class="player-topline">
    <strong>NOW PLAYING</strong>
    <div class="live-switcher" role="group" aria-label="Choose live player">
-    <button type="button" id="cloudflareTab" aria-controls="cloudflarePanel" aria-pressed="true">Cloudflare <span aria-hidden="true">●</span></button>
+    <button type="button" id="mainTab" aria-controls="mainPanel" aria-pressed="true">Main stream <span aria-hidden="true">●</span></button>
     <button type="button" id="twitchTab" aria-controls="twitchPanel" aria-pressed="false">Twitch backup</button>
    </div>
   </div>
-  <div class="player-panel" id="cloudflarePanel" aria-label="Cloudflare primary live stream">
-   <div class="player-frame"><iframe src="https://customer-lry2jpar718rky9m.cloudflarestream.com/1aecb527fd905e015029d50c5ba8a02c/iframe" title="MiraculousHub Cloudflare live stream" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen></iframe></div>
-   <div class="player-footer"><div class="player-title"><div class="provider-icon" aria-hidden="true">✦</div><div><strong>MiraculousHub Live</strong><span>Primary broadcast · Cloudflare Stream</span></div></div></div>
+  <div class="player-panel" id="mainPanel" aria-label="Main live stream">
+   <div class="player-frame"><iframe src="https://customer-lry2jpar718rky9m.cloudflarestream.com/1aecb527fd905e015029d50c5ba8a02c/iframe" title="MiraculousHub main live stream" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen></iframe></div>
+   <div class="player-footer"><div class="player-title"><div class="provider-icon" aria-hidden="true">✦</div><div><strong>MiraculousHub Live</strong><span>Primary broadcast · MiraculousHub</span></div></div></div>
   </div>
   <div class="player-panel" id="twitchPanel" aria-label="Twitch backup stream" hidden>
    <div class="player-frame"><iframe id="twitchFrame" title="Miraculoust0 Twitch backup live stream" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
@@ -76,23 +76,23 @@ body{background:radial-gradient(ellipse at 50% 0%,rgba(167,46,255,.13),transpare
  <a class="back-home" href="index.html#upcoming-releases">← Back to MiraculousHub</a>
 </main>
 <script>
-const cloudflareTab=document.getElementById('cloudflareTab');
+const mainTab=document.getElementById('mainTab');
 const twitchTab=document.getElementById('twitchTab');
-const cloudflarePanel=document.getElementById('cloudflarePanel');
+const mainPanel=document.getElementById('mainPanel');
 const twitchPanel=document.getElementById('twitchPanel');
 const twitchFrame=document.getElementById('twitchFrame');
 function showPlayer(player){
- const cloudflare=player==='cloudflare';
- cloudflarePanel.hidden=!cloudflare;
+ const main=player==='main';
+ mainPanel.hidden=!main;
  twitchPanel.hidden=cloudflare;
- cloudflareTab.setAttribute('aria-pressed',String(cloudflare));
- twitchTab.setAttribute('aria-pressed',String(!cloudflare));
+ mainTab.setAttribute('aria-pressed',String(main));
+ twitchTab.setAttribute('aria-pressed',String(!main));
  if(!cloudflare&&!twitchFrame.src){
   twitchFrame.src='https://player.twitch.tv/?channel=miraculoust0&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false';
  }
- if(cloudflare&&twitchFrame.src){twitchFrame.src='about:blank';}
+ if(main&&twitchFrame.src){twitchFrame.src='about:blank';}
 }
-cloudflareTab.addEventListener('click',()=>showPlayer('cloudflare'));
+mainTab.addEventListener('click',()=>showPlayer('main'));
 twitchTab.addEventListener('click',()=>showPlayer('twitch'));
 const episode=new URLSearchParams(location.search).get('episode');
 if(episode){document.getElementById('liveDescription').textContent='Season 7 Episode '+episode+' has reached its scheduled release time. Watch the live broadcast below.';}
