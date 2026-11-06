@@ -64,7 +64,7 @@ body{background:radial-gradient(ellipse at 50% 0%,rgba(167,46,255,.13),transpare
    </div>
   </div>
   <div class="player-panel" id="mainPanel" aria-label="Main live stream">
-   <div class="player-frame"><iframe src="https://customer-lry2jpar718rky9m.cloudflarestream.com/1aecb527fd905e015029d50c5ba8a02c/iframe" title="MiraculousHub main live stream" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen></iframe></div>
+   <div class="player-frame"><iframe src="https://customer-lry2jpar718rky9m.cloudflarestream.com/c269a23d906ff8878a64a21b61d1b8fa/iframe" title="MiraculousHub main live stream" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen></iframe></div>
    <div class="player-footer"><div class="player-title"><div class="provider-icon" aria-hidden="true">✦</div><div><strong>MiraculousHub Live</strong><span>Primary broadcast · MiraculousHub</span></div></div></div>
   </div>
   <div class="player-panel" id="twitchPanel" aria-label="Twitch backup stream" hidden>
@@ -84,13 +84,13 @@ const twitchFrame=document.getElementById('twitchFrame');
 function showPlayer(player){
  const main=player==='main';
  mainPanel.hidden=!main;
- twitchPanel.hidden=cloudflare;
+ twitchPanel.hidden=main;
  mainTab.setAttribute('aria-pressed',String(main));
  twitchTab.setAttribute('aria-pressed',String(!main));
- if(!cloudflare&&!twitchFrame.src){
+ if(!main&&!twitchFrame.hasAttribute('src')){
   twitchFrame.src='https://player.twitch.tv/?channel=miraculoust0&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false';
  }
- if(main&&twitchFrame.src){twitchFrame.src='about:blank';}
+ if(main&&twitchFrame.hasAttribute('src')){twitchFrame.removeAttribute('src');}
 }
 mainTab.addEventListener('click',()=>showPlayer('main'));
 twitchTab.addEventListener('click',()=>showPlayer('twitch'));
