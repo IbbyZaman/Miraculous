@@ -13,7 +13,11 @@
 .twitch-card{overflow:hidden;border:1px solid rgba(255,255,255,.13);border-radius:20px;background:rgba(255,255,255,.035)}
 .twitch-frame{width:100%;aspect-ratio:16/9;background:#000}.twitch-frame iframe{width:100%;height:100%;border:0;display:block}
 .live-player-info{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 20px}.live-player-info strong,.live-player-info span{display:block}.live-player-info span{margin-top:5px;color:var(--muted,#a8a9ba);font-size:13px}
-.live-action{display:inline-flex;align-items:center;justify-content:center;border-radius:12px;padding:11px 15px;background:linear-gradient(110deg,#ff4f88,#a72eff);color:white;text-decoration:none;font-weight:750;white-space:nowrap}
+.live-action{display:inline-flex;align-items:center;justify-content:center;border-radius:12px;padding:11px 15px;background:linear-gradient(110deg,#ff4f88,#a72eff);color:white;text-decoration:none;font-weight:750;white-space:nowrap;border:0;cursor:pointer}
+.live-switcher{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px}
+.live-switcher button{border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:10px 15px;background:rgba(255,255,255,.06);color:inherit;font:inherit;font-weight:700;cursor:pointer}
+.live-switcher button[aria-pressed="true"]{background:linear-gradient(110deg,#ff4f88,#a72eff);border-color:transparent;color:white}
+.player-panel[hidden]{display:none}
 .back-home{display:inline-flex;margin-top:20px;color:var(--muted,#a8a9ba);text-decoration:none}
 @media(max-width:560px){.live-player-info{align-items:flex-start;flex-direction:column}.live-action{width:100%}.twitch-frame{aspect-ratio:4/3}}
 </style>
@@ -25,16 +29,37 @@
  <div class="actions"><a class="live-action" href="https://www.twitch.tv/miraculoust0" target="_blank" rel="noopener noreferrer">Open Twitch ↗</a></div>
 </header>
 <main class="live-page">
- <div class="live-heading"><p class="kicker">● LIVE</p><h1>MiraculousHub Live</h1><p id="liveDescription">The stream will appear here when Miraculoust0 is live on Twitch.</p></div>
- <section class="twitch-card" aria-label="Twitch live stream">
-  <div class="twitch-frame"><iframe src="https://player.twitch.tv/?channel=miraculoust0&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false" title="Miraculoust0 Twitch live stream" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
-  <div class="live-player-info"><div><strong>MiraculousHub Live</strong><span>Live on Twitch · @miraculoust0</span></div><a class="live-action" href="https://www.twitch.tv/miraculoust0" target="_blank" rel="noopener noreferrer">Watch on Twitch ↗</a></div>
+ <div class="live-heading"><p class="kicker">● LIVE</p><h1>MiraculousHub Live</h1><p id="liveDescription">Watch the live broadcast here. If the Cloudflare stream is unavailable, switch to the Twitch backup.</p></div>
+ <div class="live-switcher" role="group" aria-label="Choose live player">
+  <button type="button" id="cloudflareTab" aria-controls="cloudflarePanel" aria-pressed="true">Cloudflare Live</button>
+  <button type="button" id="twitchTab" aria-controls="twitchPanel" aria-pressed="false">Twitch backup</button>
+ </div>
+ <section class="twitch-card player-panel" id="cloudflarePanel" aria-label="Cloudflare live stream">
+  <div class="twitch-frame"><iframe src="https://customer-lry2jpar718rky9m.cloudflarestream.com/1aecb527fd905e015029d50c5ba8a02c/iframe" title="MiraculousHub Cloudflare live stream" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen></iframe></div>
+  <div class="live-player-info"><div><strong>MiraculousHub Live</strong><span>Primary stream · Cloudflare</span></div></div>
+ </section>
+ <section class="twitch-card player-panel" id="twitchPanel" aria-label="Twitch backup stream" hidden>
+  <div class="twitch-frame"><iframe src="https://player.twitch.tv/?channel=miraculoust0&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false" title="Miraculoust0 Twitch backup live stream" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
+  <div class="live-player-info"><div><strong>MiraculousHub Live</strong><span>Backup stream · Twitch @miraculoust0</span></div><a class="live-action" href="https://www.twitch.tv/miraculoust0" target="_blank" rel="noopener noreferrer">Watch on Twitch ↗</a></div>
  </section>
  <a class="back-home" href="index.html#upcoming-releases">← Back to countdowns</a>
 </main>
 <script>
+const cloudflareTab=document.getElementById('cloudflareTab');
+const twitchTab=document.getElementById('twitchTab');
+const cloudflarePanel=document.getElementById('cloudflarePanel');
+const twitchPanel=document.getElementById('twitchPanel');
+function showPlayer(player){
+ const cloudflare=player==='cloudflare';
+ cloudflarePanel.hidden=!cloudflare;
+ twitchPanel.hidden=cloudflare;
+ cloudflareTab.setAttribute('aria-pressed',String(cloudflare));
+ twitchTab.setAttribute('aria-pressed',String(!cloudflare));
+}
+cloudflareTab.addEventListener('click',()=>showPlayer('cloudflare'));
+twitchTab.addEventListener('click',()=>showPlayer('twitch'));
 const episode=new URLSearchParams(location.search).get('episode');
-if(episode){const el=document.getElementById('liveDescription');el.textContent='Season 7 Episode '+episode+' has reached its scheduled release time. Watch the Twitch stream below.';}
+if(episode){const el=document.getElementById('liveDescription');el.textContent='Season 7 Episode '+episode+' has reached its scheduled release time. Watch the live broadcast below.';}
 </script>
 </body>
 </html>
