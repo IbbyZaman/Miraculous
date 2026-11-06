@@ -64,8 +64,8 @@ body{background:radial-gradient(ellipse at 50% 0%,rgba(167,46,255,.13),transpare
    </div>
   </div>
   <div class="player-panel" id="mainPanel" aria-label="Main live stream">
-   <div class="player-frame"><iframe src="https://customer-lry2jpar718rky9m.cloudflarestream.com/c269a23d906ff8878a64a21b61d1b8fa/iframe" title="MiraculousHub main live stream" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen></iframe></div>
-   <div class="player-footer"><div class="player-title"><div class="provider-icon" aria-hidden="true">✦</div><div><strong>MiraculousHub Live</strong><span>Primary broadcast · MiraculousHub</span></div></div></div>
+   <div class="player-frame"><video id="mainVideo" autoplay muted playsinline controls style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#030307"></video><div id="mainStreamStatus" role="status" style="position:absolute;left:12px;bottom:12px;padding:8px 11px;border-radius:9px;background:rgba(0,0,0,.72);color:#fff;font-size:12px">Connecting to live stream…</div></div>
+   <div class="player-footer"><div class="player-title"><div class="provider-icon" aria-hidden="true">✦</div><div><strong>MiraculousHub Live</strong><span>WebRTC broadcast · ultra-low latency</span></div></div><button class="live-action" id="retryMain" type="button">Reconnect ↻</button></div>
   </div>
   <div class="player-panel" id="twitchPanel" aria-label="Twitch backup stream" hidden>
    <div class="player-frame"><iframe id="twitchFrame" title="Miraculoust0 Twitch backup live stream" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
@@ -81,6 +81,51 @@ const twitchTab=document.getElementById('twitchTab');
 const mainPanel=document.getElementById('mainPanel');
 const twitchPanel=document.getElementById('twitchPanel');
 const twitchFrame=document.getElementById('twitchFrame');
+const mainVideo=document.getElementById('mainVideo');
+const mainStatus=document.getElementById('mainStreamStatus');
+const WHEP_URL='https://customer-lry2jpar718rky9m.cloudflarestream.com/4fad1e2e4a30a0ee4d2f1d174caf2c31/webRTC/play';
+let playback=null;
+let starting=false;
+function setMainStatus(message){mainStatus.textContent=message;}
+async function stopMainPlayback(){
+ if(!playback)return;
+ const old=playback;playback=null;
+ try{if(old.sessionUrl)await fetch(old.sessionUrl,{method:'DELETE'});}catch(e){}
+ try{old.pc.close();}catch(e){}
+ mainVideo.srcObject=null;
+}
+async function startMainPlayback(){
+ if(starting||playback)return;
+ starting=true;setMainStatus('Connecting to live stream…');
+ try{
+  const pc=new RTCPeerConnection();
+  pc.addTransceiver('video',{direction:'recvonly'});
+  pc.addTransceiver('audio',{direction:'recvonly'});
+  const stream=new MediaStream();
+  mainVideo.srcObject=stream;
+  pc.ontrack=(event)=>{if(event.track&&!stream.getTracks().some(t=>t.id===event.track.id))stream.addTrack(event.track);setMainStatus('Connected · live');mainVideo.play().catch(()=>{});};
+  pc.onconnectionstatechange=()=>{
+   if(pc.connectionState==='failed'||pc.connectionState==='disconnected')setMainStatus('Connection interrupted · try reconnecting');
+   else if(pc.connectionState==='connecting')setMainStatus('Connecting to live stream…');
+  };
+  const offer=await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  const response=await fetch(WHEP_URL,{method:'POST',headers:{'Content-Type':'application/sdp'},body:offer.sdp});
+  if(!response.ok)throw new Error('Playback request failed ('+response.status+')');
+  const answer=await response.text();
+  await pc.setRemoteDescription({type:'answer',sdp:answer});
+  const locationHeader=response.headers.get('Location');
+  const sessionUrl=locationHeader?new URL(locationHeader,WHEP_URL).toString():null;
+  playback={pc,sessionUrl};
+  if(pc.connectionState==='failed')setMainStatus('Could not connect · try reconnecting');
+  else setMainStatus('Waiting for the broadcast…');
+ }catch(error){
+  setMainStatus(error.message||'Unable to connect to the live stream');
+  if(playback?.pc)playback.pc.close();
+  playback=null;
+  mainVideo.srcObject=null;
+ }finally{starting=false;}
+}
 function showPlayer(player){
  const main=player==='main';
  mainPanel.hidden=!main;
@@ -90,12 +135,17 @@ function showPlayer(player){
  if(!main&&!twitchFrame.hasAttribute('src')){
   twitchFrame.src='https://player.twitch.tv/?channel=miraculoust0&parent=miraculoushub.co.uk&parent=www.miraculoushub.co.uk&autoplay=false';
  }
- if(main&&twitchFrame.hasAttribute('src')){twitchFrame.removeAttribute('src');}
+ if(!main)stopMainPlayback();
+ if(main&&twitchFrame.hasAttribute('src'))twitchFrame.removeAttribute('src');
+ if(main)startMainPlayback();
 }
 mainTab.addEventListener('click',()=>showPlayer('main'));
 twitchTab.addEventListener('click',()=>showPlayer('twitch'));
+document.getElementById('retryMain').addEventListener('click',async()=>{await stopMainPlayback();startMainPlayback();});
 const episode=new URLSearchParams(location.search).get('episode');
 if(episode){document.getElementById('liveDescription').textContent='Season 7 Episode '+episode+' has reached its scheduled release time. Watch the live broadcast below.';}
+startMainPlayback();
+window.addEventListener('pagehide',()=>{if(playback?.pc)playback.pc.close();});
 </script>
 </body>
 </html>
