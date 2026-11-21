@@ -21,7 +21,16 @@ service cloud.firestore {
         && request.resource.data.text.size() <= 500
         && request.resource.data.authorNickname is string
         && request.resource.data.authorNickname.size() >= 2
-        && request.resource.data.authorNickname.size() <= 24;
+        && request.resource.data.authorNickname.size() <= 24
+        && (
+          !("parentId" in request.resource.data)
+          || (
+            request.resource.data.parentId is string
+            && exists(/databases/$(database)/documents/comments/$(request.resource.data.parentId))
+            && get(/databases/$(database)/documents/comments/$(request.resource.data.parentId)).data.episodeKey == request.resource.data.episodeKey
+            && !("parentId" in get(/databases/$(database)/documents/comments/$(request.resource.data.parentId)).data)
+          )
+        );
 
       allow delete: if request.auth != null
                     && resource.data.authorUid == request.auth.uid;
