@@ -838,12 +838,19 @@ document.addEventListener("keydown",event=>{ if(event.key==="Escape" && !$("repo
   }
 
   function renderComments(items){
-    if(!items?.length){
+    const comments=items||[];
+    const roots=comments.filter(comment=>!comment.parentId);
+    const repliesByParent=new Map();
+    comments.filter(comment=>comment.parentId).forEach(reply=>{
+      const group=repliesByParent.get(reply.parentId)||[];
+      group.push(reply); repliesByParent.set(reply.parentId,group);
+    });
+    if(!roots.length){
       list.innerHTML='<div class="comments-empty">No comments yet. Be the first to comment.</div>';
       return;
     }
-    list.innerHTML=items.slice(-100).map(comment=>`
-      <article class="comment-item">
+    const renderOne=(comment,isReply=false)=>`
+      <article class="comment-item ${isReply?"comment-reply":""}">
        <div class="comment-top">
         <strong>${escapeHtml(comment.authorNickname||"Miraculous Fan")}</strong>
         <span>${escapeHtml(formatCommentTime(comment.createdAt))}</span>
@@ -853,7 +860,9 @@ document.addEventListener("keydown",event=>{ if(event.key==="Escape" && !$("repo
         </span>
        </div>
        <p>${escapeHtml(comment.text)}</p>
-      </article>`).join("");
+       ${!isReply?`<div class="comment-footer"><button class="comment-reply-btn" type="button" data-comment-reply="${escapeHtml(comment.id)}">↩ Reply</button><span class="comment-reply-count">${(repliesByParent.get(comment.id)||[]).length ? (repliesByParent.get(comment.id)||[]).length+" replies" : ""}</span></div><div class="comment-replies" id="replies-${escapeHtml(comment.id)}">${(repliesByParent.get(comment.id)||[]).map(reply=>renderOne(reply,true)).join("")}</div>`:""}
+      </article>`;
+    list.innerHTML=roots.slice(-100).map(comment=>renderOne(comment)).join("");
     list.querySelectorAll("[data-comment-delete]").forEach(button=>{
       button.onclick=async()=>{
         try{ await window.MH_CLOUD.deleteComment(button.dataset.commentDelete); }
@@ -862,6 +871,39 @@ document.addEventListener("keydown",event=>{ if(event.key==="Escape" && !$("repo
     });
     list.querySelectorAll("[data-comment-report]").forEach(button=>{
       button.onclick=()=>openReport({type:"comment",id:button.dataset.commentReport,label:`Comment by ${button.dataset.commentAuthor||"User"}`});
+    });
+    list.querySelectorAll("[data-comment-reply]").forEach(button=>{
+      button.onclick=()=>{
+        if(!window.MH_USER){window.mhOpenAuth?.();return;}
+        const parentId=button.dataset.commentReply;
+        const target=$("replies-"+parentId);
+        if(!target)return;
+        const existing=target.querySelector(".comment-reply-form");
+        if(existing){existing.remove();return;}
+        const formNode=document.createElement("form");
+        formNode.className="comment-reply-form";
+        formNode.innerHTML='<input maxlength="500" placeholder="Write a reply…" aria-label="Write a reply" required><button type="submit">Reply</button>';
+        target.prepend(formNode);
+        const field=formNode.querySelector("input");
+        field.focus();
+        formNode.onsubmit=async event=>{
+          event.preventDefault();
+          const text=field.value.trim();
+          if(!text)return;
+          const submit=formNode.querySelector("button");
+          submit.disabled=true;
+          try{
+            const nickname=await window.mhEnsureNickname?.();
+            if(!nickname)return;
+            await window.MH_CLOUD.addReply(cloudKey,parentId,text);
+            formNode.remove();
+          }catch(error){
+            console.error(error);
+            if(error?.code==="nickname-required")window.mhOpenAccount?.({message:"Choose a nickname before replying.",focusNickname:true});
+            else showToast("Could not send reply");
+          }finally{submit.disabled=false;}
+        };
+      };
     });
   }
 
