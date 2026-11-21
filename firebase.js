@@ -258,6 +258,26 @@
             createdAt: fsMod.serverTimestamp()
           });
         },
+        async addReply(episodeKey, parentId, text) {
+          const u = auth.currentUser;
+          if (!u) throw new Error("Sign in required");
+          const clean = String(text || "").trim().slice(0, 500);
+          if (!clean) throw new Error("Reply cannot be empty");
+          const authorNickname = await window.MH_CLOUD.getNickname();
+          if (!authorNickname) {
+            const error = new Error("Set a nickname before replying");
+            error.code = "nickname-required";
+            throw error;
+          }
+          return fsMod.addDoc(fsMod.collection(db, "comments"), {
+            episodeKey,
+            parentId: String(parentId),
+            text: clean,
+            authorUid: u.uid,
+            authorNickname,
+            createdAt: fsMod.serverTimestamp()
+          });
+        },
         async deleteComment(commentId) {
           const u = auth.currentUser;
           if (!u) throw new Error("Sign in required");
