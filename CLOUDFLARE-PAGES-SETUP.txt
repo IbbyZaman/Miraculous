@@ -1,0 +1,67 @@
+MIRACULOUSHUB — CLOUDFLARE PAGES MIGRATION
+==============================================
+
+Preview branch: cloudflare-pages-redesign
+Source repository: IbbyZaman/Miraculous
+Site root: repository root (index.html is at the root)
+
+WHAT THIS CHANGES
+-----------------
+Cloudflare Pages hosts the static website files (HTML, CSS, browser JavaScript).
+The existing back-end services remain separate and should not be replaced:
+- video.miraculoushub.co.uk continues to serve video through the existing video Worker/R2 setup.
+- upload.miraculoushub.co.uk continues to serve the uploader Worker and catalogue API.
+- Firebase continues to handle website authentication and account data.
+- Existing Watch Together / Durable Object functionality remains on the video Worker.
+
+Do not delete or redeploy the Workers as part of the Pages setup.
+The root wrangler.toml in this repository is for the existing video Worker, not for
+the Pages website. Pages does not need that Worker config as its build command.
+
+PAGES PROJECT SETTINGS
+----------------------
+In Cloudflare Dashboard:
+1. Open Workers & Pages -> Create application -> Pages -> Connect to Git.
+2. Authorise GitHub and select IbbyZaman/Miraculous.
+3. For the first preview project, select cloudflare-pages-redesign as the production branch.
+4. Framework preset: None.
+5. Build command: exit 0 (or leave blank for no build step).
+6. Build output directory: .
+7. Root directory: / (the repository root).
+8. Save and deploy.
+
+Cloudflare will provide a *.pages.dev address. Test that preview before moving
+the public domain. Git-connected Pages deployments can build again automatically
+when commits are pushed to the connected branch.
+
+PRE-LAUNCH TESTS
+----------------
+Check these routes on the pages.dev preview:
+- /
+- /episodes.html
+- /season7.html
+- /monthly-animes.html
+- /watch.html?season=6&episode=26
+- /trailer.html
+- /upload.html
+- /app.html
+
+Also test sign-in/sign-out, saved playback, a real R2-backed episode, the Camilo
+trailer, subtitles, upload catalogue loading, and Watch Together. The visual
+refresh intentionally leaves the existing HTML IDs and application scripts in place.
+
+CUSTOM DOMAIN CUTOVER
+---------------------
+Only after the preview passes:
+1. In the Pages project, open Custom domains and add miraculoushub.co.uk.
+2. Follow Cloudflare's domain/DNS instructions for the Pages project.
+3. Keep the existing video and upload Worker hostnames and their DNS records unchanged.
+4. Re-test the root domain, video playback, uploads, sign-in and watch progress.
+5. Keep the old GitHub Pages deployment available until the Pages site is confirmed.
+
+IMPORTANT
+---------
+This repository remains the source code repository on GitHub. Cloudflare Pages is
+the new hosting/deployment target; the source is not copied out of GitHub.
+Do not change the production branch to cloudflare-pages-redesign until you are
+ready to make this redesigned version the public version.
