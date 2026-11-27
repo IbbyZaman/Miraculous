@@ -15,8 +15,9 @@ The existing back-end services remain separate and should not be replaced:
 - Existing Watch Together / Durable Object functionality remains on the video Worker.
 
 Do not delete or redeploy the Workers as part of the Pages setup.
-The root wrangler.toml in this repository is for the existing video Worker, not for
-the Pages website. Pages does not need that Worker config as its build command.
+The Pages build script copies only the site assets into dist/ and deliberately leaves
+Worker source, Wrangler configs, developer directories and repository documentation out
+of the published website. The existing Worker configuration remains separate.
 
 PAGES PROJECT SETTINGS
 ----------------------
