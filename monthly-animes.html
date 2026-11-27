@@ -38,14 +38,15 @@
 .rean-search-status{font-size:13px;color:var(--muted);margin-top:14px}.rean-search-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.rean-result-card{display:flex;gap:12px;min-width:0;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--text);text-decoration:none;transition:transform .18s ease,border-color .18s ease}.rean-result-card:hover{transform:translateY(-2px);border-color:var(--pink)}.rean-result-poster{width:76px;min-width:76px;height:108px;object-fit:cover;border-radius:10px;background:rgba(128,128,128,.12)}.rean-result-copy{min-width:0;align-self:center}.rean-result-copy strong{display:block;font-size:14px;line-height:1.35;overflow-wrap:anywhere}.rean-result-copy span{display:block;color:var(--muted);font-size:12px;line-height:1.5;margin-top:6px}.rean-search-empty{grid-column:1/-1;padding:18px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:13px}@media(max-width:700px){.rean-search-results{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){.rean-search-results{grid-template-columns:1fr}.rean-result-poster{width:68px;min-width:68px;height:96px}}</style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
      crossorigin="anonymous"></script>
+<link rel="stylesheet" href="redesign.css?v=20261127-1">
 </head>
 <body>
 <header class="topbar">
   <a class="brand" href="index.html" aria-label="MiraculousHub home"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a>
-  <nav class="nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="index.html#upcoming-releases">Upcoming Releases</a><a class="active" href="monthly-animes.html">Monthly Animes</a>
-    <a href="app.html">Apps</a></nav>
-  <div class="actions"><button class="icon-btn" id="searchOpen" aria-label="Search">⌕</button><button class="theme-btn" id="themeToggle" aria-label="Toggle theme">☾</button><button class="lang-btn" id="languageButton">EN⌄</button><button class="signin">Sign in</button><button class="menu-toggle" id="mobileMenuToggle" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false"><span></span><span></span><span></span></button></div>
+  <nav class="nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="season7.html">Season 7</a><a href="monthly-animes.html" class="active" aria-current="page">Animes</a><a href="live.html">Live</a><a href="app.html">Apps</a></nav>
+  <div class="actions"><button class="icon-btn" id="searchOpen" type="button" aria-label="Search">⌕</button><button class="theme-btn" id="themeToggle" type="button" aria-label="Toggle theme">☾</button><button class="lang-btn" id="languageButton" type="button">EN⌄</button><button class="signin" type="button">Sign in</button><a class="upload-link" href="upload.html">Upload</a><button class="menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false"><span></span><span></span><span></span></button></div>
 </header>
+
 <div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
 <aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation">
   <div class="mobile-drawer-head"><div><span class="mobile-drawer-kicker">MIRACULOUSHUB</span><strong>Navigation</strong></div><button class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close navigation">×</button></div>
