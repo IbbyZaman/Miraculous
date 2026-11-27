@@ -23,7 +23,7 @@ PAGES PROJECT SETTINGS
 In Cloudflare Dashboard:
 1. Open Workers & Pages -> Create application -> Pages -> Connect to Git.
 2. Authorise GitHub and select IbbyZaman/Miraculous.
-3. For the first preview project, select cloudflare-pages-redesign as the production branch.
+3. Set the production branch to main. Keep cloudflare-pages-redesign as a non-production branch so Pages publishes it as a preview deployment.
 4. Framework preset: None.
 5. Build command: exit 0 (or leave blank for no build step).
 6. Build output directory: .
@@ -63,5 +63,5 @@ IMPORTANT
 ---------
 This repository remains the source code repository on GitHub. Cloudflare Pages is
 the new hosting/deployment target; the source is not copied out of GitHub.
-Do not change the production branch to cloudflare-pages-redesign until you are
-ready to make this redesigned version the public version.
+After testing, make cloudflare-pages-redesign the production branch (or merge it
+into main) when you are ready to make the redesign the public version.
