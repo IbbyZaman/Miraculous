@@ -250,3 +250,20 @@ html.light .mh-footer a{color:#404a64}
  .mh-footer-links{gap:13px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* Finishing details for generated cards and the original player/admin screens. */
+.mh-art-initial{position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.48);font-size:clamp(42px,6vw,76px);font-weight:1000;letter-spacing:-.1em;text-shadow:0 8px 28px rgba(0,0,0,.3)}
+.mh-new-tag{left:auto;right:11px;background:linear-gradient(110deg,#ff477e,#9b6dff);border-color:transparent}
+.mh-episode-art .mh-episode-tag:nth-of-type(2):not(.mh-new-tag){left:auto;right:11px}
+.mh-feature-card p{position:relative;max-width:600px;color:#b9c1d4;font-size:13px;line-height:1.7}
+.mh-results-meta span:last-child{color:var(--soft)}
+.mh-release-card:hover{border-color:rgba(255,111,153,.4)}
+.mh-release-card:target{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,71,126,.1)}
+.mh-live-shell button:focus-visible{outline-offset:3px}
+body .player-shell{background:linear-gradient(145deg,rgba(22,29,51,.94),rgba(10,14,27,.94));box-shadow:var(--shadow)}
+body .player-frame{border-radius:16px}
+body .apps-download,body .apps-download[data-unavailable=true]{border-radius:13px}
+body .footer .brand{color:var(--text)}
+@media(max-width:820px){.mh-live-shell{padding:18px}}
+@media(max-width:520px){.mh-episode-tag{font-size:8px}.mh-new-tag{right:8px}}
