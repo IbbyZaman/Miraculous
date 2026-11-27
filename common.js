@@ -665,7 +665,7 @@
     const end = new Date("2026-11-27T22:30:00+00:00").getTime();
     const style = document.createElement("style");
     style.textContent = `
-      #mh-maintenance-notice{position:fixed;z-index:99990;top:12px;left:50%;transform:translateX(-50%);width:min(680px,calc(100% - 24px));padding:13px 18px;border:1px solid rgba(140,170,255,.28);border-radius:15px;background:rgba(12,18,34,.96);color:#f5f7ff;box-shadow:0 12px 40px #0008;font:500 13px/1.5 system-ui,sans-serif;text-align:center;backdrop-filter:blur(16px)}
+      #mh-maintenance-notice{position:fixed;z-index:99990;top:auto;bottom:12px;left:50%;transform:translateX(-50%);width:min(680px,calc(100% - 24px));padding:13px 18px;border:1px solid rgba(140,170,255,.28);border-radius:15px;background:rgba(12,18,34,.96);color:#f5f7ff;box-shadow:0 12px 40px #0008;font:500 13px/1.5 system-ui,sans-serif;text-align:center;backdrop-filter:blur(16px);pointer-events:none}
       #mh-maintenance-notice strong{display:block;font-size:14px;letter-spacing:.04em}
       #mh-maintenance-notice span{color:#c1cbe2}
       #mh-maintenance-screen{position:fixed;inset:0;z-index:1000000;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 35%,#182b52 0%,#090e1b 55%,#05070c 100%);color:#f7f8ff;text-align:center;font-family:system-ui,sans-serif}
