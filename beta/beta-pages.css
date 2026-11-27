@@ -63,3 +63,16 @@ body.beta-trailer-watch .trailer-screen{border-radius:22px;border:1px solid #fff
 body.beta-trailer-watch .trailer-tools{background:#151929;border:1px solid #ffffff1c;border-radius:17px;padding:16px;margin-top:15px}
 body.beta-trailer-watch .trailer-comments{border:1px solid #ffffff24;background:#17192a;border-radius:21px;padding:20px}
 body.beta-trailer-watch .trailer-controls button:hover,body.beta-trailer-watch .trailer-controls button:focus-visible{background:#d43879}
+
+/* Beta pages — MiraculousHub cinematic system v2 */
+:root{--bg:#080a14;--panel:#131a2d;--line:rgba(226,231,255,.14);--pink:#ff477e;--violet:#a58cff;--text:#f7f8ff;--muted:#aeb7ca}
+html{scroll-behavior:smooth}body{font-family:Inter,system-ui,sans-serif;background:radial-gradient(ellipse at 10% 0%,rgba(255,71,126,.16),transparent 36%),radial-gradient(ellipse at 90% 10%,rgba(165,140,255,.14),transparent 36%),#080a14;color:var(--text)}
+.beta-nav,.beta-panel,.beta-card,.beta-hero,.beta-toolbar{border:1px solid var(--line)!important;border-radius:18px!important;background:rgba(17,22,40,.88)!important;box-shadow:0 18px 55px rgba(0,0,0,.28)}
+.beta-nav{backdrop-filter:blur(22px);padding:12px 16px}
+.beta-card{transition:transform .22s,border-color .22s,box-shadow .22s}
+.beta-card:hover{transform:translateY(-4px);border-color:rgba(255,120,160,.5)!important;box-shadow:0 24px 54px rgba(0,0,0,.35)}
+a{transition:color .2s,border-color .2s}a:hover{color:#ff9bb8}
+button,.beta-button{border-radius:11px;font-weight:800}
+input,select{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:11px;color:var(--text)}
+:focus-visible{outline:2px solid #ff8db0;outline-offset:3px}
+@media(max-width:650px){.beta-nav{padding:9px 11px}.beta-page{padding-inline:12px}}
