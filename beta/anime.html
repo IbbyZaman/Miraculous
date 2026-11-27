@@ -4,4 +4,5 @@ function render(){root.replaceChildren();list.replaceChildren();for(const show o
 const show=shows.find(s=>s.slug===selected);heading.textContent=show?show.title+" episodes":"Choose a series";if(!show)return;const q=filter.value.trim().toLowerCase();for(const e of show.episodes||[]){if(q&&!String(e.title||"").toLowerCase().includes(q)&&!String(e.episode).includes(q))continue;const a=document.createElement("a");a.className="beta-card";a.href="watch.html?anime="+encodeURIComponent(show.slug)+"&episode="+encodeURIComponent(e.episode);const art=document.createElement("div");art.className="beta-card-art";art.textContent="▶";const copy=document.createElement("div");copy.className="beta-card-copy";const title=document.createElement("strong");title.textContent=e.title||"Episode "+e.episode;const subtitle=document.createElement("small");subtitle.textContent=(e.group?e.group.toUpperCase()+" · ":"")+"EPISODE "+e.episode;copy.append(title,subtitle);a.append(art,copy);list.append(a)}if(!list.children.length)list.textContent="No matching episodes."}
 filter.addEventListener("input",render);render();
 })();
-</script></body></html>
+</script><script src="/maintenance.js?v=20261127-1"></script>
+</body></html>
