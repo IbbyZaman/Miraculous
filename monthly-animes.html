@@ -1,126 +1,59 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#05070c">
-<link rel="icon" type="image/png" href="favicon.png">
-<title>MiraculousHub — Monthly Animes</title>
-<link rel="stylesheet" href="styles.css?v=account-v4-1">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6K9W3X96EY"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-6K9W3X96EY');
-</script>
-<style>
-.anime-page{width:min(1180px,92vw);margin:0 auto;padding:54px 0 90px}
-.anime-hero{padding:44px 0 34px}
-.anime-hero .kicker{margin-bottom:10px}
-.anime-hero h1{font-size:clamp(42px,7vw,78px);letter-spacing:-.055em;line-height:.94;margin:0 0 16px}
-.anime-hero p{max-width:720px;color:var(--muted);line-height:1.7}
-.rean-search-section{margin:0 0 34px}.rean-search-form{max-width:760px}.rean-search-label{display:block;font-size:14px;font-weight:800;letter-spacing:.01em;margin-bottom:12px;color:var(--text)}.rean-search-controls{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--line);border-radius:18px;background:var(--panel);box-shadow:var(--shadow-soft)}.rean-search-icon{padding-left:10px;font-size:27px;line-height:1;color:var(--muted)}.rean-search-controls input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:var(--text);font:inherit;padding:12px 4px}.rean-search-controls input::placeholder{color:var(--muted2)}.rean-search-controls button{border:0;border-radius:12px;padding:13px 17px;background:var(--pink);color:#fff;font:inherit;font-weight:800;cursor:pointer;white-space:nowrap}.rean-search-controls button:hover{filter:brightness(1.08)}.rean-search-note{font-size:12px;color:var(--muted);margin:10px 2px 0;line-height:1.5}@media(max-width:480px){.rean-search-controls{gap:5px;padding:6px}.rean-search-controls button{padding:12px 10px;font-size:13px}.rean-search-controls input{font-size:14px}}
-.anime-library{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:24px}
-.anime-title-card{position:relative;min-height:350px;border-radius:28px;overflow:hidden;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.12);background:radial-gradient(circle at 70% 15%,rgba(255,255,255,.13),transparent 26%),linear-gradient(145deg,#13151f 0%,#0b0c12 45%,#1d0a10 100%);box-shadow:0 24px 70px rgba(0,0,0,.32);transition:transform .22s ease,border-color .22s ease}
-.anime-title-card:hover{transform:translateY(-5px);border-color:rgba(255,79,113,.55)}
-.anime-title-card:before{content:attr(data-title);position:absolute;right:-18px;top:34px;font-weight:950;font-size:74px;line-height:.78;letter-spacing:-.08em;writing-mode:vertical-rl;opacity:.055}
-.anime-card-body{position:absolute;inset:auto 0 0;padding:26px;background:linear-gradient(180deg,transparent,rgba(3,4,7,.97) 42%)}
-.anime-card-badge{display:inline-flex;padding:7px 10px;border-radius:999px;background:rgba(255,62,99,.13);border:1px solid rgba(255,84,119,.23);color:#ff7896;font-size:11px;font-weight:900;letter-spacing:.08em}
-.anime-title-card h2{font-size:36px;margin:14px 0 8px;letter-spacing:-.04em}
-.anime-title-card p{margin:0;color:#aeb3bf;line-height:1.55}
-.anime-card-meta{margin-top:18px;display:flex;justify-content:space-between;gap:12px;color:#ddd;font-size:13px;font-weight:800}
-.anime-coming{min-height:350px;border-radius:28px;border:1px dashed rgba(255,255,255,.10);display:grid;place-items:center;color:#676d79;text-align:center;padding:30px}
-@media(max-width:900px){.anime-library{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:620px){.anime-page{padding-top:24px}.anime-library{grid-template-columns:1fr}.anime-title-card{min-height:310px}}
-.anime-card-aot{background:radial-gradient(circle at 70% 15%,rgba(200,171,111,.17),transparent 32%),linear-gradient(145deg,#20281f,#0b100d 45%,#2d261c)}.anime-card-aot .anime-card-badge{color:#e0c891;background:rgba(186,158,97,.12);border-color:rgba(186,158,97,.3)}.anime-card-aot:hover{border-color:#bba471}.anime-card-bc{background:radial-gradient(circle at 70% 15%,rgba(100,205,126,.17),transparent 32%),linear-gradient(145deg,#17251b,#0a100c 45%,#10291a)}.anime-card-bc .anime-card-badge{color:#8de7a2;background:rgba(80,190,105,.12);border-color:rgba(80,190,105,.3)}.anime-card-bc:hover{border-color:#67c77e}
-.rean-search-status{font-size:13px;color:var(--muted);margin-top:14px}.rean-search-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.rean-result-card{display:flex;gap:12px;min-width:0;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--text);text-decoration:none;transition:transform .18s ease,border-color .18s ease}.rean-result-card:hover{transform:translateY(-2px);border-color:var(--pink)}.rean-result-poster{width:76px;min-width:76px;height:108px;object-fit:cover;border-radius:10px;background:rgba(128,128,128,.12)}.rean-result-copy{min-width:0;align-self:center}.rean-result-copy strong{display:block;font-size:14px;line-height:1.35;overflow-wrap:anywhere}.rean-result-copy span{display:block;color:var(--muted);font-size:12px;line-height:1.5;margin-top:6px}.rean-search-empty{grid-column:1/-1;padding:18px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:13px}@media(max-width:700px){.rean-search-results{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){.rean-search-results{grid-template-columns:1fr}.rean-result-poster{width:68px;min-width:68px;height:96px}}</style>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6247041702398337"
-     crossorigin="anonymous"></script>
-<link rel="stylesheet" href="redesign.css?v=20261127-1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080a14">
+  <meta name="description" content="Explore the Monthly Anime collection on MiraculousHub.">
+  <title>Monthly Anime — MiraculousHub</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="hub.css?v=20261127-2">
 </head>
 <body>
-<header class="topbar">
-  <a class="brand" href="index.html" aria-label="MiraculousHub home"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a>
-  <nav class="nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="season7.html">Season 7</a><a href="monthly-animes.html" class="active" aria-current="page">Animes</a><a href="live.html">Live</a><a href="app.html">Apps</a></nav>
-  <div class="actions"><button class="icon-btn" id="searchOpen" type="button" aria-label="Search">⌕</button><button class="theme-btn" id="themeToggle" type="button" aria-label="Toggle theme">☾</button><button class="lang-btn" id="languageButton" type="button">EN⌄</button><button class="signin" type="button">Sign in</button><a class="upload-link" href="upload.html">Upload</a><button class="menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false"><span></span><span></span><span></span></button></div>
+<header class="mh-topbar topbar">
+  <a class="brand" href="index.html"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></a>
+  <nav class="nav" aria-label="Main navigation"><a href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="season7.html">Season 7</a><a class="active" href="monthly-animes.html" aria-current="page">Anime</a><a href="live.html">Live</a><a href="app.html">Apps</a></nav>
+  <div class="actions"><button class="icon-btn" id="searchOpen" type="button" aria-label="Search">⌕</button><button class="theme-btn" id="themeToggle" type="button" aria-label="Toggle theme">☾</button><button class="signin" type="button">Sign in</button><button class="menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open navigation" aria-controls="mobileDrawer" aria-expanded="false"><span></span><span></span><span></span></button></div>
 </header>
-<div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div><aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation"><div class="mobile-drawer-head"><div><span class="mobile-drawer-kicker">MIRACULOUSHUB</span><strong>Explore</strong></div><button class="mobile-drawer-close" id="mobileDrawerClose" type="button" aria-label="Close navigation">×</button></div><nav class="mobile-nav-links" aria-label="Mobile navigation links"><a href="index.html"><span>01</span><b>Home</b><i>→</i></a><a href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a><a href="season7.html"><span>03</span><b>Season 7</b><i>→</i></a><a href="monthly-animes.html" class="active" aria-current="page"><span>04</span><b>Animes</b><i>→</i></a><a href="live.html"><span>05</span><b>Live</b><i>→</i></a><a href="app.html"><span>06</span><b>Apps</b><i>→</i></a><a href="upload.html"><span>07</span><b>Upload Centre</b><i>→</i></a></nav><div class="mobile-drawer-foot"><p>Stories, episodes and releases — all in one place.</p><button class="signin mobile-drawer-signin" type="button">Sign in</button></div></aside>
+<div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
+<aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true" aria-label="Mobile navigation"><div class="mobile-drawer-head"><div><span class="mobile-drawer-kicker">MIRACULOUSHUB</span><strong>Explore</strong></div><button class="mobile-drawer-close" id="mobileDrawerClose" type="button" aria-label="Close navigation">×</button></div><nav class="mobile-nav-links"><a href="index.html"><span>01</span><b>Home</b><i>→</i></a><a href="episodes.html"><span>02</span><b>Episodes</b><i>→</i></a><a href="season7.html"><span>03</span><b>Season 7</b><i>→</i></a><a class="active" href="monthly-animes.html"><span>04</span><b>Anime</b><i>→</i></a><a href="live.html"><span>05</span><b>Live</b><i>→</i></a><a href="app.html"><span>06</span><b>Apps</b><i>→</i></a><a href="upload.html"><span>07</span><b>Upload Centre</b><i>→</i></a></nav><div class="mobile-drawer-foot"><p>Another world to get lost in.</p><button class="signin mobile-drawer-signin" type="button">Sign in</button></div></aside>
 
+<main class="mh-page" data-view="anime">
+  <header class="mh-page-heading">
+    <div><p class="mh-eyebrow">A NEW WORLD TO EXPLORE</p><h1>The anime<br><span class="mh-gradient">collection.</span></h1><p>Three featured series, all connected to the MiraculousHub watch experience. Open a title to browse its episodes and pick up where you left off.</p></div>
+    <div class="mh-page-heading-side"><strong>03</strong><span>featured titles</span></div>
+  </header>
 
-<main class="anime-page">
-  <section class="anime-hero"><p class="kicker">MONTHLY COLLECTION</p><h1>Monthly Animes</h1><p>A rotating anime shelf alongside MiraculousHub. Choose Death Note, Attack on Titan or Black Clover. Resume your episodes, use fullscreen and AirPlay, or invite friends to a Watch Together party.</p></section>
-  <section class="rean-search-section" aria-label="Search English-dub anime">
-    <form class="rean-search-form" id="reanAnimeSearchForm">
-      <label class="rean-search-label" for="reanAnimeSearch">Search English-dub anime</label>
-      <div class="rean-search-controls"><span class="rean-search-icon" aria-hidden="true">⌕</span><input id="reanAnimeSearch" name="q" type="search" placeholder="Search anime title…" autocomplete="off" required><button type="submit">Search anime</button></div>
-      <p class="rean-search-note">Search results include English-dub status and open the anime details page.</p>
-      <div id="reanAnimeStatus" class="rean-search-status" role="status" aria-live="polite"></div>
-      <div id="reanAnimeResults" class="rean-search-results" aria-live="polite"></div>
+  <section class="mh-toolbar" aria-label="Search anime">
+    <form id="reanAnimeSearchFormV2">
+      <label class="mh-eyebrow" for="reanAnimeSearchV2">DISCOVER MORE ENGLISH-DUB ANIME</label>
+      <div class="mh-search-row"><input class="mh-search" id="reanAnimeSearchV2" type="search" placeholder="Search an anime title…" autocomplete="off"><button class="mh-button" type="submit">Search ↗</button></div>
+      <p id="reanAnimeStatusV2" style="margin:10px 2px 0;color:var(--muted);font-size:11px" role="status" aria-live="polite">Search results open on AniList so you can check the title details.</p>
+      <div class="mh-search-results" id="reanAnimeResultsV2"></div>
     </form>
   </section>
-  <section><div class="section-head"><div><p class="kicker">FEATURED THIS MONTH</p><h2>Choose a title</h2></div></div>
-    <div class="anime-library">
-      <a class="anime-title-card" data-title="DEATH NOTE" href="death-note.html"><div class="anime-card-body"><span class="anime-card-badge">MONTHLY ANIME</span><h2>Death Note</h2><p>37 episodes prepared and ready to connect automatically as you upload them to R2.</p><div class="anime-card-meta"><span>37 Episodes</span><span>Open series →</span></div></div></a>
-      <a class="anime-title-card anime-card-aot" data-title="ATTACK ON TITAN" href="attack-on-titan.html"><div class="anime-card-body"><span class="anime-card-badge">MONTHLY ANIME</span><h2>Attack on Titan</h2><p>Every season, the Final Chapters and bonus OADs. Invite your friends with Watch Together.</p><div class="anime-card-meta"><span>94 episodes + extras</span><span>Open series →</span></div></div></a>
-      <a class="anime-title-card anime-card-bc" data-title="BLACK CLOVER" href="black-clover.html"><div class="anime-card-body"><span class="anime-card-badge">MONTHLY ANIME</span><h2>Black Clover</h2><p>All 170 original-series episodes are wired for R2 uploads, playback progress and Watch Together.</p><div class="anime-card-meta"><span>170 Episodes</span><span>Open series →</span></div></div></a>
+
+  <section class="mh-section">
+    <div class="mh-section-head"><div><p>FEATURED ON THE HUB</p><h2>Choose your next series</h2></div></div>
+    <div class="mh-anime-grid">
+      <a class="mh-anime-card" data-mark="DN" href="death-note.html" style="--anime-bg:radial-gradient(260px 260px at 78% 15%,rgba(255,255,255,.18),transparent 60%),linear-gradient(145deg,#34364a,#171a28 58%,#0d101a);--anime-accent:#e9d1a1"><div class="mh-anime-card-body"><small>PSYCHOLOGICAL THRILLER</small><h2>Death Note</h2><p>A notebook with the power to change fate. Step into the complete 37-episode series.</p><span>37 episodes · Open series ↗</span></div></a>
+      <a class="mh-anime-card" data-mark="進撃" href="attack-on-titan.html" style="--anime-bg:radial-gradient(260px 260px at 78% 15%,rgba(224,181,113,.2),transparent 60%),linear-gradient(145deg,#343b34,#161e1b 58%,#0c100e);--anime-accent:#e6c58b"><div class="mh-anime-card-body"><small>DARK FANTASY</small><h2>Attack on Titan</h2><p>Humanity fights for survival beyond the walls. Series, Final Chapters and bonus OADs.</p><span>94 episodes + extras · Open series ↗</span></div></a>
+      <a class="mh-anime-card" data-mark="BC" href="black-clover.html" style="--anime-bg:radial-gradient(260px 260px at 78% 15%,rgba(103,223,141,.18),transparent 60%),linear-gradient(145deg,#233d32,#121e1a 58%,#0a100d);--anime-accent:#92eab0"><div class="mh-anime-card-body"><small>MAGIC & ADVENTURE</small><h2>Black Clover</h2><p>Follow Asta's journey from zero magic to a place among the Magic Knights.</p><span>170 episodes · Open series ↗</span></div></a>
+    </div>
+  </section>
+
+  <section class="mh-section">
+    <div class="mh-feature-grid">
+      <a class="mh-feature-card" href="episodes.html"><small>BACK TO MIRACULOUS</small><strong>Episode library</strong><span>Return to all Miraculous seasons →</span></a>
+      <a class="mh-feature-card" href="watch.html"><small>YOUR HISTORY</small><strong>Watch progress</strong><span>Sign in to sync progress across devices →</span></a>
+      <a class="mh-feature-card" href="live.html"><small>ON AIR</small><strong>Live broadcasts</strong><span>Visit the MiraculousHub live room →</span></a>
     </div>
   </section>
 </main>
-<footer class="footer"><div><div class="brand"><span class="brand-mark">M</span><span class="brand-text">MIRACULOUS<span>HUB</span></span></div><p style="color:var(--muted);font-size:9px;line-height:1.6;max-width:340px">Fan-made watch hub.</p></div><div class="footer-links"><div><b>EXPLORE</b><a href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="monthly-animes.html">Monthly Animes</a></div></div><p class="copyright">© 2026 MiraculousHub.</p></footer>
-<div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search episodes</h2><button class="close" id="searchCloseBtn">×</button></div><input id="searchInput" placeholder="Title, description, or episode code"><div class="results" id="searchResults"></div></div><div id="searchClose" style="position:fixed;inset:0;z-index:-1"></div></div>
-<div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button></div>
-<script src="data.js?v=s5-all-thumbnails-1"></script><script src="site-config.js?v=interruption-removed-20261031"></script><script src="season7-data.js?v=banner-fix-1"></script><script src="catalog.js?v=banner-fix-1"></script><script src="anime-data.js?v=aot-party-1"></script><script src="firebase.js?v=account-v4-1"></script><script src="common.js?v=maintenance-20261127-3"></script><script src="motion.js?v=nav-alignment-v4-1"></script>
 
-<script>
-(function(){
-  const form=document.getElementById('reanAnimeSearchForm');
-  if(!form)return;
-  const input=document.getElementById('reanAnimeSearch');
-  const status=document.getElementById('reanAnimeStatus');
-  const results=document.getElementById('reanAnimeResults');
-  const API='https://api.anidub.moe/v1/anime/search';
-  function render(items){
-    results.replaceChildren();
-    if(!items.length){results.innerHTML='<div class="rean-search-empty">No English-dub matches found for that title. Try another search.</div>';return;}
-    items.forEach(item=>{
-      const title=item.titleEnglish||item.titleRomaji||item.titleNative||'Untitled anime';
-      const card=document.createElement('a');
-      card.className='rean-result-card';card.href='https://anilist.co/anime/'+encodeURIComponent(item.anilistId);card.target='_blank';card.rel='noopener noreferrer';
-      if(item.coverImage){const img=document.createElement('img');img.className='rean-result-poster';img.src=item.coverImage;img.alt='';img.loading='lazy';card.appendChild(img);}
-      const copy=document.createElement('div');copy.className='rean-result-copy';
-      const name=document.createElement('strong');name.textContent=title;copy.appendChild(name);
-      const badge=document.createElement('span');
-      const dubStatus=item.dubStatus||'unknown';
-      if(dubStatus==='dubbed'){
-        const total=item.episodes, dubbed=item.dubbedEpisodes;
-        badge.textContent=(dubbed!=null&&total!=null&&dubbed<total)?'English dub · '+dubbed+'/'+total+' episodes':'English dub available';
-      }else if(dubStatus==='in_production')badge.textContent='English dub in production';
-      else if(dubStatus==='announced')badge.textContent='English dub announced';
-      else badge.textContent='English dub status unconfirmed';
-      copy.appendChild(badge);
-      const meta=document.createElement('span');meta.textContent=[item.seasonYear,item.format,item.studio].filter(Boolean).join(' · ');if(meta.textContent)copy.appendChild(meta);
-      const action=document.createElement('span');action.textContent='View anime details ↗';copy.appendChild(action);
-      card.appendChild(copy);results.appendChild(card);
-    });
-  }
-  form.addEventListener('submit',async function(event){
-    event.preventDefault();
-    const query=input.value.trim();if(query.length<2){status.textContent='Enter at least 2 characters.';return;}
-    status.textContent='Searching anime and checking English-dub status…';results.replaceChildren();
-    const button=form.querySelector('button[type="submit"]');button.disabled=true;
-    try{
-      const url=API+'?q='+encodeURIComponent(query)+'&limit=24&language=en&dubbed=any&adult=hide';
-      const response=await fetch(url,{headers:{Accept:'application/json'}});
-      if(!response.ok)throw new Error('API returned '+response.status);
-      const payload=await response.json();
-      const items=Array.isArray(payload.results)?payload.results:[];
-      render(items);status.textContent=items.length?'Showing English-dub matches. Dub completeness can vary by title.':'';
-    }catch(error){
-      status.textContent='The anime API could not be reached from this browser. Please try again later.';
-    }finally{button.disabled=false;}
-  });
-})();
-</script>
-</body></html>
+<footer class="mh-footer"><div>© 2026 MiraculousHub · Independent fan project.</div><div class="mh-footer-links"><a href="index.html">Home</a><a href="episodes.html">Episodes</a><a href="season7.html">Season 7</a><a href="live.html">Live</a></div></footer>
+<div class="modal" id="searchModal" hidden><div class="modal-box"><div class="modal-top"><h2>Search MiraculousHub</h2><button class="close" id="searchCloseBtn" type="button">×</button></div><input id="searchInput" placeholder="Search episodes…" autocomplete="off"><div class="results" id="searchResults"></div></div><button id="searchClose" aria-label="Close search" style="position:fixed;inset:0;z-index:-1"></button></div>
+<div class="lang-pop" id="languagePopover" hidden><button>ENGLISH</button><button>FRANÇAIS</button><button>ESPAÑOL</button></div>
+<script src="data.js?v=20261127-2"></script><script src="site-config.js?v=20261127-2"></script><script src="season7-data.js?v=20261127-2"></script><script src="catalog.js?v=20261127-2"></script><script src="anime-data.js?v=20261127-2"></script><script src="firebase.js?v=20261127-2"></script><script src="common.js?v=20261127-2"></script><script src="hub.js?v=20261127-2"></script>
+</body>
+</html>
