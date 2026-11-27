@@ -4,4 +4,5 @@ const make=(e)=>{const a=document.createElement("a");a.className="beta-card";a.h
 function render(){const all=(window.MH_EPISODES||[]).filter(e=>e.available!==false&&Number(e.season)>=1&&Number(e.episode)>=1);tabs.replaceChildren();for(let n=1;n<=7;n++){const b=document.createElement("button");b.type="button";b.className="beta-chip";b.textContent="Season "+n;b.setAttribute("aria-pressed",String(n===season));b.onclick=()=>{season=n;history.replaceState(null,"","?season="+n);render()};tabs.append(b)}grid.replaceChildren();const search=query.value.trim().toLowerCase();const result=all.filter(e=>e.season===season&&(!search||(e.title||"").toLowerCase().includes(search)||String(e.episode).includes(search))).sort((a,b)=>a.episode-b.episode);count.textContent=result.length+" episodes in Season "+season;for(const e of result)grid.append(make(e));if(!result.length){const empty=document.createElement("p");empty.className="beta-empty";empty.textContent="No episodes match this season and search.";grid.append(empty)}}
 query.addEventListener("input",render);render();Promise.resolve(window.MH_CATALOG_READY).then(render).catch(()=>render());
 })();
-</script></body></html>
+</script><script src="/maintenance.js?v=20261127-1"></script>
+</body></html>
