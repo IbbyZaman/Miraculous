@@ -49,13 +49,19 @@
     if (ep.special || ep.season === "Special") return "SPECIAL " + ep.episode;
     return "S" + String(ep.season).padStart(2,"0") + "E" + String(ep.episode).padStart(2,"0");
   }
+  function fallbackArtwork(ep, code=episodeCode(ep)) {
+    const seasonLabel = ep.season === "Special" ? "SPECIAL COLLECTION" : "SEASON " + String(ep.season || 1);
+    return '<div class="mh-art-fallback"><span class="mh-art-kicker">MIRACULOUS HUB · ' + esc(seasonLabel) + '</span><strong>' +
+      esc(code) + '</strong><small>' + esc(ep.title || "Episode") + '</small></div>';
+  }
   function renderEpisodeCard(ep, progressItem=null) {
     const image = safeImage(ep.thumbnail);
     const code = episodeCode(ep);
     const percent = progressItem ? Math.max(0,Math.min(100,Number(progressItem.progress) || (Number(progressItem.duration) > 0 ? Number(progressItem.position)/Number(progressItem.duration)*100 : 0))) : 0;
     const upcoming = ep.available === false;
     return '<a class="mh-episode-card" href="' + episodeHref(ep) + '">' +
-      '<div class="mh-episode-art">' + (image ? '<img src="' + esc(image) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">' : '<span class="mh-art-initial">M</span>') +
+      '<div class="mh-episode-art" data-season="' + esc(ep.season || "1") + '">' +
+      (image ? '<img src="' + esc(image) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">' : fallbackArtwork(ep, code)) +
       '<span class="mh-episode-tag">' + esc(code) + '</span>' +
       (ep.new ? '<span class="mh-episode-tag mh-new-tag">NEW</span>' : '') +
       '<span class="mh-episode-play">' + (upcoming ? "⌛" : "▶") + '</span></div>' +
@@ -91,8 +97,8 @@
         (item.specialSlug ? "watch.html?special=" + item.episode : "watch.html?season=" + item.season + "&episode=" + item.episode);
       const percent = Number(item.progress) || (Number(item.duration) > 0 ? Number(item.position)/Number(item.duration)*100 : 0);
       const image = safeImage(row.thumbnail);
-      return '<a class="mh-episode-card" href="' + href + '"><div class="mh-episode-art">' +
-        (image ? '<img src="' + esc(image) + '" alt="" loading="lazy">' : '<span class="mh-art-initial">M</span>') +
+      return '<a class="mh-episode-card" href="' + href + '"><div class="mh-episode-art" data-season="' + esc(row.season || "1") + '">' +
+        (image ? '<img src="' + esc(image) + '" alt="" loading="lazy">' : fallbackArtwork(row, anime ? "EP " + item.episode : episodeCode(row))) +
         '<span class="mh-episode-tag">RESUME</span><span class="mh-episode-play">▶</span></div>' +
         '<div class="mh-progress"><span style="width:' + Math.max(2,Math.min(100,percent)).toFixed(1) + '%"></span></div>' +
         '<div class="mh-episode-copy"><small>CONTINUE WATCHING</small><strong>' + esc(row.title) + '</strong><span>' +
