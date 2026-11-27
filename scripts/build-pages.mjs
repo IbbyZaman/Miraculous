@@ -46,11 +46,11 @@ function shouldSkipFile(name) {
   const lower = name.toLowerCase();
 
   if (skipNames.has(name)) return true;
-  if (/^wrangler.*\\.toml$/.test(lower)) return true;
-  if (/^cloudflare-.*worker.*\\.js$/.test(lower)) return true;
+  if (/^wrangler.*\.toml$/.test(lower)) return true;
+  if (/^cloudflare-.*worker.*\.js$/.test(lower)) return true;
   if (/service[-_]?account|private[-_]?key|credentials/i.test(name)) return true;
-  if (/\\.(?:md|txt|toml|log|map|pem|key|crt|p12|pfx)$/i.test(name)) return true;
-  if (/^\\.env(?:\\.|$)/i.test(name) || lower === ".dev.vars") return true;
+  if (/\.(?:md|txt|toml|log|map|pem|key|crt|p12|pfx)$/i.test(name)) return true;
+  if (/^\.env(?:\.|$)/i.test(name) || lower === ".dev.vars") return true;
 
   return false;
 }
