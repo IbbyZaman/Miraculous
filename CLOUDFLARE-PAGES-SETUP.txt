@@ -25,8 +25,8 @@ In Cloudflare Dashboard:
 2. Authorise GitHub and select IbbyZaman/Miraculous.
 3. Set the production branch to main. Keep cloudflare-pages-redesign as a non-production branch so Pages publishes it as a preview deployment.
 4. Framework preset: None.
-5. Build command: exit 0 (or leave blank for no build step).
-6. Build output directory: .
+5. Build command: npm run build:pages.
+6. Build output directory: dist.
 7. Root directory: / (the repository root).
 8. Save and deploy.
 
@@ -65,3 +65,15 @@ This repository remains the source code repository on GitHub. Cloudflare Pages i
 the new hosting/deployment target; the source is not copied out of GitHub.
 After testing, make cloudflare-pages-redesign the production branch (or merge it
 into main) when you are ready to make the redesign the public version.
+
+
+ASSET SIZE CHECK
+----------------
+Cloudflare Pages has a 25 MiB maximum for each individual static asset. The build script
+prints a warning when any copied file exceeds that limit. The site's videos should remain
+in R2; move any oversized app download to R2 and update its page link before deploying.
+
+PREVIEW AUTHENTICATION
+----------------------
+To test sign-in on the *.pages.dev preview, add that exact preview hostname to Firebase
+Authentication's authorised domains. Remove it later if you no longer need the preview.
