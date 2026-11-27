@@ -10,3 +10,101 @@
 
 /* Prominent live action shown when a release countdown reaches zero. */
 .s7-live-now{display:inline-flex;align-items:center;justify-content:center;width:max-content;margin-top:10px;padding:8px 12px;border-radius:10px;background:linear-gradient(110deg,#ff4f88,#a72eff);color:#fff!important;font-size:12px;font-weight:800;text-decoration:none;box-shadow:0 5px 18px #ff4f8830}.s7-live-now:hover{filter:brightness(1.1);transform:translateY(-1px)}
+
+
+/* MiraculousHub Cloudflare Pages — homepage hero polish */
+.home-intro{
+  width:min(1460px,calc(100% - 36px));
+  margin:18px auto 0;
+  grid-template-columns:minmax(0,1.55fr) minmax(285px,.72fr);
+  gap:18px;
+  height:auto;
+  align-items:stretch;
+}
+.home-banner{
+  min-height:620px;height:auto;
+  border-radius:27px;
+  border:1px solid rgba(255,255,255,.12);
+  background:#0b0d16;
+  box-shadow:0 28px 88px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.08);
+}
+.home-banner .main-poster{object-position:58% 34%;filter:saturate(1.06) contrast(1.025)}
+.home-banner::after{
+  background:
+    linear-gradient(90deg,rgba(5,6,12,.3),transparent 72%),
+    linear-gradient(180deg,rgba(4,5,11,.04) 0%,rgba(4,5,11,.12) 27%,rgba(4,5,11,.68) 58%,rgba(4,5,11,.96) 100%);
+}
+.home-banner-copy{
+  min-height:620px;height:auto;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:clamp(28px,4.4vw,58px);
+}
+.home-banner-copy .kicker{font-size:10px;letter-spacing:.23em;color:#ffc0d0}
+.home-banner h1{font-size:clamp(40px,4.5vw,66px);letter-spacing:-.065em;line-height:.99}
+.home-banner h1 span{
+  color:transparent;
+  background:linear-gradient(90deg,#ff9bb4 4%,#ff5a88 52%,#c1a0ff 100%);
+  -webkit-background-clip:text;background-clip:text;
+}
+.home-banner h2{font-size:20px;letter-spacing:-.02em}
+.home-banner-synopsis{max-width:620px;font-size:14px;line-height:1.75;color:rgba(245,244,250,.82)}
+.home-banner .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:23px}
+.home-banner .hero-actions a{
+  min-height:47px;padding:0 18px;border-radius:13px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:850;transition:transform .2s ease,filter .2s ease,border-color .2s ease;
+}
+.home-banner .hero-actions a.primary{
+  background:linear-gradient(110deg,#f04472,#c13f96 58%,#8669f3);
+  box-shadow:0 12px 28px rgba(229,57,116,.22),inset 0 1px 0 rgba(255,255,255,.2);
+}
+.home-banner .hero-actions a.secondary{
+  color:#fff;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.075);backdrop-filter:blur(14px);
+}
+.home-banner .hero-actions a:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.home-timer-panel{
+  max-height:620px;height:100%;
+  padding:22px;border-radius:24px;
+  border:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(150deg,rgba(21,23,36,.93),rgba(10,12,21,.96));
+  box-shadow:0 22px 65px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.055);
+  backdrop-filter:blur(22px);
+}
+.home-timer-heading h2{font-size:24px;letter-spacing:-.045em}
+.home-timer-panel .s7-release-card{
+  border-radius:15px;border:1px solid rgba(255,255,255,.07);
+  border-left:3px solid #f04b7e;
+  background:rgba(255,255,255,.035);
+  padding:14px;
+}
+.home-timer-panel .s7-release-card small{color:#ff8eac}
+.home-timer-panel .s7-release-card h3{font-size:15px;letter-spacing:-.02em}
+.home-timer-panel .s7-release-card p{font-size:11px}
+.home-timer-panel .s7-release-card .s7-countdown{font-size:17px;color:#fff}
+.home-timer-note{font-size:12px;line-height:1.7}
+@media(min-width:951px){
+  .home-intro{height:auto;min-height:620px;align-items:stretch}
+  .home-banner,.home-banner-copy{height:auto;min-height:620px}
+  .home-timer-panel{height:620px;max-height:620px}
+}
+@media(max-width:950px){
+  .home-intro{width:calc(100% - 28px);height:auto;grid-template-columns:1fr}
+  .home-banner{min-height:560px}
+  .home-banner-copy{min-height:560px;padding:250px 30px 30px;display:block}
+  .home-timer-panel{height:auto;max-height:none}
+  .home-timer-panel .s7-release-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .home-intro{width:calc(100% - 20px);margin-top:10px;gap:13px}
+  .home-banner{min-height:0;border-radius:22px}
+  .home-banner .main-poster{object-position:62% 30%}
+  .home-banner-copy{min-height:0;padding:220px 19px 22px}
+  .home-banner h1{font-size:clamp(31px,9vw,42px)}
+  .home-banner h2{font-size:17px}
+  .home-banner-synopsis{font-size:12px}
+  .home-banner .hero-actions{display:grid;grid-template-columns:1fr}
+  .home-banner .hero-actions a{width:100%}
+  .home-timer-panel{padding:17px;border-radius:21px}
+  .home-timer-panel .s7-release-grid{grid-template-columns:1fr}
+}
